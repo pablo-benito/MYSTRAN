@@ -11,6 +11,9 @@
 	ignore = all
 	update = checkout
 	branch = master
-[submodule "METIS"]
-	path = METIS
+[submodule "metis/GKlib"]
+	path = metis/GKlib
+	url = https://github.com/KarypisLab/GKlib.git
+[submodule "metis/METIS"]
+	path = metis/METIS
 	url = https://github.com/KarypisLab/METIS.git
