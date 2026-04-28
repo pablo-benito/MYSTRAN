@@ -79,8 +79,9 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 endif()
 
 set(SUPERLU_DIR "${PROJECT_SOURCE_DIR}/superlu")
+set(SUPERLU_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_patches")
 set(SUPERLU_MT_DIR "${PROJECT_SOURCE_DIR}/superlu_mt")
-set(SUPERLU_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_mt_patches")
+set(SUPERLU_MT_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_mt_patches")
 set(METIS_DIR "${PROJECT_SOURCE_DIR}/metis/METIS")
 set(GKLIB_DIR "${PROJECT_SOURCE_DIR}/metis/GKlib")
 set(METIS_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/metis_patches")
@@ -122,6 +123,22 @@ if(TPL_ENABLE_METISLIB)
 
   set(TPL_METIS_LIBRARIES "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libmetis.a;${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libGKlib.a" CACHE STRING "METIS static libraries" FORCE)
   set(TPL_METIS_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/metis/METIS/include" CACHE PATH "METIS include directory" FORCE)
+
+  message(STATUS "Applying patches to SUPERLU...")
+  file(GLOB_RECURSE SUPERLU_PATCH_FILES RELATIVE "${SUPERLU_PATCHES_DIR}" "${SUPERLU_PATCHES_DIR}/*")
+
+  foreach(file IN LISTS SUPERLU_PATCH_FILES)
+    set(src "${SUPERLU_PATCHES_DIR}/${file}")
+    set(dst "${SUPERLU_DIR}/${file}")
+
+    get_filename_component(dst_dir "${dst}" DIRECTORY)
+    file(MAKE_DIRECTORY "${dst_dir}")
+
+    message(STATUS "  Patching: ${file}")
+    file(COPY "${src}" DESTINATION "${dst_dir}")
+  endforeach()
+
+  message(STATUS "SUPERLU patched for METIS")
 endif()
 
 set(enable_examples OFF FORCE)
@@ -132,10 +149,10 @@ if(USE_SUPERLU_MT)
   message(STATUS "Will link against faster SuperLU_MT.")
   set(PLAT "_OPENMP" CACHE STRING "threading flavor _PTHREAD/_OPENMP" FORCE)
   message(STATUS "Applying patches to SuperLU_MT...")
-  file(GLOB_RECURSE PATCH_FILES RELATIVE "${SUPERLU_PATCHES_DIR}" "${SUPERLU_PATCHES_DIR}/*")
+  file(GLOB_RECURSE PATCH_FILES RELATIVE "${SUPERLU_MT_PATCHES_DIR}" "${SUPERLU_MT_PATCHES_DIR}/*")
 
   foreach(file IN LISTS PATCH_FILES)
-    set(src "${SUPERLU_PATCHES_DIR}/${file}")
+    set(src "${SUPERLU_MT_PATCHES_DIR}/${file}")
     set(dst "${SUPERLU_MT_DIR}/${file}")
 
     # ensure the destination directory exists
