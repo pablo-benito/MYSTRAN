@@ -11,3 +11,6 @@
 	ignore = all
 	update = checkout
 	branch = master
+[submodule "METIS"]
+	path = METIS
+	url = https://github.com/KarypisLab/METIS.git
