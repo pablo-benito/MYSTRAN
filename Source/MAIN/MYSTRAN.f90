@@ -117,6 +117,8 @@
       REAL(DOUBLE)                    :: TIME_END           ! Time job is ended
       REAL(DOUBLE)                    :: TIME_START         ! Time job is started
       REAL(DOUBLE) , ALLOCATABLE      :: UG_NORM(:,:)       ! Norm of UG_COL vector
+      CHARACTER(LEN=LEN(INFILE))      :: ARG1               ! First argument. Used to check for --notice
+      INTEGER(LONG)                   :: NC_ARG1            ! Number of characters in ARG1.
 
 ! **********************************************************************************************************************************
       EPS1 = EPSIL(1)
@@ -136,13 +138,25 @@
 
       CALL TIME_INIT
 
-! Read data in initialization file, MYSTRAN.INI, if it exists.
-
-      CALL READ_INI ( INI_EXIST )
-
 ! Write logo and copyright notice to screen. Then write MYSTRAN start time/date
 
       WRITE(SC1,117) PROG_NAME, MYSTRAN_VER_NUM, MYSTRAN_VER_MONTH, MYSTRAN_VER_DAY, MYSTRAN_VER_YEAR, MYSTRAN_AUTHOR
+
+! Check for --notice and --licenses
+
+      CALL READ_CL (ARG1, NC_ARG1)
+      IF (NC_ARG1 == 9 .AND. ARG1(1:9) == "--version") THEN
+         CALL PRINT_BUILD_INFO (.FALSE.)
+         STOP
+      END IF
+      IF (NC_ARG1 == 10 .AND. ARG1(1:10) == "--licenses") THEN
+         CALL PRINT_BUILD_INFO (.TRUE.)
+         STOP
+      END IF
+
+! Read data in initialization file, MYSTRAN.INI, if it exists.
+
+      CALL READ_INI ( INI_EXIST )
 
       CALL OURTIM
       CALL OURDAT
@@ -160,6 +174,9 @@
 ! Read input data filename (from command line) and calc LEN_INPUT_FNAME.
 
       CALL READ_INPUT_FILE_NAME ( INI_EXIST )
+
+
+
       IF (RESTART == 'N') THEN
          LEN_RESTART_FNAME = LEN_INPUT_FNAME
       ENDIF
@@ -436,7 +453,7 @@ iters:      DO
 
   111 FORMAT(/' Initialization file ',A,' does not exist. internal defaults will be used',/)
 
-  117 FORMAT(/,1X,A,' Version',5(1X,A))
+  117 FORMAT(1X,A,' Version',5(1X,A))
 
   150 FORMAT(/,' >> MYSTRAN BEGIN  : ',I2,'/',I2,'/',I4,' at ',I2,':',I2,':',I2,'.',I3,'. The input file is:')
 
