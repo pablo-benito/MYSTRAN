@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE QMEM1 ( OPT, INT_ELEM_ID, IORD, RED_INT_SHEAR, AREA, XSD, YSD, BIG_BM )
- 
+
 ! Isoparametric membrane quadrilateral. Default iorq1s = 1 gives reduced integration for shear terms. User can override
 ! this with Bulk Data PARAM iorq1s 2. Element can be nonplanar. HBAR is the dist that the nodes are away from the mean
 ! plane (+/-). If HBAR is small, the virgin element has 8 DOF (2 displ DOF's/node) and is expanded to MYSTRAN 24 DOF
@@ -39,7 +39,7 @@
 !  3) KE        = element linea stiffness matrix       , if OPT(4) = 'Y'
 !  4) PPE       = element pressure load matrix         , if OPT(5) = 'Y'
 !  5) KED       = element differen stiff matrix calc   , if OPT(6) = 'Y' = 'Y'
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MAX_ORDER_GAUSS, MAX_STRESS_POINTS, MEFE, NSUB, NTSUB,           &
@@ -52,11 +52,11 @@
                                          SE1, STE1, SHELL_AALP, SHELL_A, TREF, TYPE, FCONV, STRESS, NUM_PLIES, INTL_PID, TPLY,     &
                                          EPROP, PLY_NUM
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE QMEM1_USE_IFs
 
-      IMPLICIT NONE 
-  
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'QMEM1'
       CHARACTER(1*BYTE) , INTENT(IN)  :: OPT(6)            ! 'Y'/'N' flags for whether to calc certain elem matrices
       CHARACTER( 1*BYTE), INTENT(IN)  :: RED_INT_SHEAR     ! If 'Y', use Gaussian weighted average of B matrices for shear terms
@@ -88,13 +88,13 @@
                                                      19, & ! ID2(10)= 19 means expand 12x12 elem DOF 10 is MYSTRAN 24X24 elem DOF 19
                                                      20, & ! ID2(11)= 20 means expand 12x12 elem DOF 11 is MYSTRAN 24X24 elem DOF 20
                                                      21 /) ! ID2(12)= 21 means expand 12x12 elem DOF 12 is MYSTRAN 24X24 elem DOF 21
- 
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! Do not change IORD_STRESS_Q4. The algorithm to find Gauss point coords in elem x,y space requires there to be the same number of
 ! shape functions and Gauss points as elem nodes.
 
       INTEGER(LONG), PARAMETER        :: IORD_STRESS_Q4 = 2! Gauss integration order for stress/strain recovery matrices
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       INTEGER(LONG), PARAMETER        :: NUM_NODES = 4     ! Quad has 4 nodes
                                                            ! Indicator of no output of elem data to BUG file
 
@@ -117,13 +117,13 @@
       REAL(DOUBLE)                    :: DETJ(IORD*IORD)   ! Determinant of JAC for all Gauss points
       REAL(DOUBLE)                    :: DPSHG(2,4)        ! Output from subr SHP2DQ. Derivatives of PSH wrt elem isopar coords.
       REAL(DOUBLE)                    :: DPSHX(2,4)        ! Derivatives of PSH wrt elem x, y coords.
-      REAL(DOUBLE)                    :: DUM1(3,8)         ! Intermediate matrix used in solving for KE stiffness matrix       
-      REAL(DOUBLE)                    :: DUM2(8,8)         ! Intermediate matrix used in solving for KE stiffness matrix     
+      REAL(DOUBLE)                    :: DUM1(3,8)         ! Intermediate matrix used in solving for KE stiffness matrix
+      REAL(DOUBLE)                    :: DUM2(8,8)         ! Intermediate matrix used in solving for KE stiffness matrix
       REAL(DOUBLE)                    :: DUM3(8)           ! Intermediate matrix used in solving for PTE thermal loads
       REAL(DOUBLE)                    :: DUM4(8)           ! Intermediate matrix used in solving for PTE thermal loads
       REAL(DOUBLE)                    :: DUM5(8,8)         ! Intermediate matrix used in solving for KE stiffness matrix
-      REAL(DOUBLE)                    :: DUM6(12,8)        ! Intermediate matrix used in solving for KE stiffness matrix     
-      REAL(DOUBLE)                    :: DUM7(12,12)       ! Intermediate matrix used in solving for KE stiffness matrix     
+      REAL(DOUBLE)                    :: DUM6(12,8)        ! Intermediate matrix used in solving for KE stiffness matrix
+      REAL(DOUBLE)                    :: DUM7(12,12)       ! Intermediate matrix used in solving for KE stiffness matrix
       REAL(DOUBLE)                    :: DUM8(12)          ! Intermediate matrix used in solving for PTE thermal loads
       REAL(DOUBLE)                    :: DUM9(3,8)         ! Intermediate matrix used in solving for SEi stress recovery matrices
       REAL(DOUBLE)                    :: DUM10(2,8)        ! Intermediate matrix used in solving for PPE matrices
@@ -150,7 +150,7 @@
                                                            ! An output from subr ORDER, called herein. Gauss abscissa's.
       REAL(DOUBLE)                    :: SUMB              ! An intermediate variable used in calc B matrix for reduced integration
       REAL(DOUBLE)                    :: SUMD              ! An intermediate variable used in calc B matrix for reduced integration
-      REAL(DOUBLE)                    :: TBAR              ! Average elem temperature 
+      REAL(DOUBLE)                    :: TBAR              ! Average elem temperature
 
 
 
@@ -199,14 +199,14 @@
       ENDIF
 
 ! **********************************************************************************************************************************
-! Calculate element thermal loads. 
-  
+! Calculate element thermal loads.
+
       IF (OPT(2) == 'Y') THEN
          CALL ORDER_GAUSS ( IORD, SSS, HHH )
-  
+
          DO K=1,8
             DUM3(K) = ZERO
-         ENDDO 
+         ENDDO
 
          GAUSS_PT = 0
          IORD_MSG = 'for in-plane direct strains        = '
@@ -222,34 +222,34 @@
                INTFAC = DETJ(GAUSS_PT)*HHH(I)*HHH(J)
                DO K=1,8
                   DUM3(K) = DUM3(K) + DUM4(K)*INTFAC
-               ENDDO 
-            ENDDO   
+               ENDDO
+            ENDDO
          ENDDO
-  
+
          IF ((DABS(HBAR) > MXWARP) .AND. (DEBUG(4) ==  0)) THEN
             CALL MATMULT_FFF_T ( BMEANT, DUM3, 8, 12, 1, DUM8 )
             DO J=1,NTSUB
                TBAR = (DT(1,J) + DT(2,J) + DT(3,J) + DT(4,J))/FOUR
                DO K=1,12
                   PTE(ID2(K),J) = DUM8(K)*(TBAR - TREF(1))
-               ENDDO 
-            ENDDO 
+               ENDDO
+            ENDDO
          ELSE
             DO J=1,NTSUB
                TBAR = (DT(1,J) + DT(2,J) + DT(3,J) + DT(4,J))/FOUR
                DO K=1,8
                   PTE(ID1(K),J) = DUM3(K)*(TBAR - TREF(1))
-               ENDDO 
-            ENDDO   
+               ENDDO
+            ENDDO
          ENDIF
-      
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate BE1, SE1 matrix (3 x 24) for strain/stress data recovery. All calculated at center of element/ply
 ! Note: strain/stress recovery matrices only make sense for individual plies (or whole elem if only 1 "ply") so this section of
 ! code uses EM and ALPVEC rather than SHELL_AALP
- 
+
       IF (OPT(3) == 'Y') THEN
 
          IORD_MSG = 'for in-plane direct strains                 = '
@@ -262,8 +262,8 @@
          DO I=1,3                                          ! Strain-displ matrix
             DO J=1,8
                BE1(I,ID1(J),1) = BI(I,J)
-            ENDDO 
-         ENDDO   
+            ENDDO
+         ENDDO
 
 ! SE1, STE1 generated in elem coords. Then, in LINK9 the stresses, calc'd in elem coords, will be transformed to ply coords
 
@@ -271,7 +271,7 @@
          DO I=1,3
             DO J=1,8
                SE1(I,ID1(J),1) = DUM9(I,J)
-            ENDDO 
+            ENDDO
          ENDDO
 
          ALP(1) = ALPVEC(1,1)
@@ -284,12 +284,12 @@
             DO I=1,3
                STE1(I,J,1) = EALP(I)*(TBAR - TREF(1))
             ENDDO
-         ENDDO   
-      
-  
+         ENDDO
 
-      ENDIF  
-  
+
+
+      ENDIF
+
 ! Generate BE1, SE1 for the stress recovery Gauss points (order IORD_STRESS_Q4). Put them into arrays BE1(i,j,k) and SE1(i,j,k)
 ! at i indices 2 through IORD_STRESS_Q4*IORD_STRESS_Q4 since index 1 is for center point stress/strain matrices.
 ! First make sure we dimensioned BEi/SEi large enough
@@ -326,7 +326,7 @@
             DO L=1,3
                DO M=1,2*ELGP
                   SE1(L,ID1(M),GAUSS_PT+1) = DUM9(L,M)
-               ENDDO 
+               ENDDO
             ENDDO
 
          ENDDO
@@ -335,16 +335,16 @@
 
 ! **********************************************************************************************************************************
 ! Calculate element stiffness matrix KE.
- 
+
       IF(OPT(4) == 'Y') THEN
          DO I=1,8
             DO J=1,8
                DUM5(I,J) = ZERO
-            ENDDO 
-         ENDDO   
- 
+            ENDDO
+         ENDDO
+
          CALL ORDER_GAUSS ( IORD, SSS, HHH )
-  
+
          GAUSS_PT = 0
          IORD_MSG = 'for in-plane direct strains        = '
          DO I=1,IORD
@@ -362,10 +362,10 @@
                DO K=1,8
                   DO L=1,8
                      DUM5(K,L) = DUM5(K,L) + DUM2(K,L)*INTFAC
-                  ENDDO 
-               ENDDO   
-            ENDDO 
-         ENDDO   
+                  ENDDO
+               ENDDO
+            ENDDO
+         ENDDO
 
          IF ((DABS(HBAR) > MXWARP) .AND. (DEBUG(4) == 0)) THEN
             CALL MATMULT_FFF_T ( BMEANT, DUM5, 8, 12, 8, DUM6 )
@@ -373,30 +373,30 @@
             DO I=1,12
                DO J=1,12
                   KE(ID2(I),ID2(J)) = KE(ID2(I),ID2(J)) + DUM7(I,J)
-               ENDDO   
-            ENDDO 
+               ENDDO
+            ENDDO
          ELSE
             DO I=1,8
                DO J=1,8
                   KE(ID1(I),ID1(J)) = DUM5(I,J)
-               ENDDO   
-            ENDDO 
+               ENDDO
+            ENDDO
          ENDIF
-  
+
          IF (DEBUG(18) > 0) THEN
             CALL QMEM1_RB_STRAIN_ENERGY
          ENDIF
 
 ! Set lower triangular portion of KE equal to upper portion
-  
+
          DO I=2,24
             DO J=1,I-1
                KE(I,J) = KE(J,I)
-            ENDDO 
-         ENDDO 
-  
+            ENDDO
+         ENDDO
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! If element is a composite and if it is a nonsym layup we need to calc BIG_BM for later use
 
@@ -428,25 +428,25 @@
                   DO L=1,3
                      DO M=1,12
                         BIG_BM(L,ID2(M),GAUSS_PT) = BIT(L,M)
-                     ENDDO   
-                  ENDDO 
+                     ENDDO
+                  ENDDO
                ELSE
                   DO L=1,3
                      DO M=1,8
                         BIG_BM(L,ID1(M),GAUSS_PT) = BI(L,M)
-                     ENDDO   
-                  ENDDO 
+                     ENDDO
+                  ENDDO
                ENDIF
 
             ENDDO
 
-         ENDDO  
+         ENDDO
 
       ENDIF
 
 ! **********************************************************************************************************************************
-! Determine element pressure loads   
-  
+! Determine element pressure loads
+
       IF (OPT(5) == 'Y') THEN
          IF (DEBUG(16) == 0) THEN                          ! Generate PPE as work equilavent loads
 
@@ -463,12 +463,12 @@
             ENDDO
 
             CALL ORDER_GAUSS ( IORD, SSS, HHH )
-  
+
             DO I=1,2
                DO J=1,8
                   DUM10(I,J) = ZERO
                ENDDO
-            ENDDO   
+            ENDDO
 
             GAUSS_PT = 0
             IORD_MSG = 'for in-plane direct strains,     input IORD = '
@@ -490,16 +490,16 @@
                      DO L=1,8
                         DUM10(K,L) = DUM10(K,L) + INTFAC*NBAR(K,L)
                      ENDDO
-                  ENDDO 
-               ENDDO 
-            ENDDO   
-  
+                  ENDDO
+               ENDDO
+            ENDDO
+
             CALL MATMULT_FFF_T ( DUM10, QLOAD, 2, 8, NSUB, PQ )
-            
+
             DO I=1,8
                DO J=1,NSUB
                   PPE(ID1(I),J) = PQ(I,J)
-               ENDDO 
+               ENDDO
             ENDDO
 
          ELSE                                              ! Generate PPE as static equilavent loads
@@ -513,15 +513,15 @@
                PPE(14,J) = AREA*PRESS(2,J)/FOUR
                PPE(19,J) = AREA*PRESS(1,J)/FOUR
                PPE(20,J) = AREA*PRESS(2,J)/FOUR
-            ENDDO 
-  
+            ENDDO
+
          ENDIF
-          
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate linear differential stiffness matrix
-  
+
       IF ((OPT(6) == 'Y') .AND. (LOAD_ISTEP > 1)) THEN
 
         ! Things not tested or properly coded for differential stiffness matrix yet:
@@ -540,7 +540,7 @@
         ENDDO
 
         CALL GET_ELEM_NUM_PLIES ( INT_ELEM_ID )            ! Get NUM_PLIES
- 
+
         DO JPLY=1,NUM_PLIES
                                                            ! Get UEL, EM, TPLY for this ply.
           IF (PCOMP_PROPS == 'N') THEN
@@ -551,7 +551,7 @@
 
           ELSE
 
-                                                           
+
             IF (PCOMP_LAM == 'NON') THEN                   ! Delete this IF block to allow the LAM field set to nonsymmetric.
               FATAL_ERR          = FATAL_ERR + 1
               NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
@@ -573,13 +573,13 @@
               GAUSS_PT = GAUSS_PT + 1
 
               CALL ELEM_STRE_STRN_ARRAYS ( GAUSS_PT+1 )    ! Stress at this Gauss point using UEL, BE1, EM, ALPVEC, DT
-                                                             
+
               FORCEx(GAUSS_PT)  = FORCEx(GAUSS_PT)  + TPLY*STRESS(1)
               FORCEy(GAUSS_PT)  = FORCEy(GAUSS_PT)  + TPLY*STRESS(2)
               FORCExy(GAUSS_PT) = FORCExy(GAUSS_PT) + TPLY*STRESS(3)
             ENDDO
           ENDDO
-          
+
         ENDDO
 
 
@@ -588,7 +588,7 @@
 !   Section 14.3 Stress Stiffness Matrix Of A Plate Element
 
 !         +1  +1
-! [  ]   ⌠   ⌠  [   ]T [   ]-T [ Nx  Nxy ] [   ]-1 [   ] 
+! [  ]   ⌠   ⌠  [   ]T [   ]-T [ Nx  Nxy ] [   ]-1 [   ]
 ! [k ] = |   |  [ G ]  [ J ]   [ Nxy Ny  ] [ J ]   [ G ]  |J|  dξ dη
 ! [ σ]   ⌡   ⌡  [  I]  [   ]               [   ]   [  I]
 !        -1  -1
@@ -601,15 +601,15 @@
 ! DPSHX = J^-1 G_I is the 2 x ELGP matrix of shape function derivatives with respect to element coordinates x and y.
 
 !        +1  +1
-! [k ]   ⌠   ⌠        T [ Nx  Nxy ]   
+! [k ]   ⌠   ⌠        T [ Nx  Nxy ]
 ! [ σ] = ⌡   ⌡   DPSHX  [ Nxy Ny  ]  DPSHX  |J|  dξ dη
-!        -1  -1  
+!        -1  -1
 
         DO K=1,ELGP
           DO L=1,ELGP
             KS(K,L) = ZERO
-          ENDDO   
-        ENDDO 
+          ENDDO
+        ENDDO
 
         CALL ORDER_GAUSS ( IORD_STRESS_Q4, SSS, HHH )
 
@@ -622,7 +622,7 @@
             DUM11(2,1) = FORCExy(GAUSS_PT) ; DUM11(2,2) = FORCEy(GAUSS_PT)
 
             DO L=1,ELGP                                    ! Shape function derivatives at this Gauss point.
-              DPSHX(1,L) = BE1(1,ID1(2*(L-1)+1),GAUSS_PT+1)     
+              DPSHX(1,L) = BE1(1,ID1(2*(L-1)+1),GAUSS_PT+1)
               DPSHX(2,L) = BE1(2,ID1(2*(L-1)+2),GAUSS_PT+1)
             ENDDO
 
@@ -630,13 +630,13 @@
             CALL MATMULT_FFF ( DUM12, DPSHX, ELGP, 2, ELGP, DUM13 )
 
             INTFAC = DETJ(GAUSS_PT)*HHH(I)*HHH(J)
-                               
+
                                                            ! Accumulate integrand into the result
             DO K=1,ELGP
               DO L=1,ELGP
                 KS(K,L) = KS(K,L) + DUM13(K,L) * INTFAC
-              ENDDO   
-            ENDDO 
+              ENDDO
+            ENDDO
 
           ENDDO
         ENDDO
@@ -645,18 +645,18 @@
         DO I=1,6*ELGP
           DO J=1,6*ELGP
             KED(I,J) = 0
-          ENDDO   
-        ENDDO 
+          ENDDO
+        ENDDO
         DO I=1,ELGP
           DO J=1,ELGP
             KED(ID2(3*(I-1) + 1),ID2(3*(J-1) + 1)) = KS(I,J)
             KED(ID2(3*(I-1) + 2),ID2(3*(J-1) + 2)) = KS(I,J)
             KED(ID2(3*(I-1) + 3),ID2(3*(J-1) + 3)) = KS(I,J)
-          ENDDO   
-        ENDDO 
+          ENDDO
+        ENDDO
 
       ENDIF
-  
+
 
 
       RETURN
@@ -671,9 +671,9 @@
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE QMEM1_RB_STRAIN_ENERGY
@@ -793,7 +793,7 @@
          ENDDO
          WRITE(BUG,*)
       ENDDO
-      WRITE(BUG,*) 
+      WRITE(BUG,*)
 
       NAME( 1) = 'node 1 x displ'
       NAME( 2) = 'node 1 y displ'
@@ -812,13 +812,13 @@
          ENDDO
          WRITE(BUG,*)
       ENDDO
-      WRITE(BUG,*) 
+      WRITE(BUG,*)
 
-      WRITE(BUG,1005) MAX_ABS, ROW, COL 
+      WRITE(BUG,1005) MAX_ABS, ROW, COL
       DO II=1,6
          WRITE(BUG,2004) (RB_STRAIN_ENERGY(II,JJ),JJ=1,6)
       ENDDO
-      WRITE(BUG,*) 
+      WRITE(BUG,*)
 
 ! **********************************************************************************************************************************
  1000 FORMAT(' Strain energy calculation for membrane portion of ',A,' element number ',I8,/,                                      &
@@ -841,22 +841,22 @@
 
 
  1004 FORMAT('                                  Cols are R.B. motion of element mean plane node 1',/,                              &
-             '                      x displ        y displ        z displ         x rot          y rot          z rot')  
+             '                      x displ        y displ        z displ         x rot          y rot          z rot')
 
 
  1005 FORMAT(' Rigid body strain energy calculated from C(t)*KE*C (max absolute value = ',1ES9.2,' at row',I2,', col',I2,'):',/,   &
              ' --------------------------------------------------------------------------------------------------')
 
- 2001 FORMAT(3X,8(1ES15.6))  
+ 2001 FORMAT(3X,8(1ES15.6))
 
- 2002 FORMAT(3X,A,6(1ES15.6)) 
+ 2002 FORMAT(3X,A,6(1ES15.6))
 
- 2003 FORMAT(3X,A,6(1ES15.6)) 
+ 2003 FORMAT(3X,A,6(1ES15.6))
 
- 2004 FORMAT(3X,6(1ES15.6)) 
+ 2004 FORMAT(3X,6(1ES15.6))
 
 ! **********************************************************************************************************************************
-  
-      END SUBROUTINE QMEM1_RB_STRAIN_ENERGY      
+
+      END SUBROUTINE QMEM1_RB_STRAIN_ENERGY
 
       END SUBROUTINE QMEM1

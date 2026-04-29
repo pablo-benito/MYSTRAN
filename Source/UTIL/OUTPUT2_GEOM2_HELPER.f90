@@ -5,7 +5,7 @@
       !
       USE PENTIUM_II_KIND, ONLY       :  LONG, BYTE
       USE IOUNT1, ONLY                :  ERR, OP2
-      
+
       ! GEOM2 - elements
       USE SCONTR, ONLY : NCTETRA4, NCTETRA10, NCPENTA6, NCPENTA15, NCHEXA8, NCHEXA20
       USE SCONTR, ONLY : NCQUAD4, NCQUAD4K, NCSHEAR, NCTRIA3, NCTRIA3K
@@ -36,13 +36,13 @@
       INTEGER(LONG)                         :: NCROD_ACTUAL = 0
       INTEGER(LONG)                         :: NCONROD_ACTUAL = 0
       INTEGER(LONG), DIMENSION(NCROD)       :: CROD_INDEX, CONROD_INDEX
-     
+
       !CHARACTER( 8*BYTE), ALLOCATABLE :: ETYPE(:)    ! NELE  x 1 array of elem types
       !CHARACTER( 1*BYTE), ALLOCATABLE :: EOFF(:)     ! NELE  x 1 array of 'Y' for elem offsets or 'N' if not
 
       !INTEGER(LONG)     , ALLOCATABLE :: EDAT(:)     ! NEDAT x 1 array of elem connection data
       !INTEGER(LONG)     , ALLOCATABLE :: EPNT(:)     ! NELE  x 1 array of pointers to EDAT where data begins for an elem
-      
+
       !DO I=1,NEDAT
       !ENDDO
 
@@ -60,9 +60,9 @@
 
       IS_GEOM2 = .FALSE.
       IF (IS_GEOM2) THEN
-!        ALLOCATE ( CTETRA(NCTETRA,12) )      
-!        ALLOCATE ( CPENTA(NCPENTA,17) )      
-!        ALLOCATE ( CHEXA(NCHEXA,22) )      
+!        ALLOCATE ( CTETRA(NCTETRA,12) )
+!        ALLOCATE ( CPENTA(NCPENTA,17) )
+!        ALLOCATE ( CHEXA(NCHEXA,22) )
 
         CALL GET_GEOM2(CELAS1, CELAS2, CELAS3, CELAS4, &
                        CROD,                           &
@@ -85,7 +85,7 @@
         !CALL WRITE_OP2_GEOM2_CTRIA3(ITABLE, CTRIA3)
         !CALL WRITE_OP2_GEOM2_CQUAD4(ITABLE, CQUAD4)
         !CALL WRITE_OP2_GEOM2_CTETRA(ITABLE, CTETRA, NCTETRA)
-      
+
 !       CORD2S_INDEX(1000000)   ! intentional crash
         CALL END_OP2_GEOM_TABLE(ITABLE)
 !        DEALLOCATE (CTETRA)
@@ -152,7 +152,7 @@
 !      INTEGER(LONG), INTENT(INOUT), DIMENSION(NCPENTA, 17) :: CPENTA
 !      INTEGER(LONG), INTENT(INOUT), DIMENSION(NCHEXA, 22)  :: CHEXA
       INTEGER(LONG) :: IPROD
-      
+
  1    FORMAT(A)
       WRITE(ERR,1) "STARTING GET_GEOM2"
       FLUSH(ERR)
@@ -200,7 +200,7 @@
           FLUSH(ERR)
           ICELAS2 = ICELAS2 + 1
 
-        ELSE IF (ETYPE(I)(1:5) .EQ. 'ELAS3') THEN  
+        ELSE IF (ETYPE(I)(1:5) .EQ. 'ELAS3') THEN
           ! 4 fields
           DO J=1,4
             CELAS3(ICELAS3, J) = EDAT(EPNTK-1+J)
@@ -209,7 +209,7 @@
           FLUSH(ERR)
           ICELAS3 = ICELAS3 + 1
 
-        ELSE IF (ETYPE(I)(1:5) .EQ. 'ELAS4') THEN  
+        ELSE IF (ETYPE(I)(1:5) .EQ. 'ELAS4') THEN
           ! 4 fields
           DO J=1,4
             CELAS4(ICELAS4, J) = EDAT(EPNTK-1+J)
@@ -218,7 +218,7 @@
           FLUSH(ERR)
           ICELAS4 = ICELAS4 + 1
 
-        ELSE IF (ETYPE(I)(1:3) .EQ. 'ROD') THEN  
+        ELSE IF (ETYPE(I)(1:3) .EQ. 'ROD') THEN
           !WRITE(ERR,4) "CROD?", (EDAT(EPNTK-1+J), J=1,4)
           ! 4 fields
           CROD(ICROD, J) = EDAT(EPNTK)   ! eid
@@ -239,7 +239,7 @@
             NCROD_ACTUAL = NCROD_ACTUAL + 1
             WRITE(ERR,100) "CROD", "ICROD=",ICROD,"NCROD_ACTUAL=",NCROD_ACTUAL
             FLUSH(ERR)
-            CROD_INDEX(NCROD_ACTUAL) = ICROD  
+            CROD_INDEX(NCROD_ACTUAL) = ICROD
           ELSE
             WRITE(ERR,4) "CONROD", (EDAT(EPNTK-1+J), J=1,4)
             FLUSH(ERR)
@@ -250,9 +250,9 @@
             CONROD_INDEX(NCONROD_ACTUAL) = ICROD
           ENDIF
           ICROD = ICROD + 1
-          
 
-        ELSE IF (ETYPE(I)(1:5) .EQ. 'SHEAR') THEN  
+
+        ELSE IF (ETYPE(I)(1:5) .EQ. 'SHEAR') THEN
           ! 6 fields
           ICSHEAR = ICSHEAR + 1
           DO J=1,6
@@ -260,7 +260,7 @@
           ENDDO
           !WRITE(ERR,6) ETYPE(I)(1:5), (EDAT(EPNTK-1+J), J=1,6)
 
-!        ELSE IF (ETYPE(I)(1:5) .EQ. 'TETRA4') THEN  
+!        ELSE IF (ETYPE(I)(1:5) .EQ. 'TETRA4') THEN
 !          ! 6 fields
 !          DO J=1,6
 !            CTETRA(ICTETRA, J) = EDAT(EPNTK-1+J)
@@ -275,7 +275,7 @@
 !          DO J=1,12
 !            CTETRA(ICTETRA, J) = EDAT(EPNTK-1+J)
 !          ENDDO
-!          WRITE(ERR,12) ETYPE(I)(1:5), (EDAT(EPNTK-1+J), J=1,12)  
+!          WRITE(ERR,12) ETYPE(I)(1:5), (EDAT(EPNTK-1+J), J=1,12)
 !          ICTETRA = ICTETRA + 1
         ENDIF
         !EPNT(I)
@@ -315,7 +315,7 @@
       IF (NCROD_ACTUAL > 0) THEN
         NUM_WIDE = 4
         NVALUES = NUM_WIDE * NCROD_ACTUAL
-      
+
         ! ROD  4 words: (all read by call to subr ELEPO from subr BD_ROD1)
         !   1) Elem ID
         !   2) Prop ID index
@@ -407,7 +407,7 @@
       IF (NCELAS1 > 0) THEN
         NVALUES = NUM_WIDE * NCELAS1
         WRITE(OP2) NVALUES + 3
-      
+
         ! ELAS1  6 words: (all read by call to subr ELEPO from subr BD_CELAS1)
         !   1) Elem ID
         !   2) Prop ID
@@ -420,7 +420,7 @@
         CALL WRITE_OP2_SUBTABLE_INCREMENT(ITABLE)
       ENDIF
       END SUBROUTINE WRITE_OP2_GEOM2_CELAS1
-      
+
 !===================================================================================================================================
       SUBROUTINE WRITE_OP2_GEOM2_CELAS2(ITABLE, CELAS2)
       ! writes the CELAS2 subtable
@@ -441,7 +441,7 @@
       LOGICAL                                        :: WRITE_ERR = .TRUE.
       IF (NCELAS2 > 0) THEN
         NVALUES = NUM_WIDE * NCELAS2
-      
+
         ! ELAS2  6 words: (all read by call to subr ELEPO from subr BD_CELAS2)
         !   1) Elem ID
         !   2) Prop ID which is set to -EID since real props are on the CELAS2 entry
@@ -489,7 +489,7 @@
       IF (NCELAS3 > 0) THEN
         NVALUES = NUM_WIDE * NCELAS3
         WRITE(OP2) NVALUES + 3
-      
+
         ! ELAS3  4 words: (all read by call to subr ELEPO from subr BD_CELAS3)
         !   1) Elem ID
         !   2) Prop ID
@@ -517,7 +517,7 @@
       IF (NCELAS4 > 0) THEN
         NVALUES = NUM_WIDE * NCELAS4
         WRITE(OP2) NVALUES + 3
-      
+
         ! ELAS4  4 words: (all read by call to subr ELEPO from subr BD_CELAS4)
         !   1) Elem ID
         !   2) Prop ID which is set to -EID since real props are on the CELAS2 entry
@@ -564,18 +564,18 @@
       IF (NCTETRA > 0) THEN
         NVALUES = NUM_WIDE * NCTETRA
         WRITE(OP2) NVALUES + 3
-        
+
         ! TETRA4   6 words: (read by 1 or more calls to subr ELEPO from subr BD_TETRA)
         !   1) Elem ID
         !   2) Prop ID
         !   3) etc, Grids 1-4
-      
+
         ! TETRA10  2 words: (read by 1 or more calls to subr ELEPO from subr BD_TETRA)
         !   1) Elem ID
         !   2) Prop ID
         !   3) etc, Grids 1-10
         WRITE(OP2) 5508, 55, 217, ((CTETRA(I,J), J=1,12), I=1,NCTETRA)
-        !WRITE(OP2) 5508, 55, 217, & 
+        !WRITE(OP2) 5508, 55, 217, &
         !           ((TETRA4(I,J),  J=1,6), 0, 0, 0, 0, 0, 0, I=1,NCTETRA4), &
         !           ((TETRA10(I,J), J=1,12), I=1,NCTETRA10)
           CALL WRITE_OP2_SUBTABLE_INCREMENT(ITABLE)

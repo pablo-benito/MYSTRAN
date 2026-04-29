@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE GPWG_PMOI (MOI1, Q, INFO )
- 
+
 ! Jacobi solution for 3x3 eigenvalue problem used in finding principal moments of inertia for the Grid Point Weight Generator (GPWG)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, WARN_ERR
@@ -35,11 +35,11 @@
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  SUPWARN, WTMASS
       USE LAPACK_STD_EIG_1
- 
+
       USE GPWG_PMOI_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'GPWG_PMOI'
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: CALLED_SUBR = ' ' ! Name of a called subr (for output error purposes)
       CHARACTER( 1*BYTE), PARAMETER   :: JOBZ      = 'V'   ! Indicates to solve for eigenvalues and vectors in LAPACK subr DSYEV
@@ -60,15 +60,15 @@
 !                                                            On exit , the principal MOI's in basic coords (if INFO = 0)
       REAL(DOUBLE) , INTENT(OUT)      :: Q(3,3)            ! Transformation from basic to principal directions
 !                                                            Q = Z'. That is;
-!                                                            U(principal) = Q*U(basic), where U is a displ vector 
+!                                                            U(principal) = Q*U(basic), where U is a displ vector
       REAL(DOUBLE)                    :: Z(3,3)            ! When subr DSYEV is called, Z = input MOI1
 !                                                            When subr DSYEV returns, Z = eigenvecs: PMOI = Z'*MOI1*Z
-      REAL(DOUBLE)                    :: DUM(N,N)          ! Intermediate result in calculating Z'*MOI1*Z 
+      REAL(DOUBLE)                    :: DUM(N,N)          ! Intermediate result in calculating Z'*MOI1*Z
       REAL(DOUBLE) , PARAMETER        :: ALPHA     = ONE   ! Scalar multiplier for subr DGEMM
       REAL(DOUBLE) , PARAMETER        :: BETA      = ZERO  ! Scalar multiplier for subr DGEMM
       REAL(DOUBLE)                    :: PMOI(3)           ! Principal MOI's in a 1-D array
       REAL(DOUBLE)                    :: WORK(LWORK)       ! Workspace
- 
+
       EXTERNAL                        :: DGEMM
 
 
@@ -90,7 +90,7 @@
             Q(I,J) = ZERO
          ENDDO
       ENDDO
- 
+
       CALL DSYEV ( JOBZ, UPLO, N, Z, N, PMOI, WORK, LWORK, INFO )
 
       ! Set MOI1 matrix to zero for off-diag terms and to PMOI for diag terms.
@@ -116,7 +116,7 @@
 
       ELSE
          ! INFO=0, so no error
-         
+
          ! Set Q = Z'
          DO I=1,N
             DO J=1,N
@@ -132,8 +132,8 @@
          TRANSB = 'N'
          CALL DGEMM ( TRANSA, TRANSB, N, N, N, ALPHA, Z,    N, DUM, N, BETA, MOI1, N )
 
-      ENDIF  
-      
+      ENDIF
+
 
 
 
@@ -148,7 +148,7 @@
                     ,/,14X,' CANNOT CONVERGE IN ATTEMPTING TO FIND PRINCIPAL MOIs'                                                 &
                     ,/,14X,' THE ALGORITHM HAS FAILED TO FIND ALL THE EIGENVALUES (PRINCIPAL MOIs) IN 90 ITERATIONS'               &
                     ,/,14X,' PRINCIPAL MOIs AND PRINCIPAL DIRECTIONS CANNOT BE FOUND')
- 
+
 ! **********************************************************************************************************************************
 
       END SUBROUTINE GPWG_PMOI

@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
-! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
 
-      SUBROUTINE CALC_MRN  
- 
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
+! _______________________________________________________________________________________________________
+
+! End MIT license text.
+
+      SUBROUTINE CALC_MRN
+
 ! Calculates the R-set row by NVEC (number of eigenvectors) col matrix MRN   in the CB transformation matrix:
 
 !                        MRN   = (MRL + DLR'*MLL)*EIGEN_VEC ....... (NOTE: EIGEN_VEC is L-set rows by N=NVEC cols)
- 
+
 ! For a description of Craig-Bamptom analyses, see Appendix D to the MYSTRAN User's Referance Manual
 
 
@@ -43,25 +43,25 @@
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE PARAMS, ONLY                :  SPARSTOR
       USE EIGEN_MATRICES_1, ONLY      :  EIGEN_VEC
-      USE SPARSE_MATRICES , ONLY      :  SYM_DLR, SYM_MLL, SYM_MLLn, SYM_MRL, SYM_MRL, SYM_MRN  
+      USE SPARSE_MATRICES , ONLY      :  SYM_DLR, SYM_MLL, SYM_MLLn, SYM_MRL, SYM_MRL, SYM_MRN
 
       USE SPARSE_MATRICES , ONLY      :  I_MLL , J_MLL , MLL , I_MLLn, J_MLLn, MLLn, I_MRL , J_MRL , MRL ,                         &
                                          I_DLR , J_DLR , DLR , I_DLRt, J_DLRt, DLRt, I_MRN, J_MRN, MRN,                            &
-                                         I_MPF0, J_MPF0, MPF0  
-                                         
+                                         I_MPF0, J_MPF0, MPF0
+
       USE SCRATCH_MATRICES, ONLY      :  I_CCS1, J_CCS1, CCS1, I_CRS1, J_CRS1, CRS1, I_CRS2, J_CRS2, CRS2, I_CRS3, J_CRS3, CRS3
 
       USE CALC_MRN_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CALC_MRN  '
 
       INTEGER(LONG)                   :: AROW_MAX_TERMS      ! Output from MATMULT_SFS_NTERM and input to MATMULT_SFS
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
-      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1  
-      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2  
-      INTEGER(LONG)                   :: NTERM_CRS3          ! Number of terms in matrix CRS3  
+      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1
+      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2
+      INTEGER(LONG)                   :: NTERM_CRS3          ! Number of terms in matrix CRS3
 
 
 
@@ -73,7 +73,7 @@
       CALL ALLOCATE_SPARSE_MAT ( 'MRN', NDOFR, NTERM_MRN, SUBR_NAME )
 
       IF (NTERM_MLL > 0) THEN                              ! Part I of MRRcb: calc DLR'*MLL
-                                            
+
          IF      (SPARSTOR == 'SYM   ') THEN               ! I-a: Convert MLL to nonsym MLLn, if required. Need for MATMULT_SSS
 
             CALL SPARSE_MAT_DIAG_ZEROS ( 'MLL', NDOFL, NTERM_MLL, I_MLL, J_MLL, NUM_MLL_DIAG_ZEROS )
@@ -121,7 +121,7 @@
 
          ENDIF
 
-         IF (DEBUG(103) > 0) THEN                          ! Algorithm for calculating MPF's will not use MRL (or MLR) 
+         IF (DEBUG(103) > 0) THEN                          ! Algorithm for calculating MPF's will not use MRL (or MLR)
 
             NTERM_CRS2 = NTERM_CRS1                        ! Store CRS1 = DLRt*MLL in CRS2 for use below in calculating MPF0
             CALL ALLOCATE_SCR_CRS_MAT ( 'CRS2', NDOFR, NTERM_CRS2, SUBR_NAME )
@@ -129,7 +129,7 @@
             DO I=1,NDOFR+1
                I_CRS2 (I) = I_CRS1(I)
             ENDDO
-            DO J=1,NTERM_CRS2 
+            DO J=1,NTERM_CRS2
                J_CRS2 (J) = J_CRS1(J)
                  CRS2 (J) =   CRS1(J)
             ENDDO
@@ -179,7 +179,7 @@
          CALL MATMULT_SFS ('MRL + DLRt*MLL', NDOFR, NTERM_CRS1, 'N', I_CRS1, J_CRS1, CRS1, 'EIGEN_VEC', NDOFL, NVEC, EIGEN_VEC,    &
                             AROW_MAX_TERMS, 'MRN', ONE, NTERM_MRN, I_MRN, J_MRN, MRN  )
          NTERM_MPF0 = NTERM_MRN
- 
+
          IF (DEBUG(103) == 0) THEN                         ! Include MRL (or MLR) in MPF (modal participation factor)  calculation
 
             NTERM_MPF0 = NTERM_MRN                         ! MPF0 = MRN = (MRL + DLR'*MLL)*EIGEN_VEC
@@ -220,7 +220,7 @@
 
 
 
- 
+
       RETURN
 
 ! **********************************************************************************************************************************
@@ -232,5 +232,5 @@
  97532 format(' I, I_CCS1(I), CCS1(I) = ', 2i8,1es14.6)
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE CALC_MRN  
+
+      END SUBROUTINE CALC_MRN

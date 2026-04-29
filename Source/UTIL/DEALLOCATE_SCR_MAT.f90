@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE DEALLOCATE_SCR_MAT ( NAME_IN )
- 
+
 ! Deallocates sparse CRS or sparse CCS scratch matrices
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC          
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE SCRATCH_MATRICES , ONLY     :  I_CRS1, J_CRS1, CRS1, I_CRS2, J_CRS2, CRS2, I_CRS3, J_CRS3, CRS3,  &
@@ -39,15 +39,15 @@
       USE DEALLOCATE_SCR_MAT_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'DEALLOCATE_SCR_MAT'
       CHARACTER(LEN=*), INTENT(IN)    :: NAME_IN           ! Array name (used for output error message)
       CHARACTER(6*BYTE)               :: NAME              ! Array name (used for output error message)
- 
+
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
 
- 
+
       REAL(DOUBLE)                    :: CUR_MB_ALLOCATED  ! MB of memory that is currently allocated to ARRAY_NAME when subr
 !                                                            ALLOCATED_MEMORY is called (before entering MB_ALLOCATED into array
 !                                                            ALLOCATED_ARRAY_MEM
@@ -70,7 +70,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'J_CRS1'
          IF (ALLOCATED(J_CRS1)) THEN
             DEALLOCATE (J_CRS1,STAT=IERR)
@@ -82,7 +82,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'CRS1'
          IF (ALLOCATED(CRS1)) THEN
             DEALLOCATE (CRS1,STAT=IERR)
@@ -94,7 +94,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME_IN == 'CRS2') THEN
 
          NAME = 'I_CRS2'
@@ -108,7 +108,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'J_CRS2'
          IF (ALLOCATED(J_CRS2)) THEN
             DEALLOCATE (J_CRS2,STAT=IERR)
@@ -120,7 +120,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'CRS2'
          IF (ALLOCATED(CRS2)) THEN
             DEALLOCATE (CRS2,STAT=IERR)
@@ -132,7 +132,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME_IN == 'CRS3') THEN
 
          NAME = 'I_CRS3'
@@ -146,7 +146,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'J_CRS3'
          IF (ALLOCATED(J_CRS3)) THEN
             DEALLOCATE (J_CRS3,STAT=IERR)
@@ -158,7 +158,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'CRS3'
          IF (ALLOCATED(CRS3)) THEN
             DEALLOCATE (CRS3,STAT=IERR)
@@ -170,7 +170,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME_IN == 'CCS1') THEN
 
          NAME = 'I_CCS1'
@@ -184,7 +184,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'J_CCS1'
          IF (ALLOCATED(J_CCS1)) THEN
             DEALLOCATE (J_CCS1,STAT=IERR)
@@ -196,7 +196,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'CCS1'
          IF (ALLOCATED(CCS1)) THEN
             DEALLOCATE (CCS1,STAT=IERR)
@@ -208,7 +208,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME_IN == 'CCS2') THEN
 
          NAME = 'I_CCS2'
@@ -222,7 +222,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'J_CCS2'
          IF (ALLOCATED(J_CCS2)) THEN
             DEALLOCATE (J_CCS2,STAT=IERR)
@@ -234,7 +234,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'CCS2'
          IF (ALLOCATED(CCS2)) THEN
             DEALLOCATE (CCS2,STAT=IERR)
@@ -246,7 +246,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME_IN == 'CCS3') THEN
 
          NAME = 'I_CCS3'
@@ -260,7 +260,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'J_CCS3'
          IF (ALLOCATED(J_CCS3)) THEN
             DEALLOCATE (J_CCS3,STAT=IERR)
@@ -272,7 +272,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'CCS3'
          IF (ALLOCATED(CCS3)) THEN
             DEALLOCATE (CCS3,STAT=IERR)
@@ -284,7 +284,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE                                                 ! NAME not recognized, so coding error
 
          WRITE(ERR,915) SUBR_NAME, 'DEALLOCATED', NAME_IN
@@ -293,7 +293,7 @@
          JERR = JERR + 1
 
       ENDIF
- 
+
 ! Quit if there were errors
 
       IF (JERR /= 0) THEN
@@ -310,5 +310,5 @@
   992 FORMAT(' *ERROR   992: CANNOT DEALLOCATE MEMORY FROM ARRAY ',A,' IN SUBROUTINE ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE DEALLOCATE_SCR_MAT

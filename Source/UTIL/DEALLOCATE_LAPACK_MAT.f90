@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
-! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
 
-      SUBROUTINE DEALLOCATE_LAPACK_MAT ( NAME ) 
- 
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
+! _______________________________________________________________________________________________________
+
+! End MIT license text.
+
+      SUBROUTINE DEALLOCATE_LAPACK_MAT ( NAME )
+
 ! Deallocate matrices used in LAPACK band form
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -36,18 +36,18 @@
       USE CONSTANTS_1, ONLY           :  ZERO
       USE ARPACK_MATRICES_1 , ONLY    :  IWORK, RFAC, RESID, SELECT, VBAS, WORKD, WORKL
       USE LAPACK_DPB_MATRICES, ONLY   :  ABAND, BBAND, LAPACK_S, RES
- 
+
       USE DEALLOCATE_LAPACK_MAT_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'DEALLOCATE_LAPACK_MAT'
       CHARACTER(LEN=*), INTENT(IN)    :: NAME              ! Name of matrix to be allocated
- 
+
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
 
- 
+
       REAL(DOUBLE)                    :: CUR_MB_ALLOCATED  ! MB of memory that is currently allocated to ARRAY_NAME when subr
 !                                                            ALLOCATED_MEMORY is called (before entering MB_ALLOCATED into array
 !                                                            ALLOCATED_ARRAY_MEM
@@ -67,9 +67,9 @@
                WRITE(ERR,992) NAME,SUBR_NAME
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'BBAND') THEN
 
          IF (ALLOCATED(BBAND)) THEN                        ! Deallocate array BBAND
@@ -78,9 +78,9 @@
                WRITE(ERR,992) NAME,SUBR_NAME
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'RES') THEN
 
          IF (ALLOCATED(RES)) THEN                          ! Deallocate array RES
@@ -90,8 +90,8 @@
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
             ENDIF
-         ENDIF 
- 
+         ENDIF
+
       ELSE IF (NAME == 'LAPACK_S') THEN
 
          IF (ALLOCATED(LAPACK_S)) THEN                     ! Deallocate array LAPACK_S
@@ -101,8 +101,8 @@
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
             ENDIF
-         ENDIF 
- 
+         ENDIF
+
 ! Deallock ARPACK matrices
 
       ELSE IF (NAME == 'IWORK') THEN                       ! Deallocate arrays for IWORK
@@ -114,7 +114,7 @@
               WRITE(F06,992) NAME,SUBR_NAME
               JERR = JERR + 1
            ENDIF
-        ENDIF 
+        ENDIF
 
       ELSE IF (NAME == 'RESID') THEN                       ! Deallocate arrays for RESID
 
@@ -125,7 +125,7 @@
               WRITE(F06,992) NAME,SUBR_NAME
               JERR = JERR + 1
            ENDIF
-        ENDIF 
+        ENDIF
 
       ELSE IF (NAME == 'RFAC') THEN                        ! Deallocate arrays for RFAC
 
@@ -136,7 +136,7 @@
               WRITE(F06,992) NAME,SUBR_NAME
               JERR = JERR + 1
            ENDIF
-        ENDIF 
+        ENDIF
 
       ELSE IF (NAME == 'SELECT') THEN                      ! Deallocate arrays for SELECT
 
@@ -147,7 +147,7 @@
               WRITE(F06,992) NAME,SUBR_NAME
               JERR = JERR + 1
            ENDIF
-        ENDIF 
+        ENDIF
 
       ELSE IF (NAME == 'VBAS') THEN                        ! Deallocate arrays for VBAS
 
@@ -158,7 +158,7 @@
               WRITE(F06,992) NAME,SUBR_NAME
               JERR = JERR + 1
            ENDIF
-        ENDIF 
+        ENDIF
 
       ELSE IF (NAME == 'WORKD') THEN                       ! Deallocate arrays for WORKD
 
@@ -169,7 +169,7 @@
               WRITE(F06,992) NAME,SUBR_NAME
               JERR = JERR + 1
            ENDIF
-        ENDIF 
+        ENDIF
 
       ELSE IF (NAME == 'WORKL') THEN                       ! Deallocate arrays for WORKL
 
@@ -180,7 +180,7 @@
               WRITE(F06,992) NAME,SUBR_NAME
               JERR = JERR + 1
            ENDIF
-        ENDIF 
+        ENDIF
 
       ELSE                                                 ! NAME not recognized, so coding error
 
@@ -190,7 +190,7 @@
          JERR = JERR + 1
 
       ENDIF
- 
+
 ! Quit if there were errors
 
       IF (JERR /= 0) THEN
@@ -208,9 +208,9 @@
                     ,/,14X,' NAME OF ARRAY TO BE ',A,' IS INCORRECT. INPUT NAME WAS ',A)
 
   992 FORMAT(' *ERROR   992: CANNOT DEALLOCATE MEMORY FROM ARRAY ',A,' IN SUBROUTINE ',A)
- 
+
 
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE DEALLOCATE_LAPACK_MAT   
+
+      END SUBROUTINE DEALLOCATE_LAPACK_MAT

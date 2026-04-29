@@ -1,57 +1,57 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_CMASS2 ( CARD )
- 
+
 ! Processes CMASS2 Bulk Data Cards. NOTE: MYSTRAN scalar masses must be attached to only 1 point
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, NCMASS, NPMASS
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  CMASS, PMASS, RPMASS
- 
+
       USE BD_CMASS2_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_CMASS2'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
- 
+
       INTEGER(LONG)                   :: CMASS_ELID        ! Element ID
       INTEGER(LONG)                   :: GPOINT1,GPOINT2   ! 2 grid points (1 must be blank or zero)
       INTEGER(LONG)                   :: I                 ! DO loop index
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! CMASS2 scalar spring element Bulk Data Card routine
- 
+
 !   FIELD   ITEM           ARRAY ELEMENT
 !   -----   ------------   -------------
 !    2      Element ID     CMASS(ncmass,1)
@@ -62,14 +62,14 @@
 !    6      Grid-B         CMASS(ncmass,6)
 !    7      Comp-B         CMASS(ncmass,7)
 !  none     Prop ID, PID   PMASS(npmass,1) (created: PID = -EID)
- 
+
       NCMASS = NCMASS + 1
       NPMASS = NPMASS + 1
 
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Get element ID and check for duplicate. Set prop ID = -elem ID and put mass in field 3 into RPMASS
 
       CALL I4FLD ( JCARD(2), JF(2), CMASS_ELID )
@@ -81,7 +81,7 @@
                WRITE(F06,1145) JCARD(1),CMASS_ELID
                EXIT
             ENDIF
-         ENDDO 
+         ENDDO
          CMASS(NCMASS,1) =  CMASS_ELID                      ! CMASS2 elem ID
          CMASS(NCMASS,3) = -CMASS_ELID                      ! Prop ID of CMASS2 set = -elem ID
          PMASS(NPMASS,1) = -CMASS_ELID                      ! Mass value
@@ -135,7 +135,7 @@
       CALL BD_IMBEDDED_BLANK   ( JCARD,2,3,4,5,6,7,0,0 )   ! Make sure that there are no imbedded blanks in fields 2-7
       CALL CARD_FLDS_NOT_BLANK ( JCARD,0,0,0,0,0,0,8,9 )   ! Issue warning if fields 8, 9 are not blank
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
- 
+
 
 
       RETURN
@@ -147,5 +147,5 @@
  1145 FORMAT(' *ERROR  1145: DUPLICATE ',A,' ENTRY WITH ID = ',I8)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_CMASS2

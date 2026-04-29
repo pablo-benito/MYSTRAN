@@ -1,49 +1,49 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ALLOCATE_IN4_FILES ( NAME_IN, NROWS, NCOLS, CALLING_SUBR )
- 
+
 ! Allocate arrays for IN4 files (USERIN elements)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, IN4FIL, IN4FIL_NUM, LNUM_IN4_FILES, WRT_ERR
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC 
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONEPP6
       USE INPUTT4_MATRICES, ONLY      :  IN4_COL_MAP, IN4_MAT
- 
+
       USE ALLOCATE_IN4_FILES_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ALLOCATE_IN4_FILES'
       CHARACTER(LEN=*), INTENT(IN)    :: CALLING_SUBR      ! Array name of the matrix to be allocated in sparse format
       CHARACTER(LEN=*), INTENT(IN)    :: NAME_IN           ! Array name (used for output error message)
       CHARACTER(LEN=LEN(NAME_IN))     :: NAME              ! Specific array name used for output error message
- 
+
       INTEGER(LONG), INTENT(IN)       :: NROWS             ! Nunber of rows in array NAME_IN being allocated
       INTEGER(LONG), INTENT(IN)       :: NCOLS             ! Nunber of cols in array NAME_IN being allocated
       INTEGER(LONG)                   :: I,J               ! DO loop indices
@@ -56,7 +56,7 @@
 !                                                            ALLOCATED_ARRAY_MEM)
       REAL(DOUBLE)                    :: MB_ALLOCATED      ! Megabytes of mmemory allocated for the arrays to put into array
 !                                                            ALLOCATED_ARRAY_MEM when subr ALLOCATED_MEMORY is called
- 
+
       REAL(DOUBLE)                    :: RNCOLS            ! Real value of NCOLS
       REAL(DOUBLE)                    :: RNROWS            ! Real value of NROWS
 
@@ -168,13 +168,13 @@
 
       ELSE                                                 ! NAME not recognized, so coding error
 
-         WRITE(ERR,915) SUBR_NAME, 'ALLOCATED', NAME_IN 
+         WRITE(ERR,915) SUBR_NAME, 'ALLOCATED', NAME_IN
          WRITE(F06,915) SUBR_NAME, 'ALLOCATED', NAME_IN
          FATAL_ERR = FATAL_ERR + JERR
          JERR = JERR + 1
 
       ENDIF
- 
+
 ! Quit if there were errors
 
       IF (JERR /= 0) THEN
@@ -200,5 +200,5 @@
  1699 FORMAT('               THE SUBR IN WHICH THESE ERRORS WERE FOUND (',A,') WAS CALLED BY SUBR ',A)
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE ALLOCATE_IN4_FILES 
+
+      END SUBROUTINE ALLOCATE_IN4_FILES

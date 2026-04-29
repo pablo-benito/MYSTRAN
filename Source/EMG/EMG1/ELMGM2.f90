@@ -1,38 +1,38 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ELMGM2 ( WRITE_WARN )
- 
+
 ! Calcs and checks elem geometry for quad elems and provides a transformation matrix ( TE ) to transfer the elem stiffness matrix
 ! in the elem system to the basic coordinate system. Calculates grid point coords in local coord system.
 ! To define the elem coordinate system, a mean plane is defined which lies midway between the grid points (HBAR is mean dist).
 ! The elem z direction is in the direction of the cross product of the diagonals (V13 x V24). Initially, the x axis is along
 ! side 1-2 of the elem projection onto the mean plane. For elems thet are not rectangular, the x,y axes are rotated such that x
 ! splits the angle between the diagonals.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  BUG, ERR, F06, WRT_BUG, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, MEFE, MEWE, MELGP, FATAL_ERR, WARN_ERR
@@ -94,7 +94,7 @@
       REAL(DOUBLE)                    :: Y4                !
       REAL(DOUBLE)                    :: Y34               ! (Y3 - Y4) in elem mean plane in local elem coords
       REAL(DOUBLE)                    :: VAR(15)           ! Variables for BUG output purposes
- 
+
       INTRINSIC                       :: DABS
 
 
@@ -104,23 +104,23 @@
       EPS4 = EPSIL(4)
 
 ! Initialize XEL to zero
- 
+
       DO I=1,MELGP
          DO J=1,3
             XEL(I,J) = ZERO
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
 ! **********************************************************************************************************************************
 ! Calculate elem z direction from cross products of diagonals
- 
+
 ! Generate vectors from G.P 1 to G.P 3 and from G.P. 2 to G.P. 4 (diagonals)
- 
+
       DO I=1,3
          V13B(I) = XEB(3,I) - XEB(1,I)
          V24B(I) = XEB(4,I) - XEB(2,I)
-      ENDDO 
- 
+      ENDDO
+
       CALL CROSS ( V13B, V24B, KVEC )
       MAGK = DSQRT(KVEC(1)*KVEC(1) + KVEC(2)*KVEC(2) + KVEC(3)*KVEC(3))
 
@@ -142,28 +142,28 @@
       ENDIF
 
 ! Unit vector in elem local z direction is 3rd row of TE
- 
+
       DO I=1,3
          KVEC(I)     = KVEC(I)/MAGK
          TE_12(3,I) = KVEC(I)
-      ENDDO 
- 
+      ENDDO
+
 ! **********************************************************************************************************************************
 ! Calc initial elem x dir along side 1-2 of the elem projection onto the mean plane.
 
       DO I=1,3
          V12B(I) = XEB(2,I) - XEB(1,I)
-      ENDDO 
- 
+      ENDDO
+
 ! HBAR is one half of the projection of V12B in z direction
- 
+
       HBAR = HALF*((V12B(1)*KVEC(1) + V12B(2)*KVEC(2) + V12B(3)*KVEC(3)))
- 
+
 ! Now calculate initial x direction along side 1-2 of the elem projection onto the mean plane.
- 
+
       DO I=1,3
          IVEC(I) = V12B(I) - TWO*HBAR*KVEC(I)
-      ENDDO 
+      ENDDO
 
 ! If initial MAGI = 0 then write error and quit.
       MAGI  = DSQRT(IVEC(1)*IVEC(1) + IVEC(2)*IVEC(2) + IVEC(3)*IVEC(3))
@@ -191,7 +191,7 @@
       DO I=1,3
          IVEC(I)     = IVEC(I)/MAGI                        ! Unit vector along side 1-2 in the mean plane (NOT from G.P. 1-2)
          TE_12(1,I) = IVEC(I)
-      ENDDO 
+      ENDDO
 
 ! **********************************************************************************************************************************
 ! Calculate unit vector in initial elem. y direction (from KVEC x IVEC):
@@ -219,12 +219,12 @@
       DO I=1,3
          JVEC(I)    = JVEC(I)/MAGJ
          TE_12(2,I) = JVEC(I)
-      ENDDO 
+      ENDDO
 
 ! **********************************************************************************************************************************
 ! Perform some geometry checks on the quad element
 
-! First, calculate XEL coords of grids in local element coord system (relative to node 1) with local x along side 1-2. 
+! First, calculate XEL coords of grids in local element coord system (relative to node 1) with local x along side 1-2.
 
       XEL(1,1) = ZERO
       XEL(1,2) = ZERO
@@ -233,15 +233,15 @@
       IF ((TYPE == 'QUAD8   ') .OR.                                                                                                &
          ((TYPE == 'QUAD4   ') .AND. ((QUAD4TYP == 'MITC4 ') .OR. (QUAD4TYP == 'MITC4+')))) THEN
 
-                                                           ! The z coordinate of grid points in the 
+                                                           ! The z coordinate of grid points in the
                                                            ! XEL element coordinate system can be non-zero if it's warped.
          DO I=2,ELGP
             DO J=1,3
                XEL(I,J) = ZERO
                DO K=1,3
                   XEL(I,J) = XEL(I,J) + (XEB(I,K) - XEB(1,K))*TE_12(J,K)
-               ENDDO 
-            ENDDO 
+               ENDDO
+            ENDDO
          ENDDO
 
       ELSE
@@ -255,28 +255,28 @@
                XEL(I,J) = ZERO
                DO K=1,3
                   XEL(I,J) = XEL(I,J) + (XEB(I,K) - XEB(1,K))*TE_12(J,K)
-               ENDDO 
-            ENDDO 
+               ENDDO
+            ENDDO
          ENDDO
 
-      ENDIF      
+      ENDIF
 
       QUAD_GEOM_ERR = 0
       CALL QUAD_GEOM_CHECK
       IF (QUAD_GEOM_ERR > 0) THEN
          RETURN
       ENDIF
- 
+
 ! **********************************************************************************************************************************
 ! Now TE_12 is for elem coord system with x along projected side 1-2. We need to rotate x-y (about z) to get x in a
 ! direction which splits the angle between the two diagonals. QUAD_THETA is the angle between side 1-2 and diagonal from
 ! point 1 to point 3. QUAD_GAMMA is the angle between side 1-2 and the diagonal from point 2 to point 4. The rotation
 ! about z is thru an angle of QUAD_DELTA = (QUAD_THETA - QUAD_GAMMA)/2.
- 
+
 ! Find QUAD_THETA from the dot product of vector along side 1-2 and  diagonal from point 1 to point 3 (in the mean plane)
 ! Find QUAD_GAMMA from the dot product of vector along side 1-2 and  diagonal from point 2 to point 4 (in the mean plane).
 ! Use ABS to get the acute angle
- 
+
       QUAD_THETA = DACOS(( V13B(1)*IVEC(1) + V13B(2)*IVEC(2) + V13B(3)*IVEC(3))/V13BM)
       QUAD_GAMMA = DACOS((-V24B(1)*IVEC(1) - V24B(2)*IVEC(2) - V24B(3)*IVEC(3))/V24BM)
       QUAD_DELTA = (QUAD_THETA - QUAD_GAMMA)/TWO
@@ -291,42 +291,42 @@
          DO I=1,3
             DO J=1,3
                TE(I,J) = TE_SD(I,J)
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
 
       ELSE
 
          DO I=1,3
             DO J=1,3
                TE(I,J) = TE_12(I,J)
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
 
       ENDIF
 
-! Now TE is final transformation from basic to elem coordinates. That is, UEL = TE*UEB        
- 
+! Now TE is final transformation from basic to elem coordinates. That is, UEL = TE*UEB
+
       IF ((DEBUG(6) == 1) .AND. (WRT_BUG(0) == 1)) THEN
 
          WRITE(BUG,*) '  Coord transformation matrix that rotates a vector through angle QUAD_DELTA'
          WRITE(BUG,*) '  --------------------------------------------------------------------------'
          DO I=1,3
             WRITE(BUG,90003) (CT_QD(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
          WRITE(BUG,*) '  TE matrix if local x is along side 1-2'
          WRITE(BUG,*) '  --------------------------------------'
          DO I=1,3
             WRITE(BUG,90003) (TE_12(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
          WRITE(BUG,*) '  TE matrix if local x splits the angle between the diagonals'
          WRITE(BUG,*) '  -----------------------------------------------------------'
          DO I=1,3
             WRITE(BUG,90003) (TE_SD(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
          IF (QUADAXIS == 'SPLITD') THEN
@@ -338,7 +338,7 @@
          ENDIF
          DO I=1,3
             WRITE(BUG,90003) (TE(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
          CALL CHECK_TE_MATRIX ( TE, 'TE' )
       ENDIF
@@ -354,13 +354,13 @@
          ELSE
             ID(I) = 0
          ENDIF
-      ENDDO 
+      ENDDO
       IF ((ID(1) == 1) .AND. (ID(2) == 1) .AND. (ID(3) == 1)) THEN
          TE_IDENT = 'Y'
       ENDIF
 
 ! **********************************************************************************************************************************
-! Calculate XEL coords of grids in local element coord system (relative to node 1). 
+! Calculate XEL coords of grids in local element coord system (relative to node 1).
 
       XEL(1,1) = ZERO
       XEL(1,2) = ZERO
@@ -369,15 +369,15 @@
       IF ((TYPE == 'QUAD8   ') .OR.                                                                                                &
          ((TYPE == 'QUAD4   ') .AND. ((QUAD4TYP == 'MITC4 ') .OR. (QUAD4TYP == 'MITC4+')))) THEN
 
-                                                           ! The z coordinate of grid points in the 
+                                                           ! The z coordinate of grid points in the
                                                            ! XEL element coordinate system can be non-zero if it's warped.
          DO I=2,ELGP
             DO J=1,3
                XEL(I,J) = ZERO
                DO K=1,3
                   XEL(I,J) = XEL(I,J) + (XEB(I,K) - XEB(1,K))*TE(J,K)
-               ENDDO 
-            ENDDO 
+               ENDDO
+            ENDDO
          ENDDO
 
       ELSE
@@ -391,11 +391,11 @@
                XEL(I,J) = ZERO
                DO K=1,3
                   XEL(I,J) = XEL(I,J) + (XEB(I,K) - XEB(1,K))*TE(J,K)
-               ENDDO 
-            ENDDO 
+               ENDDO
+            ENDDO
          ENDDO
 
-      ENDIF      
+      ENDIF
 
 
       IF ((DEBUG(6) == 1) .AND. (WRT_BUG(0) == 1)) THEN
@@ -403,18 +403,18 @@
          WRITE(BUG,*) '  --------------------------------------------------------'
          DO I=1,4
             WRITE(BUG,90003) (XEL(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
       ENDIF
 
 ! **********************************************************************************************************************************
 ! If HBAR is nonzero, we need to calculate transformation from mean plane to the grid points. This is used only for
 ! the membrane element. BMEANT is the transpose of the B matrix for the QDMEM1 elem.
- 
+
       IF (DABS(HBAR) > MXWARP) THEN
          CALL CALC_BMEANT
       ENDIF
- 
+
 
 
       RETURN
@@ -432,9 +432,9 @@
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE QUAD_GEOM_CHECK
@@ -585,8 +585,8 @@
             V23L(I) = XEL(3,I) - XEL(2,I)
             V34L(I) = XEL(4,I) - XEL(3,I)
             V41L(I) = XEL(1,I) - XEL(4,I)
-         ENDDO 
- 
+         ENDDO
+
          CALL CROSS ( V12L, V23L, K13VEC )
          CALL CROSS ( V23L, V34L, K24VEC )
          CALL CROSS ( V34L, V41L, K31VEC )
@@ -623,16 +623,16 @@
       DO I=1,3
          V13B(I) = XEB(3,I) - XEB(1,I)
          V24B(I) = XEB(4,I) - XEB(2,I)
-      ENDDO 
+      ENDDO
       V13BM = DSQRT(V13B(1)*V13B(1) + V13B(2)*V13B(2) + V13B(3)*V13B(3))
-      V24BM = DSQRT(V24B(1)*V24B(1) + V24B(2)*V24B(2) + V24B(3)*V24B(3))        
+      V24BM = DSQRT(V24B(1)*V24B(1) + V24B(2)*V24B(2) + V24B(3)*V24B(3))
       IF ((DEBUG(6) == 1) .AND. (WRT_BUG(0) == 1)) THEN
          WRITE(BUG,*) '  V13BM, V24BM diagonal lengths (in mean plane):'
          WRITE(BUG,*) '  ----------------------------------------------'
          WRITE(BUG,90003) V13BM,V24BM
          WRITE(BUG,*)
       ENDIF
- 
+
       IF (V13BM < EPS1) THEN
          QUAD_GEOM_ERR = QUAD_GEOM_ERR + 1
          NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
@@ -670,7 +670,7 @@
             ENDIF
          ENDIF
       ENDIF
- 
+
 ! Print warning if all points not in a plane by more than WARP_WARN. Use average diagonal length times EPS4 as measure.
 
       WARP_WARN = EPS4*(V13BM + V24BM)/TWO
@@ -754,21 +754,21 @@
 !                                                            to the 12 forces for the actual warped element
       REAL(DOUBLE)                    :: DELTA1            ! sin(theta2 - quad_gamma) = sin(TH1 - GAM)
       REAL(DOUBLE)                    :: DELTA2            ! sin(theta2 + quad_gamma) = sin(TH1 + GAM)
-      REAL(DOUBLE)                    :: SIN_TH1           ! sin(theta1), TH1 = interior angle of quad at node 1 
-      REAL(DOUBLE)                    :: COS_TH1           ! cos(theta1) 
-      REAL(DOUBLE)                    :: SIN_TH2           ! sin(theta2). TH2 = interior angle of quad at node 2 
-      REAL(DOUBLE)                    :: COS_TH2           ! cos(theta2) 
-      REAL(DOUBLE)                    :: SIN_GAM           ! sin(quad_gamma ). GAM = angle of side 3-4 from side 1-2 
-      REAL(DOUBLE)                    :: COS_GAM           ! cos(quad_gamma ) 
-      REAL(DOUBLE)                    :: CTN_TH1           ! cot(theta1) 
-      REAL(DOUBLE)                    :: CTN_TH2           ! cot(theta2) 
+      REAL(DOUBLE)                    :: SIN_TH1           ! sin(theta1), TH1 = interior angle of quad at node 1
+      REAL(DOUBLE)                    :: COS_TH1           ! cos(theta1)
+      REAL(DOUBLE)                    :: SIN_TH2           ! sin(theta2). TH2 = interior angle of quad at node 2
+      REAL(DOUBLE)                    :: COS_TH2           ! cos(theta2)
+      REAL(DOUBLE)                    :: SIN_GAM           ! sin(quad_gamma ). GAM = angle of side 3-4 from side 1-2
+      REAL(DOUBLE)                    :: COS_GAM           ! cos(quad_gamma )
+      REAL(DOUBLE)                    :: CTN_TH1           ! cot(theta1)
+      REAL(DOUBLE)                    :: CTN_TH2           ! cot(theta2)
 
 ! **********************************************************************************************************************************
       DO I=1,12
          DO J=1,8
             BMEAN(I,J) = ZERO
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
       SIN_TH1 =  Y4/L41
       COS_TH1 = -X14/L41
@@ -803,7 +803,7 @@
          ENDDO
          WRITE(BUG,*)
       ENDIF
- 
+
       BMEAN( 1,1) =  ONE
       BMEAN( 2,2) =  ONE
       BMEAN( 4,3) =  ONE
@@ -818,20 +818,20 @@
       BMEAN( 3,4) = -HBAR*CTN_TH2/L12
       BMEAN( 3,7) = -HBAR*SIN_GAM/(L41*DELTA2)
       BMEAN( 3,8) = -HBAR*COS_GAM/(L41*DELTA2)
-      
+
       BMEAN( 6,1) = -BMEAN( 3,1)
       BMEAN( 6,2) =  HBAR*CTN_TH1/L12
       BMEAN( 6,3) =  BMEAN( 3,1)
       BMEAN( 6,4) =  HBAR*(CTN_TH2/L12 - ONE/(L23*SIN_TH2))
       BMEAN( 6,5) =  HBAR*SIN_GAM/(L23*DELTA1)
       BMEAN( 6,6) =  HBAR*COS_GAM/(L23*DELTA1)
-      
+
       BMEAN( 9,4) =  HBAR/(L23*SIN_TH2)
       BMEAN( 9,5) = -HBAR*(SIN_GAM/L23 + SIN_TH2/L34)/DELTA1
       BMEAN( 9,6) = -HBAR*(COS_GAM/L23 + COS_TH2/L34)/DELTA1
       BMEAN( 9,7) =  HBAR*SIN_TH1/(L34*DELTA2)
       BMEAN( 9,8) = -HBAR*COS_TH1/(L34*DELTA2)
-      
+
       BMEAN(12,2) = -HBAR/(L41*SIN_TH1)
       BMEAN(12,5) =  HBAR*SIN_TH2/(L34*DELTA1)
       BMEAN(12,6) =  HBAR*COS_TH2/(L34*DELTA1)

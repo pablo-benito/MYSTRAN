@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MATTRNSP_SS ( NROWA, NCOLA, NTERM, MAT_A_NAME, I_A, J_A, A, MAT_AT_NAME, I_AT, J_AT, AT )
 
 ! Transposes input matrix defined by arrays I_A, J_A, A (CRS sparse format) and puts result into output arrays
-! I_AT, J_AT, AT (also in CRS sparse format) 
- 
+! I_AT, J_AT, AT (also in CRS sparse format)
+
 ! Input matrix A is stored in compressed row storage (CRS) format using arrays I_A(NROWA+1), J_A(NTERM_A) A(NTERM_A) where NROWA
 ! is the number of rows in matrix A and NTERM_A are the number of nonzero terms in matrix A:
 
@@ -55,15 +55,15 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE MATTRNSP_SS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MATTRNSP_SS'
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_A_NAME        ! Name of matrix to be transposed
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_AT_NAME       ! Name of matrix that is transposed
- 
+
       INTEGER(LONG), INTENT(IN)       :: NCOLA             ! Number of cols in input matrix, A
       INTEGER(LONG), INTENT(IN)       :: NROWA             ! Number of rows in input matrix, A
       INTEGER(LONG), INTENT(IN)       :: NTERM             ! Number of nonzero terms in input matrix, A
@@ -77,9 +77,9 @@
 
       REAL(DOUBLE) , INTENT(IN)       :: A(NTERM)          ! Real nonzero values in input  matrix A
       REAL(DOUBLE) , INTENT(OUT)      :: AT(NTERM)         ! Real nonzero values in output matrix AT
-      
+
       INTEGER(LONG)                   :: TMP, COL          ! temp variables for storage in loops
-      INTEGER(LONG)                   :: CUMSUM            ! cumulative sum 
+      INTEGER(LONG)                   :: CUMSUM            ! cumulative sum
 
 
 ! **********************************************************************************************************************************
@@ -165,7 +165,7 @@
          WRITE(F06,1016) NROWA, NCOLA, NTERM
          WRITE(F06,*)
 
-         WRITE(F06,2800) 
+         WRITE(F06,2800)
          WRITE(F06,*)
          WRITE(F06,3001)
          DO II=1,NROWA+1
@@ -180,7 +180,7 @@
 
       ELSE IF (WHICH == '2') THEN
 
-         WRITE(F06,2800) 
+         WRITE(F06,2800)
          WRITE(F06,3020) MAT_AT_NAME, NCOLA, NROWA, NTERM
          WRITE(F06,*)
          WRITE(F06,3021)

@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE WRITE_FEMAP_STRE_VECS ( ELEM_TYP, IS_PCOMP, NUM_FEMAP_ROWS, FEMAP_SET_ID )
- 
+
 ! Writes elem stress to FEMAP neutral file for ELAS, ROD, BAR, TRIA3, QUAD4, SHEAR, HEXA, PENTA, TETRA4
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -35,11 +35,11 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRE_OPT
       USE FEMAP_ARRAYS, ONLY          :  FEMAP_EL_NUMS, FEMAP_EL_VECS
- 
+
       USE WRITE_FEMAP_STRE_VECS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_FEMAP_STRE_VECS'
       CHARACTER(LEN=*), INTENT(IN)    :: ELEM_TYP               ! Element type
       CHARACTER(LEN=*), INTENT(IN)    :: IS_PCOMP               ! 'Y'/'N' for whether elements are PCOMP
@@ -72,7 +72,7 @@
       REAL(DOUBLE)                    :: VEC_ABS                ! Abs value in vector
       REAL(DOUBLE)                    :: VEC_MAX                ! Max value in vector
       REAL(DOUBLE)                    :: VEC_MIN                ! Min value in vector
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -248,7 +248,7 @@
          TITLE_E( 6) = 'EndB Pt3 Comb Stress';   CALC_WARN( 6) = '0';   COMP_DIR( 6) = '3';   CENT_TOTAL( 6) = '1'
          TITLE_E( 7) = 'EndA Pt4 Comb Stress';   CALC_WARN( 7) = '0';   COMP_DIR( 7) = '3';   CENT_TOTAL( 7) = '1'
          TITLE_E( 8) = 'EndB Pt4 Comb Stress';   CALC_WARN( 8) = '0';   COMP_DIR( 8) = '3';   CENT_TOTAL( 8) = '1'
-         TITLE_E( 9) = 'EndA Max Stress'     ;   CALC_WARN( 9) = '1';   COMP_DIR( 9) = '3';   CENT_TOTAL( 9) = '1' 
+         TITLE_E( 9) = 'EndA Max Stress'     ;   CALC_WARN( 9) = '1';   COMP_DIR( 9) = '3';   CENT_TOTAL( 9) = '1'
          TITLE_E(10) = 'EndB Max Stress'     ;   CALC_WARN(10) = '1';   COMP_DIR(10) = '3';   CENT_TOTAL(10) = '1'
          TITLE_E(11) = 'EndA Min Stress'     ;   CALC_WARN(11) = '1';   COMP_DIR(11) = '3';   CENT_TOTAL(11) = '1'
          TITLE_E(12) = 'EndB Min Stress'     ;   CALC_WARN(12) = '1';   COMP_DIR(12) = '3';   CENT_TOTAL(12) = '1'
@@ -360,7 +360,7 @@
             WRITE(F06,*) ' *WARNING    : CODE NOT WRITTEN FOR FEMAP PROCESSING OF STRESSES FOR PCOMP TYPE ELEMWMTS'
 
          ENDIF
-  
+
       ELSE IF (ELEM_TYP(1:5) == 'SHEAR') THEN
 
          IF (IS_PCOMP == 'N') THEN
@@ -455,7 +455,7 @@
          ENDDO
 
       ENDIF
-       
+
 
 
 
@@ -481,5 +481,5 @@
  1008 FORMAT('      -1,     0.          ,')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_FEMAP_STRE_VECS

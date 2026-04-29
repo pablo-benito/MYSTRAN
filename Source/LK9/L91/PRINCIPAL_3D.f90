@@ -1,47 +1,47 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE PRINCIPAL_3D ( STR, PRINCIPAL_STR, MEAN, VONMISES, SIG_OCT, TAU_OCT )
- 
+
 ! Calculates principal stresses or stains in solid elems:
 
-!     (a) If STR input vector is stress then outputs are stress. 
-!     (b) If STR input vector is strain then outputs are strain 
- 
+!     (a) If STR input vector is stress then outputs are stress.
+!     (b) If STR input vector is strain then outputs are strain
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, HALF, TWO, THREE
       USE PARAMS, ONLY                :  SUPWARN
- 
+
       USE PRINCIPAL_3D_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'PRINCIPAL_3D'
 
       INTEGER(LONG)                   :: I,J         = 0    ! DO loop indices
@@ -55,15 +55,15 @@
       REAL(DOUBLE), INTENT(OUT)       :: TAU_OCT            ! Octrahedral shear  stress or strain
       REAL(DOUBLE), INTENT(OUT)       :: VONMISES           ! Octahedral stress or strain
       REAL(DOUBLE)                    :: SIG1,SIG2,SIG3     ! Principal stresses or strains
-!xx   REAL(DOUBLE)                    :: I1,I2,I3           ! Invariants of Cauchy stress or strain tensor      
+!xx   REAL(DOUBLE)                    :: I1,I2,I3           ! Invariants of Cauchy stress or strain tensor
       REAL(DOUBLE)                    :: Q(3,3)             ! Output from subr ROOTS_3D, called herein (transform to princ dir's)
       REAL(DOUBLE)                    :: STR_TENSOR(3,3)    ! Principal stresses or strains in a 3x3 matrix
       REAL(DOUBLE)                    :: TAU12,TAU23,TAU13  ! Max shear stresses or strains
- 
+
       EXTERNAL                        :: DGEMM
 
       INTRINSIC                       :: DABS, DATAN2, DSQRT
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -107,24 +107,24 @@
 ! **********************************************************************************************************************************
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
- 
+
       SUBROUTINE ROOTS_3D ( STR_TENSOR, Q, INFO )
- 
+
 ! Jacobi solution for 3x3 eigenvalue problem used in finding principal moments of inertia
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE LAPACK_STD_EIG_1
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ROOTS_3D'
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: CALLED_SUBR = ' ' ! Name of a called subr (for output error purposes)
       CHARACTER( 1*BYTE), PARAMETER   :: JOBZ      = 'V'   ! Indicates to solve for eigenvalues and vectors in LAPACK subr DSYEV
@@ -145,15 +145,15 @@
 !                                                            On exit , the principal stresses or strains (if INFO = 0)
       REAL(DOUBLE) , INTENT(OUT)      :: Q(N,N)            ! Transformation from basic to principal directions
 !                                                            Q = Z'. That is;
-!                                                            U(principal) = Q*U(basic), where U is a displ vector 
+!                                                            U(principal) = Q*U(basic), where U is a displ vector
       REAL(DOUBLE)                    :: Z(N,N)            ! When subr DSYEV is called, Z = input STR_TENSOR
 !                                                            When subr DSYEV returns, Z = eigenvecs: PMOI = Z'*STR_TENSOR*Z
-      REAL(DOUBLE)                    :: DUM(N,N)          ! Intermediate result in calculating Z'*STR_TENSOR*Z 
+      REAL(DOUBLE)                    :: DUM(N,N)          ! Intermediate result in calculating Z'*STR_TENSOR*Z
       REAL(DOUBLE) , PARAMETER        :: ALPHA     = ONE   ! Scalar multiplier for subr DGEMM
       REAL(DOUBLE) , PARAMETER        :: BETA      = ZERO  ! Scalar multiplier for subr DGEMM
       REAL(DOUBLE)                    :: PSTR(N)           ! Principal stresses or strains in a 1-D array
       REAL(DOUBLE)                    :: WORK(LWORK)       ! Workspace
- 
+
 !xx   EXTERNAL                        :: DGEMM
 
 
@@ -177,12 +177,12 @@
             Q(I,J) = ZERO
          ENDDO
       ENDDO
- 
+
       CALL DSYEV ( JOBZ, UPLO, N, Z, N, PSTR, WORK, LWORK, INFO )
 
-! Set STR_TENSOR matrix to zero for off-diag terms and to STR_TENSOR for diag terms. Set Q = Z' (' = transpose) 
+! Set STR_TENSOR matrix to zero for off-diag terms and to STR_TENSOR for diag terms. Set Q = Z' (' = transpose)
 
-      CALLED_SUBR = 'DSTEQR'      
+      CALLED_SUBR = 'DSTEQR'
       IF      (INFO < 0) THEN                              ! LAPACK subr XERBLA should have reported error on an illegal argument
 !                                                            in a called LAPACK subr, so we should not have gotten here
          WRITE(ERR,993) SUBR_NAME, CALLED_SUBR
@@ -214,8 +214,8 @@
          TRANSB = 'N'
          CALL DGEMM ( TRANSA, TRANSB, N, N, N, ALPHA, Z,    N, DUM, N, BETA, STR_TENSOR, N )
 
-      ENDIF  
-      
+      ENDIF
+
 
 
 
@@ -230,7 +230,7 @@
                     ,/,14X,' CANNOT CONVERGE IN ATTEMPTING TO FIND PRINCIPAL STRESSES/STRAINS'                                     &
                     ,/,14X,' THE ALGORITHM HAS FAILED TO FIND ALL THE EIGENVALUES (PRINCIPAL STRESSES/STRAINS) IN 90 ITERATIONS'   &
                     ,/,14X,' PRINCIPAL STRESSES/STRAINS AND PRINCIPAL DIRECTIONS CANNOT BE FOUND')
- 
+
 ! **********************************************************************************************************************************
 
       END SUBROUTINE ROOTS_3D

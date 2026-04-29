@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE KGG_SINGULARITY_PROC ( AGRID, KGRD, NUM_ASPC_BY_COMP )
- 
+
 ! Grid point singularity processor. The algorithm is based on input matrix KGRD that is the 6x6 matrix from the diagonal of KGG for
-! one grid point. The 2 3x3 diagonal partitions from KGRD are checked to see if there are any singularities based on: 
+! one grid point. The 2 3x3 diagonal partitions from KGRD are checked to see if there are any singularities based on:
 
 !     1) Get eigenvalues and eigenvectors of each of the 3x3 matrices (one for translation and 1 for rotation). Calc the ratios of
 !        the 3 eigenvales to the max value (among the 3) and, if the ratio is less than AUTOSPC_RAT, mark the DOF for AUTOSPC.
@@ -58,7 +58,7 @@
       INTEGER(LONG), INTENT(INOUT)    :: NUM_ASPC_BY_COMP(6)! The number of DOF's AUTOSPC'd for each displ component
       INTEGER(LONG)                   :: EIGENVAL_NUM(6)    ! Array to hold the eigenvalue number used in finding a SINGLR_COMP
       INTEGER(LONG)                   :: GRID_ID_ROW_NUM    ! Row number in array GRID_ID where AGRID is found
-      INTEGER(LONG)                   :: IDOF               ! Internal DOF number         
+      INTEGER(LONG)                   :: IDOF               ! Internal DOF number
       INTEGER(LONG)                   :: I,J,K              ! DO loop indices
       INTEGER(LONG)                   :: IGRID              ! Internal grid ID
       INTEGER(LONG)                   :: INFO               ! See subr K33_EIGENS (CONTAIN'ed herein)
@@ -223,7 +223,7 @@ deb_17:        IF (DEBUG(17) > 0) THEN
          IF (CONSTR_COMP(I) == 'Y') THEN
             SINGLR_COMP_CHAR(I:I) = ' '
          ENDIF
-      ENDDO 
+      ENDDO
 
       DO I=1,6                                             ! Reset table TSET for the DOF's AUTOSPC'd and increment NUM_ASPC_BY_COMP
          IF (SINGLR_COMP_CHAR(I:I) /= ' ') THEN
@@ -231,7 +231,7 @@ deb_17:        IF (DEBUG(17) > 0) THEN
                CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, AGRID, GRID_ID_ROW_NUM )
                TSET ( GRID_ID_ROW_NUM, I ) = 'SA'
                NDOFSA = NDOFSA + 1
-               NUM_ASPC_BY_COMP(I) = NUM_ASPC_BY_COMP(I) + 1               
+               NUM_ASPC_BY_COMP(I) = NUM_ASPC_BY_COMP(I) + 1
             ENDIF
          ENDIF
       ENDDO
@@ -251,7 +251,7 @@ deb_17:        IF (DEBUG(17) > 0) THEN
             ENDIF
          ENDIF
       ENDIF
- 
+
       DO I=1,6                                             ! If requested, write SPC1 card images to text file for singulaqr DOF's
          IF (SINGLR_COMP_CHAR(I:I) /= ' ') THEN
             IF (PCHSPC1 == 'Y') THEN
@@ -275,23 +275,23 @@ deb_17:        IF (DEBUG(17) > 0) THEN
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
- 
+
       SUBROUTINE K33_EIGENS (K33, K33_LAMBDAS, K33_VECS, INFO )
- 
+
 ! Jacobi solution for 3x3 eigenvalue problem used in finding the eigenvalues of a 3x3 diag partition of a 6x6 grid stiffness matrix
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE CONSTANTS_1, ONLY           :  ZERO
       USE LAPACK_STD_EIG_1
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: CALLED_SUBR = ' ' ! Name of a called subr (for output error purposes)
       CHARACTER( 1*BYTE), PARAMETER   :: JOBZ      = 'V'   ! Indicates to solve for eigenvalues and vectors in LAPACK subr DSYEV
       CHARACTER( 1*BYTE), PARAMETER   :: UPLO      = 'U'   ! Indicates array A is the upper triangular part of K33
@@ -309,7 +309,7 @@ deb_17:        IF (DEBUG(17) > 0) THEN
       REAL(DOUBLE) , INTENT(OUT)      :: K33_VECS(N,N)     ! Prior to entry to DSYEV, K33_VECS is set = K33.
 !                                                            On exit, K33_VECS contains the eigenvectors of K33
       REAL(DOUBLE)                    :: WORK(LWORK)       ! Workspace for subr DSYEV
- 
+
 ! **********************************************************************************************************************************
 ! Initialize outputs
 
@@ -332,9 +332,9 @@ deb_17:        IF (DEBUG(17) > 0) THEN
             K33_VECS(I,J) = K33(I,J)
          ENDDO
       ENDDO
- 
+
       CALL DSYEV ( JOBZ, UPLO, N, K33_VECS, N, K33_LAMBDAS, WORK, LWORK, INFO )
-      CALLED_SUBR = 'DSYEV'      
+      CALLED_SUBR = 'DSYEV'
 
       IF      (INFO < 0) THEN                              ! LAPACK subr XERBLA should have reported error on an illegal argument
                                                            ! in a call to a LAPACK subr, which would only occur if the call to DSYEV
@@ -361,35 +361,35 @@ deb_17:        IF (DEBUG(17) > 0) THEN
  1612 FORMAT(' *ERROR  1612: LAPACK DRIVER ',A8,' CALLED BY SUBROUTINE ',A                                                         &
                     ,/,14X,' CANNOT CONVERGE IN ATTEMPTING TO FIND K33 EIGENVALUES AND EIGENVECTORS'                               &
                     ,/,14X,' THE ALGORITHM HAS FAILED TO FIND ALL THE EIGENVALUES (PRINCIPAL MOIs) IN 90 ITERATIONS')
- 
+
 ! **********************************************************************************************************************************
 
       END SUBROUTINE K33_EIGENS
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE KGG_SING_PROC_DEBUG ( WHAT )
- 
+
 ! Debug output for KGG singularity calcs
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE LAPACK_STD_EIG_1
- 
+
       IMPLICIT NONE
- 
+
       INTEGER(LONG)                   :: COMP_NUM          ! Displ component number (1 - 6)
       INTEGER(LONG)                   :: II,JJ             ! DO loop indices
       INTEGER(LONG)                   :: WHAT              ! What to print out
 
 ! **********************************************************************************************************************************
       IF     ( WHAT == 1) THEN
-      
+
          WRITE(F06,201) NDOFSA+1, AGRID                    ! Use NDOFSA+1 since NDOFSA is not incremented until later
-         
+
       ELSE IF (WHAT == 2) THEN
-      
+
          IF      (K == 1) THEN
             WRITE(F06,202)
             WRITE(F06,204)
@@ -397,13 +397,13 @@ deb_17:        IF (DEBUG(17) > 0) THEN
             WRITE(F06,203)
             WRITE(F06,204)
          ENDIF
-         
+
          DO II=1,3
             COMP_NUM = II + 3*(K - 1)
             WRITE(F06,205) COMP_NUM,(K33(II,JJ),JJ=1,3),II,K33_LAMBDAS(II),(K33_VECS(II,JJ),JJ=1,3)
          ENDDO
          WRITE(F06,*)
-         
+
       ELSE IF (WHAT == 3) THEN
 
          WRITE(F06,101) I2, EIGENVAL_NUM(I2), I2, EIGENVAL_NUM(I2), I2

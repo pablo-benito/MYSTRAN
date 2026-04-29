@@ -1,38 +1,38 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
-! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
 
-      SUBROUTINE MERGE_MXX  
- 
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
+! _______________________________________________________________________________________________________
+
+! End MIT license text.
+
+      SUBROUTINE MERGE_MXX
+
 ! Merges matrices to get CB stifness matrix:
 
 !                    | MRRcb  MRN   |        MRRcb = MRR + MRL*DLR + (MRL*DLR)' + DLR'*MLL*DLR
 !            MXX   = |              |        MRN   = (MRL + DLR'*MLL)*EIGEN_VEC
 !                    |  sym    Mee  |        Mee   = generalized MASSES for the eigenvectors of the L-set
 
- 
+
 ! For a description of Craig-Bamptom analyses, see Appendix D to the MYSTRAN User's Referance Manual
 
 
@@ -50,23 +50,23 @@
       USE MERGE_MXX_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MERGE_MXX  '
 
       INTEGER(LONG)                   :: I,J                ! DO loop indices
-      INTEGER(LONG)                   :: I_GEN_MASS2(NVEC+1)! 
-      INTEGER(LONG)                   :: I_MNR(NVEC+1)      ! 
+      INTEGER(LONG)                   :: I_GEN_MASS2(NVEC+1)!
+      INTEGER(LONG)                   :: I_MNR(NVEC+1)      !
       INTEGER(LONG)                   :: I_MXXa(NDOFR+1)    ! Upper NDOFR rows of MXX
       INTEGER(LONG)                   :: I_MXXb(NVEC+1)     ! Lower NVEC  rows of MXX
-      INTEGER(LONG)                   :: J_GEN_MASS2(NVEC)  ! 
+      INTEGER(LONG)                   :: J_GEN_MASS2(NVEC)  !
       INTEGER(LONG)                   :: J_MNR(NTERM_MRN)   !
       INTEGER(LONG)                   :: J_MXXa(NTERM_MRRcbn+NTERM_MRN)
       INTEGER(LONG)                   :: J_MXXb(NTERM_MRN+NVEC)
 !xx   INTEGER(LONG)                   :: K1,K2              ! Counters
-      INTEGER(LONG)                   :: MXXn_MERGE_VEC(NDOFR+NVEC) 
-      INTEGER(LONG)                   :: NTERM_MNR          ! 
-      INTEGER(LONG)                   :: NTERM_MXXa         ! 
-      INTEGER(LONG)                   :: NTERM_MXXb         ! 
+      INTEGER(LONG)                   :: MXXn_MERGE_VEC(NDOFR+NVEC)
+      INTEGER(LONG)                   :: NTERM_MNR          !
+      INTEGER(LONG)                   :: NTERM_MXXa         !
+      INTEGER(LONG)                   :: NTERM_MXXb         !
 !xx   INTEGER(LONG)                   :: NUM_MNR_IN_ROW_I   ! Number of terms in row i of MNR
 
 
@@ -78,9 +78,9 @@
 
 
 ! **********************************************************************************************************************************
-      NTERM_MNR  = NTERM_MRN            
+      NTERM_MNR  = NTERM_MRN
       NTERM_MXXa = NTERM_MRRcbn + NTERM_MRN
-      NTERM_MXXb = NTERM_MNR + NVEC       
+      NTERM_MXXb = NTERM_MNR + NVEC
 
 ! NTERM_MRRcbn was set in subr CALC_MRRcb
 
@@ -172,7 +172,7 @@
                                 'MXXb', NVEC , NTERM_MXXb, I_MXXb, J_MXXb, MXXb, 2, MXXn_MERGE_VEC,                                &
                                 'MXXn'                   , I_MXXn, J_MXXn, MXXn )
 
-! Convert MXXn to symmetric format MXX  
+! Convert MXXn to symmetric format MXX
 
       IF (SPARSTOR == 'SYM   ') THEN
 
@@ -188,7 +188,7 @@
          DO I=1,NDOFR+NVEC+1
             I_MXX(I) = I_MXXn(I)
          ENDDO
-         DO J=1,NTERM_MXX  
+         DO J=1,NTERM_MXX
             J_MXX(J) = J_MXXn(J)
               MXX(J) =   MXXn(J)
          ENDDO
@@ -202,7 +202,7 @@
       ENDIF
 
 
- 
+
       RETURN
 
 ! **********************************************************************************************************************************
@@ -210,5 +210,5 @@
                     ,/,14X,' PARAMETER SPARSTOR MUST BE EITHER "SYM" OR "NONSYM" BUT VALUE IS ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE MERGE_MXX

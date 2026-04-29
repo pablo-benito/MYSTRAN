@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ELEM_TRANSFORM_LBG ( WHICH, ZE, QE )
- 
+
 ! Transforms one element stiff, mass, thermal load or pressure load matrix from local to basic to global coords at each
 ! grid including the effects of element offsets. The element matrix is input in array ZE or QE in local element
 ! coords. The output is array ZE or QE containing the element stiff or mass matrix in global coords at each grid.  Note that plate
@@ -44,11 +44,11 @@
       USE ELEM_TRANSFORM_LBG_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ELEM_TRANSFORM_LBG'
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option flags for subr ELMTLB (to tell it what to transform)
       CHARACTER(LEN=*), INTENT(IN)    :: WHICH             ! 'K' for stiffness, 'M' for mass or 'PTE' for thermal load matrix
- 
+
       INTEGER(LONG)                   :: ACIDJ             ! Actual global coord sys ID for elem grid GRID_ID_ROW_NUM_J
       INTEGER(LONG)                   :: ACIDK             ! Actual global coord sys ID for elem grid GRID_ID_ROW_NUM_K
       INTEGER(LONG)                   :: BEG_ROW_GET       ! An input to subr MATGET/MATPUT (what row to start get/put rows)
@@ -64,17 +64,17 @@
       INTEGER(LONG), PARAMETER        :: NROW_GET  = 3     ! An input to subr MATGET/MATPUT (no. rows to get/put)
       INTEGER(LONG), PARAMETER        :: NROWA     = 3     ! An input to subr MATMULT_FFF/MATMULT_FFF_T, called herein
 
- 
+
       REAL(DOUBLE) , INTENT(INOUT)    :: QE(MELDOF,NSUB)   ! PTE or PPE if WHICH = 'PTE' or 'PPE'
       REAL(DOUBLE) , INTENT(INOUT)    :: ZE(MELDOF,MELDOF) ! Either the mass or stiff matrix of the element
-      REAL(DOUBLE)                    :: DUM11(3,3)        ! An intermadiate matrix in a matrix multiply operation 
+      REAL(DOUBLE)                    :: DUM11(3,3)        ! An intermadiate matrix in a matrix multiply operation
       REAL(DOUBLE)                    :: DUM12(3,3)        ! An intermadiate matrix in a matrix multiply operation
       REAL(DOUBLE)                    :: DUM21(3,NSUB)     ! An intermadiate matrix in a matrix multiply operation
       REAL(DOUBLE)                    :: DUM22(3,NSUB)     ! An intermadiate matrix in a matrix multiply operation
       REAL(DOUBLE)                    :: THETAD,PHID       ! Outputs from subr GEN_T0L
       REAL(DOUBLE)                    :: TJ(3,3)           ! Coord transform matrix from basic to global for an internal
       REAL(DOUBLE)                    :: TK(3,3)           ! Coord transform matrix from basic to global for an internal grid
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -118,7 +118,7 @@
       IF (TE_IDENT /= 'Y') THEN
          CALL ELMTLB ( OPT )
       ENDIF
- 
+
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Transform from basic to global coords
 
@@ -144,21 +144,21 @@ k_cord1:       DO K=1,NCORD
                DO K=1,3
                   DO L=1,3
                      TJ(K,L) = ZERO
-                  ENDDO 
+                  ENDDO
                   TJ(K,K) = ONE
-               ENDDO 
+               ENDDO
             ENDIF
- 
+
 k_do1:      DO K=J,ELGP
 
                IF (K == J) THEN                            ! TK transf matrix is same as TJ
-                  ACIDK = ACIDJ   
+                  ACIDK = ACIDJ
                   DO L=1,3
                      DO M=1,3
                         TK(L,M) = TJ(L,M)
-                     ENDDO 
-                  ENDDO 
-               ELSE 
+                     ENDDO
+                  ENDDO
+               ELSE
                   CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, AGRID(K), GRID_ID_ROW_NUM_K )
                   ACIDK = GRID(GRID_ID_ROW_NUM_K,3)
                   IF (ACIDK /= 0) THEN
@@ -173,12 +173,12 @@ l_cord1:             DO L=1,NCORD
                      DO L=1,3
                         DO M=1,3
                            TK(L,M) = ZERO
-                        ENDDO 
+                        ENDDO
                         TK(L,L) = ONE
-                     ENDDO 
+                     ENDDO
                   ENDIF
                ENDIF
- 
+
                IF ((ACIDJ /= 0) .OR. (ACIDK /= 0)) THEN ! Do the coord transformation using TJ, TK coord transformation matrices
                   DO L=1,2
                      BEG_ROW_GET = 6*(J-1) + 1 + 3*(L-1)
@@ -188,19 +188,19 @@ l_cord1:             DO L=1,NCORD
                         CALL MATMULT_FFF   ( DUM11, TK, 3    , 3    , 3    , DUM12 )
                         CALL MATMULT_FFF_T ( TJ, DUM12, 3    , 3    , 3    , DUM11 )
                         CALL MATPUT ( DUM11, MELDOF, NCOL_IN, BEG_ROW_GET, BEG_COL_GET, NROW_GET, NCOL_GET, ZE )
-                     ENDDO 
-                  ENDDO 
+                     ENDDO
+                  ENDDO
 
                ENDIF
 
             ENDDO k_do1
- 
+
          ENDDO j_do1
 
          DO I=2,ELDOF                                      ! Set lower triangular partition equal to upper partition
             DO J=1,I-1
                ZE(I,J) = ZE(J,I)
-            ENDDO    
+            ENDDO
          ENDDO
 
       ENDIF ke_me
@@ -238,16 +238,16 @@ k_cord2:       DO K=1,NCORD
                   CALL MATMULT_FFF_T ( TJ, DUM21, 3    , 3    , NCOLB, DUM22 )
                   CALL MATPUT ( DUM22, MELDOF, NCOL_IN, BEG_ROW_GET, BEG_COL_GET, NROW_GET, NCOL_GET, QE )
                   BEG_ROW_GET = BEG_ROW_GET + 3
-               ENDDO 
+               ENDDO
             ELSE
                DO K=1,3
                   DO L=1,3
                      TJ(K,L) = ZERO
-                  ENDDO 
+                  ENDDO
                   TJ(K,K) = ONE
-               ENDDO 
+               ENDDO
             ENDIF
- 
+
          ENDDO j_do2
 
       ENDIF pte_1
@@ -255,15 +255,15 @@ k_cord2:       DO K=1,NCORD
 ! Transform the matrix from global at elem ends to global at grids for BAR, BEAM, BUSH
 
       IF ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ') .OR. (TYPE == 'BUSH    ')) THEN
-         CALL ELMOFF ( OPT, 'N' ) 
-   
+         CALL ELMOFF ( OPT, 'N' )
+
          IF (WHICH == 'KE') THEN                           ! Set the KE which was just calc'd in global coords with offsets to KEG
             DO I=1,ELDOF
                DO J=1,ELDOF
                   KEG(I,J) = ZE(I,J)
                ENDDO
             ENDDO
-         ENDIF 
+         ENDIF
 
 
       ENDIF
@@ -287,9 +287,9 @@ k_cord2:       DO K=1,NCORD
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE GET_KE_OFFSET
@@ -311,7 +311,7 @@ k_cord2:       DO K=1,NCORD
       INTEGER(LONG)                   :: NCOLB             ! No. cols in a matrix for subr MATMULT_FFF/MATMULT_FFF_T, called herein
       INTEGER(LONG), PARAMETER        :: NROW      = 3     ! No. rows to get/put for subrs MATGET/MATPUT, called herein
       INTEGER(LONG), PARAMETER        :: NROWA     = 3     ! No. rows in a matrix for subr MATMULT_FFF/MATMULT_FFF_T, called herein
-  
+
       REAL(DOUBLE)                    :: DUM11(3,3)        ! An intermediate result
       REAL(DOUBLE)                    :: DUM12(3,3)        ! An intermediate result
       REAL(DOUBLE)                    :: TET(3,3)          ! Transpose of TE
@@ -335,15 +335,15 @@ k_cord2:       DO K=1,NCORD
             CALL MATMULT_FFF   ( DUM11, TET_GA_GB, NROWA, NCOLA, NCOLB, DUM12 )
             CALL MATMULT_FFF_T ( TE_GA_GB, DUM12, NROWA, NCOLA, NCOLB, DUM11 )
             CALL MATPUT ( DUM11, SIZE(KEO_BUSH, 2), SIZE(KEO_BUSH, 1), BEG_ROW, BEG_COL, NROW, NCOL, KEO_BUSH )
-         ENDDO 
+         ENDDO
       ENDDO
       DO II=1,ELDOF                                        ! Set lower portion of KE using symmetry.
          DO JJ=1,II-1
             KEO_BUSH(II,JJ) = KEO_BUSH(JJ,II)
-         ENDDO 
+         ENDDO
       ENDDO
 
- 
+
 
 
 ! **********************************************************************************************************************************

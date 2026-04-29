@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE EMP
- 
+
 ! Element mass processor
- 
+
 ! EMP generates the portion of the G-set mass matrix due to element mass and puts it into the 1D array EMS of nonzero mass terms
-! above the diagonal. Integer arrays EMSKEY, EMSPNT and EMSCOL are generated to form a linked list for the mass terms. 
- 
+! above the diagonal. Integer arrays EMSKEY, EMSPNT and EMSCOL are generated to form a linked list for the mass terms.
+
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, F22, F22FIL, F22_MSG, SC1, WRT_BUG, WRT_ERR
@@ -43,18 +43,18 @@
       USE DOF_TABLES, ONLY            :  TDOF, TDOF_ROW_START
       USE MODEL_STUF, ONLY            :  AGRID, ELDT, ELDOF, ELGP, GRID_ID, NUM_EMG_FATAL_ERRS, ME, OELDT, PLY_NUM, TYPE
       USE EMS_ARRAYS, ONLY            :  EMS, EMSCOL, EMSKEY, EMSPNT
- 
+
       USE EMP_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'EMP'
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option flags for subr EMG (to tell it what to calc)
- 
+
       INTEGER(LONG)                   :: EDOF(MELDOF)      ! A list of the G-set DOF's for an elem
       INTEGER(LONG)                   :: EDOF_ROW_NUM      ! Row number in array EDOF
-      INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept 
+      INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: I1                ! Intermediate variable resulting from an IAND operation
       INTEGER(LONG)                   :: IDUM              ! Dummy variable used when flipping DOF's
@@ -69,15 +69,15 @@
       INTEGER(LONG)                   :: MGG_ROWJ          ! Another row no. in EMS
       INTEGER(LONG)                   :: MGG_COL           ! A col no. in MGG
       INTEGER(LONG)                   :: NUM_COMPS         ! 6 if GRID is a physical grid, 1 if a scalar point
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr READERR  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr READERR
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
       INTEGER(LONG)                   :: TDOF_ROW_NUM      ! Row number in array TDOF
                                                            ! Indicator for output of elem data to BUG file
 
- 
+
       REAL(DOUBLE)                    :: DQE(MELDOF,NSUB)  ! Dummy array in call to ELEM_TRANSFORM_LBG
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
- 
+
       INTRINSIC                       :: DABS, IAND
 
 
@@ -99,24 +99,24 @@
       ENDDO
 
 ! Set up the option flags for EMG:
- 
+
       OPT(1) = 'Y'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'N'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'N'                                         ! OPT(3) is for calc of SEi, STEi
       OPT(4) = 'N'                                         ! OPT(4) is for calc of KE-linear
       OPT(5) = 'N'                                         ! OPT(5) is for calc of PPE
       OPT(6) = 'N'                                         ! OPT(6) is for calc of KE-diff stiff
- 
+
 ! Process the elements:
- 
+
       IS  = 0
       ISS = IS
       IF ((DEBUG(10) == 22) .OR. (DEBUG(10) == 23) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
          CALL DUMPEMS ( '0', 0, 0, 0, 0, 0, 0 )
       ENDIF
- 
+
       IERROR = 0
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       CALL COUNTER_INIT('     Calculating mass matrix. Process elem   ', NELE)
       elems:DO I=1,NELE
 
@@ -141,7 +141,7 @@
          IF (NUM_EMG_FATAL_ERRS /=0) THEN
             IERROR = IERROR + NUM_EMG_FATAL_ERRS
             CYCLE elems
-         ENDIF 
+         ENDIF
 
          I1 = IAND(OELDT,IBIT(ELDT_F22_ME_BIT))            ! Do we need to write elem mass matrices to F22 files
          IF (I1 > 0) THEN
@@ -159,9 +159,9 @@
                TDOF_ROW_NUM       = ROW_NUM_START + K - 1
                EDOF_ROW_NUM       = EDOF_ROW_NUM + 1
                EDOF(EDOF_ROW_NUM) = TDOF(TDOF_ROW_NUM, G_SET_COL_NUM)
-            ENDDO 
+            ENDDO
          ENDDO
- 
+
 ! Transform ME from local at the elem ends to basic at elem ends to global at elem ends to global at grids.
 
                                                            ! Transform PTE from local-basic-global
@@ -170,10 +170,10 @@
             CALL ELEM_TRANSFORM_LBG ( 'ME', ME, DQE )
 24357 format(6(1es14.6))
 
-         ENDIF 
+         ENDIF
 
-! Put the element mass matrix, ME, into EMS array. J ranges over rows, K over cols of elem mass matrix, ME 
- 
+! Put the element mass matrix, ME, into EMS array. J ranges over rows, K over cols of elem mass matrix, ME
+
 mgg_rows:DO J = 1,ELDOF
             MGG_ROWJ  = EDOF(J)
             IF ((DEBUG(10) == 22) .OR. (DEBUG(10) == 23) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
@@ -192,7 +192,7 @@ mgg_cols:   DO K = KSTART,ELDOF
                IF (DABS(ME(J,K)) < EPS1) THEN
                   CYCLE mgg_cols
                ENDIF
- 
+
                IF (SPARSTOR == 'SYM') THEN                 ! If 'SYM', Flip MGG_COL,MGG_ROW if MGG_COL < MGG_ROW
                   IF (MGG_COL < MGG_ROW) THEN
                      IDUM    = MGG_ROW
@@ -226,8 +226,8 @@ mgg_cols:   DO K = KSTART,ELDOF
 emspnt0:          DO                                       ! so, run this loop until we find a place to put ME(J,K). If there is
                                                            ! already a term in this row w/ same DOF's as ME(J,K), loop runs once.
                                                            ! If not, then this loop runs until it finds EMSPNT=0, and insetrs term.
- 
-                     IF (MGG_COL == EMSCOL(IS)) THEN       ! There is a term that exists with same DOF'S as ME(J,K) so add terms 
+
+                     IF (MGG_COL == EMSCOL(IS)) THEN       ! There is a term that exists with same DOF'S as ME(J,K) so add terms
 
                         EMS(IS) = EMS(IS) + ME(J,K)
                         IF ((DEBUG(10) == 22) .OR. (DEBUG(10) == 23) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
@@ -235,12 +235,12 @@ emspnt0:          DO                                       ! so, run this loop u
                         ENDIF
 
                         CYCLE mgg_cols                     ! We have added a term to EMS so exit this loop and do next col of MGG
- 
+
                      ELSE                                  ! This is a new term for row J. Need to cycle until we find EMSPNT = 0.
                                                            ! Then we can put ME(J,K) in EMS
                         ISS = IS
                         IS  = EMSPNT(IS)
-                        IF (IS == 0) THEN                  ! We are at end of where terms are in this row, so ME(J,K) goes here 
+                        IF (IS == 0) THEN                  ! We are at end of where terms are in this row, so ME(J,K) goes here
                            IF (NTERM_MGGE+1 > LTERM_MGGE) THEN
                               WRITE(ERR,1624) SUBR_NAME, 'MASS', 'LTERM_MGGE', LTERM_MGGE
                               WRITE(F06,1624) SUBR_NAME, 'MASS', 'LTERM_MGGE', LTERM_MGGE
@@ -248,39 +248,39 @@ emspnt0:          DO                                       ! so, run this loop u
                            ENDIF
                            NTERM_MGGE        = NTERM_MGGE+1! Increment NTERM_MGGE
                            EMSPNT(ISS)       = NTERM_MGGE  ! EMSPNT for the current ME(J,K) term
-                           EMSPNT(NTERM_MGGE) = 0          ! Latest EMSPNT is set to 0 so we will know when to insert next ME(J,K) 
+                           EMSPNT(NTERM_MGGE) = 0          ! Latest EMSPNT is set to 0 so we will know when to insert next ME(J,K)
                            EMSCOL(NTERM_MGGE) = MGG_COL    ! EMSCOL always is MGG_COL
                            EMS   (NTERM_MGGE) = ME(J,K)
                            IF ((DEBUG(10) == 22) .OR. (DEBUG(10) == 23) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
                               CALL DUMPEMS ( 'C', J, K, MGG_ROW, MGG_COL, IS, ISS )
                            ENDIF
 
-                           CYCLE mgg_cols                  ! We put ME(J,K) into EMS so exit this loop and do next col of MGG 
+                           CYCLE mgg_cols                  ! We put ME(J,K) into EMS so exit this loop and do next col of MGG
                         ELSE                               ! EMSPNT /= 0 so cycle this loop until we get it = 0
                            CYCLE emspnt0
                         ENDIF
- 
+
                      ENDIF
 
-                  ENDDO emspnt0 
- 
-               ENDIF
- 
-            ENDDO mgg_cols 
+                  ENDDO emspnt0
 
-         ENDDO mgg_rows 
+               ENDIF
+
+            ENDDO mgg_cols
+
+         ENDDO mgg_rows
          CALL COUNTER_PROGRESS(I)
 
-      ENDDO elems 
+      ENDDO elems
 
       WRITE(SC1,*) CR13
 
 ! Debug output:
-  
+
       IF((DEBUG(10) == 21) .OR. (DEBUG(10) == 22) .OR. (DEBUG(10) == 23) .OR.                                                     &
          (DEBUG(10) == 31) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
          WRITE(F06,1260)
-         MAX_NUM = MAX(NTERM_MGGE,NDOFG) 
+         MAX_NUM = MAX(NTERM_MGGE,NDOFG)
          DO I=1,MAX_NUM
             IF      (MAX_NUM == NTERM_MGGE) THEN
                IF (NDOFG >= I) THEN
@@ -295,15 +295,15 @@ emspnt0:          DO                                       ! so, run this loop u
                   WRITE(F06,1263) I,EMSKEY(I)
                ENDIF
             ENDIF
-         ENDDO 
+         ENDDO
          WRITE(F06,*)
       ENDIF
- 
+
 ! Reset subr EMG option flags:
- 
+
       OPT(3) = 'N'
       OPT(4) = 'N'
- 
+
 ! Quit if IERROR > 0
 
       IF (IERROR > 0) THEN
@@ -316,7 +316,7 @@ emspnt0:          DO                                       ! so, run this loop u
       RETURN
 
 ! **********************************************************************************************************************************
- 1260 FORMAT(/,'            I   EMSKEY(I)   EMSCOL(I)   EMSPNT(I)           EMS(I)')      
+ 1260 FORMAT(/,'            I   EMSKEY(I)   EMSCOL(I)   EMSPNT(I)           EMS(I)')
 
  1261 FORMAT(1X,I12,I12,I12,I12,3X,1ES21.14)
 
@@ -333,11 +333,11 @@ emspnt0:          DO                                       ! so, run this loop u
 &******')
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE DUMPEMS ( WHAT, J, K, MGG_ROW, MGG_COL, IS, ISS )
@@ -358,8 +358,8 @@ emspnt0:          DO                                       ! so, run this loop u
       INTEGER(LONG)                   :: ISS               ! A particular value of IS
       INTEGER(LONG)    , INTENT(IN)   :: J                 ! Row number of elem mass matrix term, ME(J,K)
       INTEGER(LONG)    , INTENT(IN)   :: K                 ! Col number of elem mass matrix term, ME(J,K)
-      INTEGER(LONG)    , INTENT(IN)   :: MGG_COL           ! Row number of MGG matrix where ME(J,K) goes 
-      INTEGER(LONG)    , INTENT(IN)   :: MGG_ROW           ! Col number of MGG matrix where ME(J,K) goes 
+      INTEGER(LONG)    , INTENT(IN)   :: MGG_COL           ! Row number of MGG matrix where ME(J,K) goes
+      INTEGER(LONG)    , INTENT(IN)   :: MGG_ROW           ! Col number of MGG matrix where ME(J,K) goes
 
 ! **********************************************************************************************************************************
       IF      (WHAT == '0') THEN

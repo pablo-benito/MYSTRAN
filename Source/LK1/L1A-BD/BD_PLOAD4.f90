@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_PLOAD4 ( CARD, CC_LOAD_FND )
-  
+
 ! Processes PLOAD4 Bulk Data Cards. Reads and checks data and then writes CARD to file LINK1Q for later processing
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1Q
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, LPLOAD, LSUB, NPCARD, NPLOAD,             &
@@ -36,29 +36,29 @@
       USE MODEL_STUF, ONLY            :  PRESS_SIDS, SUBLOD
 
       USE BD_PLOAD4_USE_IFs
- 
+
       IMPLICIT NONE
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_PLOAD4'
       CHARACTER(LEN=*),INTENT(IN)     :: CARD               ! A Bulk Data card
       CHARACTER( 1*BYTE),INTENT(INOUT):: CC_LOAD_FND(LSUB,2)! 'Y' if B.D load/temp card w/ same set ID (SID) as C.C. LOAD = SID
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)          ! The 10 fields of characters making up CARD
- 
+
       INTEGER(LONG)                   :: ELID1,ELID2        ! Elem ID's on parent card. If "THRU" not in field 8, ELID2 is no present
       INTEGER(LONG)                   :: I4INP              ! A value read from input file that should be an integer value
       INTEGER(LONG)                   :: J                  ! DO loop index
       INTEGER(LONG)                   :: JERR               ! Error count
       INTEGER(LONG)                   :: SETID              ! Load set ID on PLOADi card
 
-  
+
       REAL(DOUBLE)                    :: R8INP              ! A value read from input file that should be a real value
- 
+
 
 
 ! **********************************************************************************************************************************
-! PLOAD4 Bulk Data card check. 
+! PLOAD4 Bulk Data card check.
 ! Note that if both fields 8 and 9 are blank this is for a plate elem (and this does not need to be verified)
- 
+
 ! Format 1:
 ! --------
 !   FIELD   ITEM          Description
@@ -85,17 +85,17 @@
 !    7      P4         Pressure at grid 4 (not used unless elem is a QUAD4)
 !    8      "THRU"
 !    9      ELID2      Element ID of 1st elem. Elems in the range ELID1 through ELID2 will be loaded.
- 
- 
+
+
 ! Make JCARD from CARD and up the count on NPLOAD
- 
+
       JERR = 0
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
       NPLOAD = NPLOAD+1
 
 ! Check if load set ID on pressure card matches a Case Control request
- 
+
       CALL I4FLD ( JCARD(2), JF(2), SETID )
       IF (IERRFL(2) == 'N') THEN
          DO J=1,NSUB
@@ -106,15 +106,15 @@
          PRESS_SIDS(NPLOAD) = SETID
       ELSE
          JERR = JERR + 1
-      ENDIF   
- 
- 
+      ENDIF
+
+
 ! Read data in fields 3-7 (same for either format). Only need to make sure data is correct format. We don't need values here
 
       ELID1 = 0                                             ! Element ID
       CALL I4FLD ( JCARD(3), JF(3), I4INP )
       IF (IERRFL(3) == 'N') THEN
-         ELID1 = I4INP      
+         ELID1 = I4INP
       ENDIF
 
       IF (JCARD(4)(1:) /= ' ') THEN
@@ -134,7 +134,7 @@
          CALL R8FLD ( JCARD(6), JF(6), R8INP )
       ENDIF
 
-      IF (JCARD(7)(1:) /= ' ') THEN                        ! Pressure at grid 4 and/or default to pressure at grid 1 
+      IF (JCARD(7)(1:) /= ' ') THEN                        ! Pressure at grid 4 and/or default to pressure at grid 1
          CALL R8FLD ( JCARD(7), JF(7), R8INP )
       ENDIF
 
@@ -154,7 +154,7 @@
                FATAL_ERR = FATAL_ERR + 1
                WRITE(ERR,1128) JCARD(1), JCARD(2)
                WRITE(F06,1128) JCARD(1), JCARD(2)
-            ENDIF      
+            ENDIF
          ENDIF
 
 ! Format 1:
@@ -184,13 +184,13 @@
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
 
 ! Write data to file L1Q
- 
+
       IF (JERR == 0) THEN
          WRITE(L1Q) CARD
       ENDIF
 
       NPCARD = NPCARD + 1
- 
+
 
 
       RETURN
@@ -199,7 +199,7 @@
    99 FORMAT(' *ERROR      : CODE NOT WRITTEN YET FOR PLOAD4 OPTION USING G1 AND G3/G4')
 
  1128 FORMAT(' *ERROR  1128: ON ',A,A,' THE IDs MUST BE IN INCREASING ORDER FOR THRU OPTION')
- 
+
  1152 FORMAT(' *ERROR  1152: ON ',A,A,' ELEM IDs MUST BE > 0')
 
  1163 FORMAT(' *ERROR  1163: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
@@ -208,5 +208,5 @@
  1198 FORMAT(' *ERROR  1198: FIELD ',I2,' ON ',A,A,' CANNOT BE BLANK')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_PLOAD4

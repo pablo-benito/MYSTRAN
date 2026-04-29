@@ -1,41 +1,41 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE GET_FORMATTED_INTEGER ( INT, CHAR_INT, NUM_CHARS, NUM_DIGITS )
- 
+
 ! Converts an integer to a character value with comma format (e.g. 12345 becomes char value 12,345) and writes result to unit UNT
 
       USE PENTIUM_II_KIND, ONLY             :  BYTE, LONG
       USE SCONTR, ONLY                      :  BLNK_SUB_NAM
-      USE TIMDAT, ONLY                      :  TSEC 
+      USE TIMDAT, ONLY                      :  TSEC
 
       USE GET_FORMATTED_INTEGER_USE_IFs
 
       IMPLICIT NONE
- 
+
       INTEGER(LONG), PARAMETER              :: WORD_LEN  = 13    ! Length of character string that INT will be entered into
 !                                                                  This allows for a number up to 9,999,999,999
 
@@ -58,7 +58,7 @@
 
       TEMP_CHAR_INT(1:) = ' '
       CHAR_INT(1:)      = ' '
-      IF (WORD_LEN == 13) THEN                             ! This code to make sure the format of the WRITE is same length as 
+      IF (WORD_LEN == 13) THEN                             ! This code to make sure the format of the WRITE is same length as
          WRITE(TEMP_CHAR_INT,'(I13)') INT                  ! above declaratioin for INTEGER PARAMETER WORD_LEN
       ELSE
          CHAR_INT(1:) = '*'
@@ -73,7 +73,7 @@
             EXIT
          ENDIF
       ENDDO
-         
+
 ! Move digits from TEMP_CHAR_INT to CHAR_INT inserting commas
 
       IF (NUM_DIGITS > 3) THEN
@@ -112,10 +112,10 @@
 !xx         ENDIF
 !xx      ENDDO
 !xx
-!xx      CHAR_INT(1:) = TEMP_CHAR_INT(1:)                  ! Reset CHR_FLD and return 
+!xx      CHAR_INT(1:) = TEMP_CHAR_INT(1:)                  ! Reset CHR_FLD and return
 !xx
-!xx   ENDIF   
-!xx 
+!xx   ENDIF
+!xx
 !xxCount nonblank characters in CHAR_INT
 !xx
 !xx   NUM_CHARS = WORD_LEN

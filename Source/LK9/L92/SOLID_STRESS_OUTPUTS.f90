@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SOLID_STRESS_OUTPUTS ( SIZE_ALLOCATED, NUM1, NUM_FEMAP_ROWS, WRITE_OGEL, WRITE_FEMAP )
- 
+
 ! Calculates element specific stress outputs from array STRESS (generated in subr ELEM_STRE_STRN_ARRAYS) for solid elements
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR 
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  STRESS, TYPE
@@ -38,7 +38,7 @@
       USE LINK9_STUFF, ONLY           :  OGEL
       USE FEMAP_ARRAYS, ONLY          :  FEMAP_EL_VECS
       USE PARAMS, ONLY                :  PRTNEU
- 
+
       USE SOLID_STRESS_OUTPUTS_USE_IFs
 
       IMPLICIT NONE
@@ -46,13 +46,13 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SOLID_STRESS_OUTPUTS'
       CHARACTER( 1*BYTE), INTENT(IN)  :: WRITE_OGEL         ! If 'Y' then write data to array OGEL
       CHARACTER( 1*BYTE), INTENT(IN)  :: WRITE_FEMAP        ! If 'Y' then write data to array FEMAP_EL_VECS
- 
+
       INTEGER(LONG), INTENT(IN)       :: SIZE_ALLOCATED     ! No. of rows allocated to array that will be written to
       INTEGER(LONG), INTENT(IN)       :: NUM_FEMAP_ROWS     ! Number of rows that will be written to FEMAP arrays
       INTEGER(LONG), INTENT(INOUT)    :: NUM1               ! Cum rows written to OGEL prior to running this subr
       INTEGER(LONG)                   :: J                  ! DO loop indices
 
- 
+
       REAL(DOUBLE)                    :: MEAN               ! Mean stresses
       REAL(DOUBLE)                    :: PRINCIPAL_STRESS(3)! Principal stresses
       REAL(DOUBLE)                    :: SIG_OCT            ! Octrahedral normal stress
@@ -61,13 +61,13 @@
       LOGICAL                         :: WRITE_NEU
 
       INTRINSIC DMAX1,DMIN1
- 
+
 
       WRITE_NEU = (PRTNEU == 'Y')
 
 ! **********************************************************************************************************************************
 ! Calc engineering stresses from array STRESS and put into array OGEL
- 
+
       IF ((TYPE(1:4) == 'HEXA') .OR. (TYPE(1:5) == 'PENTA') .OR. (TYPE(1:5) == 'TETRA')) THEN
          CALL PRINCIPAL_3D ( STRESS, PRINCIPAL_STRESS, MEAN, VONMISES, SIG_OCT, TAU_OCT )
          IF (WRITE_OGEL == 'Y') THEN
@@ -77,7 +77,7 @@
                WRITE(F06,9200) SUBR_NAME,SIZE_ALLOCATED
                FATAL_ERR = FATAL_ERR + 1
                CALL OUTA_HERE ( 'Y' )                      ! Coding error (dim of array OGEL too small), so quit
-            ENDIF   
+            ENDIF
             DO J=1,6
                OGEL(NUM1,J) = STRESS(J)
             ENDDO
@@ -117,8 +117,8 @@
          WRITE(F06,9203) SUBR_NAME, TYPE
          CALL OUTA_HERE ( 'Y' )
 
-      ENDIF   
- 
+      ENDIF
+
 
 
       RETURN
@@ -126,11 +126,11 @@
 ! **********************************************************************************************************************************
  9200 FORMAT(' *ERROR  9200: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' ARRAY OGEL WAS ALLOCATED TO HAVE ',I12,' ROWS. ATTEMPT TO WRITE TO OGEL BEYOND THIS')
- 
+
 ! **********************************************************************************************************************************
  9203 FORMAT(' *ERROR  9203: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' INCORRECT ELEMENT TYPE = "',A,'"')
- 
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE SOLID_STRESS_OUTPUTS

@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE EC_PARTN ( CARD1, IERR )
- 
+
 ! EC_PARTN reads in the Exec Control entry PARTN (partition a matrix). The NASTRAN form of the entry is:
 
 !     PARTN A,CP,RP/A11,A21,A12,A22/SYM/TYPE/F11,F21,F12,F22
@@ -44,20 +44,20 @@
       USE OUTPUT4_MATRICES, ONLY      :  NUM_OU4_REQUESTS, NUM_PARTN_REQUESTS, OU4_PART_VEC_NAMES, OU4_PART_MAT_NAMES,             &
                                          ACT_OU4_MYSTRAN_NAMES, ACT_OU4_OUTPUT_NAMES,                                              &
                                          ALLOW_OU4_MYSTRAN_NAMES, ALLOW_OU4_OUTPUT_NAMES
- 
+
       USE TIMDAT, ONLY                :  TSEC
 
       USE EC_PARTN_USE_IFs                                 ! Added 2019/07/14
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'EC_PARTN'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD1             ! Card read in LOADE and shifted to begin in col 1
       CHARACTER(LEN=LEN(CARD1))       :: CARD2             ! CARD1 truncated at $ (trailing comment) if there is one
       CHARACTER(LEN=EC_ENTRY_LEN)     :: DATA_80(3)        ! Temp slot for holding data until lead/trail blanks stripped
       CHARACTER(16*BYTE)              :: DATA_16(3)        ! Matrix name read from OUTPUT4 entry
       CHARACTER( 1*BYTE)              :: FOUND             ! 'Y' if we found something we were looking for
- 
+
       INTEGER(LONG), INTENT(OUT)      :: IERR              ! Error indicator. If CHAR not found, IERR set to 1
       INTEGER(LONG)                   :: DATA_BEG          ! Column where data begins (after OUTPUT4)
       INTEGER(LONG)                   :: DATA_END          ! Column where data ends (after ist slash or at $)
@@ -65,7 +65,7 @@
       INTEGER(LONG)                   :: I,J               ! DO loop index
       INTEGER(LONG)                   :: JBEG              ! Beg col in data
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -175,7 +175,7 @@ nerr: IF (IERR == 0) THEN
                OU4_PART_VEC_NAMES(I,2) = DATA_16(3)
             ENDIF
          ENDDO
-         
+
          IF (FOUND == 'N') THEN                            ! Matrix to be partitioned is not an OU4 matrix or an OU4 request
             IERR = IERR + 1
             WRITE(ERR,1040) DATA_16(1)

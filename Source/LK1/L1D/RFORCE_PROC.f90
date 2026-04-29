@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE RFORCE_PROC
- 
+
 ! RFORCE load processor. Forces on grids for an RFORCE are:
 
 !           Fi = Mi*[W x (W x (Ri - Ra)) + A x (Ri - Ra)]
@@ -37,7 +37,7 @@
 !           Ri = radius from basic coord system origin to grid i (variable RI)
 !           Ra = radius from basic coord system origin to the reference point for angular velocity/accel (variable RA)
 !           A  = angular acceleration (variable ANG_ACC)
- 
+
 ! The input B.D. RFORCE load data is transferred to system force data in the SYS_LOAD array for DOF's in the G set.
 
 ! File LINK1U was written when RFORCE B.D entries were read, with one record for each such card.
@@ -53,8 +53,8 @@
 ! The process in creating array SYS_LOAD from this information is as follows:
 
 !  (1) For each record (1 to NRFORCE) in file LINK1U:
- 
-!      (a) Read a record 
+
+!      (a) Read a record
 
 !      (b) Transform coords from local (on RFORCE card) to basic. Transformation to global is done later (see 2a(iii))
 
@@ -73,7 +73,7 @@
 !          ( ii) If the load set requested in Case Control is not a set ID from a LOAD Bulk data card then the
 !                load must be on a separate RFORCE card in which case LSID(1) and RSID(1) are all that is needed
 !                to define the load set contribution due to the RFORCE card for this subcase.
- 
+
 !          (iii) If the load set requested in Case Control is a set ID from a LOAD Bulk data card then the ramainder
 !                (K = 2,LLOADC) of entries into LSID and RSID will be the pairs of load set ID's/scale factors from
 !                that LOAD Bulk Data card (with RSID also multiplied by the overall scale factor on the LOAD Bulk data
@@ -82,15 +82,15 @@
 !                Note, there may not be as many as LLOADC pairs of set ID's/scale factors on a given LOAD Bulk Data
 !                card since LLOADC is the max, from all LOAD Bulk Data cards, of pairs.
 !                Thus, the entries in LSID from the last entry (for a given LOAD card) to LLOADC will be zero (LSID
-!                was initialized to zero). This fact is used in a DO loop to EXIT when LSID(K) = 0 
+!                was initialized to zero). This fact is used in a DO loop to EXIT when LSID(K) = 0
 
 !      (b) For each record in SCRATCH-991 (1 to NRFORCE)
 
 !          (  i) Read a record
-  
+
 !          ( ii) Scan LSID and RSID to get the scale factor (SCALE) for the ACCEL_RB components in SETID, if this
 !                RFORCE's set ID is in LSID. When found, reset RFORCE vector components to ACCEL_RB = SCALE*ACCEL_RB.
-!                At this point ACCEL_RB has the correct magnitudes and is in basic coordinates.                
+!                At this point ACCEL_RB has the correct magnitudes and is in basic coordinates.
 
 !          (iii) For a grid point, determine if a transformation of ACCEL_RB to global is needed and transform it if so.
 
@@ -99,7 +99,7 @@
 !          (  v) Get the 6 x 6 mass matrix for a grid point times ACCEL_I to get RFORCE forces at this grid
 
 !          ( vi) Load the RFORCE forces into the SYS_LOAD (systems load) array
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, FILE_NAM_MAXLEN, L1U, LINK1U, L1U_MSG, SC1, SCR, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, LLOADC, NCORD, NRFORCE, NGRID, NLOAD, NSUB, WARN_ERR
@@ -108,19 +108,19 @@
       USE PARAMS, ONLY                :  SUPWARN
       USE DOF_TABLES, ONLY            :  TDOF, TDOF_ROW_START
       USE MODEL_STUF, ONLY            :  CORD, GRID, GRID_ID, LOAD_FACS, LOAD_SIDS, RCORD, RGRID, SYS_LOAD, SUBLOD
- 
+
       USE RFORCE_PROC_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'RFORCE_PROC'
       CHARACTER( 1*BYTE)              :: FOUND             ! Indicator on whether we found something we were looking for
       CHARACTER( 1*BYTE)              :: GRID_MGG_FND      ! Indicator on whether a mass matrix was found in MGG for a given grid
       CHARACTER( 8*BYTE)              :: NAME              ! Name for output error purposes
-      CHARACTER(24*BYTE)              :: MESSAG            ! File description.  
+      CHARACTER(24*BYTE)              :: MESSAG            ! File description.
       CHARACTER(FILE_NAM_MAXLEN*BYTE) :: SCRFIL            ! File name
- 
+
       INTEGER(LONG)                   :: ACID      = 0     ! A coord system ID (actual)
       INTEGER(LONG), PARAMETER        :: ACID_0    = 0     ! Basic coord system
       INTEGER(LONG)                   :: ACID_L            ! Actual local  coord sys ID on FORCE or MOMENT card
@@ -128,27 +128,27 @@
       INTEGER(LONG)                   :: CID_ERR   = 0     ! Count of coord systems undefined
       INTEGER(LONG)                   :: GID_ERR   = 0     ! Count of grids undefined
       INTEGER(LONG)                   :: GDOF              ! G-set DOF number for a grid
-      INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept 
+      INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept
       INTEGER(LONG)                   :: I,J,K,L,m         ! DO loop indices
       INTEGER(LONG)                   :: ICID              ! Internal coordinate system ID for ACID_L or ACID_G
       INTEGER(LONG)                   :: IERRT             ! Total number of errors found
       INTEGER(LONG)                   :: IGRID             ! Internal grid ID
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening a file
-      INTEGER(LONG)                   :: LSID(LLOADC+1)    ! Array of load SID's, for RFORCE cards, needed for one S/C 
+      INTEGER(LONG)                   :: LSID(LLOADC+1)    ! Array of load SID's, for RFORCE cards, needed for one S/C
       INTEGER(LONG)                   :: NCOLA             ! No. cols in a matrix. For subr MATMULT_FFF/MATMULT_FFF_T, called herein
       INTEGER(LONG)                   :: NCOLB             ! No. cols in a matrix. For subr MATMULT_FFF/MATMULT_FFF_T, called herein
       INTEGER(LONG)                   :: NROWA             ! No. rows in a matrix. For subr MATMULT_FFF/MATMULT_FFF_T, called herein
-      INTEGER(LONG)                   :: NSID              ! Count on no. of pairs of entries on a LOAD B.D. card (<= LLOADC) 
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.   
+      INTEGER(LONG)                   :: NSID              ! Count on no. of pairs of entries on a LOAD B.D. card (<= LLOADC)
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.
       INTEGER(LONG)                   :: READ_ERR  = 0     ! Cum. count of errors as we read, and check cards from file LINK1K
       INTEGER(LONG)                   :: REC_NO            ! Record number when reading a file
       INTEGER(LONG)                   :: RFORCE_GRD        ! ID of grid that rotational RFOECE vel/accels are about
       INTEGER(LONG)                   :: RFORCE_GRD_ROW_NUM! Row number in array GRID_ID where an actual grid ID is found
-      INTEGER(LONG)                   :: ROW_NUM           ! Row no. in array TDOF corresponding to GDOF 
+      INTEGER(LONG)                   :: ROW_NUM           ! Row no. in array TDOF corresponding to GDOF
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
       INTEGER(LONG)                   :: SETID             ! Load set ID read from record in file LINK1U
 
-      
+
       REAL(DOUBLE)                    :: ACCEL_I(6)        ! 6 components of accel due to gravity at a grid
       REAL(DOUBLE)                    :: ACCEL_I_T1(3)     ! 3 transl components of accel due to RFORCE at a grid in basic  coords
       REAL(DOUBLE)                    :: ACCEL_I_T2(3)     ! 3 transl components of accel due to RFORCE at a grid in global coords
@@ -164,7 +164,7 @@
       REAL(DOUBLE)                    :: RA(3)             ! Vector components, in basic coords, of GID
       REAL(DOUBLE)                    :: RI(3)             ! Vector components, in basic coords, of grid i
       REAL(DOUBLE)                    :: SCALE             ! Scale factor for a load (on a LOAD Bulk Data entry)
-      REAL(DOUBLE)                    :: SCALEF_AA         ! Magnitude of the RFORCE angular acceleration 
+      REAL(DOUBLE)                    :: SCALEF_AA         ! Magnitude of the RFORCE angular acceleration
       REAL(DOUBLE)                    :: SCALEF_AV         ! Magnitude of the RFORCE angular velocity
       REAL(DOUBLE)                    :: T12(3,3)          ! Coord transformation matrix
       REAL(DOUBLE)                    :: VEC(3)            ! 3 components of RFORCE vector at RFORCE_GRD in any coords
@@ -179,12 +179,12 @@
       NAME = 'RFORCE  '
 
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! Open a scratch file that will be used to rewrite data from LINK1U after the coords have been transformed to global.
-  
+
       SCRFIL(1:)  = ' '
       SCRFIL(1:9) = 'SCRATCH-991'
       OPEN (SCR(1),STATUS='SCRATCH',POSITION='REWIND',FORM='UNFORMATTED',ACTION='READWRITE',IOSTAT=IOCHK)
@@ -194,11 +194,11 @@
          CALL OUTA_HERE ( 'Y' )                                    ! Error opening scratch file, so quit
       ENDIF
       REWIND (SCR(1))
- 
+
 ! **********************************************************************************************************************************
 ! (1) Read record from L1U and transform coords for RFORCE VEC from local sys (on RFORCE bulk data card) to basic and write results
 !     to SCRATCH-991.
- 
+
 i_do1:DO I=1,NRFORCE
                                                            ! Read a record from L1U
          READ(L1U,IOSTAT=IOCHK) SETID, ACID_L, RFORCE_GRD, SCALEF_AV, SCALEF_AA, (VEC(J),J=1,3)
@@ -206,9 +206,9 @@ i_do1:DO I=1,NRFORCE
             REC_NO = I
             CALL READERR ( IOCHK, LINK1U, L1U_MSG, REC_NO, OUNT )
             READ_ERR = READ_ERR + 1                        ! Increment READ_ERR and go back to read another RFORCE card
-            CYCLE i_do1                                    
+            CYCLE i_do1
          ENDIF
- 
+
          DO J=1,3
             RA(J) = ZERO
          ENDDO
@@ -228,12 +228,12 @@ i_do1:DO I=1,NRFORCE
                                                            ! The local system that RFORCE is defined in is ACID_L.
          DO J=1,3
             VEC_LOCAL(J) = VEC(J)
-         ENDDO 
+         ENDDO
          IF (ACID_L /= 0) THEN                             ! ACID_L is not basic, so find it and transform coords
             FOUND = 'N'
 j_do12:     DO J=1,NCORD
                IF (CORD(J,2) == ACID_L) THEN
-                  FOUND = 'Y'     
+                  FOUND = 'Y'
                   ICID = J                                 ! ICID is the internal coord ID corresponding to ACID_L
                   EXIT j_do12
                ENDIF
@@ -250,48 +250,48 @@ j_do12:     DO J=1,NCORD
                DO K=1,3
                   L = 3 + 3*(J-1) + K
                   T12(J,K) = RCORD(ICID,L)
-               ENDDO 
-            ENDDO 
+               ENDDO
+            ENDDO
 
-            NROWA  = 3                                     ! Transform coordinates 
+            NROWA  = 3                                     ! Transform coordinates
             NCOLA  = 3
             NCOLB  = 1
             CALL MATMULT_FFF ( T12, VEC_LOCAL, NROWA, NCOLA, NCOLB, VEC_BASIC )
          ELSE                                              ! No transformation needed since ACID_L is basic
             DO J=1,3
                VEC_BASIC(J) = VEC_LOCAL(J)
-            ENDDO   
+            ENDDO
          ENDIF
- 
+
          DO J=1,3                                          ! Reset VEC(I) to values in basic coords.
            VEC(J) = VEC_BASIC(J)
-         ENDDO 
+         ENDDO
                                                            ! Write data to scratch file. RFORCE vec now in basic coords
          WRITE(SCR(1)) SETID, ACID_0, RFORCE_GRD, SCALEF_AV, SCALEF_AA, (VEC(J),J=1,3)
- 
+
       ENDDO i_do1
-  
+
 ! Quit if CID_ERR, GID_ERR or READ_ERR > 0
- 
+
       IF ((CID_ERR > 0) .OR. (GID_ERR > 0) .OR. (READ_ERR > 0)) THEN
          IERRT = CID_ERR + GID_ERR + READ_ERR
          WRITE(ERR,1599) SUBR_NAME,IERRT
          WRITE(F06,1599) SUBR_NAME,IERRT
          CALL OUTA_HERE ( 'Y' )                                    ! Errors from reading RFORCE data, so quit
       ENDIF
- 
+
       REWIND (SCR(1))
-    
+
 ! **********************************************************************************************************************************
 ! Now process RFORCE loads into SYS_LOAD
- 
+
       DO I=1,LLOADC                                         ! Initialize LSID, RSID arrays
          LSID(I) = 0
          RSID(I) = ZERO
       ENDDO
 
       MESSAG = 'SCRATCH FILE IN FORCEP  '
- 
+
       WRITE(SC1, * )
       IERRT = 0
 i_do2:DO I = 1,NSUB                                        ! Loop through the S/C's
@@ -317,7 +317,7 @@ k_do_211:      DO K = 2,LLOADC                             ! Get load sets defin
                ENDDO k_do_211
             ENDIF
 
-         ENDDO   
+         ENDDO
 
 j_do_22: DO J = 1,NRFORCE                                  ! Process RFORCE card info that is now in basic coords
                                                            ! (2-b-  i) Read a RFORCE record (in basic coords) from scratch unit
@@ -345,14 +345,14 @@ k_do221:    DO K = 1,NSID                                  ! There is a match; w
                   DO L=1,3
                      ANG_ACC(L) = SCALE*SCALEF_AA*VEC(L)   ! Ang accel and vel of model due to RFORCE angular vel, accel entries
                      ANG_VEL(L) = SCALE*SCALEF_AV*VEC(L)
-                  ENDDO 
-                  EXIT k_do221 
+                  ENDDO
+                  EXIT k_do221
                ENDIF
-            ENDDO k_do221  
+            ENDDO k_do221
 
             IF (FOUND /= 'Y') THEN                         ! This RFORCE set ID isn't called for in this S/C, so CYCLE on RFORCE's
                CYCLE j_do_22
-            ENDIF   
+            ENDIF
 
             DO K = 1,NGRID
                WRITE(SC1,12345,ADVANCE='NO') K, NGRID, I, CR13
@@ -365,7 +365,7 @@ k_do221:    DO K = 1,NSID                                  ! There is a match; w
                DO L=1,3
                   DRI(L) = RI(L) - RA(L)
                ENDDO
-               
+
 
                CALL GET_GRID_ANG_ACCEL
 
@@ -389,7 +389,7 @@ l_do_2211:        DO L=1,NCORD
                      ACCEL_I(L)   = ACCEL_I_T2(L)          ! ACCEL_I (grid accel) is now in global coords if it was not before
                      ACCEL_I(L+3) = ACCEL_I_R2(L)
                   ENDDO
-               ELSE 
+               ELSE
                   DO L=1,3
                      ACCEL_I(L)   = ACCEL_I_T1(L)          ! ACCEL_I (grid accel) is now in global coords if it was not before
                      ACCEL_I(L+3) = ACCEL_I_R1(L)
@@ -417,7 +417,7 @@ l_do_2211:        DO L=1,NCORD
 
                DO L=1,6
                   FORCE_I(L) = ZERO
-               ENDDO 
+               ENDDO
 
                IF (GRID_MGG_FND == 'Y') THEN
                   NROWA  = 6
@@ -433,20 +433,20 @@ l_do_2214:     DO L = 1,6
                   CALL TDOF_COL_NUM ( 'G ', G_SET_COL_NUM )
                   ROW_NUM = ROW_NUM_START + L - 1
                   GDOF = TDOF(ROW_NUM,G_SET_COL_NUM)
-                  SYS_LOAD(GDOF,I) = SYS_LOAD(GDOF,I) + FORCE_I(L) 
+                  SYS_LOAD(GDOF,I) = SYS_LOAD(GDOF,I) + FORCE_I(L)
                ENDDO l_do_2214
 
-            ENDDO   
- 
+            ENDDO
+
          ENDDO j_do_22
          REWIND (SCR(1))                                       ! Need to read all of the RFORCE records again for the next S/C
- 
+
       ENDDO i_do2
- 
-      WRITE(SC1,*) CR13 
+
+      WRITE(SC1,*) CR13
 
       CALL FILE_CLOSE ( SCR(1), SCRFIL, 'DELETE' )
- 
+
 
 
       RETURN
@@ -483,11 +483,11 @@ l_do_2214:     DO L = 1,6
 99911 format(' In RFORCE_PROC: Rigid body angular acceleration = ',3(1es14.6))
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE GET_GRID_ANG_ACCEL

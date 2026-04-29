@@ -1,30 +1,30 @@
 ! #################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
       SUBROUTINE MITC8 ( OPT, INT_ELEM_ID )
- 
+
 ! Calculates, or calls subr's to calculate, quadrilateral element matrices:
 
 !  1) ME        = element mass matrix                  , if OPT(1) = 'Y'
@@ -33,7 +33,7 @@
 !  4) KE        = element linea stiffness matrix       , if OPT(4) = 'Y'
 !  5) PPE       = element pressure load matrix         , if OPT(5) = 'Y'
 !  6) KED       = element differen stiff matrix calc   , if OPT(6) = 'Y'
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MAX_ORDER_GAUSS, MAX_STRESS_POINTS
@@ -54,9 +54,9 @@
       USE MITC8_CARTESIAN_LOCAL_BASIS_Interface
       USE MITC8_ELEMENT_CS_BASIS_Interface
       USE MITC_ELASTICITY_Interface
-      
-      IMPLICIT NONE 
-  
+
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MITC8'
       CHARACTER(1*BYTE), INTENT(IN)   :: OPT(6)            ! 'Y'/'N' flags for whether to calc certain elem matrices
 
@@ -112,7 +112,7 @@
 ! XEL element (internal use)
 !  Used for the grid point DOFs of the strain-displacement and the element stiffness matrices.
 !  Used for extrapolating stress and strain from Gauss points to corners.
-!  Grid point coordinates stored in XEL are in a coordinate system which is flat, with the normal being the cross product 
+!  Grid point coordinates stored in XEL are in a coordinate system which is flat, with the normal being the cross product
 !  of vectors from grid points 1-3 and 2-4. The x axis is an arbitrary direction in this plane. The flat coordinate system
 !  is used for grid point coordinates for extrapolating stress because the polynomial curve fit code to extrapolate stress/strain
 !  from Gauss points to corners is only 2D.
@@ -143,12 +143,12 @@
 !
 
 ! **********************************************************************************************************************************
-  
+
 ! Initialize
       PHI_SQ  = ONE                                        ! Not used for this element
       CALL MITC_INITIALIZE ()
 
-      
+
       IF (PCOMP_PROPS == 'Y') THEN
         WRITE(ERR,*) ' *ERROR: Code not written for composite material with QUAD8'
         WRITE(F06,*) ' *ERROR: Code not written for composite material with QUAD8'
@@ -157,49 +157,49 @@
         CALL OUTA_HERE ( 'Y' )
       ENDIF
 
-        
-      
+
+
 ! **********************************************************************************************************************************
 ! Generate the mass matrix for this element.
- 
+
       IF (OPT(1) == 'Y') THEN
         !Not implememented yet but we can't make it a fatal error because this gets called even when it doesn't need it.
 
       ENDIF
 
- 
+
 
 ! **********************************************************************************************************************************
-! Calculate element thermal loads. 
-  
+! Calculate element thermal loads.
+
       IF (OPT(2) == 'Y') THEN
-      
+
         WRITE(ERR,*) ' *ERROR: Code not written for QUAD8 thermal loads'
         WRITE(F06,*) ' *ERROR: Code not written for QUAD8 thermal loads'
         NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
         FATAL_ERR = FATAL_ERR + 1
         CALL OUTA_HERE ( 'Y' )
-      
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
-! BE1 matrix (3 x 48) for membrane strain/stress/force data recovery. 
+! BE1 matrix (3 x 48) for membrane strain/stress/force data recovery.
 ! BE2 matrix (3 x 48) for bending strain/stress/force data recovery.
 ! BE3 matrix (2 x 48) for transverse shear strain/stress/force data recovery.
 ! All calculated at Gauss points and not center.
 ! The displacements are in basic coordinates and the strains are in element coordinates.
 
 
-! There's a possible bug where the numbering of the element grid points (eg. 1-2-3-4 vs 2-3-4-1) affects the stress/strain/elforce, 
+! There's a possible bug where the numbering of the element grid points (eg. 1-2-3-4 vs 2-3-4-1) affects the stress/strain/elforce,
 ! when the element is distorted. This includes von Mises which should be invariant to rotation.
 !
 ! - It doesn't occur if we skip the extrapolation from Gauss points to corners so Gauss point strains are probably OK.
-! - It makes no differences if the cartesian local coordiante system is changed to be G1G2 or the bisected diagonals projected 
+! - It makes no differences if the cartesian local coordiante system is changed to be G1G2 or the bisected diagonals projected
 !   onto the surface everywhere or like Siemens material coordinates with an intermediate reference plane.
-! - It works OK if the cartesian local coordinate system is defined using the same vector for each element, eg. (1,0,0), instead 
+! - It works OK if the cartesian local coordinate system is defined using the same vector for each element, eg. (1,0,0), instead
 !   of G1G2 with either the Siemens or direct projection. However, this won't generalize to elements in any orientation and might
 !   just be hiding the problem.
-! - The problem is probably the extrapolation from Gauss points to grid points. Maybe it should be done in covariant coordinates 
+! - The problem is probably the extrapolation from Gauss points to grid points. Maybe it should be done in covariant coordinates
 !   the way strains are interpolated by MITC. Somehow.
 
       IF (OPT(3) == 'Y') THEN
@@ -215,7 +215,7 @@
 
                R = SS_IJ(I)
                S = SS_IJ(J)
-               
+
                CALL MITC8_B( R, S, -ONE, .TRUE., .TRUE., BI1)
                CALL MITC8_B( R, S, +ONE, .TRUE., .TRUE., BI2)
 
@@ -234,12 +234,12 @@
                                                   ! Transverse shear strain. Note reversed order of rows.
                BE3(1,:,STR_PT_NUM) = (BI2(6,:) + BI1(6,:)) / TWO           ! zx
                BE3(2,:,STR_PT_NUM) = (BI2(5,:) + BI1(5,:)) / TWO           ! yz
-                              
+
             ENDDO
          ENDDO
 
                                                            ! Find angle of the element coordinate system's x axis from
-                                                           ! the cartesian local coordinate system's x axis at each 
+                                                           ! the cartesian local coordinate system's x axis at each
                                                            ! corner.
                                                            ! This will be used to transform stress and strain to the
                                                            ! element coordinate system after extrapolating to corners.
@@ -256,20 +256,20 @@
 
             CALL CROSS( XL, XE, CROSS_XLE )
             SHELL_STR_ANGLE( STR_PT_NUM ) = ATAN2(DOT_PRODUCT( ZL, CROSS_XLE ), DOT_PRODUCT( XL, XE ))
-         
+
          ENDDO
 
       ENDIF
 
 ! **********************************************************************************************************************************
 ! Calculate element stiffness matrix KE.
- 
+
       IF(OPT(4) == 'Y') THEN
 
 ! Based on
-! MITC4 paper "A continuum mechanics based four-node shell element for general nonlinear analysis" 
+! MITC4 paper "A continuum mechanics based four-node shell element for general nonlinear analysis"
 !   by Dvorkin and Bathe
-! MITC8 paper "A FORMULATION OF GENERAL SHELL ELEMENTS-THE USE OF MIXED INTERPOLATION OF TENSORIAL COMPONENTS" 
+! MITC8 paper "A FORMULATION OF GENERAL SHELL ELEMENTS-THE USE OF MIXED INTERPOLATION OF TENSORIAL COMPONENTS"
 !   by Dvorkin and Bathe, 1986
 
 
@@ -307,17 +307,17 @@
                   INTFAC = DETJ*HH_IJ(I)*HH_IJ(J)*HH_K(K)
                   KE(1:6*ELGP,1:6*ELGP) = KE(1:6*ELGP,1:6*ELGP) + DUM2(:,:)*INTFAC
                ENDDO
-            ENDDO 
-         ENDDO   
+            ENDDO
+         ENDDO
 
- 
-  
+
+
       ENDIF
-  
+
 
 ! **********************************************************************************************************************************
-! Determine element pressure loads   
-  
+! Determine element pressure loads
+
       IF (OPT(5) == 'Y') THEN
 
         WRITE(ERR,*) ' *ERROR: Code not written for QUAD8 pressure loads'
@@ -325,12 +325,12 @@
         NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
         FATAL_ERR = FATAL_ERR + 1
         CALL OUTA_HERE ( 'Y' )
-          
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate linear differential stiffness matrix
-  
+
       IF ((OPT(6) == 'Y') .AND. (LOAD_ISTEP > 1)) THEN
 
         WRITE(ERR,*) ' *ERROR: Code not written for QUAD8 differential stiffness matrix'
@@ -342,8 +342,8 @@
       ENDIF
 
 
- 
- 
+
+
 
 
       RETURN
@@ -352,5 +352,5 @@
 
 
 ! **********************************************************************************************************************************
-  
+
       END SUBROUTINE MITC8

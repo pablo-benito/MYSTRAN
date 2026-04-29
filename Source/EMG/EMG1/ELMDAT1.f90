@@ -1,41 +1,41 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ELMDAT1 ( INT_ELEM_ID, WRITE_WARN )
 
 ! Generates small arrays of elem data, for use by subroutine EMG, one elem at a time for all elems. Arrays generated are:
 
 !   XEB      : basic coords of grids for 1 elem
-!   V VECTOR : for some 1-D elems 
+!   V VECTOR : for some 1-D elems
 !   EPROP    : array of elem geometric properties
 !   ISOLID   : data for 3-D elems defining options from the PSOLID Bulk Data entry
 !   EMAT     : material property data
 !   PIN FLAG : Pin flag data for some elems
 !   OFFSETS  : offsets for some elems
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  FATAL_ERR, MEDAT0_CUSERIN, MELGP, MEMATC, MEMATR, MEPROP, METYPE, MOFFSET, MRMATLC,       &
@@ -66,14 +66,14 @@
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ELMDAT1'
       CHARACTER(LEN=*), INTENT(IN)    :: WRITE_WARN         ! If 'Y' write warning messages, otherwise do not
-      CHARACTER( 1*BYTE)              :: GET_VVEC           ! If 'Y' run code to get VVEC 
+      CHARACTER( 1*BYTE)              :: GET_VVEC           ! If 'Y' run code to get VVEC
       CHARACTER( 1*BYTE)              :: VVEC_DEFINED       ! If 'Y' then a VVEC was found for elements that require one
 
       INTEGER(LONG), INTENT(IN)       :: INT_ELEM_ID        ! Internal element ID
       INTEGER(LONG)                   :: ACID               ! Actual coord sys ID
 
       INTEGER(LONG)                   :: EPNTK              ! Value from array EPNT at the row for this internal elem ID. It is the
-!                                                             row number in array EDAT where data begins for this element. 
+!                                                             row number in array EDAT where data begins for this element.
 
       INTEGER(LONG)                   :: IPNTR              ! Pointer into an array
       INTEGER(LONG)                   :: VVEC_FLAG          ! Either actual grid ID for V vector or -IVVEC
@@ -84,7 +84,7 @@
       INTEGER(LONG)                   :: IGID_V             ! Internal grid ID for V vector
       INTEGER(LONG)                   :: USERIN_INDEX_COMP  ! Index in EDAT where displ comp list begins
       INTEGER(LONG)                   :: USERIN_INDEX_GRID  ! Index in EDAT where grid list begins
-      INTEGER(LONG)                   :: IPIN(2)            ! Pinflag fields from EDAT for a BAR or BEAM elem 
+      INTEGER(LONG)                   :: IPIN(2)            ! Pinflag fields from EDAT for a BAR or BEAM elem
       INTEGER(LONG)                   :: IREM               ! Indicator that a pinflag has digits different than 1,2,3,4,5 or 6
       INTEGER(LONG)                   :: IROW               ! Row no. in a real array where data is found for this element
       INTEGER(LONG)                   :: IVVEC              ! Row number in VVEC where V vector for this elem is found
@@ -101,9 +101,9 @@
       REAL(DOUBLE)                    :: K_BUSH(6),B_BUSH(6)! Values read from PBUSH for stiffness, damping
       REAL(DOUBLE)                    :: PHID, THETAD       ! Outputs from subr GEN_T0L
       REAL(DOUBLE)                    :: THICK_AVG          ! Average of all THICK(i)
-      REAL(DOUBLE)                    :: T0G(3,3)           ! Matrix to transform V vector from global to basic coords 
+      REAL(DOUBLE)                    :: T0G(3,3)           ! Matrix to transform V vector from global to basic coords
       REAL(DOUBLE)                    :: VV(3)              ! V vector in basic coords for this elem
- 
+
       INTRINSIC                       :: MOD, FLOOR
 
 
@@ -155,7 +155,7 @@
 
 ! **********************************************************************************************************************************
 ! AGRID/BGRID contain the G.P. no's (actual/internal) for points that the elem connects to (not for the v vector)
- 
+
       CALL GET_ELEM_AGRID_BGRID ( INT_ELEM_ID, 'Y' )
 
 ! ELDOF are the number of DOF's for this elem
@@ -171,8 +171,8 @@
       DO I=1,MELGP+1
          DO J=1,3
             XEB(I,J) = ZERO
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
       DO I=1,ELGP
          XEB(I,1) = RGRID(BGRID(I),1)
          XEB(I,2) = RGRID(BGRID(I),2)
@@ -214,9 +214,9 @@
          VV(J) = ZERO
       ENDDO
       IF ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ') .OR. (TYPE == 'BUSH    ') .OR. (TYPE == 'USER1   ')) THEN
- 
+
          VVEC_FLAG = 0
-         IF     ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ')) THEN 
+         IF     ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ')) THEN
             VVEC_FLAG = EDAT(EPNTK+4)
          ELSE IF (TYPE == 'USER1   ') THEN
             VVEC_FLAG = EDAT(EPNTK+6)
@@ -224,7 +224,7 @@
             VVEC_FLAG = EDAT(EPNTK+5)
             BUSH_VVEC = VVEC_FLAG                          ! BUSH_VVEC is in module MODEL_STUF and is used in subr ELMGM1_BUSH
 !xx         ACID = BUSH_CID
-            IF (BUSH_CID >= 0) THEN                        ! CID >= 0 for BUSH means VVEC is defined by coord sys in BUSH_CID 
+            IF (BUSH_CID >= 0) THEN                        ! CID >= 0 for BUSH means VVEC is defined by coord sys in BUSH_CID
                GET_VVEC = 'N'
             ENDIF
          ENDIF
@@ -250,19 +250,19 @@
                IF (BGRID(1) /= -1) THEN                    ! If grid not defined an error was set in subr GET_ELEM_AGRID_BGRID
 
                   ACID = GRID(BGRID(1),3)                  ! Global coord sys ID
-                  IVVEC = -VVEC_FLAG                  
+                  IVVEC = -VVEC_FLAG
                   IF (ACID /= 0) THEN                      ! Need to transform V vector to basic coords
                      DO I=1,NCORD
                         IF (ACID == CORD(I,2)) THEN        ! ACID global coord system exists. It was checked in CORDP_PROC
                            ICID = I
                            EXIT
                         ENDIF
-                     ENDDO   
+                     ENDDO
 
                      CALL GEN_T0L ( BGRID(1), ICID, THETAD, PHID, T0G )
                      DO J=1,3
-                        VV(J) = T0G(J,1)*VVEC(IVVEC,1) + T0G(J,2)*VVEC(IVVEC,2) + T0G(J,3)*VVEC(IVVEC,3) 
-                     ENDDO   
+                        VV(J) = T0G(J,1)*VVEC(IVVEC,1) + T0G(J,2)*VVEC(IVVEC,2) + T0G(J,3)*VVEC(IVVEC,3)
+                     ENDDO
                      DO J=1,3
                         XEB(ELGP+1,J) = XEB(1,J) + VV(J)   ! Basic coords at end of V vector
                      ENDDO
@@ -271,7 +271,7 @@
 
                      DO J=1,3
                         XEB(ELGP+1,J) = XEB(1,J) + VVEC(IVVEC,J)
-                     ENDDO   
+                     ENDDO
 
                   ENDIF
 
@@ -283,14 +283,14 @@
 
                IF (TYPE == 'BUSH    ') THEN                ! vvec and CID not spec for BUSH so need to test EPROP later
                   BUSH_VVEC_OR_CID = 'N'                   ! (NOTE: already made sure CID was defined if GA, GB coincident)
-               ENDIF 
+               ENDIF
 
             ENDIF
 
          ENDIF
 
       ENDIF
- 
+
       IF ((TYPE == 'BUSH    ') .AND. (DEBUG(110) > 0)) THEN
          write(f06,*) ' ==================================================================='
          write(f06,*) ' DEBUG(110) for subr DEBUG_ELMDAT1_FOR_BUSH needs rewrite 2021-08-28'
@@ -308,7 +308,7 @@
             FATAL_ERR = FATAL_ERR + 1
          ENDIF
       ENDIF
- 
+
 ! **********************************************************************************************************************************
 ! For BUSH, get coord systems
 
@@ -323,17 +323,17 @@
 
       DO I=1,MEPROP
          EPROP(I) = ZERO
-      ENDDO 
+      ENDDO
 
       IF      (TYPE == 'BAR     ') THEN
          DO I=1,MRPBAR
             EPROP(I) = RPBAR(INTL_PID,I)
-         ENDDO 
+         ENDDO
 
       ELSE IF (TYPE == 'BEAM    ') THEN
          DO I=1,MRPBEAM
             EPROP(I) = RPBEAM(INTL_PID,I)
-         ENDDO 
+         ENDDO
 
       ELSE IF (TYPE == 'BUSH    ') THEN
          DO I=1,MRPBUSH
@@ -351,22 +351,22 @@
                   FATAL_ERR = FATAL_ERR + 1
                ENDIF
             ENDIF
-         ENDDO 
+         ENDDO
 
       ELSE IF (TYPE(1:4) == 'ELAS') THEN
          DO I=1,MRPELAS
             EPROP(I) = RPELAS(INTL_PID,I)
-         ENDDO 
+         ENDDO
 
       ELSE IF (TYPE == 'ROD     ') THEN
          DO I=1,MRPROD
             EPROP(I) = RPROD(INTL_PID,I)
-         ENDDO 
+         ENDDO
 
       ELSE IF (TYPE == 'SHEAR   ') THEN
          DO I=1,MRPSHEAR
             EPROP(I) = RPSHEAR(INTL_PID,I)
-         ENDDO 
+         ENDDO
 
       ELSE IF ((TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'QUAD8')) THEN
 
@@ -447,7 +447,7 @@
             ELSE IF (TYPE(1:5) == 'QUAD8') THEN
                DELTA = DEDAT_Q8_THICK_KEY
             ENDIF
-            
+
             IF (EDAT(EPNTK+DELTA) > 0) THEN                ! Membrane thickness was defined as grid thicknesses on connection entry
                IPNTR = EDAT(EPNTK+DELTA)
                DO I=1,ELGP
@@ -480,7 +480,7 @@
       ELSE IF (TYPE == 'USER1   ') THEN
          DO I=1,MRPUSER1
             EPROP(I) = RPUSER1(INTL_PID,I)
-         ENDDO 
+         ENDDO
 
       ENDIF
 
@@ -599,12 +599,12 @@
       DO I=1,MEMATR
          DO J=1,MEMATC
             EMAT(I,J) = ZERO
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
       DO I=1,MEMATC
          MTRL_TYPE(I) = 0
-      ENDDO 
+      ENDDO
 
       IF      (TYPE == 'BAR     ') THEN
 
@@ -702,7 +702,7 @@
                      ENDIF
                   ENDIF
                ENDDO
-                                                           ! Density is not allowed in case it's used for 
+                                                           ! Density is not allowed in case it's used for
                                                            ! gravity which doesn't currently work.
                IF(RMATL(INTL_MID(1),4) /= ZERO) THEN
                   WRITE(ERR,*) ' *ERROR: MAT1 DENSITY MUST BE 0.0 OR BLANK FOR QUAD8'
@@ -756,7 +756,7 @@
                IF (INTL_MID(J) /= 0) THEN
                   EMAT(I,J) = RMATL(INTL_MID(J),I)
                ENDIF
-            ENDDO 
+            ENDDO
          ENDDO
       ENDIF
 
@@ -787,7 +787,7 @@
 
       DO I=1,ELDOF
          DOFPIN(I) = 0
-      ENDDO 
+      ENDDO
 
 ! Process pin flag data in EDAT
 
@@ -820,7 +820,7 @@
                      DOFPIN(NFLAG) = IREM + 6*(I-1)
                   ENDIF
                ENDDO
-            ENDDO 
+            ENDDO
             IF ((DEBUG(9) > 0) .AND. (NFLAG > 0)) THEN
                WRITE(F06,*) 'In ELMDAT1: DOFPIN for ',type,eid,' is = ',(dofpin(i),i=1,nflag)
                WRITE(F06,*)
@@ -844,8 +844,8 @@
          DO I=1,ELGP
             DO J=1,3
                OFFDIS(I,J) = ZERO
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
 
          IF      ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ')) THEN
 
@@ -879,7 +879,7 @@
                      ELSE
                         EOFF(INT_ELEM_ID) = 'N'           ! No axis, no OCID, no offset.
                      END IF
-                  ELSE           
+                  ELSE
                                                ! Offsets are 3 dimensional and we can't get OFFDIS for grid GB yet
                      EOFF(INT_ELEM_ID) = 'Y'            ! is required since we can't use GA-GB (OCID=-1)
 
@@ -974,8 +974,8 @@
 
          DO I=1,ELGP
             OFFSET(I) = 'N'
-         ENDDO 
- 
+         ENDDO
+
          DO I=1,ELGP
             DXI = DABS(OFFDIS(I,1))
             DYI = DABS(OFFDIS(I,2))
@@ -994,7 +994,7 @@
 
          DO I=1,2
             ELAS_COMP(I) = 0
-         ENDDO 
+         ENDDO
 
          IERROR = 0
          DO I=1,2                                          ! If displ comps on CELAS1,2 entry were blank or 0, change to 1,2
@@ -1010,7 +1010,7 @@
                ELSE
                   ELAS_COMP(I) = 1
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (IERROR > 0) THEN
             CALL OUTA_HERE ( 'Y' )
@@ -1042,7 +1042,7 @@
          USERIN_MASS_MAT_NAME = USERIN_MAT_NAMES(INTL_PID,2)
          USERIN_LOAD_MAT_NAME = USERIN_MAT_NAMES(INTL_PID,3)
          USERIN_RBM0_MAT_NAME = USERIN_MAT_NAMES(INTL_PID,4)
-                                                           ! Calc array of grid num, comp num for the DOF's that elem connects to   
+                                                           ! Calc array of grid num, comp num for the DOF's that elem connects to
          CALL DEALLOCATE_MODEL_STUF ( 'USERIN_ACT_GRDS, USERIN_ACT_COMPS' )
          CALL ALLOCATE_MODEL_STUF   ( 'USERIN_ACT_GRDS, USERIN_ACT_COMPS', SUBR_NAME )
          DO I=1,USERIN_NUM_ACT_GRDS
@@ -1059,7 +1059,7 @@
 ! **********************************************************************************************************************************
  1822 FORMAT(' *ERROR  1822: ',A,I8,' ON ',A,I8,' IS UNDEFINED')
 
- 1900 FORMAT(' *ERROR  1900: GRID ',I8,' ON ELEMENT ',I8,' TYPE ',A,' NOT  DEFINED') 
+ 1900 FORMAT(' *ERROR  1900: GRID ',I8,' ON ELEMENT ',I8,' TYPE ',A,' NOT  DEFINED')
 
  1901 FORMAT(' *ERROR  1901: A PIN FLAG ON ELEMENT ',I8,' TYPE ',A,' IS < 0  OR > 6')
 
@@ -1073,7 +1073,7 @@
 
  1945 FORMAT(' *ERROR  1945: ',A,' ELEMENT ',I8,' HAS OFFSET ZOFFS = ',1ES9.2,' SPECIFIED. HOWEVER, IT HAS PROPERTIES DEFINED ON', &
                              ' PCOMP ',I8,'.'                                                                                      &
-                      ,/,14X,' ZOFFS CANNOT BE USED FOR SHELL ELEMENTS WITH PCOMP PROPERTIES. USE THE Z0 OPTION ON THE PCOMP') 
+                      ,/,14X,' ZOFFS CANNOT BE USED FOR SHELL ELEMENTS WITH PCOMP PROPERTIES. USE THE Z0 OPTION ON THE PCOMP')
 
  1949 FORMAT(' *ERROR  1949: MEMBRANE THICKNESS FOR ',A,I8,' = ',1ES9.2,'. CHECK TM ON PSHELL OR Ti ON CONNECTION ENTRY TO MAKE'   &
                     ,/,14X,' SURE THAT ELEM AVG THICKNESS IS > 0')
@@ -1112,9 +1112,9 @@
 99978 format(' Element grid thicknesses for ',a,i8,' (pointer, avg thickness, grid thicknesses)',/,i8,20(1es14.6))
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE DEBUG_ELMDAT1_FOR_BUSH

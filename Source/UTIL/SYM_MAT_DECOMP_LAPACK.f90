@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SYM_MAT_DECOMP_LAPACK ( CALLING_SUBR, MATIN_NAME, MATIN_SET, NROWS, NTERMS, I_MATIN, J_MATIN, MATIN, PRT_ERRS,    &
                                          MATIN_DIAG_RAT, EQUIL_MATIN, CALC_COND_NUM, DEB_PRT, EQUED, MATIN_SDIA, K_INORM, RCOND,   &
                                          EQUIL_SCALE_FACS, INFO )
@@ -35,7 +35,7 @@
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FACTORED_MATRIX, FATAL_ERR, LINKNO
-      USE TIMDAT, ONLY                :  TSEC       
+      USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE, ONEPP6
       USE PARAMS, ONLY                :  BAILOUT, EPSIL, SUPINFO
       USE LAPACK_DPB_MATRICES, ONLY   :  ABAND, LAPACK_S
@@ -44,16 +44,16 @@
 
       USE SYM_MAT_DECOMP_LAPACK_USE_IFs
       USE LINK_MESSAGE_Interface
-                           
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SYM_MAT_DECOMP_LAPACK'
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: CALLED_SUBR = ' ' ! Name of a called subr (for output error purposes)
       CHARACTER(LEN=*) , INTENT(IN)   :: CALC_COND_NUM     ! If "Y" calc RCOND (reciprocal of condition number of MATIN)
       CHARACTER(LEN=*) , INTENT(IN)   :: CALLING_SUBR      ! The subr that called this subr (used for output error purposes)
       CHARACTER(LEN=*) , INTENT(IN)   :: EQUIL_MATIN       ! If "Y" attempt to equilibrate MATIN (if it needs it)
-      CHARACTER(1*BYTE), INTENT(OUT)  :: EQUED             ! 'Y' if MATIN was equilibrated in subr EQUILIBRATE (called herein)   
+      CHARACTER(1*BYTE), INTENT(OUT)  :: EQUED             ! 'Y' if MATIN was equilibrated in subr EQUILIBRATE (called herein)
       CHARACTER(LEN=*) , INTENT(IN)   :: MATIN_DIAG_RAT    ! If "Y" calculate max ratio of matrix diagonal to factor diagonal
       CHARACTER(LEN=*) , INTENT(IN)   :: MATIN_NAME        ! Name of matrix to be decomposed
       CHARACTER(LEN=*) , INTENT(IN)   :: MATIN_SET         ! Set designator for the input matrix. If it corresponds to a MYSTRAN
@@ -66,7 +66,7 @@
       CHARACTER( 1*BYTE), PARAMETER   :: INORM    = 'I'    ! Indicates to calculate the infinity norm via LAPACK function DLANSB
       CHARACTER( 1*BYTE)              :: QUIT_ON_POS_INFO  ! Indicator of whether to quit if output value of INFO is found to be > 0
       CHARACTER( 1*BYTE), PARAMETER   :: UPLO     = 'U'    ! Indicates upper triang part of matrix is stored
- 
+
       INTEGER(LONG), INTENT(IN)       :: DEB_PRT(2)        ! Debug numbers to say whether to write ABAND and/or its decomp to file
       INTEGER(LONG), INTENT(IN)       :: NROWS             ! Number of rows in sparse matrix MATIN
       INTEGER(LONG), INTENT(IN)       :: NTERMS            ! Number of nonzeros in sparse matrix MATIN
@@ -82,7 +82,7 @@
       INTEGER(LONG), INTENT(OUT)      :: MATIN_SDIA        ! No. of superdiags in the MATIN upper triangle
       INTEGER(LONG)                   :: COMPV             ! Component number (1-6) of a grid DOF
       INTEGER(LONG)                   :: GRIDV             ! Grid number
-      INTEGER(LONG)                   :: I                 ! DO loop index             
+      INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: IIMAX             ! Row/Col in MATIN where max diagonal term occurs
       INTEGER(LONG)                   :: IIMIN             ! Row/Col in MATIN where min diagonal term occurs
 
@@ -103,9 +103,9 @@
       REAL(DOUBLE)                    :: MB_TO_ALLOCATE    ! MB of memory to allocate
       REAL(DOUBLE)                    :: MINKII            ! Minimum diagonal term in MATIN
 !xx   REAL(DOUBLE)                    :: SCOND             ! Ratio of min to max scaling factors, LAPACK_S(i), if MATIN is equil'ed.
- 
+
       LOGICAL                         :: FACTORIZATION_PROBLEM
- 
+
       INTRINSIC                       :: DABS
 
 
@@ -124,10 +124,10 @@
 
       EPS1 = EPSIL(1)
 
-! Determine bandwidth of matrix 
+! Determine bandwidth of matrix
 
       CALL LINK_MESSAGE('CALC BANDWIDTH OF MATRIX ' // MATIN_NAME(1:))
-      CALL BANDSIZ ( NROWS, NTERMS, I_MATIN, J_MATIN, MATIN_SDIA ) 
+      CALL BANDSIZ ( NROWS, NTERMS, I_MATIN, J_MATIN, MATIN_SDIA )
       MB_TO_ALLOCATE = (REAL(DOUBLE))*(REAL(MATIN_SDIA+1))*(REAL(NROWS))/ONEPP6
       WRITE(SC1,3094) MATIN_NAME, MATIN_SDIA+1, MB_TO_ALLOCATE
       WRITE(ERR,3002) MATIN_NAME, MATIN_SDIA+1
@@ -173,10 +173,10 @@
    !xx   WRITE(SC1, * )
          K_INORM = DLANSB ( INORM, UPLO, NROWS, MATIN_SDIA, ABAND, MATIN_SDIA+1, LAPACK_S )
          WRITE(F06,3005) MATIN_NAME, K_INORM
-      ENDIF  
+      ENDIF
 
 ! Get max & min diagonals from the original matrix. Code assumes all diag terms positive
- 
+
       IF (MATIN_DIAG_RAT == 'Y') THEN
          CALL LINK_MESSAGE('GET MAX/MIN DIAGONALS OF MATRIX ' // MATIN_NAME(1:))
 
@@ -188,7 +188,7 @@
                IIMAX  = I
             ENDIF
          ENDDO
-         WRITE(F06,3006) MATIN_NAME, MAXKII,IIMAX 
+         WRITE(F06,3006) MATIN_NAME, MAXKII,IIMAX
 
          MINKII = MAXKII
          IIMIN  = IIMAX
@@ -203,7 +203,7 @@
          IF (DABS(MINKII) > EPS1) THEN
             KRATIO = MAXKII/MINKII
             WRITE(F06,3008) MATIN_NAME, KRATIO
-         ENDIF 
+         ENDIF
       ENDIF
 
       EQUED = 'N'
@@ -225,8 +225,8 @@
 
       CALL DEALLOCATE_LAPACK_MAT ( 'LAPACK_S' )
 
-! Get max & min diagonals from the equilibrated matrix. Code assumes all diag terms positive 
- 
+! Get max & min diagonals from the equilibrated matrix. Code assumes all diag terms positive
+
       IF ((EQUED == 'Y') .AND. (MATIN_DIAG_RAT == 'Y')) THEN
          CALL LINK_MESSAGE('GET MAX/MIN DIAGONALS OF EQUILIBRATED MATRIX' // MATIN_NAME(1:))
 
@@ -238,7 +238,7 @@
                IIMAX  = I
             ENDIF
          ENDDO
-         WRITE(F06,3009) MATIN_NAME, MAXKII,IIMAX 
+         WRITE(F06,3009) MATIN_NAME, MAXKII,IIMAX
 
          MINKII = MAXKII
          IIMIN  = 0
@@ -261,8 +261,8 @@
                                            NROWS, F06)
             ENDIF
          ENDIF
-      
-      ENDIF 
+
+      ENDIF
 
 ! Perform factorization of matrix. ABAND is the original matrix going into the decomp routine and is the upper triangular factor on
 ! exit.
@@ -270,7 +270,7 @@
       CALL LINK_MESSAGE('LAPACK TRIANGULAR FACTORIZATION OF MATRIX ' // MATIN_NAME(1:))
       CALL DPBTRF ( UPLO, NROWS, MATIN_SDIA, ABAND, MATIN_SDIA+1, INFO )
 
-      CALLED_SUBR = 'DPBTRF'      
+      CALLED_SUBR = 'DPBTRF'
       IF (INFO == 0) THEN
 
          FACTORED_MATRIX(1:) = ' '
@@ -291,10 +291,10 @@
             WRITE(ERR,981) MATIN_NAME, CALLED_SUBR, INFO
             WRITE(F06,981) MATIN_NAME, CALLED_SUBR, INFO
             IF ((GRIDV > 0) .AND. (COMPV > 0)) THEN
-               WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR 
+               WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR
                WRITE(F06,9811) GRIDV, COMPV, CALLING_SUBR
-            ELSE 
-               WRITE(ERR,9812) INFO, CALLING_SUBR 
+            ELSE
+               WRITE(ERR,9812) INFO, CALLING_SUBR
                WRITE(F06,9812) INFO, CALLING_SUBR
             ENDIF
          ENDIF
@@ -310,7 +310,7 @@
          ENDIF
       ENDIF
 
-    
+
       DO I=1,NROWS
          FACTOR_DIAG(I) = ABAND(MATIN_SDIA+1,I)
       ENDDO

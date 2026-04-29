@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_CQUAD ( CARD, LARGE_FLD_INP, NUM_GRD )
-  
+
 ! Processes CQUADi, CQDPLTi, CQDMEMi Bulk Data Cards
 !  1) Sets ETYPE for this element type
 !  2) Calls subr ELEPRO to read element ID, property ID and connection data into array EDAT
@@ -37,11 +37,11 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  EDAT, ETYPE, MATANGLE, PLATEOFF, PLATETHICK
- 
+
       USE BD_CQUAD_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_CQUAD'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD              ! A Bulk Data card
       CHARACTER(LEN=*), INTENT(IN)    :: LARGE_FLD_INP     ! If 'Y', CARD is large field format
@@ -58,14 +58,14 @@
       INTEGER(LONG)                   :: ICONT     = 0     ! Indicator of whether a cont card exists. Output from subr NEXTC
       INTEGER(LONG)                   :: IERR      = 0     ! Error indicator returned from subr NEXTC called herein
 
- 
+
       REAL(DOUBLE)                    :: R8INP     = ZERO  ! A value read from input file that should be a real value
 
 
 
 ! **********************************************************************************************************************************
 ! CQUADi element Bulk Data Card routine
- 
+
 !   FIELD   ITEM           ARRAY ELEMENT
 !   -----   ------------   -------------
 !    1      Element type   ETYPE(nele) = Q1, Q2, Q3, QA, QB
@@ -81,19 +81,19 @@
 ! on optional second card:
 !   4-7     Ti             Membrane thicknes at grids 1-4. These will go into array PLATETHICK
 !                          EDAT(nedat+10) will hold NPLATETHICK the row in PLATETHICK where Ti is located
- 
+
 ! Make JCARD from CARD
 
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Set JCARD_EDAT to JCARD
 
       DO I=1,10
          JCARD_EDAT(I) = JCARD(I)
-      ENDDO 
+      ENDDO
 
 ! Check property ID field. Set to element ID if blank
-  
+
       IF (JCARD(3)(1:) == ' ') THEN
          JCARD_EDAT(3) = JCARD(2)
       ENDIF
@@ -101,7 +101,7 @@
 ! Read and check data
                                                            ! Load 6 items into EDAT
       CALL ELEPRO ( 'Y', JCARD_EDAT, 6, MEDAT_CQUAD, 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'N', 'N' )
- 
+
       NUM_GRD = 4
       IF       (JCARD(1)(1:7) == 'CQUAD4K') THEN
          NCQUAD4K = NCQUAD4K + 1
@@ -110,9 +110,9 @@
          NCQUAD4 = NCQUAD4 + 1
          ETYPE(NELE) = 'QUAD4   '
       ENDIF
- 
+
 ! Read material property orientation angle. It takes 2 values put into EDAT to cover all of the possibilities of field 8:
-!  (a) If field 8 is a real value it is the angle of the material axis relative to the element x axis. 
+!  (a) If field 8 is a real value it is the angle of the material axis relative to the element x axis.
 !         (1) the 2 values to put into EDAT are: the value in field 8 (this will be the row in MATANGLE to get the angle), and a 0
 !  (b) If field 8 is an integer it means that the angle is identified by a coord system.
 !         (2) if field 8 is a positive number the 2 values to put into EDAT are: the neg of field 8 integer and a 2
@@ -190,7 +190,7 @@
          ENDIF
       ELSE
 
-         NEDAT = NEDAT + 1 
+         NEDAT = NEDAT + 1
          EDAT(NEDAT) = 0
 
       ENDIF
@@ -208,7 +208,7 @@
 
       CALL BD_IMBEDDED_BLANK   ( JCARD,2,3,4,5,6,7,8,9 )   ! Make sure that there are no imbedded blanks in fields 2-9
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
-  
+
 ! Optional second card (to define membrane thicknesses as grid values):
 
       IF (LARGE_FLD_INP == 'N') THEN
@@ -252,15 +252,15 @@
 
 ! **********************************************************************************************************************************
  1141 FORMAT(' *ERROR  1141: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' TOO MANY PLATE ELEMENT MATERIAL PROPERTY ANGLES. LIMIT IS NMATANGLE =  ',I8) 
+                    ,/,14X,' TOO MANY PLATE ELEMENT MATERIAL PROPERTY ANGLES. LIMIT IS NMATANGLE =  ',I8)
 
  1144 FORMAT(' *ERROR  1144: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,A,I8) 
+                    ,/,14X,A,I8)
 
  1196 FORMAT(' *ERROR  1196: VALUE FOR MATERIAL ANGLE ON ',A,A,' MUST BE AN INTEGER OR REAL NUMBER BUT VALUE READ WAS ',A)
 
  1197 FORMAT(' *ERROR  1197: FOR ',A,A,' THE COORD SYS ID IN FIELD ',I2,' MUST BE >= 0. HOWEVER, THE VALUE INPUT WAS ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_CQUAD

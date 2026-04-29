@@ -1,5 +1,5 @@
 ! ##################################################################################################################################
- 
+
       MODULE LAPACK_LIN_EQN_DPB
 
       USE PENTIUM_II_KIND, ONLY          :  BYTE, LONG, DOUBLE
@@ -16,7 +16,7 @@
 
 !                             Ax = B
 
-! where matrix A is a dbl prec symmetric banded matrix. 
+! where matrix A is a dbl prec symmetric banded matrix.
 ! Matrix A is decomposed into an upper triangular matrix U such that:
 
 !                         A = U(transp)*U
@@ -35,7 +35,7 @@
 
 !     DPBTRS to get the solution for x given the triangular factors of A
 
-! In addition, files in module LAPACK_BLAS_AUX are also used     
+! In addition, files in module LAPACK_BLAS_AUX are also used
 
       CONTAINS
 
@@ -544,7 +544,7 @@
 *                 lies outside the band.
 *
                   I2 = MIN( KD-IB, N-I-IB+1 )
-                  I3 = MIN( IB, N-I-KD+1 ) 
+                  I3 = MIN( IB, N-I-KD+1 )
 *
                   IF( I2 > 0 ) THEN
 *
@@ -1121,7 +1121,7 @@
 *     .. External Functions ..
       LOGICAL            LSAME
       EXTERNAL           LSAME
-      
+
       REAL(DOUBLE)       DLAMCH
       EXTERNAL           DLAMCH
 *     ..

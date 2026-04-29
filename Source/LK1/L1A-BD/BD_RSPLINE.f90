@@ -1,45 +1,45 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_RSPLINE ( CARD, LARGE_FLD_INP )
-  
+
 ! Processes RSPLINE Bulk Data Cards. Writes RSPLINE card data to file L1F. Note that this code only recognizes 2 indep grids on a
 ! given RSPLINE unlike NASTRAN (thus user must enter a different RSPLINE for each pair of indep grids between which the cubic
 ! spline will be fitted to all of the dep grid/comps
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1F
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, MRSPLINE, NRSPLINE, NRECARD, NRIGEL
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  RIGID_ELEM_IDS
- 
+
       USE BD_RSPLINE_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_RSPLINE'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD              ! A Bulk Data card
       CHARACTER(LEN=*), INTENT(IN)    :: LARGE_FLD_INP     ! If 'Y', CARD is large field format
@@ -55,7 +55,7 @@
       CHARACTER( 8*BYTE)              :: IP6TYP            ! Descriptor of what is in the 8 char field sent to subr IP6CHK
       CHARACTER(LEN(JCARD))           :: NAME              ! JCARD(1) from parent entry
       CHARACTER( 8*BYTE), PARAMETER   :: RTYPE = 'RSPLINE '! Rigid element type
- 
+
       INTEGER(LONG)                   :: DCOMP(MRSPLINE+1) ! Array of dep displ comp values (1-6) found on this logical RSPLINE card
       INTEGER(LONG)                   :: DGRID(MRSPLINE+1) ! Array of dep GRID ID's found on this logical RSPLINE card
 
@@ -69,22 +69,22 @@
       INTEGER(LONG)                   :: ICONT     = 0     ! Indicator of whether a cont card exists. Output from subr NEXTC
       INTEGER(LONG)                   :: IERR      = 0     ! Error indicator returned from subr NEXTC called herein
       INTEGER(LONG)                   :: JERR      = 0     ! A local error count
-      INTEGER(LONG)                   :: JE                ! An intermediale variable  
+      INTEGER(LONG)                   :: JE                ! An intermediale variable
       INTEGER(LONG)                   :: NUM_DEPENDENTS    ! Count of number of pairs of dependent grids/components
       INTEGER(LONG)                   :: NUM_ENTRIES       ! Count of number of entries placed into array GC_FLDS
       INTEGER(LONG)                   :: NUM_Ci            ! Number of displ components in a DCOMP field
       INTEGER(LONG)                   :: ELID      = 0     ! This elements' ID
 
- 
+
       REAL(DOUBLE)                    :: DL_RAT            ! Value in field 3 for D/L ratio
       REAL(DOUBLE)                    :: R8INP             ! A real value read from a field on this RSPLINE entry
- 
+
 
 
 ! **********************************************************************************************************************************
 ! RSPLINE Bulk Data Card:
- 
-!   FIELD   ITEM            EXPLANATION 
+
+!   FIELD   ITEM            EXPLANATION
 !   -----   ------------    -------------
 !    2      ELID            RSPLINE elem ID
 !    3      D/L             Diam/length ratio of the rod used in determining the beam deflection relationship
@@ -95,7 +95,7 @@
 !    2-9    contain either a grid or comp number. To be conservative each cont entry will be assumed to have an 8 dep entries
 
 ! Subsequent entries have the same format.
- 
+
       JERR = 0
 
 ! Initialize arrays
@@ -109,20 +109,20 @@
          FLDS_F(J)     = 0
          FLDS_C(J)(1:) = ' '
       ENDDO
- 
+
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
       NAME = JCARD(1)
       ID   = JCARD(2)
- 
+
 ! Up the elem count
 
       NRSPLINE = NRSPLINE + 1
       NRIGEL   = NRIGEL+1
- 
+
 ! Read and check data on parent entry
- 
+
       CALL I4FLD ( JCARD(2), JF(2), I4INP )                ! Field 2: Elem ID
       IF (IERRFL(2) == 'N') THEN
          ELID                   = I4INP
@@ -151,7 +151,7 @@
             JERR = JERR + 1
          ENDIF
       ENDDO
-            
+
       CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,6,7,8,9 )     ! Make sure there are no imbedded blanks
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
 
@@ -184,7 +184,7 @@ do_1: DO
             EXIT do_1
          ENDIF
       ENDDO do_1
-                  
+
 ! FLDS_I may have some number of 0 entries at the end which should not be counted in NUM_ENTRIES.
 ! Scan FLDS_I (from end to begining) to find where last nonzero entry exists. This value is the one we want for NUM_ENTRIES
 

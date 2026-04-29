@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       FUNCTION BAILOUT_CHECK ( CALLING_SUBR, MATIN_NAME, MATIN_SET, NROWS, NTERMS, I_MATIN, MATIN, PRT_ERRS, FACTOR_DIAG )
 
 ! Performs two checks on the factorization of a matrix stored in Compressed Row Storage (CRS) format:
@@ -38,9 +38,9 @@
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, LINKNO
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  EPSIL, MAXRATIO
-      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM  
+      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM
       USE LINK_MESSAGE_Interface
-      
+
       IMPLICIT NONE
 
       LOGICAL                         :: BAILOUT_CHECK
@@ -61,9 +61,9 @@
       INTEGER(LONG), INTENT(IN)       :: I_MATIN(NROWS+1)  ! Indicators of number of nonzero terms in rows of matrix MATIN
       INTEGER(LONG)                   :: COMPV             ! Component number (1-6) of a grid DOF
       INTEGER(LONG)                   :: GRIDV             ! Grid number
-      INTEGER(LONG)                   :: I                 ! DO loop index             
+      INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: IIMAX             ! Row/Col in MATIN where max diagonal term occurs
-      
+
       REAL(DOUBLE) , INTENT(IN)       :: MATIN(NTERMS)     ! Matrix values
       REAL(DOUBLE)                    :: MATIN_DIAG(NROWS) ! Diagonal terms from MATIN matrix
       REAL(DOUBLE) , INTENT(IN)       :: FACTOR_DIAG(NROWS)! The diagonal of the factor
@@ -76,7 +76,7 @@
 ! **********************************************************************************************************************************
 
       EPS1 = EPSIL(1)
-      
+
 ! Calculate and print ratios of diag to factor diag (if they are zero or negative or > MAXRATIO).
 
       CALL LINK_MESSAGE('CALC MAX RATIO OF MATRIX DIAGONAL TO FACTOR DIAGONAL')
@@ -108,9 +108,9 @@
                WRITE(ERR,982) MATIN_NAME, FAC_DIAG
                WRITE(F06,982) MATIN_NAME, FAC_DIAG
                IF ((GRIDV > 0) .AND. (COMPV > 0)) THEN
-                  WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR 
+                  WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR
                   WRITE(F06,9811) GRIDV, COMPV, CALLING_SUBR
-               ELSE 
+               ELSE
                   WRITE(ERR,9812) I, CALLING_SUBR
                   WRITE(F06,9812) I, CALLING_SUBR
                ENDIF
@@ -124,9 +124,9 @@
                WRITE(ERR,983) MATIN_NAME, RATIO, MAXRATIO
                WRITE(F06,983) MATIN_NAME, RATIO, MAXRATIO
                IF ((GRIDV > 0) .AND. (COMPV > 0)) THEN
-                  WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR 
+                  WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR
                   WRITE(F06,9811) GRIDV, COMPV, CALLING_SUBR
-               ELSE 
+               ELSE
                   WRITE(ERR,9812) I, CALLING_SUBR
                   WRITE(F06,9812) I, CALLING_SUBR
                ENDIF
@@ -140,7 +140,7 @@
          ENDIF
          CALL COUNTER_PROGRESS(I)
       ENDDO
-      WRITE(SC1,*) CR13  
+      WRITE(SC1,*) CR13
 
       IF (NONPOS_DEF == 'N') THEN
 
@@ -148,9 +148,9 @@
          WRITE(F06,984) MATIN_NAME, MAXIMAX_RATIO
          CALL GET_GRID_AND_COMP ( MATIN_SET, IIMAX, GRIDV, COMPV  )
          IF ((GRIDV > 0) .AND. (COMPV > 0)) THEN
-            WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR 
+            WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR
             WRITE(F06,9811) GRIDV, COMPV, CALLING_SUBR
-         ELSE 
+         ELSE
             WRITE(ERR,9812) IIMAX, CALLING_SUBR
             WRITE(F06,9812) IIMAX, CALLING_SUBR
          ENDIF

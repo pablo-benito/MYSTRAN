@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SEQ_PROC
- 
+
 ! Generates the grid point sequence order.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR,     F06,     SEQ,     L1B
       USE IOUNT1, ONLY                :  WRT_ERR, SEQFIL
@@ -38,14 +38,14 @@
       USE PARAMS, ONLY                :  SUPINFO, SUPWARN
       USE MODEL_STUF, ONLY            :  GRID_ID, GRID_SEQ, INV_GRID_SEQ, SEQ1, SEQ2
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE SEQ_PROC_USE_IFs
 
       IMPLICIT NONE
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SEQ_PROC'
       CHARACTER(LEN=DATA_NAM_LEN)     :: DATA_SET_NAME     ! A data set name for output purposes
- 
+
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: IERROR            ! Error count
       INTEGER(LONG)                   :: IGRID             ! Internal grid ID
@@ -53,12 +53,12 @@
       INTEGER(LONG)                   :: TMP_GRD_SEQ(NGRID)! Set to array GRID_SEQ so we can sort it and get array INV_GRID_SEQ
 !                                                            without disturbing GRID_SEQ sequence
 
- 
+
       REAL(DOUBLE)                    :: R_GSEQ(NGRID)     ! Real sequence numbers (since SEQGP cards can have real no's). In the
 !                                                            end, the sequence array that will be used is integer array GRID_SEQ
 
       INTRINSIC                       :: DBLE
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -71,7 +71,7 @@
 ! NOTE: when Bandit sequencing is requested we use Bandit to generate a set of SEQGP cards (if it runs correctly and finds
 !       resequencing is necessary) and then proceed with that complete set of SEQGP cards. Need to do it this way because we have to
 !       get INV_GRID_SEQ (later) and to write the seq arrays to L1B.
-  
+
       IF       (GRIDSEQ(1:6) == 'BANDIT') THEN             ! Call subr AUTO_SEQ_PROC to generate SEQ1, SEQ2 from SEQGP card images
          CALL AUTO_SEQ_PROC
          IF (NSEQ == NGRID) THEN                           ! Bandit did reseq grids. Set R_GSEQ to the SEQ2 from Bandit SEQGP cards
@@ -97,7 +97,7 @@
            R_GSEQ(I) = DBLE(GRID_SEQ(I))
          ENDDO
       ENDIF
- 
+
 ! Check to make sure that all grid points on SEQGP cards are defined
 
       IERROR = 0
@@ -120,15 +120,15 @@
 
 ! Reset GRID_SEQ to consecutive integers. R_GSEQ will be the grid sequence number for the time being. At the end,
 ! the integer sequence numbers will be back in GRID_SEQ
- 
+
       DO I=1,NGRID
          GRID_SEQ(I) = I
       ENDDO
-  
+
 ! If there are SEQGP cards in the data deck, or if auto sequencing has produced them, then arrays SEQ1, SEQ2 exist.
 ! Sort SEQ1 (grid numbers) with SEQ2 (sequence numbers) so that SEQ1 is in grid point numerical order (like GRID_ID) and then
 ! check to make sure that no sequence numbers are duplicated.
- 
+
       IF (NSEQ > 1) THEN
 
          CALL SORT_INT1_REAL1 ( SUBR_NAME, 'SEQ1, SEQ2', NSEQ, SEQ1, SEQ2 )
@@ -141,13 +141,13 @@
                   WRITE(F06,1399) SEQ1(I+1),SEQ2(I+1)
                ENDIF
             ENDIF
-         ENDDO   
- 
+         ENDDO
+
       ENDIF
 
 ! Change sequence numbers in R_GSEQ to values in SEQ2 (from SEQGP Bulk Data cards). Note: SEQ1 is in grid numerical order
 ! so R_GSEQ(1) will be for grid GRID_ID(1) and so on.
- 
+
       IF (NSEQ == NGRID) THEN
          DO I=1,NGRID
             R_GSEQ(I) = SEQ2(I)
@@ -158,12 +158,12 @@
                IF (SEQ1(J) == GRID_ID(I)) THEN
                   R_GSEQ(I) = SEQ2(J)
                ENDIF
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
       ENDIF
 
-! Set TMP_GRID_ID to GRID_ID and then sort TMP_GRID_ID with R_GSEQ so that R_GSEQ is in numerically increasing order. 
- 
+! Set TMP_GRID_ID to GRID_ID and then sort TMP_GRID_ID with R_GSEQ so that R_GSEQ is in numerically increasing order.
+
       DO I=1,NGRID
          TMP_GRID_ID(I) = GRID_ID(I)
       ENDDO
@@ -192,8 +192,8 @@
          CALL OUTA_HERE ( 'Y' )
       ENDIF
 
-! Sort TMP_GRID_ID with R_GSEQ and with GRID_SEQ so that TMP_GRID_ID is in numerically increasing order. 
- 
+! Sort TMP_GRID_ID with R_GSEQ and with GRID_SEQ so that TMP_GRID_ID is in numerically increasing order.
+
       CALL SORT_INT2_REAL1 ( SUBR_NAME, 'TMP_GRID_ID, GRID_SEQ, R_GSEQ', NGRID, TMP_GRID_ID, GRID_SEQ, R_GSEQ )
 
 ! Generate array INV_GRID_SEQ
@@ -203,9 +203,9 @@
          INV_GRID_SEQ(I) = I
       ENDDO
 
-      CALL SORT_INT2 ( SUBR_NAME, 'TMP_GRD_SEQ, INV_GRID_SEQ', NGRID, TMP_GRD_SEQ, INV_GRID_SEQ ) 
+      CALL SORT_INT2 ( SUBR_NAME, 'TMP_GRD_SEQ, INV_GRID_SEQ', NGRID, TMP_GRD_SEQ, INV_GRID_SEQ )
 
-! Print table showing R_GSEQ, GRID_SEQ and INV_GRID_SEQ 
+! Print table showing R_GSEQ, GRID_SEQ and INV_GRID_SEQ
 
       IF (DEBUG(13) == 1) THEN
          WRITE(F06,111)
@@ -215,25 +215,25 @@
          WRITE(F06,*)
          WRITE(F06,113)
          WRITE(F06,*)
-      ENDIF 
+      ENDIF
 
 ! **********************************************************************************************************************************
 ! Now write sequence and GRID_SEQ data to file LINK1B.
-  
+
       DATA_SET_NAME = 'GRID_SEQ, INV_GRID_SEQ'
       WRITE(L1B) DATA_SET_NAME
       WRITE(L1B) NGRID
       DO I=1,NGRID
-         WRITE(L1B) GRID_SEQ(I), INV_GRID_SEQ(I)              
-      ENDDO   
-  
+         WRITE(L1B) GRID_SEQ(I), INV_GRID_SEQ(I)
+      ENDDO
+
       DATA_SET_NAME = 'SEQ1, SEQ2'
       WRITE(L1B) DATA_SET_NAME
       WRITE(L1B) NSEQ
       DO I=1,NSEQ
-         WRITE(L1B) SEQ1(I),SEQ2(I)        
-      ENDDO   
-  
+         WRITE(L1B) SEQ1(I),SEQ2(I)
+      ENDDO
+
 
 
       RETURN
@@ -261,13 +261,13 @@
  9999 FORMAT(/,' PROCESSING ABORTED IN SUBROUTINE ',A,' DUE TO ABOVE ',I8,' ERRORS')
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
- 
+
       SUBROUTINE AUTO_SEQ_PROC
 
 ! Reads SEQGP card images from bandit output file (filename.SEQ) using subr BD_SEQGP which creates SEQ1, SEQ2 arrays from SEQGP info
@@ -288,7 +288,7 @@
       CHARACTER( 1*BYTE)              :: IS_GRID_SEQD(NGRID) ! 'Y'/'N' indicator of whether a grid was sequenced in file SEQ
       CHARACTER(LEN=BD_ENTRY_LEN)     :: CARD                ! Card image read from SEQ file (which was generated by Bandit)
       CHARACTER(85*BYTE)              :: VEC_DESCR           ! Char name of array which has the grids that Bandit did not sequence
-  
+
       INTEGER(LONG)                   :: BANDIT_MAX_SEQ_NUM  ! Max sequence number from SEQ2 that is generated by Bandit sequencing
       INTEGER(LONG)                   :: BANDIT_NSEQ         ! Number of grids sequenced by Bandit
       INTEGER(LONG)                   :: GRID_NOT_SEQD(NGRID)! Array of grid numbers not sequenced by Bandit
@@ -305,7 +305,7 @@
       INTEGER(LONG)                   :: NUM_SEQ_FILE_LINES  ! Number of lines in the SEQ file (after STIME)
       INTEGER(LONG)                   :: OUNT(2)             ! File units to write messages to
       INTEGER(LONG)                   :: REC_NO      = 0     ! Indicator of record number when error encountered reading file
-      INTEGER(LONG)                   :: XTIME               ! Time stamp read from a file 
+      INTEGER(LONG)                   :: XTIME               ! Time stamp read from a file
 
 
       INTRINSIC                       :: DBLE, INT
@@ -499,15 +499,15 @@ i_do1:      DO                                             ! Loop reading SEQGP 
                NUM_LEFT = NUM_GRIDS_NOT_SEQD               ! Write data for grids not seq'd by Bandit to the SEQ file
                BACKSPACE (SEQ)
                WRITE(SEQ,300) PROG_NAME, NUM_LEFT
-               NUM_SEQ_FILE_LINES = NUM_SEQ_FILE_LINES + 2 
+               NUM_SEQ_FILE_LINES = NUM_SEQ_FILE_LINES + 2
                DO I=1,NUM_GRIDS_NOT_SEQD,4
                   IF (NUM_LEFT >= 4) THEN
                      WRITE(SEQ,301) (SEQ1(K),INT(SEQ2(K)),K=I+BANDIT_NSEQ,I+BANDIT_NSEQ+3)
                      NUM_SEQ_FILE_LINES = NUM_SEQ_FILE_LINES + 1
-                     NUM_LEFT = NUM_LEFT - 4 
+                     NUM_LEFT = NUM_LEFT - 4
                   ELSE
-                     WRITE(SEQ,301) (SEQ1(K),INT(SEQ2(K)),K=I+BANDIT_NSEQ,I+BANDIT_NSEQ+NUM_LEFT-1) 
-                     NUM_SEQ_FILE_LINES = NUM_SEQ_FILE_LINES + 1 
+                     WRITE(SEQ,301) (SEQ1(K),INT(SEQ2(K)),K=I+BANDIT_NSEQ,I+BANDIT_NSEQ+NUM_LEFT-1)
+                     NUM_SEQ_FILE_LINES = NUM_SEQ_FILE_LINES + 1
                   ENDIF
                ENDDO
 
@@ -560,7 +560,7 @@ i_do2:            DO I=1,NUM_SEQ_FILE_LINES
 
             CALL AUTO_SEQ_PROC_WRAPUP ( SUBR_NAME, SEQSTAT )
 
-         ENDIF err0   
+         ENDIF err0
 
       ELSE                                                 ! bandit.f07 does not exist. Write message and quit if SEQQUIT = Y
 
@@ -643,7 +643,7 @@ i_do2:            DO I=1,NUM_SEQ_FILE_LINES
       END SUBROUTINE AUTO_SEQ_PROC
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE AUTO_SEQ_PROC_WRAPUP ( SUBR_NAME, CLOSE_STAT )
 
 ! Writes message for subr AUTO_SEQ_PROC

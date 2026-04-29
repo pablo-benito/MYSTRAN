@@ -1,41 +1,41 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_N_FS
- 
+
 ! Call routines to reduce stiffness, mass, loads from N-set to F, S-sets
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, L1H, LINK1H, L1H_MSG, L2C, LINK2C, L2C_MSG, SC1, WRT_ERR
       USE SCONTR, ONLY                :  LINKNO    , NDOFF, NDOFG, NDOFN, NDOFS, NDOFSE, NSUB,                                     &
                                          NTERM_KNN , NTERM_KFF , NTERM_KFS , NTERM_KSS , NTERM_KSSe ,                              &
                                          NTERM_KNND, NTERM_KFFD, NTERM_KFSD, NTERM_KSSD, NTERM_KSSDe,                              &
                                          NTERM_QSYS, NTERM_PN  , NTERM_PF  , NTERM_PS  , NTERM_MNN  ,                              &
-                                         NTERM_MFF , NTERM_MFS , NTERM_MSS , SOL_NAME, BLNK_SUB_NAM        
-      USE TIMDAT, ONLY                :  TSEC, YEAR, MONTH, DAY, HOUR, MINUTE, SEC, SFRAC, STIME       
+                                         NTERM_MFF , NTERM_MFS , NTERM_MSS , SOL_NAME, BLNK_SUB_NAM
+      USE TIMDAT, ONLY                :  TSEC, YEAR, MONTH, DAY, HOUR, MINUTE, SEC, SFRAC, STIME
       USE CONSTANTS_1, ONLY           :  ONE
       USE DOF_TABLES, ONLY            :  TDOFI
       USE RIGID_BODY_DISP_MATS, ONLY  :  RBGLOBAL_GSET, RBGLOBAL_NSET, RBGLOBAL_FSET
@@ -54,33 +54,33 @@
       USE COL_VECS, ONLY              :  YSe
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE SCRATCH_MATRICES
- 
+
       USE REDUCE_N_FS_USE_IFs
-                   
+
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_N_FS'
                                                                ! If 'Y' then matrix is stored as all nonzeros on & above diag.
-      CHARACTER(  1*BYTE)             :: CLOSE_IT              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close file or not 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close file or not
       CHARACTER(  8*BYTE)             :: CLOSE_STAT            ! Char constant for the CLOSE status of a file
       CHARACTER( 44*BYTE)             :: MODNAM                ! Name to write to screen to describe module being run
       CHARACTER(132*BYTE)             :: MATRIX_NAME           ! Name of matrix for printout
- 
+
       INTEGER(LONG)                   :: AROW_MAX_TERMS        ! Output from MATMULT_SFS_NTERM and input to MATMULT_SFS
       INTEGER(LONG)                   :: DO_WHICH_CODE_FRAG    ! 1 or 2 depending on which seg of code to run (depends on BUCKLING)
       INTEGER(LONG)                   :: F_SET_COL             ! Col no. in array TDOFI where the F-set is (from subr TDOF_COL_NUM)
       INTEGER(LONG)                   :: F_SET_DOF             ! F-set DOF number
       INTEGER(LONG)                   :: IERROR                ! Error count
       INTEGER(LONG)                   :: IOCHK                 ! IOSTAT error number when opening/reading a file
-      INTEGER(LONG)                   :: I,J                   ! DO loop indices               
-      INTEGER(LONG)     , PARAMETER   :: NUM_YS_COLS = 1       ! Variable for number of cols in array YSe 
-      INTEGER(LONG)                   :: OUNT(2)               ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
-      INTEGER(LONG)                   :: PART_VEC_F(NDOFF)     ! Partitioning vector (1's for all of F set) 
-      INTEGER(LONG)                   :: PART_VEC_N_FS(NDOFN)  ! Partitioning vector (N set into F and S sets) 
-      INTEGER(LONG)                   :: PART_VEC_S(NDOFS)     ! Partitioning vector (1's for all of S set) 
-      INTEGER(LONG)                   :: PART_VEC_S_SzSe(NDOFS)! Partitioning vector (S set into SZ and SE sets) 
-      INTEGER(LONG)                   :: PART_VEC_SUB(NSUB)    ! Partitioning vector (1's for all subcases) 
+      INTEGER(LONG)                   :: I,J                   ! DO loop indices
+      INTEGER(LONG)     , PARAMETER   :: NUM_YS_COLS = 1       ! Variable for number of cols in array YSe
+      INTEGER(LONG)                   :: OUNT(2)               ! File units to write messages to. Input to subr UNFORMATTED_OPEN
+      INTEGER(LONG)                   :: PART_VEC_F(NDOFF)     ! Partitioning vector (1's for all of F set)
+      INTEGER(LONG)                   :: PART_VEC_N_FS(NDOFN)  ! Partitioning vector (N set into F and S sets)
+      INTEGER(LONG)                   :: PART_VEC_S(NDOFS)     ! Partitioning vector (1's for all of S set)
+      INTEGER(LONG)                   :: PART_VEC_S_SzSe(NDOFS)! Partitioning vector (S set into SZ and SE sets)
+      INTEGER(LONG)                   :: PART_VEC_SUB(NSUB)    ! Partitioning vector (1's for all subcases)
       INTEGER(LONG)                   :: REC_NO                ! Record number when reading a file
 
 
@@ -104,7 +104,7 @@
       DO I=1,NDOFF
          PART_VEC_F(I) = 1
       ENDDO
- 
+
       DO I=1,NDOFS
          PART_VEC_S(I) = 1
       ENDDO
@@ -134,7 +134,7 @@
             WRITE(F06,9995) LINKNO,IERROR
             CALL OUTA_HERE ( 'Y' )                                 ! Quit due to read errors in YSe array file
          ENDIF
-  
+
          CALL FILE_CLOSE ( L1H, LINK1H, 'KEEP' )
 
          IF (DEBUG(26) == 1) THEN
@@ -199,7 +199,7 @@
 
             ENDIF
 
-! Reduce PN to PF. 
+! Reduce PN to PF.
 
             IF ((SOL_NAME(1:5) /= 'MODES') .AND. (SOL_NAME(1:12) /= 'GEN CB MODEL')) THEN
 
@@ -279,21 +279,21 @@
 
          MODNAM = '   DEALLOCATE SOME ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KNN', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KNN' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MNN', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'MNN' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PN ', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'PN' )
          WRITE(SC1,*) CR13
 
 ! Calc QSYS = KSSe*YSe and write to L2C for constraint force recovery in LINK9.
-  
+
             IF (NTERM_KSSe > 0) THEN                          ! Calc QSYS = KSSe * YSe
 
                CALL MATMULT_SFS_NTERM ( 'KSSe', NDOFS, NTERM_KSSe, SYM_KSSe, I_KSSe, J_KSSe                                        &
                                         ,'YSe', NDOFSE, NUM_YS_COLS, YSe, AROW_MAX_TERMS, 'QSYS', NTERM_QSYS )
 
                CALL ALLOCATE_SPARSE_MAT ( 'QSYS', NDOFS, NTERM_QSYS, SUBR_NAME )
- 
+
                IF ((DEBUG(24) == 2) .OR.(DEBUG(24) == 3)) THEN
                   MATRIX_NAME = 'STIFFNESS PARTITION KSSe (columns of KSS for enforced displs)'
                   CALL WRITE_SPARSE_CRS ( MATRIX_NAME, 'S ', 'SE', NTERM_KSSe, NDOFS, I_KSSe, J_KSSe, KSSe )
@@ -303,7 +303,7 @@
 
                   CALL MATMULT_SFS ( 'KSSe', NDOFS, NTERM_KSSe, SYM_KSSe, I_KSSe, J_KSSe, KSSe                                     &
                                     ,'YSe', NDOFSE, NUM_YS_COLS, YSe, AROW_MAX_TERMS, 'QSYS', ONE, NTERM_QSYS, I_QSYS, J_QSYS, QSYS)
-               
+
                   CLOSE_IT   = 'Y'
                   CLOSE_STAT = 'KEEP'
                   CALL WRITE_MATRIX_1 ( LINK2C, L2C, CLOSE_IT, CLOSE_STAT, L2C_MSG, 'QSYS', NTERM_QSYS, NDOFS, I_QSYS, J_QSYS, QSYS)
@@ -323,7 +323,7 @@
 
          MODNAM = '   DEALLOCATE SOME ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KSSe', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KSSe' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate QSYS', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'QSYS' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate YSe ', CR13   ;   CALL DEALLOCATE_COL_VEC ( 'YSe' )
@@ -350,7 +350,7 @@
          ENDIF
 
          WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KFS', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KFS' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KSF', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KSF' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KSS', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KSS' )
@@ -384,7 +384,7 @@
          ENDIF
 
          WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MFS', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'MFS' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MSF', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'MSF' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MSS', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'MSS' )
@@ -487,7 +487,7 @@
 
          MODNAM = '   DEALLOCATE SOME ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KNND', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KNND' )
          WRITE(SC1,*) CR13
 
@@ -512,7 +512,7 @@
          ENDIF
 
          WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate YSe ', CR13   ;   CALL DEALLOCATE_COL_VEC    ( 'YSe' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KFSD', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KFSD' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KSFD', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KSFD' )
@@ -534,4 +534,4 @@
 
 ! **********************************************************************************************************************************
 
-      END SUBROUTINE REDUCE_N_FS   
+      END SUBROUTINE REDUCE_N_FS

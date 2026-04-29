@@ -3,7 +3,7 @@
       MODULE LAPACK_BLAS_AUX
 
 ! This is  the set of LAPACK auxiliary routines called by other LAPACK subroutines
- 
+
       USE PENTIUM_II_KIND, ONLY         :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                  :  ERR, F06, SC1
       USE SCONTR, ONLY                  :  BLNK_SUB_NAM, FATAL_ERR
@@ -14,7 +14,7 @@
       USE OUTA_HERE_Interface
 
       character(1*byte), parameter      :: cr13_lba = char(13)
-      
+
       CONTAINS
 
 ! >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1116,8 +1116,8 @@ c
 *
       RETURN
 *
-12345 format(7X,'mult row ',i8,' of ',i8,' times col ',i8, a)         
- 
+12345 format(7X,'mult row ',i8,' of ',i8,' times col ',i8, a)
+
 *     End of DSBMV .
 *
       END SUBROUTINE DSBMV
@@ -2832,7 +2832,7 @@ c
 *
       RETURN
 *
-12345 format(7X,'Forward  pass, row ',i8,' to ',i8, a)               
+12345 format(7X,'Forward  pass, row ',i8,' to ',i8, a)
 
 22345 format(7X,'Backward pass, row ',i8,' to        1 ', a)
 

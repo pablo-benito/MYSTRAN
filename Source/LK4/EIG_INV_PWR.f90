@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
        SUBROUTINE EIG_INV_PWR
-  
+
 ! Solves for eigenvalues and eigenvectors when method is INV. Code is only valid for the 1st eigenval/vec. Inverse Power is an
 ! iterative method
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, KMSM_SDIA, LINKNO, NDOFL, NTERM_KLL, NTERM_KLLD, NTERM_KMSM,     &
@@ -39,26 +39,26 @@
       USE EIGEN_MATRICES_1, ONLY      :  EIGEN_VAL, EIGEN_VEC, MODE_NUM
       USE MODEL_STUF, ONLY            :  EIG_N2, EIG_SIGMA
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL, I_KLLD, J_KLLD, KLLD, I_MLL, J_MLL, MLL,                               &
-                                         I_KMSM, I2_KMSM, J_KMSM, KMSM, I_KMSMs, I2_KMSMs, J_KMSMs, KMSMs 
+                                         I_KMSM, I2_KMSM, J_KMSM, KMSM, I_KMSMs, I2_KMSMs, J_KMSMs, KMSMs
       USE SPARSE_MATRICES, ONLY       :  SYM_KLL, SYM_KLLD, SYM_MLL
       USE LAPACK_LIN_EQN_DPB
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE EIG_INV_PWR_USE_IFs
       USE LINK_MESSAGE_Interface
-      
+
       IMPLICIT NONE
-  
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'EIG_INV_PWR'
-      CHARACTER(  1*BYTE)             :: EQUED             ! 'Y' if KLL stiff matrix was equilibrated in subr EQUILIBRATE    
+      CHARACTER(  1*BYTE)             :: EQUED             ! 'Y' if KLL stiff matrix was equilibrated in subr EQUILIBRATE
 
       INTEGER(LONG)                   :: DEB_PRT(2)        ! Debug numbers to say whether to write ABAND and/or its decomp to output
 !                                                            file in called subr SYM_MAT_DECOMP_LAPACK (ABAND = band form of KLL)
 
       INTEGER(LONG)                   :: I                 ! DO loop index
-      INTEGER(LONG)                   :: INFO        = 0   ! 
-      INTEGER(LONG)                   :: ITER_NUM          ! Number of iterations in converging on eigenvalue 
+      INTEGER(LONG)                   :: INFO        = 0   !
+      INTEGER(LONG)                   :: ITER_NUM          ! Number of iterations in converging on eigenvalue
 
 
 
@@ -156,7 +156,7 @@
       ENDIF
 
       IF (EQUED == 'Y') THEN                               ! If EQUED == 'Y' then error. We don't want KMSM equilibrated from the
-         WRITE(ERR,4001) SUBR_NAME, EQUED                  ! call (above) to SYM_MAT_DECOMP_LAPACK 
+         WRITE(ERR,4001) SUBR_NAME, EQUED                  ! call (above) to SYM_MAT_DECOMP_LAPACK
          WRITE(F06,4001) SUBR_NAME, EQUED
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )
@@ -245,7 +245,7 @@ iters:DO
 
          IF (DABS(MAX_VALUE) > EPSIL(1)) THEN              ! If max value in eigenvector > 0 then get next eigenvalue approx
 
-!zz         EIGEN_VAL_APPROX(ITER_NUM) = ONE/MAX_VALUE     ! 11/25/11: WRONG !!    
+!zz         EIGEN_VAL_APPROX(ITER_NUM) = ONE/MAX_VALUE     ! 11/25/11: WRONG !!
                                                            ! If MVEC had its max numerical value repeated with a different sign,
 !                                                            the algorithm could converge to the negative of the actual eigenvalue.
 !                                                            This algorithm is valid only for positive eigens, so use ABS(MAX_VALUE)
@@ -321,7 +321,7 @@ iters:DO
          MODE_NUM(I) = I
       ENDDO
 
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       WRITE(SC1,32345,ADVANCE='NO') '       Deallocate KMSM'
       CALL DEALLOCATE_SPARSE_MAT ( 'KMSM' )
 
@@ -329,7 +329,7 @@ iters:DO
 
       IF ((SOL_NAME(1:12) /= 'GEN CB MODEL' ) .AND. (SOL_NAME(1:8) /= 'BUCKLING')) THEN
          CALL LINK_MESSAGE('DEALLOCATE SPARSE KLL ARRAYS')
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,32345,ADVANCE='NO') '       Deallocate KLL', CR13
          CALL DEALLOCATE_SPARSE_MAT ( 'KLL' )
       ENDIF
@@ -362,7 +362,7 @@ iters:DO
 
  4902 FORMAT(43X,'Results of Inverse Power iteration on eigenvalue    1',//,42X,'Iter No.       Approx Eigenvalue     ',           &
                  '% Change from last',//,52X,1ES23.14)
- 
+
  4903 FORMAT(45X,I4,3X,1ES23.14,8X,1ES9.2)
 
  4904 FORMAT(45X,I4,3X,1ES23.14)
@@ -377,9 +377,9 @@ iters:DO
 32345 FORMAT(A,10X)
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE WRITE_ITER_RESULTS
@@ -398,7 +398,7 @@ iters:DO
 
 ! **********************************************************************************************************************************
  4912 FORMAT(39X,'Results of Inverse Power iteration on eigenvalue    1',//,52X,'Iter No.  Approx Eigenvalue',//,62X,1ES15.6)
- 
+
  4913 FORMAT(55X,I4,3X,1ES15.6)
 
 ! **********************************************************************************************************************************

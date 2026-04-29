@@ -1,37 +1,37 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SHELL_STRAIN_OUTPUTS ( SIZE_ALLOCATED, NUM1, NUM_FEMAP_ROWS, WRITE_OGEL, WRITE_FEMAP )
- 
+
 ! Calculates element specific strain output from array STRAIN (calc'd in subr ELEM_STRE_STRN_ARRAYS) for shell elements (TRIA3,
 ! QUAD4, SHEAR) and puts results into array OGEL for later output to F06 file.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR 
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  ANY_FAILURE_THEORY, FAILURE_THEORY, PCOMP_PROPS, STRAIN, STRESS, TYPE, ZS
@@ -39,7 +39,7 @@
       USE LINK9_STUFF, ONLY           :  FTNAME, OGEL
       USE FEMAP_ARRAYS, ONLY          :  FEMAP_EL_VECS
       USE PARAMS, ONLY                :  PRTNEU
- 
+
       USE SHELL_STRAIN_OUTPUTS_USE_IFs
 
       IMPLICIT NONE
@@ -47,14 +47,14 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SHELL_STRAIN_OUTPUTS'
       CHARACTER( 1*BYTE), INTENT(IN)  :: WRITE_OGEL         ! If 'Y' then write data to array OGEL
       CHARACTER( 1*BYTE), INTENT(IN)  :: WRITE_FEMAP        ! If 'Y' then write data to array FEMAP_EL_VECS
- 
+
       INTEGER(LONG), INTENT(IN)       :: SIZE_ALLOCATED     ! No. of rows allocated to array that will be written to
       INTEGER(LONG), INTENT(IN)       :: NUM_FEMAP_ROWS     ! Number of rows that will be written to FEMAP arrays
       INTEGER(LONG), INTENT(INOUT)    :: NUM1               ! Cum rows written to OGEL prior to running this subr
       INTEGER(LONG)                   :: I,J                ! DO loop indices
       INTEGER(LONG)                   :: NUM_ROWS           ! Number of rows of stress for an element (plates have 2 ZS vals)
 
- 
+
       REAL(DOUBLE)                    :: ANGLE              ! Angle of prin strains in plate elems (calc'd in subr PRINCIPAL_2D)
       REAL(DOUBLE)                    :: FAILURE_INDEX      ! Failure index (scalar value)
       REAL(DOUBLE)                    :: MEAN               ! Mean strains
@@ -70,7 +70,7 @@
       LOGICAL                         :: WRITE_NEU
 
       INTRINSIC DMAX1,DMIN1
- 
+
 
       WRITE_NEU = (PRTNEU == 'Y')
 
@@ -95,7 +95,7 @@
                   WRITE(F06,9200) SUBR_NAME,SIZE_ALLOCATED
                   FATAL_ERR = FATAL_ERR + 1
                   CALL OUTA_HERE ( 'Y' )
-               ENDIF   
+               ENDIF
                OGEL(NUM1,1) = SX
                OGEL(NUM1,2) = SY
                OGEL(NUM1,3) = SXY
@@ -173,7 +173,7 @@
             NUM_ROWS = 2
             IF (TYPE(1:5) == 'SHEAR') THEN
                NUM_ROWS = 1
-            ENDIF            
+            ENDIF
 
             DO I=1,NUM_ROWS
                SX  = STRAIN(1) + ZS(I)*STRAIN(4)
@@ -189,8 +189,8 @@
                      WRITE(F06,9200) SUBR_NAME,SIZE_ALLOCATED
                      FATAL_ERR = FATAL_ERR + 1
                      CALL OUTA_HERE ( 'Y' )
-                  ENDIF   
-                  IF (TYPE(1:5) == 'SHEAR') THEN   
+                  ENDIF
+                  IF (TYPE(1:5) == 'SHEAR') THEN
                      OGEL(NUM1, 1) = SX
                      OGEL(NUM1, 2) = SY
                      OGEL(NUM1, 3) = SXY
@@ -245,8 +245,8 @@
 !xx                  FEMAP_EL_VECS(NUM_FEMAP_ROWS,9*(I-1)+8) = SXYMAX
 !xx               ENDIF
                ENDIF
-            ENDDO   
- 
+            ENDDO
+
          ENDIF
 
       ELSE IF (TYPE(1:6) == 'USERIN') THEN                 ! Stresses for USERIN elements
@@ -258,7 +258,7 @@
                WRITE(F06,9200) SUBR_NAME,SIZE_ALLOCATED
                FATAL_ERR = FATAL_ERR + 1
                CALL OUTA_HERE ( 'Y' )
-            ENDIF   
+            ENDIF
             DO J=1,9
                OGEL(NUM1,J) = STRAIN(J)
             ENDDO
@@ -268,7 +268,7 @@
                FEMAP_EL_VECS(NUM_FEMAP_ROWS,J) = STRAIN(J)
             ENDDO
          ENDIF
- 
+
       ELSE
 
          FATAL_ERR = FATAL_ERR + 1
@@ -276,8 +276,8 @@
          WRITE(F06,9203) SUBR_NAME, TYPE
          CALL OUTA_HERE ( 'Y' )
 
-      ENDIF   
- 
+      ENDIF
+
 
 
       RETURN
@@ -285,10 +285,10 @@
 ! **********************************************************************************************************************************
  9200 FORMAT(' *ERROR  9200: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' ARRAY OGEL WAS ALLOCATED TO HAVE ',I12,' ROWS. ATTEMPT TO WRITE TO OGEL BEYOND THIS')
- 
+
  9203 FORMAT(' *ERROR  9203: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' INCORRECT ELEMENT TYPE = "',A,'"')
- 
+
  9205 FORMAT(' *ERROR  9205: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' INVALID ',A,' FAILURE THEORY = ',A,'. VALID ONES ARE: ',A)
 

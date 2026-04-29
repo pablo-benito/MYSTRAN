@@ -1,50 +1,50 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SPARSE_CRS_SPARSE_CCS ( NROWS_A, NCOLS_A, NTERMS_A, MAT_A_NAME, I_A, J_A, A, MAT_B_NAME, J_B, I_B, B, WRT_SCREEN )
 
 ! Converts matrices in sparse compressed row storage (CRS) format to sparse compressed column storage (CCS) format
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  F06, SC1, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE SPARSE_CRS_SPARSE_CCS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SPARSE_CRS_SPARSE_CCS'
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_A_NAME        ! Name of input  matrix in CRS format
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_B_NAME        ! Name of output matrix in CCS format
       CHARACTER(LEN=*), INTENT(IN)    :: WRT_SCREEN        ! If 'Y' then write msgs to screen
- 
+
       INTEGER(LONG), INTENT(IN)       :: NCOLS_A           ! Number of cols in input matrix, A (and output matrix B)
       INTEGER(LONG), INTENT(IN)       :: NROWS_A           ! Number of rows in input matrix, A (and output matrix B)
       INTEGER(LONG), INTENT(IN)       :: NTERMS_A          ! Number of nonzero terms in input matrix, A (and output matrix B)
@@ -102,7 +102,7 @@
          CALL COUNTER_INIT(COUNTER_TEMPLATE, NCOLS_A)
       END IF
       DO J=1,NCOLS_A
-         COL_J_NUM_TERMS = 0 
+         COL_J_NUM_TERMS = 0
          DO K=1,NTERMS_A
             IF (J_A(K) == J) THEN                          ! We found a term that belongs in col J
                COL_J_NUM_TERMS = COL_J_NUM_TERMS + 1       ! Update the number of terms counted that belong to this column
@@ -114,7 +114,7 @@
          ENDDO
          IF (WRT_SCREEN == 'Y') THEN
             CALL COUNTER_PROGRESS(J)
-         ENDIF 
+         ENDIF
          J_B(J+1) = J_B(J) + COL_J_NUM_TERMS               ! J_B used to tell how many terms there are in each col of B
       ENDDO
       WRITE(SC1,*) CR13
@@ -130,7 +130,7 @@
  12345 FORMAT("       Extracting ", A, "->", A, " col")
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
 
       CONTAINS
@@ -155,7 +155,7 @@
          WRITE(F06,1016) NROWS_A, NCOLS_A, NTERMS_A
          WRITE(F06,*)
 
-         WRITE(F06,2800) 
+         WRITE(F06,2800)
          WRITE(F06,*)
          WRITE(F06,3001)
          DO II=1,NROWS_A+1
@@ -173,7 +173,7 @@
          NCOLS_B  = NCOLS_A
          NTERMS_B = NTERMS_A
 
-         WRITE(F06,2800) 
+         WRITE(F06,2800)
          WRITE(F06,*)
          WRITE(F06,3021)
          DO II=1,NCOLS_B+1

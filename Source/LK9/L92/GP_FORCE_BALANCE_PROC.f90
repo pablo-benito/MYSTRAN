@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE GP_FORCE_BALANCE_PROC ( JVEC, IHEADER )
 
@@ -140,7 +140,7 @@
 
       WRITE_F06 = (GPFO_OUT(1:1) == 'Y')
       WRITE_OP2 = (GPFO_OUT(2:2) == 'Y')
-      
+
       !WRITE(ERR,*) 'GPFORCE WRITE_F06',WRITE_F06
       !WRITE(ERR,*) 'GPFORCE WRITE_OP2',WRITE_OP2
       !FLUSH(ERR)
@@ -237,17 +237,17 @@
             IF (TITLEI(1:)  /= ' ') THEN
                WRITE(F06,9799) TITLE
             ENDIF
-        
+
             IF (SUBTITLEI(1:) /= ' ') THEN
                WRITE(F06,9799) SUBTITLEI
             ENDIF
-        
+
             IF (LABELI(1:)  /= ' ') THEN
                WRITE(F06,9799) LABELI
             ENDIF
-        
+
             WRITE(F06,*)
-        
+
             ! write f06 header
             IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
                WRITE(F06,8999)
@@ -255,7 +255,7 @@
                WRITE(F06,9200)
             ENDIF
          ENDIF
-         
+
       ENDIF
 
       ! Process grid point force balance output requests.
@@ -354,7 +354,7 @@ i_do1:   DO I=1,NGRID                                      ! (2) Set initial val
           ELSE
               WRITE(ERR,*) 'GPFORCE_NID_EID ALLOCATED error'
           ENDIF
-    
+
           !----------------
           IF (ALLOCATED(GPFORCE_ETYPE)) THEN
               WRITE(ERR,*) 'ALLOCATED!'
@@ -831,7 +831,7 @@ i_do1:   DO I=1,NGRID                                      ! (2) Set initial val
 
       !------------------------------------------------------
       LOGICAL FUNCTION IS_ABS_POSITIVE(ARRAY)
-      ! IS_ABS_POSITIVE has an implicit return that has the same name 
+      ! IS_ABS_POSITIVE has an implicit return that has the same name
       ! as the function
 
       USE PENTIUM_II_KIND, ONLY       :  LONG, DOUBLE
@@ -911,7 +911,7 @@ i_do1:   DO I=1,NGRID                                      ! (2) Set initial val
                                    ANALYSIS_CODE, FIELD5_INT_MODE, FIELD6_EIGENVALUE)
 !     writes the grid point force results header.
 !     Data is first written to character variables and then that character variable is output the F06.
-!     
+!
 !     Parameters
 !     ==========
 !
@@ -988,7 +988,7 @@ i_do1:   DO I=1,NGRID                                      ! (2) Set initial val
       INTEGER(LONG), INTENT(IN) :: ANALYSIS_CODE           ! static, modal, time, freq, etc. flag
       INTEGER(LONG), INTENT(IN) :: ISUBCASE                ! the subcase ID
       INTEGER(LONG), INTENT(IN) :: DEVICE_CODE             ! PLOT, PRINT, PUNCH flag
-      INTEGER(LONG), INTENT(IN) :: NUM_WIDE                ! the number of words per element 
+      INTEGER(LONG), INTENT(IN) :: NUM_WIDE                ! the number of words per element
 
       CHARACTER(LEN=128), INTENT(IN) :: TITLE              ! the model TITLE
       CHARACTER(LEN=128), INTENT(IN) :: SUBTITLE           ! the subcase SUBTITLE
@@ -1027,14 +1027,14 @@ i_do1:   DO I=1,NGRID                                      ! (2) Set initial val
       WRITE(OP2) 146
       ! grid point forces only
       TABLE_CODE = 19
-      
+
       ! ???
       LOAD_SET = 1
-      
+
       ! we're not doing acoustic/stress
       ACOUSTIC_FLAG = 0
       STRESS_CODE = 0
-      
+
       ! not always 0 for stress, but for now
       THERMAL = 0
 

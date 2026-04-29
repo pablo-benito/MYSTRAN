@@ -1,46 +1,46 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_KFFD_TO_KAAD ( PART_VEC_F_AO )
- 
+
 ! Call routines to reduce the KFFD differential stiffness matrix from the F-set to the A, O-sets
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, L2E, LINK2E, L2E_MSG, SC1, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FACTORED_MATRIX, FATAL_ERR, NDOFF, NDOFA, NDOFO, NTERM_KFFD, NTERM_KAAD,    &
                                          NTERM_KAOD, NTERM_KOOD, NTERM_KOODs, NTERM_GOA
       USE PARAMS, ONLY                :  EPSIL, KOORAT, SPARSTOR, RCONDK
       USE TIMDAT, ONLY                :  HOUR, MINUTE, SEC, SFRAC, TSEC
-      USE CONSTANTS_1, ONLY           :  ONE 
+      USE CONSTANTS_1, ONLY           :  ONE
       USE SPARSE_MATRICES, ONLY       :  I_KFFD, J_KFFD, KFFD, I_KAAD, J_KAAD, KAAD, I_KAOD, J_KAOD, KAOD, I_GOA, J_GOA, GOA,      &
                                          I_KOOD, I2_KOOD, J_KOOD, KOOD, I_KOODs, I2_KOODs, J_KOODs, KOODs
-                                         
+
       USE SPARSE_MATRICES, ONLY       :  SYM_GOA, SYM_KFFD, SYM_KAAD, SYM_KAOD, SYM_KOOD
       USE SCRATCH_MATRICES
- 
+
       USE REDUCE_KFFD_TO_KAAD_USE_IFs
 
       IMPLICIT NONE
@@ -49,16 +49,16 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_KFFD_TO_KAAD'
       CHARACTER(  1*BYTE)             :: SYM_CRS2            ! Storage format for matrix CRS2 (either 'Y' for sym storage or
 !                                                              'N' for nonsymmetric storage)
- 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_F_AO(NDOFF)! Partitioning vector (F set into A and O sets) 
+
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_F_AO(NDOFF)! Partitioning vector (F set into A and O sets)
       INTEGER(LONG)                   :: AROW_MAX_TERMS      ! Output from MATMULT_SFS_NTERM and input to MATMULT_SFS
 
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
       INTEGER(LONG)                   :: KAAD_ROW_MAX_TERMS  ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
       INTEGER(LONG)                   :: KAOD_ROW_MAX_TERMS  ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
       INTEGER(LONG)                   :: KOOD_ROW_MAX_TERMS  ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
-      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1  
-      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2  
+      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1
+      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2
       INTEGER(LONG), PARAMETER        :: NUM1        = 1     ! Used in subr's that partition matrices
       INTEGER(LONG), PARAMETER        :: NUM2        = 2     ! Used in subr's that partition matrices
 
@@ -73,11 +73,11 @@
       IF (NDOFA > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'KFFD', NTERM_KFFD, NDOFF, NDOFF, SYM_KFFD, I_KFFD, J_KFFD,      PART_VEC_F_AO, PART_VEC_F_AO,  &
-                                    NUM1, NUM1, KAAD_ROW_MAX_TERMS, 'KAAD', NTERM_KAAD, SYM_KAAD ) 
+                                    NUM1, NUM1, KAAD_ROW_MAX_TERMS, 'KAAD', NTERM_KAAD, SYM_KAAD )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KAAD', NDOFA, NTERM_KAAD, SUBR_NAME )
 
-         IF (NTERM_KAAD > 0) THEN      
+         IF (NTERM_KAAD > 0) THEN
             CALL PARTITION_SS ( 'KFFD', NTERM_KFFD, NDOFF, NDOFF, SYM_KFFD, I_KFFD, J_KFFD, KFFD, PART_VEC_F_AO, PART_VEC_F_AO,    &
                                  NUM1, NUM1, KAAD_ROW_MAX_TERMS, 'KAAD', NTERM_KAAD, NDOFA, SYM_KAAD, I_KAAD, J_KAAD, KAAD )
          ENDIF
@@ -89,7 +89,7 @@
       IF ((NDOFA > 0) .AND. (NDOFO > 0)) THEN
 
          CALL PARTITION_SS_NTERM ( 'KFFD', NTERM_KFFD, NDOFF, NDOFF, SYM_KFFD, I_KFFD, J_KFFD,      PART_VEC_F_AO, PART_VEC_F_AO,  &
-                                    NUM1, NUM2, KAOD_ROW_MAX_TERMS, 'KAOD', NTERM_KAOD, SYM_KAOD ) 
+                                    NUM1, NUM2, KAOD_ROW_MAX_TERMS, 'KAOD', NTERM_KAOD, SYM_KAOD )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KAOD', NDOFA, NTERM_KAOD, SUBR_NAME )
 
@@ -105,7 +105,7 @@
       IF (NDOFO > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'KFFD', NTERM_KFFD, NDOFF, NDOFF, SYM_KFFD, I_KFFD, J_KFFD,      PART_VEC_F_AO, PART_VEC_F_AO,  &
-                                    NUM2, NUM2, KOOD_ROW_MAX_TERMS, 'KOOD', NTERM_KOOD, SYM_KOOD ) 
+                                    NUM2, NUM2, KOOD_ROW_MAX_TERMS, 'KOOD', NTERM_KOOD, SYM_KOOD )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KOOD', NDOFO, NTERM_KOOD, SUBR_NAME )
 
@@ -141,7 +141,7 @@
             CALL DEALLOCATE_SCR_MAT ( 'CCS1' )
 
                                                            ! CRS1 = KAOD*GOA has all nonzero terms in it.
-            IF      (SPARSTOR == 'SYM   ') THEN            !      If SPARSTOR == 'SYM   ', rewrite CRS1 as sym in CRS2     
+            IF      (SPARSTOR == 'SYM   ') THEN            !      If SPARSTOR == 'SYM   ', rewrite CRS1 as sym in CRS2
 
                CALL SPARSE_CRS_TERM_COUNT ( NDOFA, NTERM_CRS1, 'CRS1 = KAOD*GOA all nonzeros', I_CRS1, J_CRS1, NTERM_CRS2 )
                CALL ALLOCATE_SCR_CRS_MAT ( 'CRS2', NDOFA, NTERM_CRS2, SUBR_NAME )
@@ -184,10 +184,10 @@
 
             NTERM_KAAD = NTERM_CRS1                        ! Reallocate KAAD to be size of CRS1
             WRITE(SC1, * ) '    Reallocate KAAD'
-      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages         
+      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KAAD', CR13
             CALL DEALLOCATE_SPARSE_MAT ( 'KAAD' )
-            WRITE(SC1,12345,ADVANCE='NO') '       Allocate   KAAD', CR13   
+            WRITE(SC1,12345,ADVANCE='NO') '       Allocate   KAAD', CR13
             CALL ALLOCATE_SPARSE_MAT ( 'KAAD', NDOFA, NTERM_KAAD, SUBR_NAME )
                                                            ! Set KAAD = CRS1
             DO I=1,NDOFA+1
@@ -196,7 +196,7 @@
             DO J=1,NTERM_KAAD
                J_KAAD(J) = J_CRS1(J)
                  KAAD(J) =   CRS1(J)
-            ENDDO 
+            ENDDO
 
             CALL DEALLOCATE_SCR_MAT ( 'CRS1' )             ! Deallocate CRS1
 

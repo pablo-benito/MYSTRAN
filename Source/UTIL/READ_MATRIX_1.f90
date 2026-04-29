@@ -1,32 +1,32 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE READ_MATRIX_1 ( FILNAM, UNT, OPND, CLOSE_IT, CLOSE_STAT, MESSAG, NAME, NTERM, READ_NTERM, NROWS  &
                                , I_MATOUT, J_MATOUT, MATOUT )
- 
+
 ! Reads matrix data from an unformatted file into a sparse format described below. The format of the data in the file must be:
 
 ! If READ_NTERM = 'Y':
@@ -44,8 +44,8 @@
 
 !             I_MATOUT(1 to NROWS+1) : i-th value is index in MATOUT where matrix row i begins
 !             J_MATOUT(1 to NTERM)   : k-th value is the matrix col no. of the k-th term in array MATOUT
-!               MATOUT(1 to NTERM)   : k-th value is the k-th nonzero value in the matrix 
- 
+!               MATOUT(1 to NTERM)   : k-th value is the k-th nonzero value in the matrix
+
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
@@ -57,17 +57,17 @@
       USE READ_MATRIX_1_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'READ_MATRIX_1'
       CHARACTER(LEN=*), INTENT(IN)    :: CLOSE_IT          ! ='Y'/'N' whether to close UNT or note
       CHARACTER(LEN=*), INTENT(IN)    :: CLOSE_STAT        ! What to do with file when it is closed
       CHARACTER(LEN=*), INTENT(IN)    :: FILNAM            ! File name
-      CHARACTER(LEN=*), INTENT(IN)    :: MESSAG            ! File description. Input to subr UNFORMATTED_OPEN 
+      CHARACTER(LEN=*), INTENT(IN)    :: MESSAG            ! File description. Input to subr UNFORMATTED_OPEN
       CHARACTER(LEN=*), INTENT(IN)    :: READ_NTERM        ! If 'Y', read NTERM from file before reading matrix
       CHARACTER(LEN=*), INTENT(IN)    :: NAME              ! Matrix name
       CHARACTER(LEN=*), INTENT(IN)    :: OPND              ! If 'Y', then do not open UNT, If 'N', open it
- 
+
       INTEGER(LONG), INTENT(IN)       :: NROWS             ! Number of rows in MATOUT
       INTEGER(LONG), INTENT(IN)       :: NTERM             ! Number of matrix terms that should be in FILNAM
       INTEGER(LONG), INTENT(IN)       :: UNT               ! Unit number of FILNAM
@@ -81,17 +81,17 @@
       INTEGER(LONG)                   :: JCOL              ! Col number for MATOUT
       INTEGER(LONG)                   :: KTERM             ! Count of number of nonzero terms read from FILNAM
       INTEGER(LONG)                   :: NUM_TERMS         ! Head rec read from files that denotes how many records in FILNAM
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG)                   :: REC_NO            ! Record number when reading FILNAM
 
- 
+
       REAL(DOUBLE) , INTENT(OUT)      :: MATOUT(NTERM)     ! Real values for matrix MATOUT
       REAL(DOUBLE)                    :: RVAL              ! Real values read from FILNAM
 
       CHARACTER(LEN=7+LEN(NAME)+LEN(": read row")) :: COUNTER_TEMPLATE
- 
+
       INTRINSIC                       :: DABS
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -171,7 +171,7 @@ k_do1:DO K = 1,NTERM
          ENDIF
          I_MATOUT(IROW+1) = I_MATOUT(IROW+1) + 1
          KTERM            = KTERM + 1
-         J_MATOUT(KTERM)  = JCOL          
+         J_MATOUT(KTERM)  = JCOL
            MATOUT(KTERM)  = RVAL
       ENDDO k_do1
       WRITE(SC1,*) CR13
@@ -234,11 +234,11 @@ k_do1:DO K = 1,NTERM
 12345 FORMAT("       ", A, ': read row')
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE CHECK_SPARSE_CRS_I ( MAT_A_NAME, CALLING_SUBR, NROWS_A, NTERM_A, I_A, DEBUG_NUM )
@@ -267,7 +267,7 @@ k_do1:DO K = 1,NTERM
       DO I=1,NROWS_A
          NTERMS_A_ROW_I = I_A(I+1) - I_A(I)
          IF (NTERMS_A_ROW_I < 0) THEN                      ! Error. This indicates row I has < 0 number of terms in it.
-            NUM_ROW_ERRS = NUM_ROW_ERRS + 1 
+            NUM_ROW_ERRS = NUM_ROW_ERRS + 1
          ELSE
             KTERM_A = KTERM_A + NTERMS_A_ROW_I
          ENDIF
@@ -279,7 +279,7 @@ k_do1:DO K = 1,NTERM
          IF (DEBUG(DEBUG_NUM) >= 3) THEN
             QUIT = 'Y'
          ENDIF
-      ENDIF 
+      ENDIF
 
       IF (KTERM_A /= NTERM_A) THEN
          WRITE(ERR,928) SUBR_NAME, MAT_A_NAME, MAT_A_NAME, NROWS_A, MAT_A_NAME, MAT_A_NAME, KTERM_A, NTERM_A, DEBUG_NUM,           &
@@ -289,7 +289,7 @@ k_do1:DO K = 1,NTERM
          IF (DEBUG(DEBUG_NUM) >= 3) THEN
             QUIT = 'Y'
          ENDIF
-      ENDIF 
+      ENDIF
 
       IF (QUIT == 'Y') THEN
          CALL OUTA_HERE ( 'Y' )

@@ -1,38 +1,38 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_PBUSH ( CARD, LARGE_FLD_INP )
-  
+
 ! Processes PBUSH Bulk Data Cards. Reads and checks:
 
 !  1) Prop ID and Material ID and enter into array PBUSH
 !  2) Area, moments of inertia, torsional constant ans nonstructural mass and enter into array RPBUSH
 !  3) From 1st continuation card (if present): coords of 4 points for stress recovery and enter into array RPBUSH
 !  4) From 2nd continuation card (if present): area factors for transverse shear and I12 and enter into array RPBUSH
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE PARAMS, ONLY                :  EPSIL
@@ -40,18 +40,18 @@
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  PBUSH, RPBUSH
- 
+
       USE BD_PBUSH_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME   =   'BD_PBUSH'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD              ! A Bulk Data card
       CHARACTER(LEN=*), INTENT(IN)    :: LARGE_FLD_INP     ! If 'Y', CARD is large field format
       CHARACTER(LEN(CARD))            :: CHILD             ! "Child" card read in subr NEXTC, called herein
       CHARACTER(1*BYTE)               :: FOUND_RCV = 'N'   ! 'Y' if RCV continuation entry is present
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
- 
+
       INTEGER(LONG)                   :: I4INP             ! An integer value read from a field on this BD entry
       INTEGER(LONG)                   :: ICONT       = 0   ! Indicator of whether a cont card exists. Output from subr NEXTC
       INTEGER(LONG)                   :: IERR        = 0   ! Error indicator returned from subr NEXTC called herein
@@ -60,35 +60,35 @@
       INTEGER(LONG)                   :: OFFSET            ! Array index offset
       INTEGER(LONG)                   :: PROPERTY_ID = 0   ! Property ID (field 2 of this property card)
 
- 
+
       REAL(DOUBLE)                    :: R8INP             ! A real value read from a field on this BD entry
 
 
 
 ! **********************************************************************************************************************************
 ! PBUSH Bulk Data Card routine
- 
+
 !   FIELD   ITEM                                            ARRAY ELEMENT
 !   -----   ----                                            -------------
 !    2      Property ID                                     PBUSH(npbush,1)
 !    3      "K", "B", 'GE" or "RCV"
 !   If field 3 = "K"  :
-!    4-9    Ki                                             RPBUSH(npbush,1- 6)  
+!    4-9    Ki                                             RPBUSH(npbush,1- 6)
 !   If field 3 = "B"  :
-!    4-9    Bi                                             RPBUSH(npbush,7-12)  
+!    4-9    Bi                                             RPBUSH(npbush,7-12)
 !   If field 3 = "GE" :
-!    4-9    GEi                                            RPBUSH(npbush,13)  
+!    4-9    GEi                                            RPBUSH(npbush,13)
 !   If field 3 = "RCV":
 !    4-9    RCVi                                           RPBUSH(npbush,14-17)
 
-! Cont entries have the vals for "K", "B", "GE", "RCV" that are not on the 1st entry  
- 
+! Cont entries have the vals for "K", "B", "GE", "RCV" that are not on the 1st entry
+
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
       NPBUSH = NPBUSH+1
- 
+
 ! Read and check data on parent card
 
       CALL I4FLD ( JCARD(2), JF(2), I4INP )                ! Read property ID and enter into array PBUSH
@@ -101,10 +101,10 @@
                WRITE(F06,1145) JCARD(1),PROPERTY_ID
                EXIT
              ENDIF
-         ENDDO   
+         ENDDO
          PBUSH(NPBUSH,1) = PROPERTY_ID
       ENDIF
- 
+
       CALL LEFT_ADJ_BDFLD ( JCARD(3) )                     ! Determine which of the inputs are on the parent entry
       OFFSET      = 0
       NUM_ENTRIES = 6
@@ -138,7 +138,7 @@
             RPBUSH(NPBUSH,J+OFFSET) = R8INP
          ENDIF
       ENDDO
- 
+
       CALL CRDERR ( CARD )
 
 ! Read and check data on 3 optional con't entries
@@ -195,7 +195,7 @@ pcont:DO I=1,4
                   RPBUSH(NPBUSH,J+OFFSET) = R8INP
                ENDIF
             ENDDO
- 
+
             CALL CRDERR ( CARD )
 
          ELSE
@@ -219,11 +219,11 @@ pcont:DO I=1,4
 
 ! **********************************************************************************************************************************
  1145 FORMAT(' *ERROR  1145: DUPLICATE ',A,' ENTRY WITH ID = ',I8)
- 
+
  1148 FORMAT(' *ERROR  1148: FIELD 3 OF PBUSH ', I8, ' CONTINUATION ENTRY SHOULD BE ', A, ' BUT IS: ', A)
 
  1178 FORMAT(' *ERROR  1178: ',A,A,' HAS INCORRECT VALUE "',A,'"  IN FIELD 3')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_PBUSH

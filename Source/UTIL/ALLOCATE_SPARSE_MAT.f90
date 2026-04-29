@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ALLOCATE_SPARSE_MAT ( NAME, NROWS, NTERMS, CALLING_SUBR )
- 
+
 ! Allocate arrays for MYSTRAN sparse matrices
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE CONSTANTS_1, ONLY           :  ZERO, ONEPP6
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
@@ -85,17 +85,17 @@
       USE ALLOCATE_SPARSE_MAT_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ALLOCATE_SPARSE_MAT'
       CHARACTER(LEN=*), INTENT(IN)    :: NAME              ! Array name of the matrix to be allocated in sparse format
       CHARACTER(LEN=*), INTENT(IN)    :: CALLING_SUBR      ! Array name of the matrix to be allocated in sparse format
       CHARACTER(6*BYTE)               :: NAME1             ! Array name (used for output error message)
       CHARACTER(6*BYTE)               :: NAME2             ! Array name (used for output error message)
- 
+
       INTEGER(LONG), INTENT(IN)       :: NROWS             ! Number of rows for matrix NAME
       INTEGER(LONG), INTENT(IN)       :: NTERMS            ! Number of nonzero terms that will be in matrix NAME
-      INTEGER(LONG)                   :: I                 ! DO loop index   
+      INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
 
@@ -122,7 +122,7 @@
          !xx   WRITE(SC1, * )
             ENDIF
          ENDIF
-      ENDIF 
+      ENDIF
 
       IF ((NAME == 'KFF') .OR. (NAME == 'MFF') .OR. (NAME == 'PF')) THEN
          IF (ALLOCATED(I_KNN)) THEN
@@ -130,7 +130,7 @@
          !xx   WRITE(SC1, * )
             ENDIF
          ENDIF
-      ENDIF 
+      ENDIF
 
       IF ((NAME == 'KAA') .OR. (NAME == 'MAA') .OR. (NAME == 'PA')) THEN
          IF (ALLOCATED(I_KFF)) THEN
@@ -138,7 +138,7 @@
          !xx   WRITE(SC1, * )
             ENDIF
          ENDIF
-      ENDIF 
+      ENDIF
 
       IF ((NAME == 'KLL') .OR. (NAME == 'MLL') .OR. (NAME == 'PL')) THEN
          IF (ALLOCATED(I_KAA)) THEN
@@ -146,7 +146,7 @@
          !xx   WRITE(SC1, * )
             ENDIF
          ENDIF
-      ENDIF 
+      ENDIF
 
 ! **********************************************************************************************************************************
 ! G-set arrays
@@ -1874,7 +1874,7 @@
          ENDIF
 
       ELSE IF (NAME == 'KFS') THEN                         ! Allocate arrays for KFS
-         
+
          NAME1 = 'I_KFS'
          IF (ALLOCATED(I_KFS)) THEN
             WRITE(ERR,990) SUBR_NAME, NAME1
@@ -5107,7 +5107,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'MPF0 ') THEN                       ! Allocate arrays for MPF0 
+      ELSE IF (NAME == 'MPF0 ') THEN                       ! Allocate arrays for MPF0
 
          NAME1 = 'I_MPF0 '
          IF (ALLOCATED(I_MPF0 )) THEN
@@ -5833,7 +5833,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'CG_LTM  ') THEN                    ! Allocate arrays for CG_LTM  
+      ELSE IF (NAME == 'CG_LTM  ') THEN                    ! Allocate arrays for CG_LTM
 
          NAME1 = 'I_CG_LTM  '
          IF (ALLOCATED(I_CG_LTM  )) THEN
@@ -5895,7 +5895,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'PHIZL  ') THEN                     ! Allocate arrays for PHIZL  
+      ELSE IF (NAME == 'PHIZL  ') THEN                     ! Allocate arrays for PHIZL
 
          NAME1 = 'I_PHIZL  '
          IF (ALLOCATED(I_PHIZL  )) THEN
@@ -5957,7 +5957,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'PHIZL1  ') THEN                    ! Allocate arrays for PHIZL1  
+      ELSE IF (NAME == 'PHIZL1  ') THEN                    ! Allocate arrays for PHIZL1
 
          NAME1 = 'I_PHIZL1  '
          IF (ALLOCATED(I_PHIZL1  )) THEN
@@ -6019,7 +6019,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'PHIZL1t  ') THEN                   ! Allocate arrays for PHIZL1t  
+      ELSE IF (NAME == 'PHIZL1t  ') THEN                   ! Allocate arrays for PHIZL1t
 
          NAME1 = 'I_PHIZL1t  '
          IF (ALLOCATED(I_PHIZL1t  )) THEN
@@ -6081,7 +6081,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'PHIZL2  ') THEN                    ! Allocate arrays for PHIZL2  
+      ELSE IF (NAME == 'PHIZL2  ') THEN                    ! Allocate arrays for PHIZL2
 
          NAME1 = 'I_PHIZL2  '
          IF (ALLOCATED(I_PHIZL2  )) THEN
@@ -6143,7 +6143,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'IF_LTM  ') THEN                    ! Allocate arrays for IF_LTM  
+      ELSE IF (NAME == 'IF_LTM  ') THEN                    ! Allocate arrays for IF_LTM
 
          NAME1 = 'I_IF_LTM  '
          IF (ALLOCATED(I_IF_LTM  )) THEN
@@ -6577,7 +6577,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'KXX  ') THEN                       ! Allocate arrays for KXX  
+      ELSE IF (NAME == 'KXX  ') THEN                       ! Allocate arrays for KXX
 
          NAME1 = 'I_KXX  '
          IF (ALLOCATED(I_KXX  )) THEN
@@ -6639,7 +6639,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'LTM  ') THEN                       ! Allocate arrays for LTM  
+      ELSE IF (NAME == 'LTM  ') THEN                       ! Allocate arrays for LTM
 
          NAME1 = 'I_LTM  '
          IF (ALLOCATED(I_LTM  )) THEN
@@ -6701,7 +6701,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'MRN  ') THEN                       ! Allocate arrays for MRN  
+      ELSE IF (NAME == 'MRN  ') THEN                       ! Allocate arrays for MRN
 
          NAME1 = 'I_MRN  '
          IF (ALLOCATED(I_MRN  )) THEN
@@ -6887,7 +6887,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME == 'MXX  ') THEN                       ! Allocate arrays for MXX  
+      ELSE IF (NAME == 'MXX  ') THEN                       ! Allocate arrays for MXX
 
          NAME1 = 'I_MXX  '
          IF (ALLOCATED(I_MXX  )) THEN
@@ -7014,14 +7014,14 @@
 ! **********************************************************************************************************************************
       ELSE                                                 ! NAME not recognized, so coding error
 
-         WRITE(ERR,915) SUBR_NAME, 'ALLOCATED', NAME 
+         WRITE(ERR,915) SUBR_NAME, 'ALLOCATED', NAME
          WRITE(F06,915) SUBR_NAME, 'ALLOCATED', NAME
          FATAL_ERR = FATAL_ERR + JERR
          JERR = JERR + 1
 
       ENDIF
       !WRITE(SC1,*) CR13
- 
+
 ! Quit if there were errors
 
       IF (JERR /= 0) THEN
@@ -7056,5 +7056,5 @@
 22345 FORMAT(7X,'Equate ',A5,' with ',I8,' terms',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ALLOCATE_SPARSE_MAT

@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE MATERIAL_PROPS_3D ( WRITE_WARN )
- 
+
 ! Calculates material stress/strain matrices for isotropic or anisotropic 3-D solid elements
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
@@ -35,19 +35,19 @@
       USE CONSTANTS_1, ONLY           :  ZERO, ONE, TWO
       USE PARAMS, ONLY                :  EPSIL
       USE MODEL_STUF, ONLY            :  ALPVEC, EID, ES, EMAT, NUM_EMG_FATAL_ERRS, MTRL_TYPE, RHO, ULT_STRE, ULT_STRN, TREF, TYPE
-  
+
       USE MATERIAL_PROPS_3D_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MATERIAL_PROPS_3D'
       CHARACTER(LEN=*), INTENT(IN)    :: WRITE_WARN        ! If 'Y" write warning messages, otherwise do not
 
       INTEGER(LONG)                   :: IERROR       = 0  ! Local error indicator
-      INTEGER(LONG)                   :: I,J               ! DO loop indices 
+      INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: K                 ! Counter
 
-  
+
       REAL(DOUBLE)                    :: ALPHA             ! Isotropic coefficient of thermal expansion
       REAL(DOUBLE)                    :: DEN1              ! An intermaediate variable in calculating outputs
       REAL(DOUBLE)                    :: DEN2              ! An intermaediate variable in calculating outputs
@@ -64,7 +64,7 @@
 
 ! **********************************************************************************************************************************
       EPS1   = EPSIL(1)
-  
+
       DO I=1,6                                             ! 3D material matrix
          DO J=1,6
             ES(I,J) = ZERO
@@ -180,7 +180,7 @@
          ALPVEC(6,1) = EMAT(28,1)
 
          TREF(1)     = EMAT(29,1)
-         
+
          DO I=1,9
             ULT_STRE(I,1) = ZERO
             ULT_STRN(I,1) = ZERO

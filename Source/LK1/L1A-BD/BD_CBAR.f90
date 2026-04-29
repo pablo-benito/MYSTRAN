@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_CBAR ( CARD, LARGE_FLD_INP )
- 
+
       ! Processes CBAR and CBEAM Bulk Data Cards:
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
@@ -40,7 +40,7 @@
       USE BD_CBAR_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_CBAR'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD              ! A Bulk Data card
       CHARACTER(LEN=*), INTENT(IN)    :: LARGE_FLD_INP     ! If 'Y', CARD is large field format
@@ -52,8 +52,8 @@
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
       CHARACTER(LEN=JCARD_LEN)        :: JCARD_EDAT(10)    ! JCARD values sent to subr ELEPRO
       CHARACTER(LEN=JCARD_LEN)        :: JCARDO            ! An output from subr IP6CHK called herein
-      CHARACTER( 9*BYTE)              :: VVEC_TYPE         ! Type of V vector on this CBAR/CBEAM 
- 
+      CHARACTER( 9*BYTE)              :: VVEC_TYPE         ! Type of V vector on this CBAR/CBEAM
+
       INTEGER(LONG)                   :: G0   = 0          ! Grid specifying V vector for this CBAR/CBEAM, if input
       INTEGER(LONG)                   :: I4INP     = 0     ! A value read from input file that should be an integer value
       INTEGER(LONG)                   :: ICONT     = 0     ! Indicator of whether a cont card exists. Output from subr NEXTC
@@ -63,18 +63,18 @@
       INTEGER(LONG)                   :: JERR      = 0     ! A local error count
       INTEGER(LONG)                   :: VVEC_NUM  = 0     ! V vector number
 
- 
+
       REAL(DOUBLE)                    :: VV(3)             ! The 3 components of the V vector for this CBAR/CBEAM elem
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
       REAL(DOUBLE)                    :: R8INP     = ZERO  ! A value read from input file that should be a real value
- 
+
       INTRINSIC                       :: DABS
 
 
 
 ! **********************************************************************************************************************************
       ! CBAR element Bulk Data Card routine
-       
+
       !   FIELD   ITEM           ARRAY ELEMENT
       !   -----   ------------   -------------
       !    1      Element type   ETYPE(nele)  =B1 for CBAR
@@ -89,15 +89,15 @@
       !    3      Pin Flag B     EDAT(nedat+7)
       !    4-9    Offsets        (see BAROFF explanation below)
       !                          Offset key goes in EDAT(nedat+8)
-       
+
       ! NOTES:
-       
+
       ! If fields 3, 6-8 are blank, they are loaded with the data from  the BAROR/BEAMOR entry (these will remain blank if
       ! no BAROR/BEAMOR card exists). If V-vector is specfied via a grid point then EDAT(nedat+5) is set to that grid number.
       ! If V-vector is specified via an actual vector, the vector is loaded into array VVEC(NVVEC,J) (J=1,2,3) unless
       ! a vector equal to it has been put in VVEC. EDAT(nedat+5) is set equal to -NVVEC, where NVVEC is the row number
       ! in array VVEC.
-       
+
       ! Offsets are in fields 4 - 9 of the first continuation card. If there are any offsets for this element, they are written to
       ! array BAROFF in row NBAROFF and NBAROFF is written in EDAT(nedat+8). If there are no offsets for this element, a zero is entered
       ! in array EDAT(nedat+8).
@@ -107,27 +107,27 @@
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
       BAR_OR_BEAM = JCARD(1)
       ELID        = JCARD(2)
- 
+
       ! Set JCARD_EDAT to JCARD
       DO I=1,10
          JCARD_EDAT(I) = JCARD(I)
-      ENDDO 
+      ENDDO
 
       ! Initialize variables
       VVEC_TYPE = 'UNDEFINED'
 
-      ! Check property ID field. Set to BAROR prop ID, if present, or to this elem ID, if not 
+      ! Check property ID field. Set to BAROR prop ID, if present, or to this elem ID, if not
       IF (JCARD(3)(1:) == ' ') THEN                        ! Prop ID field is blank, so use one of the following:
          IF (BAR_OR_BEAM(1:4) == 'CBAR') THEN
             IF (BAROR_PID /= 0) THEN                       ! Use BAROR prop ID for this CBAR prop ID
                JCARD_EDAT(3) = JBAROR(3)
-            ELSE                                           ! Use CBAR  elem ID for this CBAR prop ID         
+            ELSE                                           ! Use CBAR  elem ID for this CBAR prop ID
                JCARD_EDAT(3) = JCARD(2)
             ENDIF
          ELSE
             IF (BEAMOR_PID /= 0) THEN                      ! Use BEAMOR prop ID for this CBEAM prop ID
                JCARD_EDAT(3) = JBEAMOR(3)
-            ELSE                                           ! Use CBEAM  elem ID for this CBEAM prop ID         
+            ELSE                                           ! Use CBEAM  elem ID for this CBEAM prop ID
                JCARD_EDAT(3) = JCARD(2)
             ENDIF
          ENDIF
@@ -146,13 +146,13 @@
 
       ! Get the V vector for this CBAR/CBEAM (either from this CBAR/CBEAM or from BAROR/BEAMOR values, if present)
       ! Null all components. Some may be read from CBAR card
-      DO J=1,3                                             
+      DO J=1,3
          VV(J) = ZERO
       ENDDO
 
       IF (BAR_OR_BEAM(1:4) == 'CBAR') THEN
          IF (NBAROR > 0) THEN                              ! Set VVEC fields to BAROR values if this CBAR's VVEC fields are blank
-            IF ((JCARD(6)(1:) == ' ') .AND. (JCARD(7)(1:) == ' ') .AND. (JCARD(8)(1:) == ' ')) THEN 
+            IF ((JCARD(6)(1:) == ' ') .AND. (JCARD(7)(1:) == ' ') .AND. (JCARD(8)(1:) == ' ')) THEN
                IF      (BAROR_VVEC_TYPE == 'GRID     ') THEN
                   VVEC_TYPE = 'BAROR_GRD'
                   G0        =  BAROR_G0
@@ -162,12 +162,12 @@
                      VV(J) = BAROR_VV(J)
                   ENDDO
                ENDIF                                       ! We checked on BAROR_VVEC_TYPE = 'ERROR' in subr BD_BAROR and we will
-            ENDIF                                          ! check case where fields 6, 7, 8 are blank below         
+            ENDIF                                          ! check case where fields 6, 7, 8 are blank below
          ENDIF
       ELSE
          IF (NBEAMOR > 0) THEN
             ! Set VVEC fields to BEAMOR values if this CBEAM's VVEC fields are blank
-            IF ((JCARD(6)(1:) == ' ') .AND. (JCARD(7)(1:) == ' ') .AND. (JCARD(8)(1:) == ' ')) THEN 
+            IF ((JCARD(6)(1:) == ' ') .AND. (JCARD(7)(1:) == ' ') .AND. (JCARD(8)(1:) == ' ')) THEN
                IF      (BEAMOR_VVEC_TYPE == 'GRID     ') THEN
                   VVEC_TYPE = 'BEAMOR_GRD'
                   G0        =  BEAMOR_G0
@@ -177,11 +177,11 @@
                      VV(J) = BEAMOR_VV(J)
                   ENDDO
                ENDIF                                       ! We checked on BEAMOR_VVEC_TYPE = 'ERROR' in subr BD_BEAMOR and we will
-            ENDIF                                          ! check case where fields 6, 7, 8 are blank below         
+            ENDIF                                          ! check case where fields 6, 7, 8 are blank below
          ENDIF
-      ENDIF             
+      ENDIF
 
-      IF (VVEC_TYPE == 'UNDEFINED') THEN                   ! We did not find a V vector so look for one on this CBAR/CBEAM  
+      IF (VVEC_TYPE == 'UNDEFINED') THEN                   ! We did not find a V vector so look for one on this CBAR/CBEAM
          DO J=1,JCARD_LEN                                  ! See if there is an actual V vector.
             IF ((JCARD(6)(J:J) == '.') .OR. (JCARD(7)(J:J) == '.') .OR. (JCARD(8)(J:J) == '.')) THEN
                VVEC_TYPE = 'VECTOR   '
@@ -201,11 +201,11 @@
                ENDIF
             ENDDO
             IF (JERR /= 0) THEN
-               VVEC_TYPE = 'ERROR    '                     ! Found error in V vector components, so reset VVEC_TYPE 
+               VVEC_TYPE = 'ERROR    '                     ! Found error in V vector components, so reset VVEC_TYPE
             ENDIF
          ELSE                                              ! Check to see if there is a grid no. for specifying VVEC
             IF ((JCARD(6)(1:) /= ' ') .AND. (JCARD(7)(1:) == ' ') .AND. (JCARD(8)(1:) == ' ')) THEN
-               VVEC_TYPE = 'GRID     '    
+               VVEC_TYPE = 'GRID     '
                CALL I4FLD ( JCARD(6), JF(6), I4INP )
                IF (IERRFL(6) == 'N') THEN
                   G0 = I4INP
@@ -250,7 +250,7 @@
             ENDIF
          ENDDO
 
-         IF (FOUND == 'N') THEN   
+         IF (FOUND == 'N') THEN
             NVVEC = NVVEC + 1
             IF (NVVEC > LVVEC) THEN
                FATAL_ERR = FATAL_ERR + 1
@@ -267,12 +267,12 @@
          NEDAT = NEDAT + 1
          EDAT(NEDAT) = -VVEC_NUM
       ENDIF
- 
+
        ! Write warnings and errors if any
       CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,6,7,8,0 )     ! Make sure that there are no imbedded blanks in fields 2-8
       CALL CARD_FLDS_NOT_BLANK ( JCARD,0,0,0,0,0,0,0,9 )
-      CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields         
- 
+      CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
+
       ! Optional Second Card:
       IF (LARGE_FLD_INP == 'N') THEN
          CALL NEXTC  ( CARD, ICONT, IERR )
@@ -348,14 +348,14 @@
 
 ! **********************************************************************************************************************************
  1130 FORMAT(' *ERROR  1130: INVALID PINFLAG = ',A,' IN FIELD ',I2,' ON CONTINUATION ENTRY OF ',A,' ID = ',A                       &
-                    ,/,14X,' PINFLAGS CAN CONTAIN ONLY DIGITS 1-6') 
+                    ,/,14X,' PINFLAGS CAN CONTAIN ONLY DIGITS 1-6')
 
  1132 FORMAT(' *ERROR  1132: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' TOO MANY V VECTORS. LIMIT IS ',I8)
- 
+
  1161 FORMAT(' *ERROR  1161: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' TOO MANY CBAR/CBEAM OFFSETS. LIMIT IS ',I8) 
- 
+                    ,/,14X,' TOO MANY CBAR/CBEAM OFFSETS. LIMIT IS ',I8)
+
  1186 FORMAT(' *ERROR  1186: ERROR IN SPECIFYING V VECTOR ON ',A,A,'. EITHER FIELD 6 MUST BE A POSITIVE INTEGER GRID POINT'        &
                     ,/,14X,' OR FIELDS 6, 7, 8 MUST CONTAIN REAL VECTOR COMPONENTS (WITH DECIMAL POINTS)')
 
@@ -364,5 +364,5 @@
  1188 FORMAT(' *ERROR  1188: NO V VECTOR SPECIFIED FOR ',A,' ELEMENT ID = ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_CBAR

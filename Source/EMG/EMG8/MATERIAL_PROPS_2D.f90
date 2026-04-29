@@ -1,57 +1,57 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE MATERIAL_PROPS_2D ( WRITE_WARN )
- 
+
 ! Calculates stress/strain material matrices for isotropic and orthotropic plane stress shell elements with 3 different material
 ! properties (membrane, bending, transverse shear, bending/membrane coupling)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, MEFE, MEMATC 
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, MEFE, MEMATC
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  EPSIL, QUAD4TYP
       USE MODEL_STUF, ONLY            :  ALPVEC, EID, EMG_IFE, EMG_RFE, ERR_SUB_NAM, EB, EBM, EM, ET, NUM_EMG_FATAL_ERRS, EMAT,    &
                                          MTRL_TYPE, QUAD_DELTA, RHO, ULT_STRE, ULT_STRN, THETAM, TREF, TYPE
       use debug_parameters
-  
+
       USE MATERIAL_PROPS_2D_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MATERIAL_PROPS_2D'
       CHARACTER(LEN=*), INTENT(IN)    :: WRITE_WARN        ! If 'Y" write warning messages, otherwise do not
       CHARACTER(16*BYTE)              :: MESSAG            ! Part of message printed if material type is invalid
 
       INTEGER(LONG)                   :: IERROR        = 0 ! Local error indicator meaning some calcs cannot be done
       INTEGER(LONG)                   :: PROG_ERR      = 0 ! Coding error indicator for invalid material type
-      INTEGER(LONG)                   :: I,j               ! DO loop index   
+      INTEGER(LONG)                   :: I,j               ! DO loop index
 
-  
+
       REAL(DOUBLE)                    :: ALPHA             ! Isotropic coefficient of thermal expansion
       REAL(DOUBLE)                    :: ALPHA1            ! Orthotropic/Anisotropic coeff of thermal expansion in direction 1
       REAL(DOUBLE)                    :: ALPHA2            ! Orthotropic/Anisotropic coeff of thermal expansion in direction 2
@@ -75,7 +75,7 @@
 
 ! **********************************************************************************************************************************
       EPS1   = EPSIL(1)
-  
+
 ! **********************************************************************************************************************************
 
 ! Initialize arrays
@@ -85,13 +85,13 @@
             EM(I,J) = ZERO
             EB(I,J) = ZERO
          ENDDO
-      ENDDO 
+      ENDDO
 
       DO I=1,2                                             ! Material transverse shear matrix
          DO J=1,2
             ET(I,J) = ZERO
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
       DO I=1,6                                             ! Vector of CTE's
          DO J=1,MEMATC
@@ -100,7 +100,7 @@
       ENDDO
 
 ! **********************************************************************************************************************************
-! In-plane stress material props. 
+! In-plane stress material props.
 
 mem:  IF (MTRL_TYPE(1) /= 0) THEN
 
@@ -124,7 +124,7 @@ mem:  IF (MTRL_TYPE(1) /= 0) THEN
             ULT_STRN(3,1) = ZERO
             ULT_STRN(4,1) = ZERO
             ULT_STRN(7,1) = ZERO
- 
+
             IF (DABS(E) > EPS1) THEN
                ULT_STRN(1,1) = ULT_STRE(1,1)/E
                ULT_STRN(2,1) = ULT_STRE(2,1)/E
@@ -195,7 +195,7 @@ mem:  IF (MTRL_TYPE(1) /= 0) THEN
             ULT_STRN(3,1) = ZERO
             ULT_STRN(4,1) = ZERO
             ULT_STRN(7,1) = ZERO
- 
+
             IF (DABS(EM(1,1)) > EPS1) THEN
                ULT_STRN(1,1) = ULT_STRE(1,1)/EM(1,1)
                ULT_STRN(2,1) = ULT_STRE(2,1)/EM(1,1)
@@ -211,8 +211,8 @@ mem:  IF (MTRL_TYPE(1) /= 0) THEN
             ENDIF
 
             ALPVEC(1,1)   = ALPHA1
-            ALPVEC(2,1)   = ALPHA2            
-            ALPVEC(3,1)   = ALPHA3            
+            ALPVEC(2,1)   = ALPHA2
+            ALPVEC(3,1)   = ALPHA3
 
          ELSE IF (MTRL_TYPE(1) == 8) THEN                  ! Orthotropic properties
 !                                                            ----------------------                                                           ! Remove the following l.c. code when MIN4T prob w/ ortho mat'l is fixed
@@ -227,7 +227,7 @@ mem:  IF (MTRL_TYPE(1) /= 0) THEN
             ALPHA1        = EMAT( 8,1)
             ALPHA2        = EMAT( 9,1)
             TREF(1)       = EMAT(10,1)
-                                                           
+
             IF (EMAT(18,1) == 0) THEN                         ! This indicates allowables on the MAT8 entry were stress allowables
 
                ULT_STRE(1,1) = EMAT(11,1)                     ! Dir 1 tension  allowable
@@ -349,7 +349,7 @@ mem:  IF (MTRL_TYPE(1) /= 0) THEN
 
 ! **********************************************************************************************************************************
 ! Bending stress material props.
-  
+
 bend: IF (MTRL_TYPE(2) /= 0) THEN
 
          IF (MTRL_TYPE(2) == 1) THEN                       ! Isotropic properties
@@ -372,7 +372,7 @@ bend: IF (MTRL_TYPE(2) /= 0) THEN
             ULT_STRN(3,2) = ZERO
             ULT_STRN(4,2) = ZERO
             ULT_STRN(7,2) = ZERO
- 
+
             IF (DABS(E) > EPS1) THEN
                ULT_STRN(1,2) = ULT_STRE(1,2)/E
                ULT_STRN(2,2) = ULT_STRE(2,2)/E
@@ -386,19 +386,19 @@ bend: IF (MTRL_TYPE(2) /= 0) THEN
 
             DEN1 = ONE - NU*NU
             IF (DABS(DEN1) > EPS1) THEN                    ! If 1-NU^2 = 0, error and stop.
-  
+
                E0 = E/DEN1
                EB(1,1) = E0
                EB(2,2) = EB(1,1)
                EB(3,3) = G
                EB(1,2) = E0*NU
                EB(2,1) = EB(1,2)
-  
+
                ALPVEC(1,2) = ALPHA
                ALPVEC(2,2) = ALPHA
-  
+
             ELSE
- 
+
                NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
                IERROR = IERROR + 1
                IF (WRT_ERR > 0) THEN
@@ -443,7 +443,7 @@ bend: IF (MTRL_TYPE(2) /= 0) THEN
             ULT_STRN(3,2) = ZERO
             ULT_STRN(4,2) = ZERO
             ULT_STRN(7,2) = ZERO
- 
+
             IF (DABS(EM(1,1)) > EPS1) THEN
                ULT_STRN(1,2) = ULT_STRE(1,2)/EM(1,1)
                ULT_STRN(2,2) = ULT_STRE(2,2)/EM(1,1)
@@ -459,8 +459,8 @@ bend: IF (MTRL_TYPE(2) /= 0) THEN
             ENDIF
 
             ALPVEC(1,2)   = ALPHA1
-            ALPVEC(2,2)   = ALPHA2            
-            ALPVEC(3,2)   = ALPHA3            
+            ALPVEC(2,2)   = ALPHA2
+            ALPVEC(3,2)   = ALPHA3
 
          ELSE IF (MTRL_TYPE(2) == 8) THEN                  ! Orthotropic properties
 !                                                            ----------------------
@@ -607,11 +607,11 @@ tshr: IF (MTRL_TYPE(3) /= 0) THEN
 
             ET(1,1) = G
             ET(2,2) = ET(1,1)
-  
+
             ALPVEC(1,3) = ALPHA
             ALPVEC(2,3) = ALPHA
 
-            ULT_STRE(8,3) = EMAT(19,3)                     ! EMAT(19,3) is either same as EMAT(10,3) or SB (if PCOMP) 
+            ULT_STRE(8,3) = EMAT(19,3)                     ! EMAT(19,3) is either same as EMAT(10,3) or SB (if PCOMP)
             ULT_STRE(9,3) = ULT_STRE(8,3)
 
             IF (DABS(G) > EPS1) THEN
@@ -626,7 +626,7 @@ tshr: IF (MTRL_TYPE(3) /= 0) THEN
             ET(2,2) = EMAT( 4,3)
             ET(2,1) = ET(1,2)
 
-            ULT_STRE(8,3) = EMAT(19,3)                     ! EMAT(19,3) is either same as EMAT(10,3) or SB (if PCOMP) 
+            ULT_STRE(8,3) = EMAT(19,3)                     ! EMAT(19,3) is either same as EMAT(10,3) or SB (if PCOMP)
             ULT_STRE(9,3) = ULT_STRE(8,3)
 
             IF (DABS(ET(1,1)) > EPS1) THEN
@@ -646,9 +646,9 @@ tshr: IF (MTRL_TYPE(3) /= 0) THEN
 
             IF (EMAT(18,3) == 0) THEN
 
-               ULT_STRE(8,3) = EMAT(19,3)                  ! EMAT(19,3) is either same as EMAT(10,3) or SB (if PCOMP) 
+               ULT_STRE(8,3) = EMAT(19,3)                  ! EMAT(19,3) is either same as EMAT(10,3) or SB (if PCOMP)
                ULT_STRE(9,3) = ULT_STRE(8,3)
-         
+
                ULT_STRN(8,3) = ZERO
                ULT_STRN(9,3) = ZERO
 
@@ -658,7 +658,7 @@ tshr: IF (MTRL_TYPE(3) /= 0) THEN
 
                IF (DABS(G2Z) > EPS1) THEN
                   ULT_STRN(9,3) = ULT_STRE(9,3)/G2Z
-               ENDIF               
+               ENDIF
 
             ELSE
 
@@ -686,7 +686,7 @@ tshr: IF (MTRL_TYPE(3) /= 0) THEN
 
 ! **********************************************************************************************************************************
 ! Bending/membrane coupling stress material props.
-  
+
 coup: IF (MTRL_TYPE(4) /= 0) THEN
 
          IF (MTRL_TYPE(4) == 1) THEN                       ! Isotropic properties
@@ -709,7 +709,7 @@ coup: IF (MTRL_TYPE(4) /= 0) THEN
             ULT_STRN(3,2) = ZERO
             ULT_STRN(4,2) = ZERO
             ULT_STRN(7,2) = ZERO
- 
+
             IF (DABS(E) > EPS1) THEN
                ULT_STRN(1,4) = ULT_STRE(1,4)/E
                ULT_STRN(2,4) = ULT_STRE(2,4)/E
@@ -723,19 +723,19 @@ coup: IF (MTRL_TYPE(4) /= 0) THEN
 
             DEN1 = ONE - NU*NU
             IF (DABS(DEN1) > EPS1) THEN                    ! If 1-NU^2 = 0, error and stop.
-  
+
                E0 = E/DEN1
                EBM(1,1) = E0
                EBM(2,2) = EBM(1,1)
                EBM(3,3) = G
                EBM(1,2) = E0*NU
                EBM(2,1) = EBM(1,2)
-  
+
                ALPVEC(1,4) = ALPHA
                ALPVEC(2,4) = ALPHA
-  
+
             ELSE
- 
+
                NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
                IERROR = IERROR + 1
                IF (WRT_ERR > 0) THEN
@@ -780,7 +780,7 @@ coup: IF (MTRL_TYPE(4) /= 0) THEN
             ULT_STRN(3,4) = ZERO
             ULT_STRN(4,4) = ZERO
             ULT_STRN(7,4) = ZERO
- 
+
             IF (DABS(EM(1,1)) > EPS1) THEN
                ULT_STRN(1,4) = ULT_STRE(1,4)/EM(1,1)
                ULT_STRN(2,4) = ULT_STRE(2,4)/EM(1,1)
@@ -796,8 +796,8 @@ coup: IF (MTRL_TYPE(4) /= 0) THEN
             ENDIF
 
             ALPVEC(1,4) = ALPHA1
-            ALPVEC(2,4) = ALPHA2            
-            ALPVEC(3,4) = ALPHA3            
+            ALPVEC(2,4) = ALPHA2
+            ALPVEC(3,4) = ALPHA3
 
          ELSE IF (MTRL_TYPE(4) == 8) THEN                  ! Orthotropic properties
 !                                                            ----------------------

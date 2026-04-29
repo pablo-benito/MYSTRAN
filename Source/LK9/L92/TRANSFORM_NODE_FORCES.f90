@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE TRANSFORM_NODE_FORCES ( COORD_SYS )
- 
+
 ! Converts node forces for all elements from local to global or local to basic coords. The local to basic transformation is done
 ! every time this subr is called since that transformation must be done if either basic global is the final system anyway.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, MELGP, NCORD
@@ -40,10 +40,10 @@
       USE TRANSFORM_NODE_FORCES_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'TRANSFORM_NODE_FORCES'
       CHARACTER(LEN=*), INTENT(IN)    :: COORD_SYS         ! 'B" for basic, 'G' for global
- 
+
       INTEGER(LONG)                   :: GLOBAL_CID        ! Global coord. sys. ID for a grid (BGRID(i)) of the element
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: I1                ! Calculated displ component no's for ELAS elems
@@ -55,13 +55,13 @@
       INTEGER(LONG), PARAMETER        :: NROW      = 3     ! An input to subr MATPUT, MATGET called herein
       INTEGER(LONG), PARAMETER        :: NCOL      = 1     ! An input to subr MATPUT, MATGET called herein
       INTEGER(LONG)                   :: PROW              ! An input to subr MATPUT, MATGET called herein
-      INTEGER(LONG), PARAMETER        :: PCOL      = 1     ! An input to subr MATPUT, MATGET called herein 
+      INTEGER(LONG), PARAMETER        :: PCOL      = 1     ! An input to subr MATPUT, MATGET called herein
 
- 
+
       REAL(DOUBLE)                    :: DXI               ! An offset distance in direction 1
       REAL(DOUBLE)                    :: DYI               ! An offset distance in direction 2
       REAL(DOUBLE)                    :: DZI               ! An offset distance in direction 3
-      REAL(DOUBLE)                    :: T0G(3,3)          ! Coord transformation matrix - basic to global 
+      REAL(DOUBLE)                    :: T0G(3,3)          ! Coord transformation matrix - basic to global
       REAL(DOUBLE)                    :: DUM1(3)           ! Dummy arrays needed in transforming from global to basic coords
       REAL(DOUBLE)                    :: DUM2(3)           ! Dummy arrays needed in transforming from global to basic coords
       REAL(DOUBLE)                    :: DUM3(ELDOF)       ! Dummy arrays needed in transforming from global to basic coords
@@ -71,11 +71,11 @@
 
 ! **********************************************************************************************************************************
       NROWS = ELDOF
- 
+
       DO I=1,NROWS
          PEB(I) = ZERO
          PEG(I) = ZERO
-      ENDDO 
+      ENDDO
 
       IF ((TYPE(1:4) /= 'ELAS') .AND. (TYPE /= 'USERIN  ')) THEN
                                                            ! (1) Transform from local to basic. Use TE transpose to get PEB from PEL
@@ -96,19 +96,19 @@
                         ICORD = J                          !     ICORD is the internal coord. sys. ID corresponding to GLOBAL_CID
                         EXIT
                      ENDIF
-                  ENDDO   
+                  ENDDO
                   CALL GEN_T0L ( BGRID(I), ICORD, THETAD, PHID, T0G )
                   DO J=1,2
                      PROW = 6*(I-1) + 1 + 3*(J-1)
                      CALL MATGET ( PEB,  6*MELGP, 1, PROW, PCOL, NROW, NCOL, DUM1 )
                      CALL MATMULT_FFF_T ( T0G, DUM1, NROWA, NCOLA, NCOLB, DUM2 )
                      CALL MATPUT ( DUM2, 6*MELGP, 1, PROW, PCOL, NROW, NCOL, PEG )
-                  ENDDO   
+                  ENDDO
                ELSE                                        !     If global is basic, get PEB terms directly from PEG
                   PROW = 6*(I-1) + 1
                   DO J=1,6
                      PEG(PROW+J-1) = PEB(PROW+J-1)
-                  ENDDO   
+                  ENDDO
                ENDIF
             ENDDO
 
@@ -123,7 +123,7 @@
 
       ENDIF
 
-! Transform element loads at element ends to grids for BAR and ROD. Only need to do this if there are any offsets. 
+! Transform element loads at element ends to grids for BAR and ROD. Only need to do this if there are any offsets.
 ! Still use PEG to denote element forces (but now at grids, not elem ends)
 
       IF ((TYPE == 'BAR     ') .OR. (TYPE == 'ROD     ')) THEN
@@ -131,7 +131,7 @@
             PROW = 6*(I-1) + 1
             DO J=1,6
                DUM3(PROW+J-1) = PEG(PROW+J-1)
-            ENDDO   
+            ENDDO
             IF (CAN_ELEM_TYPE_OFFSET == 'Y') THEN
                IF (OFFSET(I) == 'Y') THEN                     ! Elem is offset at this node so transform PEG (using DUM3)
                   DXI = OFFDIS(I,1)
@@ -161,6 +161,6 @@
 ! **********************************************************************************************************************************
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE TRANSFORM_NODE_FORCES
 

@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE WRITE_GRD_PCH_OUTPUTS ( JSUB, NUM, WHAT )
- 
+
 ! Writes "punch" output for grid point related quantities (accels, displacements, eigenvectors, applied loads and SPC, MPC forces)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, PCH
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, INT_SC_NUM, PCH_LINE_NUM, SOL_NAME
@@ -36,7 +36,7 @@
       USE LINK9_STUFF, ONLY           :  GID_OUT_ARRAY, OGEL
       USE MODEL_STUF, ONLY            :  GRID, LABEL, SCNUM, SUBLOD, STITLE, TITLE
       USE EIGEN_MATRICES_1 , ONLY     :  EIGEN_VAL
-  
+
       USE WRITE_GRD_PCH_OUTPUTS_USE_IFs
 
       IMPLICIT NONE
@@ -72,7 +72,7 @@
       IF      (WHAT == 'ACCE' ) THEN
          OUTNAM = 'ACCELERATION       '
       ELSE IF (WHAT == 'DISP' ) THEN
-         IF      ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC')) THEN 
+         IF      ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC')) THEN
             OUTNAM = 'DISPLACEMENT OUTPUT'
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
             OUTNAM = 'DISPLACEMENT OUTPUT'
@@ -114,7 +114,7 @@
 
 ! Write accels, displ's, applied forces or SPC forces (also calc TOTALS for forces if that is being output)
 ! TOTALS(J) is summation of G.P. values of applied forces, SPC forces, or MFC forces, for each of the J=1,6 components.
-  
+
       DO I=1,NUM
 
          IF      (GRID(I,6) == 1) THEN
@@ -127,10 +127,10 @@
 
          PCH_LINE_NUM = PCH_LINE_NUM + 1  ;  WRITE(PCH,9902) GID_OUT_ARRAY(I,1), G_OR_S, (OGEL(I,J),J=1,3), PCH_LINE_NUM
 
-         PCH_LINE_NUM = PCH_LINE_NUM + 1  ;  WRITE(PCH,9903) (OGEL(I,J),J=4,6), PCH_LINE_NUM          
+         PCH_LINE_NUM = PCH_LINE_NUM + 1  ;  WRITE(PCH,9903) (OGEL(I,J),J=4,6), PCH_LINE_NUM
 
       ENDDO
- 
+
 
 
       RETURN
@@ -158,5 +158,5 @@
  9903 FORMAT('-CONT-',12X,3(1ES18.6),I8)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_GRD_PCH_OUTPUTS

@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE WRITE_FEMAP_GRID_VECS ( GRID_VEC, FEMAP_SET_ID, WHAT )
- 
+
 ! Writes grid related vectors to FEMAP neutral file (displ, applied load, SPC and MPC forces)
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -34,11 +34,11 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  CORD, GRID, GRID_ID, INV_GRID_SEQ
- 
+
       USE WRITE_FEMAP_GRID_VECS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_FEMAP_GRID_VECS'
       CHARACTER(LEN=*), INTENT(IN)    :: WHAT              ! Indicator if GRID_VEC is DISP, OLOA, SPCF or MPCF
       CHARACTER(LEN= 3*BYTE)          :: TITLE1(4,2)       ! Titles for vectors written to NEU
@@ -50,7 +50,7 @@
       INTEGER(LONG)                   :: GRID_MIN          ! Grid ID where vector is min
       INTEGER(LONG)                   :: GRID_NUMS(NGRID)  ! Grid ID's in global order
       INTEGER(LONG)                   :: I                 ! DO loop index
-      INTEGER(LONG)                   :: ICID              ! Internal coord sys no. corresponding to an actual coord sys no. 
+      INTEGER(LONG)                   :: ICID              ! Internal coord sys no. corresponding to an actual coord sys no.
       INTEGER(LONG)                   :: IGRID             ! Internal grid ID for a grid in array GRID_NUMS
       INTEGER(LONG)                   :: IARRAY(NGRID)     ! Original GRID_NUMS array
       INTEGER(LONG)                   :: IDOFG             ! A G-set DOF number
@@ -73,11 +73,11 @@
       REAL(DOUBLE)                    :: R1_VEC(NGRID)     ! R1 rotation    component from GRID_VEC
       REAL(DOUBLE)                    :: R2_VEC(NGRID)     ! R2 rotation    component from GRID_VEC
       REAL(DOUBLE)                    :: R3_VEC(NGRID)     ! R3 rotation    component from GRID_VEC
-      REAL(DOUBLE)                    :: T0G(3,3)           ! Matrix to transform offsets from global to basic  coords 
+      REAL(DOUBLE)                    :: T0G(3,3)           ! Matrix to transform offsets from global to basic  coords
       REAL(DOUBLE)                    :: VEC_ABS           ! Abs value in vector
       REAL(DOUBLE)                    :: VEC_MAX           ! Max value in vector
       REAL(DOUBLE)                    :: VEC_MIN           ! Min value in vector
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -161,7 +161,7 @@
                      ICID = J
                      EXIT
                   ENDIF
-               ENDDO   
+               ENDDO
                CALL GEN_T0L ( IGRID, ICID, THETAD, PHID, T0G )
                T1_VEC(I) = T0G(1,1)*DIS(1) + T0G(1,2)*DIS(2) + T0G(1,3)*DIS(3)
                T2_VEC(I) = T0G(2,1)*DIS(1) + T0G(2,2)*DIS(2) + T0G(2,3)*DIS(3)
@@ -391,7 +391,7 @@
 
 ! **********************************************************************************************************************************
   939 FORMAT(' *ERROR   939: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' WRONG VALUE = ',A,' FOR ARGUMENT "WHAT"')             
+                    ,/,14X,' WRONG VALUE = ',A,' FOR ARGUMENT "WHAT"')
 
  1001 FORMAT(2(I8,','),'       1,')
 
@@ -408,5 +408,5 @@
  1007 FORMAT('      -1,     0.          ,')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_FEMAP_GRID_VECS

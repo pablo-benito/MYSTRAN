@@ -145,7 +145,7 @@
       REAL(DOUBLE)                    :: VOLUME                 ! 3D element volume
       REAL(DOUBLE)                    :: SSI,SSJ,SSK            ! Isoparametric coordinates of a point.
       REAL(DOUBLE)                    :: M_1DOF(ELGP,ELGP)      ! Consistent mass matrix with 1 DOF per node.
-      
+
 
 
 ! **********************************************************************************************************************************

@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE RSPLINE_PROC ( RTYPE, REC_NO, IERR )
 
 ! Processes a single RSPLINE rigid element, per call, to get terms for the RMG constraint matrix
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1F, L1F_MSG, LINK1F, L1J
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MRSPLINE, NCORD, NGRID, NTERM_RMG
@@ -37,11 +37,11 @@
       USE MODEL_STUF, ONLY            :  CORD, GRID, RGRID, GRID_ID, CORD
       USE PARAMS, ONLY                :  EPSIL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE RSPLINE_PROC_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'RSPLINE_PROC'
       CHARACTER( 8*BYTE), INTENT(IN)  :: RTYPE             ! The type of rigid element being processed (RSPLINE)
       CHARACTER( 1*BYTE)              :: CDOF(6)           ! An output from subr RDOF (= 1 if a digit 1-6 is in DDOF)
@@ -70,7 +70,7 @@
       INTEGER(LONG)                   :: NUM_COMPS_D       ! 6 if AGRID_D  is a physical grid, 1 if a scalar point
       INTEGER(LONG)                   :: NUM_COMPS_I1      ! 6 if AGRID_I1 is a physical grid, 1 if a scalar point
       INTEGER(LONG)                   :: NUM_COMPS_I2      ! 6 if AGRID_I2 is a physical grid, 1 if a scalar point
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG)                   :: REID              ! RBE2 elem ID read from file LINK1F
       INTEGER(LONG)                   :: RMG_COL_NUM       ! Col no. of a term in array RMG
       INTEGER(LONG)                   :: RMG_ROW_NUM       ! Row no. of a term in array RMG
@@ -78,7 +78,7 @@
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
       INTEGER(LONG)                   :: TOTAL_NUM         ! Total number of records read for a single rigid element
 
- 
+
       REAL(DOUBLE)                    :: DL_RAT            ! D/L ratio from the B.D. RSPLINE entry
 
       REAL(DOUBLE)                    :: FR(6,12)          ! Matrix of spline coefficients relating the 6 components of displ at the
@@ -103,7 +103,7 @@
 
       REAL(DOUBLE)                    :: TRSPLINE(3,3)     ! Coord transformation matrix for RSPLINE that transforms a vector in
 !                                                            basic coords to a vector in RSPLINE coords
- 
+
       REAL(DOUBLE)                    :: V01(3)            ! Vector in basic coords from basic origin to AGRID_I1
       REAL(DOUBLE)                    :: V02(3)            ! Vector in basic coords from basic origin to AGRID_I2
       REAL(DOUBLE)                    :: V0D(3)            ! Vector in basic coords from basic origin to AGRID_D
@@ -117,20 +117,20 @@
 ! File LINK1F contains data from the logical RSPLINE cards in the input B.D. deck. For each logical RSPLINE card, LINK1F has:
 
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
-      JERR = 0 
+
+      JERR = 0
 
 ! Make sure that the grids are all 6 components (i.e. no SPOINTS)
 
-      READ(L1F,IOSTAT=IOCHK) REID, INDEX, TOTAL_NUM, AGRID_I1, AGRID_I2, AGRID_D, COMPS_D, DL_RAT   
+      READ(L1F,IOSTAT=IOCHK) REID, INDEX, TOTAL_NUM, AGRID_I1, AGRID_I2, AGRID_D, COMPS_D, DL_RAT
 
       IF (DEBUG(111) > 0) CALL DEB_RSPLINE_PROC ( ' 1' )
 
 
-! Get the internal grid ID's for AGRID I1, AGRID_I2 and AGRID_D. We know they exist 
+! Get the internal grid ID's for AGRID I1, AGRID_I2 and AGRID_D. We know they exist
 
       CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, AGRID_I1, GRID_ID_ROW_NUM_I1 )
       CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, AGRID_I2, GRID_ID_ROW_NUM_I2 )
@@ -218,17 +218,17 @@
                ICORD = I
                EXIT
             ENDIF
-         ENDDO   
+         ENDDO
          CALL GEN_T0L ( GRID_ID_ROW_NUM_I1, ICORD, THETAD, PHID, T0G_I1 )
       ELSE
          DO I=1,3
             DO J=1,3
                T0G_I1(I,J) = ZERO
-            ENDDO   
+            ENDDO
             T0G_I1(I,I) = ONE
-         ENDDO   
+         ENDDO
       ENDIF
- 
+
       ECORD_I2 = GRID(GRID_ID_ROW_NUM_I2,3)                ! Indep grid, AGRID_I2, basic to global transformation is T0G_I2
       IF (ECORD_I2 /= 0) THEN
          DO I=1,NCORD
@@ -236,17 +236,17 @@
                ICORD = I
                EXIT
             ENDIF
-         ENDDO   
+         ENDDO
          CALL GEN_T0L ( GRID_ID_ROW_NUM_I2, ICORD, THETAD, PHID, T0G_I2 )
       ELSE
          DO I=1,3
             DO J=1,3
                T0G_I2(I,J) = ZERO
-            ENDDO   
+            ENDDO
             T0G_I2(I,I) = ONE
-         ENDDO   
+         ENDDO
       ENDIF
- 
+
       ECORD_D = GRID(GRID_ID_ROW_NUM_D,3)                  ! Dep grid, AGRID_D, basic to global transformation is T0G_D
       IF (ECORD_D /= 0) THEN
          DO I=1,NCORD
@@ -254,22 +254,22 @@
                ICORD = I
                EXIT
             ENDIF
-         ENDDO   
+         ENDDO
          CALL GEN_T0L ( GRID_ID_ROW_NUM_D, ICORD, THETAD, PHID, T0G_D )
       ELSE
          DO I=1,3
             DO J=1,3
                T0G_D(I,J) = ZERO
-            ENDDO   
+            ENDDO
             T0G_D(I,I) = ONE
-         ENDDO   
+         ENDDO
       ENDIF
- 
+
       IF (DEBUG(111) > 0) CALL DEB_RSPLINE_PROC ( ' 7' )
 
 ! Transform FR from basic coords to global coords at the 2 indep and 1 dep grid
 
-      CALL TRANSFORM_FR_0G ( T0G_I1, T0G_I2, T0G_D, FR11, FR12, FR13, FR14, FR21, FR22, FR23, FR24 )      
+      CALL TRANSFORM_FR_0G ( T0G_I1, T0G_I2, T0G_D, FR11, FR12, FR13, FR14, FR21, FR22, FR23, FR24 )
       CALL ASSEMBLE_FR ( FR11, FR12, FR13, FR14, FR21, FR22, FR23, FR24, FR  )
       IF (DEBUG(111) > 0) CALL DEB_RSPLINE_PROC ( ' 8' )
 
@@ -393,11 +393,11 @@
                  1ES15.6)
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
- 
+
       SUBROUTINE RSPLINE_GEOM ( REID, AGRID1, AGRID2, V012, LENGTH, TRSPLINE )
 
 ! Calculate an RSPLINE coord transformation matriox that transforms a vector in basic coords to one in element coords (x axis along
@@ -419,9 +419,9 @@
       INTEGER(LONG), INTENT(IN)       :: AGRID2            ! Indep grid number 2 on the RSPLINE
       INTEGER(LONG), INTENT(IN)       :: REID              ! Element ID
       INTEGER(LONG)                   :: I,J               ! DO loop indices
-      INTEGER(LONG)                   :: I3_IN(3)          ! Integer array used in sorting VX. 
+      INTEGER(LONG)                   :: I3_IN(3)          ! Integer array used in sorting VX.
       INTEGER(LONG)                   :: I3_OUT(3)         ! Integer array in sort order of VX_SORT. If VX is sorted sp that
-!                                                             comp 2 is smallest then comp 3 then comp 1 then I3_OUT is 2, 3, 1 
+!                                                             comp 2 is smallest then comp 3 then comp 1 then I3_OUT is 2, 3, 1
 
 
       REAL(DOUBLE) , INTENT(IN)       :: V012(3)           ! Vector in basic coords from 1st to 2nd indep grids on the RSPLINE
@@ -446,8 +446,8 @@
       DO I=1,3
         DO J=1,3
            TRSPLINE(I,J) = ZERO
-        ENDDO 
-      ENDDO 
+        ENDDO
+      ENDDO
 
       DO I=1,3
          VX(I) = ZERO
@@ -522,7 +522,7 @@
 
       DO I=1,3
          TRSPLINE(3,I) = VZ(I)/MAGZ
-      ENDDO 
+      ENDDO
 
 
 
@@ -536,7 +536,7 @@
                     ,/,14X,' THE VECTOR COMPONENTS CALCULATED WERE ',3(1ES14.6))
 
  1944 FORMAT(' *ERROR  1944: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' THE VX VECTOR FOR ',A,' ELEMENT ',I8,' WAS LEFT UNSORTED. IT MUST BE SORTED TO DETERMINE VY, VZ') 
+                    ,/,14X,' THE VX VECTOR FOR ',A,' ELEMENT ',I8,' WAS LEFT UNSORTED. IT MUST BE SORTED TO DETERMINE VY, VZ')
 
 ! **********************************************************************************************************************************
 
@@ -587,7 +587,7 @@
             FR21(I,J) = ZERO   ;   FR22(I,J) = ZERO   ;   FR23(I,J) = ZERO   ;   FR24(I,J) = ZERO
          ENDDO
       ENDDO
-      
+
       Z_2 = Z*Z
       Z_3 = Z*Z_2
 
@@ -616,8 +616,8 @@
       FR22(2,2) = ONE - FOUR*Z +THREE*Z_2
       FR22(3,3) = FR22(2,2)
 
-      FR23(2,3) = (Z_2 - Z)*SIX/L12 
-      FR23(3,2) = -FR23(2,3) 
+      FR23(2,3) = (Z_2 - Z)*SIX/L12
+      FR23(3,2) = -FR23(2,3)
 
       FR24(1,1) = Z
       FR24(2,2) = THREE*Z_2 - TWO*Z
@@ -739,9 +739,9 @@
 
       IMPLICIT NONE
 
-      REAL(DOUBLE) , INTENT(IN)       :: TR_I1(3,3)        ! Matrix that transforms a vector in global to basic for 1st indep grid 
-      REAL(DOUBLE) , INTENT(IN)       :: TR_I2(3,3)        ! Matrix that transforms a vector in global to basic for 2nd indep grid 
-      REAL(DOUBLE) , INTENT(IN)       :: TR_D(3,3)         ! Matrix that transforms a vector in global to basic for dep grid 
+      REAL(DOUBLE) , INTENT(IN)       :: TR_I1(3,3)        ! Matrix that transforms a vector in global to basic for 1st indep grid
+      REAL(DOUBLE) , INTENT(IN)       :: TR_I2(3,3)        ! Matrix that transforms a vector in global to basic for 2nd indep grid
+      REAL(DOUBLE) , INTENT(IN)       :: TR_D(3,3)         ! Matrix that transforms a vector in global to basic for dep grid
 
       REAL(DOUBLE) , INTENT(INOUT)    :: FR11(3,3)         ! Partition of FR in 1st 3 rows and 1st 3 cols
       REAL(DOUBLE) , INTENT(INOUT)    :: FR12(3,3)         ! Partition of FR in 1st 3 rows and 2nd 3 cols
@@ -851,7 +851,7 @@
          WRITE(F06,*)
 
       ELSE IF (WHAT == ' 7' ) THEN
-         WRITE(F06,7001) AGRID_I1, ECORD_I1, AGRID_I2, ECORD_I2, AGRID_D, ECORD_D 
+         WRITE(F06,7001) AGRID_I1, ECORD_I1, AGRID_I2, ECORD_I2, AGRID_D, ECORD_D
          DO II=1,3
             WRITE(F06,7002) (T0G_I1(II,JJ),JJ=1,3), (T0G_I2(II,JJ),JJ=1,3), (T0G_D(II,JJ),JJ=1,3)
          ENDDO
@@ -900,7 +900,7 @@
 
  5002 FORMAT(56X,'(coord system is elem coords with x axis between the 2 indep grids)',/)
 
- 5003 FORMAT(3(1ES14.6),'  |', 3(1ES14.6),'  |', 3(1ES14.6),'  |', 3(1ES14.6)) 
+ 5003 FORMAT(3(1ES14.6),'  |', 3(1ES14.6),'  |', 3(1ES14.6),'  |', 3(1ES14.6))
 
  6002 FORMAT(56X,'                      (coord system is basic)',/)
 
@@ -916,7 +916,7 @@
  9001 FORMAT(' :::::::::::::::::::::::::::::::::::::::END DEBUG(111) OUTPUT FROM SUBROUTINE RSPLINE_PROC:::::::::::::::::::::::::',&
               ':::::::::::::::::'                                                                                               ,/,&
              ' __________________________________________________________________________________________________________________',&
-             '_________________',/) 
+             '_________________',/)
 
 ! **********************************************************************************************************************************
 

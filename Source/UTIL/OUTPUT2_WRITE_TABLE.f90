@@ -161,16 +161,16 @@
 !       ABS_FREQ = SQRT(ABS(FIELD6)) / (2 * PI)
 !       FIELD7 = ABS_FREQ * 2 * PI
         FIELD7 = SQRT(ABS(FIELD6))  ! SQRT(ABS(EIGN))
-        
+
         !FIELD7 = MODE_CYCLE_FREQ  ! float; radians
       ELSE IF(ANALYSIS_CODE == 7) THEN
 !       pre-buckling????
 !        op2.lsdvmn = op2.add_data_parameter(data, 'lsdvmn', b'i', 5)
         !FIELD5 = 1
-        
+
         ! do nothing statement
         APPROACH_CODE = 0
-        
+
         ! TODO gotta figure out the appropriate value
         FIELD7 = 0.0
       ELSE
@@ -190,7 +190,7 @@
 !          0, 0, 0, 0,
 !          title, subtitle, label,
 !      ]
-!      WRITE(OP2) 
+!      WRITE(OP2)
       WRITE(OP2) APPROACH_CODE, TABLE_CODE, 0, ISUBCASE, FIELD5, &
           REAL(FIELD6, 4), REAL(FIELD7, 4),                      &
           RANDOM_CODE, FORMAT_CODE, NUM_WIDE, &
@@ -204,6 +204,6 @@
 !      print *, "finished OUGV1 table=3"
 
       CALL WRITE_ITABLE(ITABLE)
-      
+
  100  FORMAT(" analysis_code=", i4, " is not supported...stopping")
       END SUBROUTINE WRITE_OUG3

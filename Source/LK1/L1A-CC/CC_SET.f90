@@ -1,44 +1,44 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE CC_SET ( CARD )
- 
+
 ! Processes Case Control SET cards
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, IN1
       USE IOUNT1, ONLY                :  WRT_ERR
       USE SCONTR, ONLY                :  CC_ENTRY_LEN, FATAL_ERR, LSETS, LSETLN, MAX_TOKEN_LEN, NSETS, SETLEN, BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  ALL_SETS_ARRAY, SETS_IDS
- 
+
       USE CC_SET_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CC_SET'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=LEN(CARD))        :: CARD1             ! SET card read from C.C deck
@@ -51,7 +51,7 @@
       CHARACTER( 8*BYTE)              :: TOKTYP(3)         ! Type of the char TOKEN's output from subr STOKEN, called herein
       CHARACTER(LSETLN*BYTE)          :: TOKSTR_PART       ! TOKSTR_WHOLE without the "SET setid =" and following blanks
       CHARACTER(LSETLN*BYTE)          :: TOKSTR_WHOLE      ! All characters that are in the current SET, including "SET setid ="
- 
+
       INTEGER(LONG)                   :: DATA_BEG          ! Posn in TOKSTR_WHOLE where data begins (after "SET setid =" and blanks)
       INTEGER(LONG)                   :: DATA_END          ! Posn in TOKSTR_WHOLE where data ends
       INTEGER(LONG)                   :: ECOL      = 0     ! Col, on CARD, where "=" sign is located
@@ -72,24 +72,24 @@
       INTEGER(LONG)                   :: SETID     = 0     ! Set ID on this Case Control card
       INTEGER(LONG)                   :: TOKLEN    = 0     ! DATA_END - DATA_BEG + 1 (an input to subr STOKEN, called herein)
 
- 
+
       INTRINSIC INDEX
- 
+
 
 
 ! **********************************************************************************************************************************
-! Process SET cards 
+! Process SET cards
 
-      CARD1 = CARD 
+      CARD1 = CARD
 
 ! Check for SET cards. These can have continuation if last entry is a comma. Need to make sure that equal sign is
 ! included for use in subroutine SETPRO which processes the character string ALL_SETS_ARRAY. A logical SET card
 ! consists of all physical cards in a set. This is written to ALL_SETS_ARRAY beginning with 'SET' and ending with
 ! the last entry on the last physical card for the set. Subsequent SET cards are written immediately after the
 ! previous entry in ALL_SETS_ARRAY.
- 
+
 ! Make sure equal sign is in. We use it later in subcase processor
- 
+
       ECOL = INDEX(CARD1(1:),'=')
       IF (ECOL == 0) THEN
          FATAL_ERR = FATAL_ERR + 1
@@ -97,9 +97,9 @@
          WRITE(F06,1267)
          RETURN
       ENDIF
- 
+
 ! Now find SET ID and check for proper type ('INTEGER ')
- 
+
       SETID    = 0
       TOKEN(1) = '        '
       SETERR   = 0
@@ -115,8 +115,8 @@
             EXIT
          ENDIF
          TOKEN(1)(K:K) = CARD1(I:I)
-      ENDDO 
-      IF (SETERR == 0) THEN   
+      ENDDO
+      IF (SETERR == 0) THEN
          CALL TOKCHK ( TOKEN(1), TOKTYP(1) )
          IF (TOKTYP(1) /= 'INTEGER ') THEN
             FATAL_ERR = FATAL_ERR + 1
@@ -143,16 +143,16 @@
             WRITE(F06,1145) SETID
             EXIT
          ENDIF
-      ENDDO 
+      ENDDO
       SETS_IDS(NSETS) = SETID
- 
+
 ! Write SET data to ALL_SETS_ARRAY and check for continuation card(s) in the following DO loop
- 
+
       DATA_END = 0
 main: DO
- 
+
 ! Get rid of trailing blanks before storing string in ALL_SETS_ARRAY
- 
+
          IEND = CC_ENTRY_LEN
 i_do_1:  DO I=CC_ENTRY_LEN,1,-1
             IF (CARD1(I:I) == ' ') THEN
@@ -173,18 +173,18 @@ i_do_2:  DO I=1,II
                EXIT i_do_2
             ENDIF
          ENDDO i_do_2
- 
+
 ! Check length of character string against max allowable length
- 
+
          IF ((SETLEN + IEND) > LSETLN) THEN
             FATAL_ERR = FATAL_ERR + 1
             WRITE(ERR,1268) SUBR_NAME,LSETLN
             WRITE(F06,1268) SUBR_NAME,LSETLN
             CALL OUTA_HERE ( 'Y' )                                 ! Coding error, so quit
          ENDIF
- 
-! Put data in ALL_SETS_ARRAY (and also write the data to TOKSTR_WHOLE, which will contain only this set) 
- 
+
+! Put data in ALL_SETS_ARRAY (and also write the data to TOKSTR_WHOLE, which will contain only this set)
+
 i_do_3:  DO I=1,IEND
             ALL_SETS_ARRAY(SETLEN+I)        = CARD1(I:I)
             DATA_END                        = DATA_END + 1
@@ -197,10 +197,10 @@ i_do_3:  DO I=1,IEND
          IF (COMMENT_FOUND == 'Y') THEN
             EXIT main
          ENDIF
- 
+
 ! Is there a continuation card? If last entry is a comma, we assume that the next card is a continuation of the set
 ! definition. If it is not, then an error will be detected when this set's data is checked for syntax below.
- 
+
          ICONT = 0
 i_do_4:  DO I=CC_ENTRY_LEN,1,-1
             IF (CARD1(I:I) == ' ') THEN
@@ -208,7 +208,7 @@ i_do_4:  DO I=CC_ENTRY_LEN,1,-1
             ELSE IF (CARD1(I:I) == ',') THEN
                ICONT = 1
                EXIT i_do_4
-            ELSE 
+            ELSE
                ICONT = 0
                EXIT i_do_4
             ENDIF
@@ -243,7 +243,7 @@ i_do5:DO I=SETLEN,1,-1
             FATAL_ERR = FATAL_ERR + 1
             WRITE(ERR, 1252)
             WRITE(ERR,12520) CARD1
-            WRITE(ERR,12532)      
+            WRITE(ERR,12532)
             WRITE(F06, 1252)
             WRITE(F06,12520) CARD1
             WRITE(F06,12532)
@@ -255,7 +255,7 @@ i_do5:DO I=SETLEN,1,-1
 ! TOKSTR_WHOLE has everything in the current set, including "SET ID =". In TOKSTR_PART (below) we want only the set data,
 ! which begins after the equal sign (and blanks following the equal sign) in the set definition.
 ! Find where the data begins. The set data ends at DATA_END.
- 
+
       DATA_BEG = ECOL + 1
       DO I=DATA_BEG,DATA_END
          IF (TOKSTR_WHOLE(I:I) == ' ') THEN
@@ -263,23 +263,23 @@ i_do5:DO I=SETLEN,1,-1
          ELSE
             EXIT
          ENDIF
-      ENDDO   
- 
+      ENDDO
+
 ! Strip, from TOKSTR_WHOLE, everything up to the beginning of the set data (i.e., strip "SET ID = " ) and put into TOKSTR_PART
- 
+
       TOKLEN                = DATA_END - DATA_BEG + 1
       TOKSTR_PART(1:TOKLEN) = TOKSTR_WHOLE(DATA_BEG:DATA_END)
- 
+
 ! **********************************************************************************************************************************
       ! Check syntax of this set data
       ISTART = 1
       THRU   = 'OFF'
       EXCEPT = 'OFF'
       DO
- 
+
          ! Call STOKEN in a DO loop until we run out of tokens in TOKSTR_PART.
          ! We run out of data in the set when ISTART > TOKLEN
- 
+
          CALL STOKEN ( SUBR_NAME, TOKSTR_PART, ISTART, TOKLEN, NTOKEN, IERROR, TOKTYP, TOKEN, ERRTOK, THRU, EXCEPT )
 
          ! Error: too long a token in the set definition
@@ -298,9 +298,9 @@ i_do5:DO I=SETLEN,1,-1
             WRITE(F06,*)
 
             EXIT
- 
+
 ! Error: "I1 THRU I2" is missing I2 in the set definition
- 
+
          ELSE IF (IERROR == 2) THEN
 
             FATAL_ERR = FATAL_ERR + 1
@@ -340,9 +340,9 @@ i_do5:DO I=SETLEN,1,-1
             WRITE(F06,*)
 
             EXIT
- 
+
 ! Error: found "EXCEPT" but "THRU" had not been turned "ON" yet
- 
+
          ELSE IF (IERROR == 4) THEN
 
             FATAL_ERR = FATAL_ERR + 1
@@ -359,9 +359,9 @@ i_do5:DO I=SETLEN,1,-1
             WRITE(F06,*)
 
             EXIT
- 
+
 ! Is the TOKEN a number not connected to a 'THRU'?
- 
+
          ELSE IF (NTOKEN == 1) THEN
             IF (TOKTYP(1) == 'INTEGER ') THEN
                READ(TOKEN(1),'(I8)',IOSTAT=IOCHK1) ACT_ID
@@ -384,7 +384,7 @@ i_do5:DO I=SETLEN,1,-1
 
                ELSE
                   IF (EXCEPT == 'ON ') THEN
-                     IF ((ACT_ID >= I1) .AND. (ACT_ID <= I2)) THEN 
+                     IF ((ACT_ID >= I1) .AND. (ACT_ID <= I2)) THEN
                         CONTINUE
                      ELSE
                         EXCEPT = 'OFF'
@@ -392,7 +392,7 @@ i_do5:DO I=SETLEN,1,-1
                      ENDIF
                   ENDIF
                ENDIF
- 
+
             ELSE IF (TOKTYP(1) == 'EXCEPT  ') THEN
                IF (THRU /= 'ON ') THEN
 
@@ -404,15 +404,15 @@ i_do5:DO I=SETLEN,1,-1
                   WRITE(ERR,12520) CARD1
                   WRITE(F06,12520) CARD1
 
-                  WRITE(ERR,12525) 
+                  WRITE(ERR,12525)
                   WRITE(F06,12525)
- 
+
                   WRITE(F06,*)
 
                   EXIT
 
                ENDIF
- 
+
             ELSE
 
                FATAL_ERR = FATAL_ERR + 1
@@ -431,11 +431,11 @@ i_do5:DO I=SETLEN,1,-1
                EXIT
 
             ENDIF
- 
+
 ! TOKEN's connected by 'THRU'
- 
+
          ELSE IF (NTOKEN == 3) THEN
-            IF ((TOKTYP(1) == 'INTEGER ') .AND. (TOKTYP(2) == 'THRU    ') .AND. (TOKTYP(3) == 'INTEGER ')) THEN 
+            IF ((TOKTYP(1) == 'INTEGER ') .AND. (TOKTYP(2) == 'THRU    ') .AND. (TOKTYP(3) == 'INTEGER ')) THEN
                READ(TOKEN(1),'(I8)',IOSTAT=IOCHK1) I1
                IF (IOCHK1 > 0) THEN
 
@@ -447,8 +447,8 @@ i_do5:DO I=SETLEN,1,-1
                   WRITE(ERR,12520) CARD1
                   WRITE(F06,12520) CARD1
 
-                  WRITE(ERR,12524) 
-                  WRITE(F06,12524) 
+                  WRITE(ERR,12524)
+                  WRITE(F06,12524)
 
                   WRITE(F06,*)
 
@@ -466,17 +466,17 @@ i_do5:DO I=SETLEN,1,-1
                   WRITE(ERR,12520) CARD1
                   WRITE(F06,12520) CARD1
 
-                  WRITE(ERR,12524) 
-                  WRITE(F06,12524) 
+                  WRITE(ERR,12524)
+                  WRITE(F06,12524)
 
                   WRITE(F06,*)
 
                   EXIT
 
                ENDIF
- 
+
 ! Error: "I1 THRU I2" has I1 > I2
- 
+
                IF ((IOCHK1 == 0) .AND. (IOCHK2 == 0)) THEN
                   IF (I1 > I2) THEN
 
@@ -496,9 +496,9 @@ i_do5:DO I=SETLEN,1,-1
                      EXIT
 
                   ENDIF
- 
-               ENDIF 
- 
+
+               ENDIF
+
             ELSE
 
                FATAL_ERR = FATAL_ERR + 1
@@ -517,9 +517,9 @@ i_do5:DO I=SETLEN,1,-1
                EXIT
 
             ENDIF
- 
+
 ! Error: wrong tokens from set definition for some other reason
- 
+
          ELSE
 
             FATAL_ERR = FATAL_ERR + 1
@@ -530,15 +530,15 @@ i_do5:DO I=SETLEN,1,-1
             WRITE(F06,*)
 
             EXIT
- 
+
          ENDIF
- 
+
          IF (ISTART <= TOKLEN) THEN
             CYCLE
          ELSE
             EXIT
          ENDIF
- 
+
       ENDDO
 
 
@@ -584,7 +584,7 @@ i_do5:DO I=SETLEN,1,-1
 
  1268 FORMAT(' *ERROR  1268: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' TOO MUCH SET DATA. LIMIT IS ',I8,' CHARACTERS.')
- 
+
  1269 FORMAT(' *ERROR  1269: ERROR READING CASE CONTROL SET CONTINUATION ENTRY. ENTRY IGNORED')
 
  1272 FORMAT(' *ERROR  1272: SET ID ON CASE CONTROL SET ENTRY CANNOT BE HAVE MORE THAN ',I4,' DIGITS')
@@ -592,10 +592,10 @@ i_do5:DO I=SETLEN,1,-1
  1273 FORMAT(' *ERROR  1273: THE SET ID ON ABOVE CASE CONTROL SET ENTRY IS NOT AN INTEGER')
 
  1145 FORMAT(' *ERROR  1145: DUPLICATE SET ENTRY WITH ID = ',I8)
- 
+
  1163 FORMAT(' *ERROR  1163: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' TOO MANY ',A,' ENTRIES; LIMIT = ',I12)
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE CC_SET 
+
+      END SUBROUTINE CC_SET

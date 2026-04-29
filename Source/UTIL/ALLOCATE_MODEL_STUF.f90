@@ -1,37 +1,37 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ALLOCATE_MODEL_STUF ( NAME_IN, CALLING_SUBR )
- 
+
 ! Allocates arrays defined in module MODEL_STUF (see comments there for definition of these matrices)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE CONSTANTS_1, ONLY           :  ZERO, TWO, THREE, SIX, ONEPP6
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC 
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC
       USE SCONTR, ONLY                :  LBAROFF, LBUSHOFF, LCMASS, LCONM2, LCORD, LEDAT, LELE, LFORCE, LGRAV, LGRID,              &
                                          LIND_GRDS_MPCS, LLOADC, LLOADR, LMATANGLE, LMATL, LMPC, LMPCADDC, LMPCADDR, LPBAR, LPBEAM,&
                                          LPBUSH, LPCOMP, LPCOMP_PLIES, LPDAT, LPELAS, LPLATEOFF, LPLATETHICK, LPLOAD, LPMASS,      &
@@ -64,11 +64,11 @@
       USE MODEL_STUF, ONLY            :  SNORM, RSNORM, GRID_SNORM
       USE MODEL_STUF, ONLY            :  MATL, RMATL, PBAR, RPBAR, PBEAM, RPBEAM, PBUSH, RPBUSH, PCOMP, RPCOMP, PELAS, RPELAS,     &
                                          PROD, RPROD, PSHEAR, RPSHEAR, PSHEL, RPSHEL, PSOLID, PUSER1, RPUSER1, PUSERIN,            &
-                                         USERIN_ACT_COMPS, USERIN_ACT_GRIDS, USERIN_MAT_NAMES 
+                                         USERIN_ACT_COMPS, USERIN_ACT_GRIDS, USERIN_MAT_NAMES
       USE MODEL_STUF, ONLY            :  MPC_SIDS, MPCSIDS, MPCADD_SIDS
       USE MODEL_STUF, ONLY            :  SPC_SIDS, SPC1_SIDS, SPCSIDS, SPCADD_SIDS
       USE MODEL_STUF, ONLY            :  ALL_SETS_ARRAY, ONE_SET_ARRAY, SETS_IDS, SC_ACCE, SC_DISP, SC_ELFN, SC_ELFE, SC_GPFO,     &
-                                         SC_MPCF, SC_OLOA, SC_SPCF, SC_STRE, SC_STRN, LOAD_SIDS, LOAD_FACS        
+                                         SC_MPCF, SC_OLOA, SC_SPCF, SC_STRE, SC_STRN, LOAD_SIDS, LOAD_FACS
       USE MODEL_STUF, ONLY            :  ELDT, ELOUT, GROUT, OELOUT, OGROUT, LABEL, SCNUM, STITLE, SUBLOD, TITLE
       USE MODEL_STUF, ONLY            :  SYS_LOAD
       USE MODEL_STUF, ONLY            :  CETEMP, CETEMP_ERR, CGTEMP, CGTEMP_ERR, ETEMP, ETEMP_INIT, GTEMP, GTEMP_INIT, TDATA, TPNT
@@ -80,19 +80,19 @@
       USE ALLOCATE_MODEL_STUF_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ALLOCATE_MODEL_STUF'
       CHARACTER(LEN=*), INTENT(IN)    :: NAME_IN           ! Name of group of arrays to allocate
       CHARACTER(LEN=*), INTENT(IN)    :: CALLING_SUBR      ! Array name of the matrix to be allocated in sparse format
       CHARACTER(31*BYTE)              :: NAME              ! Specific array name used for output error message
- 
+
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
       INTEGER(LONG)                   :: NCOLS             ! Number of cols allocated
       INTEGER(LONG)                   :: NROWS             ! Number of rows allocated
 
- 
+
       REAL(DOUBLE)                    :: CUR_MB_ALLOCATED  ! MB of memory that is currently allocated to ARRAY_NAME when subr
 !                                                            ALLOCATED_MEMORY is called (before entering MB_ALLOCATED into array
 !                                                            ALLOCATED_ARRAY_MEM)
@@ -547,7 +547,7 @@
                CALL ALLOCATED_MEMORY ( NAME, MB_ALLOCATED, 'ALLOC', 'Y', CUR_MB_ALLOCATED, SUBR_NAME )
                DO I=1,LSUB
                   SUBLOD(I,1) = 0
-                  SUBLOD(I,2) = 0                  
+                  SUBLOD(I,2) = 0
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -857,7 +857,7 @@
                DO I=1,LMPCADDR
                   DO J=1,LMPCADDC
                      MPCADD_SIDS(I,J) = 0
-                  ENDDO   
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -1013,7 +1013,7 @@
                DO I=1,LSPCADDR
                   DO J=1,LSPCADDC
                      SPCADD_SIDS(I,J) = 0
-                  ENDDO   
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2582,7 +2582,7 @@
                DO I=1,LGRID
                   DO J=1,NTSUB
                      GTEMP(I,J) = GTEMP_INIT
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2610,7 +2610,7 @@
                DO I=1,LGRID
                   DO J=1,NTSUB
                      CGTEMP(I,J) = CGTEMP_ERR
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2638,7 +2638,7 @@
                DO I=1,LELE
                   DO J=1,NTSUB
                      ETEMP(I,J) = ETEMP_INIT
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2666,7 +2666,7 @@
                DO I=1,LELE
                   DO J=1,NTSUB
                      CETEMP(I,J) = CETEMP_ERR
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2694,8 +2694,8 @@
                DO I=1,LELE
                   DO J=1,NTSUB
                      TPNT(I,J) = 0
-                  ENDDO 
-               ENDDO 
+                  ENDDO
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2746,8 +2746,8 @@
                DO I=1,LELE
                   DO J=1,LSUB
                      PPNT(I,J) = 0
-                  ENDDO 
-               ENDDO 
+                  ENDDO
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2804,7 +2804,7 @@
             ENDIF
          ENDIF
 
-      ELSE IF (NAME_IN == 'PLOAD4_3D_DATA') THEN  ! Allocate arrays for PLOAD4_3D_DATA 
+      ELSE IF (NAME_IN == 'PLOAD4_3D_DATA') THEN  ! Allocate arrays for PLOAD4_3D_DATA
 
          NAME = 'PLOAD4_3D_DATA'
          IF (ALLOCATED(PLOAD4_3D_DATA)) THEN
@@ -2876,7 +2876,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         BE1(I,J,K) = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2904,7 +2904,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         BE2(I,J,K) = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -2932,7 +2932,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         BE3(I,J,K) = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3007,7 +3007,7 @@
                   DO J=1,LSUB
                      DT(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3033,7 +3033,7 @@
                   DO J=1,MELDOF
                      KE(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3059,7 +3059,7 @@
                   DO J=1,MELDOF
                      KEG(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3085,7 +3085,7 @@
                   DO J=1,MELDOF
                      KED(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3111,7 +3111,7 @@
                   DO J=1,MELDOF
                      KEM(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3137,7 +3137,7 @@
                   DO J=1,MELDOF
                      ME(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3163,7 +3163,7 @@
                   DO J=1,3
                      OFFDIS(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3189,7 +3189,7 @@
                   DO J=1,3
                      OFFDIS_O(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3215,7 +3215,7 @@
                   DO J=1,3
                      OFFDIS_B(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3241,7 +3241,7 @@
                   DO J=1,3
                      OFFDIS_G(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3265,7 +3265,7 @@
                CALL ALLOCATED_MEMORY ( NAME, MB_ALLOCATED, 'ALLOC', 'Y', CUR_MB_ALLOCATED, SUBR_NAME )
                DO I=1,MOFFSET
                   OFFSET(I)(1:) = 'N'
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3363,7 +3363,7 @@
                   DO J=1,LSUB
                      PPE(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3389,7 +3389,7 @@
                   DO J=1,LSUB
                      PRESS(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3415,7 +3415,7 @@
                   DO J=1,LSUB
                      PTE(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3442,7 +3442,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         SE1(I,J,K) = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3470,7 +3470,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         SE2(I,J,K) = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3498,7 +3498,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         SE3(I,J,K) = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3526,7 +3526,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         STE1(I,J,K)   = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3554,7 +3554,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         STE2(I,J,K)   = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3582,7 +3582,7 @@
                      DO K=1,MAX_STRESS_POINTS+1
                         STE3(I,J,K)   = ZERO
                      ENDDO
-                  ENDDO 
+                  ENDDO
                ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3705,7 +3705,7 @@
                   DO J=1,3
                      XEB(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3731,7 +3731,7 @@
                   DO J=1,3
                      XEL(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3757,7 +3757,7 @@
                   DO J=1,2
                      XGL(I,J) = ZERO
                   ENDDO
-               ENDDO 
+               ENDDO
             ELSE
                WRITE(ERR,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
                WRITE(F06,991) MB_ALLOCATED, NAME,SUBR_NAME, IERR
@@ -3848,7 +3848,7 @@
 
       ELSE                                                 ! NAME not recognized, so coding error
 
-         WRITE(ERR,915) SUBR_NAME, 'ALLOCATED', NAME_IN 
+         WRITE(ERR,915) SUBR_NAME, 'ALLOCATED', NAME_IN
          WRITE(F06,915) SUBR_NAME, 'ALLOCATED', NAME_IN
          FATAL_ERR = FATAL_ERR + JERR
          JERR = JERR + 1
@@ -3880,5 +3880,5 @@
  1699 FORMAT('               THE SUBR IN WHICH THESE ERRORS WERE FOUND (',A,') WAS CALLED BY SUBR ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ALLOCATE_MODEL_STUF

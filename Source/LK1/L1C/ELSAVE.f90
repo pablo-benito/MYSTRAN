@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ELSAVE
- 
+
 ! Saves element data to file LINK1G.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR,     F06,     L1G
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, DATA_NAM_LEN, MMATL, MPBAR, MPBEAM, MPBUSH, MPELAS, MPROD, MPSHEL,          &
@@ -35,7 +35,7 @@
                                          MRPSHEAR, MRPSHEL, MRPUSER1, NBAROFF, NBUSHOFF, NEDAT, NELE, NMATANGLE, NMATL, MPCOMP0,   &
                                          MRPCOMP0, MPCOMP_PLIES, MRPCOMP_PLIES, MUSERIN_MAT_NAMES, NPBAR, NPBEAM, NPBUSH, NPCOMP,  &
                                          NPELAS, NPLATEOFF, NPLATETHICK, NPROD, NPSHEAR, NPSHEL, NPSOLID, NPUSER1, NPUSERIN, NVVEC
-      USE PARAMS, ONLY                :  CBMIN3, CBMIN4, IORQ1M, IORQ1S, IORQ1B, IORQ2B, IORQ2T 
+      USE PARAMS, ONLY                :  CBMIN3, CBMIN4, IORQ1M, IORQ1S, IORQ1B, IORQ2B, IORQ2T
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  BAROFF, BUSHOFF, EDAT, EOFF, EPNT, ESORT1, ESORT2, ETYPE, MATANGLE, MATL, RMATL,PBAR,     &
                                          RPBAR, PBEAM, RPBEAM, PBUSH, RPBUSH, PCOMP, RPCOMP, PELAS, RPELAS, PROD, RPROD, PSHEAR,   &
@@ -44,14 +44,14 @@
       USE ELSAVE_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ELSAVE'
       CHARACTER(LEN=DATA_NAM_LEN)     :: DATA_SET_NAME     ! A data set name for output purposes
- 
+
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: PCOMP_PLIES       ! Number of plies in 1 PCOMP entry incl sym plies not explicitly defined
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -66,8 +66,8 @@
          WRITE(L1G) ESORT1(I)
          WRITE(L1G) ESORT2(I)
          WRITE(L1G) EOFF(I)
-      ENDDO   
- 
+      ENDDO
+
       DATA_SET_NAME = 'EDAT'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NEDAT
@@ -88,16 +88,16 @@
       WRITE(L1G) CBMIN4
 
 ! Write BAR, BEAM v vectors
- 
+
       DATA_SET_NAME = 'V VECTORS IN GLOBAL COORDS'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NVVEC
       DO I=1,NVVEC
          WRITE(L1G) (VVEC(I,J),J=1,3)
-      ENDDO 
+      ENDDO
 
 ! Write BAR, BEAM offsets
- 
+
       DATA_SET_NAME = 'BAR, BEAM OFFSETS'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NBAROFF
@@ -105,10 +105,10 @@
          DO J = 1,6
             WRITE(L1G) BAROFF(I,J)
          ENDDO
-      ENDDO   
+      ENDDO
 
 ! Write BUSH offsets
- 
+
       DATA_SET_NAME = 'BUSH OFFSETS'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NBUSHOFF
@@ -116,28 +116,28 @@
          DO J = 1,6
             WRITE(L1G) BUSHOFF(I,J)
          ENDDO
-      ENDDO   
+      ENDDO
 
 ! Write plate offsets
- 
+
       DATA_SET_NAME = 'PLATE OFFSETS'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPLATEOFF
       DO I = 1,NPLATEOFF
          WRITE(L1G) PLATEOFF(I)
-      ENDDO   
+      ENDDO
 
 ! Write plate thicknesses
- 
+
       DATA_SET_NAME = 'PLATE THICKNESSES FROM CONNECTION ENTRIES'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPLATETHICK
       DO I = 1,NPLATETHICK
          WRITE(L1G) PLATETHICK(I)
-      ENDDO   
+      ENDDO
 
 ! Write property data
- 
+
       DATA_SET_NAME = 'PBAR, RPBAR'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPBAR
@@ -146,12 +146,12 @@
       DO I = 1,NPBAR
          DO J=1,MPBAR
             WRITE(L1G) PBAR(I,J)
-         ENDDO 
+         ENDDO
          DO J = 1,MRPBAR
             WRITE(L1G) RPBAR(I,J)
          ENDDO
-      ENDDO   
- 
+      ENDDO
+
       DATA_SET_NAME = 'PBEAM, RPBEAM'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPBEAM
@@ -160,12 +160,12 @@
       DO I = 1,NPBEAM
          DO J=1,MPBEAM
             WRITE(L1G) PBEAM(I,J)
-         ENDDO 
+         ENDDO
          DO J = 1,MRPBEAM
             WRITE(L1G) RPBEAM(I,J)
          ENDDO
-      ENDDO   
- 
+      ENDDO
+
       DATA_SET_NAME = 'PBUSH, RPBUSH'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPBUSH
@@ -174,12 +174,12 @@
       DO I = 1,NPBUSH
          DO J=1,MPBUSH
             WRITE(L1G) PBUSH(I,J)
-         ENDDO 
+         ENDDO
          DO J = 1,MRPBUSH
             WRITE(L1G) RPBUSH(I,J)
          ENDDO
-      ENDDO   
- 
+      ENDDO
+
       DATA_SET_NAME = 'PROD, RPROD'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPROD
@@ -188,12 +188,12 @@
       DO I = 1,NPROD
          DO J=1,MPROD
             WRITE(L1G) PROD(I,J)
-         ENDDO 
+         ENDDO
          DO J = 1,MRPROD
             WRITE(L1G) RPROD(I,J)
          ENDDO
-      ENDDO   
- 
+      ENDDO
+
       DATA_SET_NAME = 'PELAS, RPELAS'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPELAS
@@ -202,12 +202,12 @@
       DO I = 1,NPELAS
          DO J=1,MPELAS
             WRITE(L1G) PELAS(I,J)
-         ENDDO 
+         ENDDO
          DO J = 1,MRPELAS
             WRITE(L1G) RPELAS(I,J)
          ENDDO
-      ENDDO   
- 
+      ENDDO
+
       DATA_SET_NAME = 'PSHEAR, RPSHEAR'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPSHEAR
@@ -216,12 +216,12 @@
       DO I = 1,NPSHEAR
          DO J = 1,MPSHEAR
             WRITE(L1G) PSHEAR(I,J)
-         ENDDO   
+         ENDDO
          DO J = 1,MRPSHEAR
             WRITE(L1G) RPSHEAR(I,J)
-         ENDDO   
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
       DATA_SET_NAME = 'PSHEL, RPSHEL'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPSHEL
@@ -230,12 +230,12 @@
       DO I = 1,NPSHEL
          DO J = 1,MPSHEL
             WRITE(L1G) PSHEL(I,J)
-         ENDDO   
+         ENDDO
          DO J = 1,MRPSHEL
             WRITE(L1G) RPSHEL(I,J)
-         ENDDO   
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
       DATA_SET_NAME = 'PCOMP, RPCOMP'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPCOMP
@@ -251,9 +251,9 @@
          ENDDO
          DO J = 1,MRPCOMP0+MRPCOMP_PLIES*PCOMP_PLIES
             WRITE(L1G) RPCOMP(I,J)
-         ENDDO   
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
       DATA_SET_NAME = 'PSOLID'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPSOLID
@@ -261,9 +261,9 @@
       DO I = 1,NPSOLID
          DO J = 1,MPSOLID
             WRITE(L1G) PSOLID(I,J)
-         ENDDO   
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
       DATA_SET_NAME = 'PUSER1, RPUSER1'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPUSER1
@@ -272,12 +272,12 @@
       DO I = 1,NPUSER1
          DO J=1,MPUSER1
             WRITE(L1G) PUSER1(I,J)
-         ENDDO 
+         ENDDO
          DO J = 1,MRPUSER1
             WRITE(L1G) RPUSER1(I,J)
          ENDDO
-      ENDDO   
- 
+      ENDDO
+
       DATA_SET_NAME = 'PUSERIN'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NPUSERIN
@@ -285,9 +285,9 @@
       DO I = 1,NPUSERIN
          DO J=1,MPUSERIN
             WRITE(L1G) PUSERIN(I,J)
-         ENDDO 
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
 ! Write USERIN_MAT_NAMES
 
       DATA_SET_NAME = 'USERIN_MAT_NAMES'
@@ -297,11 +297,11 @@
       DO I = 1,NPUSERIN
          DO J=1,MUSERIN_MAT_NAMES
             WRITE(L1G) USERIN_MAT_NAMES(I,J)
-         ENDDO 
-      ENDDO   
+         ENDDO
+      ENDDO
 
 ! Write material data
- 
+
       DATA_SET_NAME = 'MATL, RMATL'
       WRITE(L1G) DATA_SET_NAME
       WRITE(L1G) NMATL
@@ -310,12 +310,12 @@
       DO I = 1,NMATL
          DO J=1,MMATL
             WRITE(L1G) MATL(I,J)
-         ENDDO 
+         ENDDO
          DO J = 1,MRMATLC
             WRITE(L1G) RMATL(I,J)
          ENDDO
-      ENDDO   
- 
+      ENDDO
+
 ! Write material property angles
 
       DATA_SET_NAME = 'MATERIAL PROPERTY ANGLES'
@@ -323,12 +323,12 @@
       WRITE(L1G) NMATANGLE
       DO I = 1,NMATANGLE
          WRITE(L1G) MATANGLE(I)
-      ENDDO   
+      ENDDO
 
 
 
       RETURN
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ELSAVE

@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE FILE_OPEN (UNIT, FILNAM, OUNT, STATUS, MESSAG, RW_STIME, FORMAT, ACTION, POSITION, WRITE_L1A, WRITE_VER)
 
       ! Opens formatted files that have STIME for read or write. If open for read, check STIME. If open for write, write STIME
@@ -99,7 +99,7 @@
       USE DEBUG_PARAMETERS
       USE MYSTRAN_Version, ONLY       :  MYSTRAN_VER_NUM, MYSTRAN_VER_MONTH, MYSTRAN_VER_DAY, MYSTRAN_VER_YEAR, MYSTRAN_AUTHOR,  &
                                          MYSTRAN_COMMENT
- 
+
       USE FILE_OPEN_USE_IFs
 
       IMPLICIT NONE
@@ -114,12 +114,12 @@
       CHARACTER(LEN=*), INTENT(IN)    :: RW_STIME          ! Indicator of whether to read or write STIME
       CHARACTER(LEN=*), INTENT(IN)    :: WRITE_L1A         ! 'Y'/'N' Arg passed to subr OUTA_HERE
       CHARACTER(LEN=*), INTENT(IN)    :: WRITE_VER         ! 'Y'/'N' Arg to tell whether to write MYSTRAN version info
-      CHARACTER( 9*BYTE)              :: NAM_ACT 
+      CHARACTER( 9*BYTE)              :: NAM_ACT
       CHARACTER(11*BYTE)              :: NAM_FOR
-      CHARACTER( 6*BYTE)              :: NAM_POS 
-      CHARACTER( 7*BYTE)              :: NAM_STA 
-      CHARACTER(11*BYTE)              :: NAM_RWS 
- 
+      CHARACTER( 6*BYTE)              :: NAM_POS
+      CHARACTER( 7*BYTE)              :: NAM_STA
+      CHARACTER(11*BYTE)              :: NAM_RWS
+
       INTEGER(LONG), INTENT(IN)       :: UNIT              ! Unit number file is attached to
       INTEGER(LONG), INTENT(IN)       :: OUNT(2)           ! File units to write messages to. Input to subr FILE_OPEN
       INTEGER(LONG)                   :: I                 ! DO loop index
@@ -185,7 +185,7 @@
 !           ENDIF
 !           IF (OUNT(2) == OUNT(1)) EXIT
 !        ENDDO
-!     ENDIF 
+!     ENDIF
 
       ! Check WRITE_L1A
       IF ((WRITE_L1A /= 'Y') .AND. (WRITE_L1A /= 'N'))THEN
@@ -279,7 +279,7 @@
          CALL FILERR ( OUNT )
          CALL OUTA_HERE ( 'Y' )
       ENDIF
- 
+
 
       RETURN
 
@@ -292,9 +292,9 @@
   118 FORMAT(/,1X,A,' Version',5(1X,A),/)
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE DEB_FILE_OPEN
@@ -317,7 +317,7 @@
       WRITE(F06,*)
 
       WRITE(F06,98799)
- 
+
       WRITE(F06,*)
 
 ! **********************************************************************************************************************************
@@ -333,7 +333,7 @@
 
 ! **********************************************************************************************************************************
 
-      END SUBROUTINE DEB_FILE_OPEN 
+      END SUBROUTINE DEB_FILE_OPEN
 
 
       END SUBROUTINE FILE_OPEN

@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_MNN_TO_MFF ( PART_VEC_N_FS )
- 
+
 ! Call routines to reduce the MNN mass matrix from the N-set to the F, S-sets. See Appendix B to the MYSTRAN User's Reference Manual
 ! for the derivation of the reduction equations.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L2S, LINK2S, L2S_MSG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, NDOFN, NDOFF, NDOFS, NTERM_MNN, NTERM_MFF, NTERM_MFS, NTERM_MSS
@@ -37,16 +37,16 @@
                                          I_MSS, J_MSS, MSS
       USE SPARSE_MATRICES, ONLY       :  SYM_MNN, SYM_MFF, SYM_MFS, SYM_MSS
       USE SCRATCH_MATRICES
- 
+
       USE REDUCE_MNN_TO_MFF_USE_IFs
 
       IMPLICIT NONE
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_MNN_TO_MFF'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT               ! Input to subr READ_MATRIX_1. 'Y'/'N' whether to close a file 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT               ! Input to subr READ_MATRIX_1. 'Y'/'N' whether to close a file
       CHARACTER(  8*BYTE)             :: CLOSE_STAT             ! Char constant for the CLOSE status of a file
- 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_N_FS(NDOFN)   ! Partitioning vector (N set into F and S sets) 
+
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_N_FS(NDOFN)   ! Partitioning vector (N set into F and S sets)
       INTEGER(LONG)                   :: MFF_ROW_MAX_TERMS      ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
       INTEGER(LONG)                   :: MFS_ROW_MAX_TERMS      ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
 !xx   INTEGER(LONG)                   :: MSF_ROW_MAX_TERMS      ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
@@ -66,11 +66,11 @@
       IF (NDOFF > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'MNN', NTERM_MNN, NDOFN, NDOFN, SYM_MNN, I_MNN, J_MNN,      PART_VEC_N_FS, PART_VEC_N_FS,       &
-                                    NUM1, NUM1, MFF_ROW_MAX_TERMS, 'MFF', NTERM_MFF, SYM_MFF ) 
+                                    NUM1, NUM1, MFF_ROW_MAX_TERMS, 'MFF', NTERM_MFF, SYM_MFF )
 
          CALL ALLOCATE_SPARSE_MAT ( 'MFF', NDOFF, NTERM_MFF, SUBR_NAME )
 
-         IF (NTERM_MFF > 0) THEN      
+         IF (NTERM_MFF > 0) THEN
             CALL PARTITION_SS ( 'MNN', NTERM_MNN, NDOFN, NDOFN, SYM_MNN, I_MNN, J_MNN, MNN, PART_VEC_N_FS, PART_VEC_N_FS,          &
                                  NUM1, NUM1, MFF_ROW_MAX_TERMS, 'MFF', NTERM_MFF, NDOFF, SYM_MFF, I_MFF, J_MFF, MFF )
          ENDIF
@@ -82,7 +82,7 @@
       IF ((NDOFF > 0) .AND. (NDOFS > 0)) THEN
 
          CALL PARTITION_SS_NTERM ( 'MNN', NTERM_MNN, NDOFN, NDOFN, SYM_MNN, I_MNN, J_MNN,      PART_VEC_N_FS, PART_VEC_N_FS,       &
-                                    NUM1, NUM2, MFS_ROW_MAX_TERMS, 'MFS', NTERM_MFS, SYM_MFS ) 
+                                    NUM1, NUM2, MFS_ROW_MAX_TERMS, 'MFS', NTERM_MFS, SYM_MFS )
 
          CALL ALLOCATE_SPARSE_MAT ( 'MFS', NDOFF, NTERM_MFS, SUBR_NAME )
 
@@ -98,11 +98,11 @@
       IF (NDOFS > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'MNN', NTERM_MNN, NDOFN, NDOFN, SYM_MNN, I_MNN, J_MNN,      PART_VEC_N_FS, PART_VEC_N_FS,       &
-                                    NUM2, NUM2, MSS_ROW_MAX_TERMS, 'MSS', NTERM_MSS, SYM_MSS ) 
+                                    NUM2, NUM2, MSS_ROW_MAX_TERMS, 'MSS', NTERM_MSS, SYM_MSS )
 
          CALL ALLOCATE_SPARSE_MAT ( 'MSS', NDOFS, NTERM_MSS, SUBR_NAME )
 
-         IF (NTERM_MFF > 0) THEN      
+         IF (NTERM_MFF > 0) THEN
             CALL PARTITION_SS ( 'MNN', NTERM_MNN, NDOFN, NDOFN, SYM_MNN, I_MNN, J_MNN, MNN, PART_VEC_N_FS, PART_VEC_N_FS,          &
                                  NUM2, NUM2, MSS_ROW_MAX_TERMS, 'MSS', NTERM_MSS, NDOFS, SYM_MSS, I_MSS, J_MSS, MSS )
          ENDIF
@@ -114,7 +114,7 @@
       IF ((NDOFF > 0) .AND. (NDOFS > 0)) THEN
 
 !xx      CALL PARTITION_SS_NTERM ( 'MNN', NTERM_MNN, NDOFN, NDOFN, SYM_MNN, I_MNN, J_MNN,      PART_VEC_N_FS, PART_VEC_N_FS,       &
-!xx                                 NUM2, NUM1, MSF_ROW_MAX_TERMS, 'MSF', NTERM_MSF, SYM_MFS ) 
+!xx                                 NUM2, NUM1, MSF_ROW_MAX_TERMS, 'MSF', NTERM_MSF, SYM_MFS )
 
 !xx      IF (NTERM_MSF /= NTERM_MFS) THEN
 !xx         FATAL_ERR = FATAL_ERR + 1

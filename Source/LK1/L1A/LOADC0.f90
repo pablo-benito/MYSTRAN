@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE LOADC0
- 
+
       ! Preliminary reading of the Case Control to count several data sizes
       ! so that arrays may be allocated prior to the final reading of the
       ! Case Control.
@@ -34,16 +34,16 @@
       !   1) Counts the number of subcases and increments LSUB
       !   2) Counts the number of SET cards and calls CC_SET0 to count the
       !      number of characters in SET's to determine LSETLN
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, IN1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_ENTRY_LEN, FATAL_ERR, LSETS, LSUB
       USE TIMDAT, ONLY                :  TSEC
- 
+
       USE LOADC0_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LOADC0'
       CHARACTER(LEN=CC_ENTRY_LEN)     :: CARD              ! Case Control card
       CHARACTER(LEN=CC_ENTRY_LEN)     :: CARD1             ! CARD shifted to begin in col 1
@@ -55,7 +55,7 @@
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when reading a Case Control card from unit IN1
       INTEGER(LONG)                   :: JERR              ! Error count
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -72,12 +72,12 @@
          CALL READ_BDF_LINE(IN1, IOCHK, CARD)
 
          IF (IOCHK < 0) THEN                               ! Quit if EOF/EOR occurs during read
-            WRITE(ERR,1011) END_CARD  
-            WRITE(F06,1011) END_CARD  
+            WRITE(ERR,1011) END_CARD
+            WRITE(F06,1011) END_CARD
             FATAL_ERR = FATAL_ERR + 1
             CALL OUTA_HERE ( 'Y' )
          ENDIF
- 
+
          IF (IOCHK > 0) THEN                               ! If error occurs during read, write message & CYCLE back to read again
             WRITE(ERR,1010) DECK_NAME
             WRITE(F06,1010) DECK_NAME
@@ -85,7 +85,7 @@
             FATAL_ERR = FATAL_ERR + 1
             CYCLE
          ENDIF
- 
+
          CALL REPLACE_TABS_W_BLANKS ( CARD )               ! Replace all tab characters with a white space
 
          CALL CSHIFT ( CARD, ' ', CARD1, CHAR_COL, IERR )  ! Shift CARD so it begins in col 1
@@ -108,7 +108,7 @@
       IF (LSUB == 0) THEN
          LSUB = 1
       ENDIF
- 
+
       IF (JERR > 0) THEN
          WRITE(ERR,10141)
          WRITE(F06,10141)
@@ -127,7 +127,7 @@
  1011 FORMAT(' *ERROR  1011: NO ',A10,' ENTRY FOUND BEFORE END OF FILE OR END OF RECORD IN INPUT FILE')
 
 10141 FORMAT(/,' PROCESSING TERMINATED DUE TO ABOVE ERRORS')
- 
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE LOADC0

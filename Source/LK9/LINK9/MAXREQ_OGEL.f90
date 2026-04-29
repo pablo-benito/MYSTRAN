@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MAXREQ_OGEL
- 
+
 ! Count number of output requests to determine required leading dimension of array OGEL so memory can be allocated to it
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, IBIT, LSUB, NDOFG, NELE, NGRID, METYPE, SOL_NAME
@@ -38,17 +38,17 @@
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_LOC, STRE_LOC, FORC_LOC
       USE LINK9_STUFF, ONLY           :  MAXREQ
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE MAXREQ_OGEL_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MAXREQ_OGEL'
       CHARACTER(25*BYTE)              :: GROUT_NAME(0:15)
       CHARACTER(25*BYTE)              :: ELOUT_NAME(0:15)
       CHARACTER(46*BYTE)              :: MPF_MEFM_MSG         ! Message written if MAXREQ impacted by req for output of MPF/MEFM
       CHARACTER( 1*BYTE)              :: SKIP_ELEM_TYPE
- 
+
       INTEGER(LONG)                   :: NUMBER_ROWS(0:15)    ! For elem output, this accounts for more than 1 row written to OGEL
       INTEGER(LONG)                   :: I,J,K,L              ! DO loop indices
       INTEGER(LONG)                   :: IB                   ! Result of IAND to determine if there is an output request
@@ -60,9 +60,9 @@
       INTEGER(LONG)                   :: NREQ_EL(METYPE,0:15) ! No. of requests in ELOUT for each bit of ELOUT for 1 subcase
       INTEGER(LONG)                   :: NREQ_GR(0:15)        ! No. of requests in GROUT for each bit of GROUT for 1 subcase
 
- 
-      INTRINSIC                       :: IAND, MAX 
- 
+
+      INTRINSIC                       :: IAND, MAX
+
 
 
 ! **********************************************************************************************************************************
@@ -86,7 +86,7 @@
       ELOUT_NAME(3) = 'element strain'
 
 ! Count MAXGROUT, the max number of requests in GROUT.
- 
+
       IF (DEBUG(91) == 1) CALL MAXREQ_OGEL_DEB ( '11' )
 
       MAXGROUT = 0
@@ -94,17 +94,17 @@
 
          DO K=0,15
             NREQ_GR(K) = 0
-         ENDDO 
- 
+         ENDDO
+
          DO J=1,NGRID
             DO K=0,15
                IB = IAND(GROUT(J,I),IBIT(K))
                IF (IB > 0) THEN
                   NREQ_GR(K) = NREQ_GR(K) + 1
                ENDIF
-            ENDDO 
-         ENDDO 
- 
+            ENDDO
+         ENDDO
+
          MPF_MEFM_MSG(1:) = ' '
          IF ((MEFFMASS_CALC == 'Y') .OR. (MPFACTOR_CALC == 'Y')) THEN! Need to make sure MAXGROUT can cover MPF, MEFM
             IF (SOL_NAME /= 'GEN CB MODEL') THEN
@@ -133,10 +133,10 @@
       ENDDO
 
       IF (DEBUG(91) == 1) CALL MAXREQ_OGEL_DEB ( '15' )
- 
+
 ! **********************************************************************************************************************************
 ! Count MAXELOUT, the max number of requests in ELOUT.
- 
+
       DO I=0,15
          NUMBER_ROWS(I) = 0
       ENDDO
@@ -148,8 +148,8 @@
             DO K=0,15
                NREQ_EL(L,K) = 0
             ENDDO
-         ENDDO 
- 
+         ENDDO
+
          DO L=1,METYPE
             DO J=1,NELE
                INT_ELEM_ID = ESORT2(J)
@@ -163,9 +163,9 @@
                      ENDIF
                   ENDIF
                ENDDO
-            ENDDO 
+            ENDDO
          ENDDO
- 
+
          IF (DEBUG(91) == 1) CALL MAXREQ_OGEL_DEB ( '21' )
 
          DO L=1,METYPE
@@ -193,9 +193,9 @@
             ENDIF
             IF (DEBUG(91) == 1) CALL MAXREQ_OGEL_DEB ( '24' )
          ENDDO
- 
+
       ENDDO
-    
+
       IF (DEBUG(91) == 1) CALL MAXREQ_OGEL_DEB ( '25' )
 
       MAXREQ = MAX(MAXGROUT,MAXELOUT)
@@ -207,10 +207,10 @@
       RETURN
 
 ! **********************************************************************************************************************************
-                     
 
 
- 
+
+
 ! ##################################################################################################################################
 
       CONTAINS
@@ -258,7 +258,7 @@
                NUMBER_ROWS(K) = NUM_PLIES                  !    PCOMP requires NUM_PLIES rows of output/elem
             ELSE
                IF (STRE_LOC == 'CENTER  ') THEN            !    PSHELL requires 2 rows of output/elem for STRE_LOC = 'CENTER'
-                  NUMBER_ROWS(K) = 2             
+                  NUMBER_ROWS(K) = 2
                ELSE                                        !    PSHELL requires more lines of output for other STRE_LOC
                   NUMBER_ROWS(K) = 2*NUM_SEi(LETYPE)
                ENDIF
@@ -287,7 +287,7 @@
                NUMBER_ROWS(K) = NUM_PLIES                  !    PCOMP requires NUM_PLIES rows of output/elem
             ELSE
                IF (STRN_LOC == 'CENTER  ') THEN            !    PSHELL requires 2 rows of output/elem for STRN_LOC = 'CENTER'
-                  NUMBER_ROWS(K) = 2             
+                  NUMBER_ROWS(K) = 2
                ELSE                                        !    PSHELL requires more lines of output for other STRN_LOC
                   NUMBER_ROWS(K) = 2*NUM_SEi(LETYPE)
                ENDIF
@@ -371,12 +371,12 @@
 
          WRITE(F06,2501) MAXELOUT
          WRITE(F06,1103)
- 
+
       ELSE IF (WHICH == '31') THEN
 
          WRITE(F06,3101) MAXREQ
          WRITE(F06,3102)
- 
+
       ENDIF
 
 ! **********************************************************************************************************************************

@@ -1,38 +1,38 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BART ( OPT, L, AREA, I1, I2, JTOR, SCOEFF, K1, K2, I12, E, G, ALPHA, TREF )
- 
+
 ! Calculates, for 1-D Timoshenko beam element
 
 !  1) PTE       = element thermal load vectors         , if OPT(2) = 'Y'
 !  2) SEi, STEi = element stress data recovery matrices, if OPT(3) = 'Y'
 !  3) KE        = element linear stiffness matrix      , if OPT(6) = 'N' (i.e. always calc KE linear unless OPT(6) = 'Y')
 !  4) KED       = element differen stiff matrix        , if OPT(6) = 'Y'
-  
+
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
@@ -45,11 +45,11 @@
       USE MODEL_STUF, ONLY            :  ELDOF, DOFPIN, DT, EID, NUM_EMG_FATAL_ERRS, KE, KED, PEL, PTE, SE1, SE2, STE1, STE2, TYPE,&
                                          UEL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE BAR1_USE_IFs
 
-      IMPLICIT NONE 
- 
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BART'
       CHARACTER(1*BYTE), INTENT(IN)   :: OPT(6)            ! 'Y'/'N' flags for whether to calc certain elem matrices
 
@@ -57,7 +57,7 @@
       INTEGER(LONG)                   :: IERROR            ! Local error indicator
       INTEGER(LONG)                   :: NUM_PFLAG_DOFS    ! The number of pin flagged DOF's for this element
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: ALPHA             ! Coefficient of thermal expansion
       REAL(DOUBLE) , INTENT(IN)       :: AREA              ! Cross-sectional area
       REAL(DOUBLE) , INTENT(IN)       :: E                 ! Youngs modulus
@@ -99,7 +99,7 @@
       REAL(DOUBLE)                    :: S12(3,6)          ! Intermediate matrix used in calculating SE1 stress matrix
       REAL(DOUBLE)                    :: S21(3,6)          ! Intermediate matrix used in calculating SE2 stress matrix
       REAL(DOUBLE)                    :: S22(3,6)          ! Intermediate matrix used in calculating SE2 stress matrix
-      REAL(DOUBLE)                    :: TBAR              ! Average elem temperature 
+      REAL(DOUBLE)                    :: TBAR              ! Average elem temperature
 
 ! The following are used for the differential stiffness matrix calc. See NASTRAN Prog's Manual (COSMIC 1972) page 4.87.30
 
@@ -112,7 +112,7 @@
       REAL(DOUBLE)                    :: Fx                ! Axial force (also Fx, in NASTRAN Prog Man differ stiff)
 
       INTRINSIC DABS
- 
+
        REAL(DOUBLE)                    :: TPRIME(5,NTSUB)   ! Matrix where each col has the 5 temperature/gradients for the BAR elem
 
 
@@ -128,7 +128,7 @@
             KE(I,J) = ZERO
          ENDDO
       ENDDO
- 
+
       G1 = K1*AREA*G
       G2 = K2*AREA*G
 
@@ -136,8 +136,8 @@
 
       C2 =  G1/L
       C3 =  G1/2                                           ! NOTE: TESSLER HAS OPPOSITE SIGN BUT NEGATIVE, NOT POSITIVE, WORKS
-      C4 =  E*I2/L + G1*L/4 
-      C5 = -E*I2/L + G1*L/4 
+      C4 =  E*I2/L + G1*L/4
+      C5 = -E*I2/L + G1*L/4
 
       C6 =  G2/L
       C7 =  G2/2
@@ -145,7 +145,7 @@
       C9 = -E*I1/L + G2*L/4
 
       RG =  G*JTOR/L
-      
+
       DEN    = I1*I2 - I12*I12                             ! I1*I2 > I12^2 was checked when PBAR's were read in subr LOADB
       DELTA1 = I2/DEN
       DELTA2 = I1/DEN
@@ -153,7 +153,7 @@
 
       IF (DEBUG(203) > 0) CALL DEBUG_BART ( 1 )
 
-! Generate KE 
+! Generate KE
 
       KE( 1, 1) = C1
       KE( 1, 7) =-C1
@@ -192,7 +192,7 @@
       KE(11,11) = C4
 
       KE(12,12) = C8
- 
+
       DO I=2,12                                            ! Set lower triangular partition of KE using symmetry
          DO J=1,I-1
             KE(I,J) = KE(J,I)
@@ -201,39 +201,39 @@
 
 ! Process Pin Flags. NUM_PFLAG_DOFS is a count of the total number of DOF pin flagged. DOFPIN(i) generated in ELMDAT is an
 ! integer array of the DOF numbers of the pin flagged DOF.
-  
+
       NUM_PFLAG_DOFS = 0
       DO I=1,12
          IF (DOFPIN(I) > 0) THEN
             NUM_PFLAG_DOFS = NUM_PFLAG_DOFS + 1
          ENDIF
-      ENDDO 
+      ENDDO
       IF (NUM_PFLAG_DOFS /= 0) THEN
          CALL PINFLG ( NUM_PFLAG_DOFS )
       ENDIF
- 
+
       DO I=1,6                                             ! Upper left partition of KE is KAA. Need this for calc'ing PTE, SEi
          DO J=1,6
             KAA(I,J) = KE(I,J)
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
       DO I=1,6                                             ! Upper right partition of KE is KAB. Need this for calculating SEi
          DO J=7,12
             KAB(I,J-6) = KE(I,J)
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
       DO I=7,12                                            ! Lower left partition of KE is KBA. Need this for calculating PTE
          DO J=1,6
             KBA(I-6,J) = KE(I,J)
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
 ! The following matrices are needed if either OPT(2) or OPT(3) or OPT(6) is called for
 
       IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(6) == 'Y')) THEN
-         IF (NTSUB > 0) THEN                          
+         IF (NTSUB > 0) THEN
 
             DO J=1,NTSUB
                TBAR        = (DT(1,J) + DT(2,J))/TWO
@@ -249,8 +249,8 @@
       ENDIF
 
 ! **********************************************************************************************************************************
-! Determine element thermal loads. 
- 
+! Determine element thermal loads.
+
 !     IF ((OPT(2) == 'Y') .OR. (OPT(6) == 'Y')) THEN
 
          IF (NTSUB > 0) THEN
@@ -258,8 +258,8 @@
             DO I=1,6
                DO J=1,5
                   ABAR(I,J) = ZERO
-               ENDDO 
-            ENDDO 
+               ENDDO
+            ENDDO
 
             ABAR(1,1) =  ONE
             ABAR(2,2) =  DELTA1*I1*L/SIX
@@ -283,7 +283,7 @@
                DO J=1,5
                   ABAR(I,J) = -ALPHA*L*ABAR(I,J)
                ENDDO
-            ENDDO 
+            ENDDO
 
             CALL MATMULT_FFF ( KAA, ABAR, 6, 6, 5, BTA )
             CALL MATMULT_FFF ( KBA, ABAR, 6, 6, 5, BTB )
@@ -300,10 +300,10 @@
          ENDIF
 
 !     ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate SE matrices for stress data recovery.
- 
+
 !     IF ((OPT(3) == 'Y') .OR. (OPT(6) == 'Y')) THEN
 
          DO I=1,3
@@ -384,7 +384,7 @@
       IF ((OPT(6) == 'Y') .AND. (LOAD_ISTEP > 1)) THEN
 
          CALL ELMDIS
-   
+
                                                            ! Calc BAR forces
          CALL CALC_ELEM_NODE_FORCES
          M1a = -PEL(6)                                     ! M1a (bending moment, plane 1, end a for BAR) - NASTRAN Maz
@@ -512,9 +512,9 @@
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE DEBUG_BART (WHAT)
@@ -576,5 +576,5 @@
 ! **********************************************************************************************************************************
 
       END SUBROUTINE DEBUG_BART
-  
+
       END SUBROUTINE BART

@@ -1,38 +1,38 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE CONM2_PROC_1
- 
+
 ! CONM2 Processor #1
 !-------------------
 ! In the MYSTRAN input Bulk Data File, RCONM2 was in a local coord system at the mass.
 ! This subr converts those values to the basic coord system at the mass (NOT at the grid). This is needed for the Grid Point Weight
 ! Generator. A later subr (CONM2_PROC_2) will convert the mass terms to the global coord system at the grid point. Array RCONM2 is
 ! overwritten with the values in basic coords at the mass point at the close of this subr.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1Y
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, DATA_NAM_LEN, FATAL_ERR, MCMASS, MCONM2, MPMASS, MRCONM2, MRPMASS, NCMASS,  &
@@ -46,15 +46,15 @@
       USE CONM2_PROC_1_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CONM2_PROC_1'
       CHARACTER(1*BYTE)               :: CORD_FND          ! = 'Y' if coord sys ID on CONM2 defined, 'N' otherwise
       CHARACTER(LEN=DATA_NAM_LEN)     :: DATA_SET_NAME     ! A data set name for output purposes
       CHARACTER(1*BYTE)               :: GRID_FND          ! = 'Y' if grid ID on CONM2 defined, 'N' otherwise
       CHARACTER(8*BYTE), PARAMETER    :: NAME      = 'CONM2   '
- 
+
       INTEGER(LONG)                   :: ACID              ! Actual (external) coordinate system ID
-      INTEGER(LONG)                   :: AGRID             ! Actual grid number where CONM2 is located  
+      INTEGER(LONG)                   :: AGRID             ! Actual grid number where CONM2 is located
       INTEGER(LONG)                   :: GRID_ID_ROW_NUM   ! Row number in array GRID_ID where AGRID is found
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: ICORD             ! Internal coordinate system ID
@@ -65,15 +65,15 @@
       INTEGER(LONG)                   :: NUM_COMPS         ! No. displ components (1 for SPOINT, 6 for actual grid)
       INTEGER(LONG)                   :: NUM_RCONM2_RESET  ! No. RCONM2's reset to zero because they are connected to SPOINT's
 
- 
+
       REAL(DOUBLE)                    :: DX_0              ! Offset of mass from grid in basic coord sys X direction
       REAL(DOUBLE)                    :: DY_0              ! Offset of mass from grid in basic coord sys Y direction
       REAL(DOUBLE)                    :: DZ_0              ! Offset of mass from grid in basic coord sys Z direction
       REAL(DOUBLE)                    :: D_0(3)            ! Array containing DX_0, DY_0, DZ_0
 
       REAL(DOUBLE)                    :: DX_CID            ! Offset of mass from grid in coord sys ACID X direction
-      REAL(DOUBLE)                    :: DY_CID            ! Offset of mass from grid in coord sys ACID Y direction 
-      REAL(DOUBLE)                    :: DZ_CID            ! Offset of mass from grid in coord sys ACID Z direction 
+      REAL(DOUBLE)                    :: DY_CID            ! Offset of mass from grid in coord sys ACID Y direction
+      REAL(DOUBLE)                    :: DZ_CID            ! Offset of mass from grid in coord sys ACID Z direction
       REAL(DOUBLE)                    :: D_CID(3)          ! Array containing DX_CID, DY_CID, DZ_CID
 
       REAL(DOUBLE)                    :: DUM33(3,3)        ! Intermediate return from subr MATMULT_FFF
@@ -92,14 +92,14 @@
       REAL(DOUBLE)                    :: IZY_M_CID         ! Z-Y MOI about the mass c.g. in ACID  coord sys
       REAL(DOUBLE)                    :: IZZ_M_CID         ! Z-Z MOI about the mass c.g. in ACID  coord sys
 
-      REAL(DOUBLE)                    :: MOI_M_0(3,3)      ! Array of above MOI's, POI's in basic coord sys 
+      REAL(DOUBLE)                    :: MOI_M_0(3,3)      ! Array of above MOI's, POI's in basic coord sys
       REAL(DOUBLE)                    :: MOI_M_CID(3,3)    ! Array of above MOI's, POI's in ACID  coord sys
 
       REAL(DOUBLE)                    :: MASS              ! Mass (or weight, depending on input units)
       REAL(DOUBLE)                    :: PHID, THETAD      ! Outputs from subr GEN_T0L
       REAL(DOUBLE)                    :: T_0_CID(3,3)      ! Transformation matrix from coord ACID to basic
       REAL(DOUBLE)                    :: T_CID_0(3,3)      ! Transformation matrix from basic to coord ACID (transp of T_0_CID)
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -132,7 +132,7 @@
          WRITE(F06,9996) SUBR_NAME, IERROR
          CALL OUTA_HERE ( 'Y' )                            ! Quit due to undefined grids
       ENDIF
- 
+
       IF (NUM_RCONM2_RESET > 0) THEN
          WARN_ERR = WARN_ERR + 1
          WRITE(ERR,9901) NUM_RCONM2_RESET
@@ -146,7 +146,7 @@ outer:DO I=1,NCONM2
          IF (DEBUG(15) == 1) CALL CONM2_PROC_1_DEB ( '1' )
 
 ! Get MASS, MOI's about c.g. of mass, and dists from c.g. to grid pt, from RCONM2 (in local coord sys CID):
- 
+
          MASS      = RCONM2(I,1)
          DX_CID    = RCONM2(I,2)
          DY_CID    = RCONM2(I,3)
@@ -157,9 +157,9 @@ outer:DO I=1,NCONM2
          IZX_M_CID = RCONM2(I,8)
          IZY_M_CID = RCONM2(I,9)
          IZZ_M_CID = RCONM2(I,10)
- 
+
 ! Put terms into matrices for use when we get MATMULT_FFF
- 
+
          D_CID(1)       = DX_CID
          D_CID(2)       = DY_CID
          D_CID(3)       = DZ_CID
@@ -171,8 +171,8 @@ outer:DO I=1,NCONM2
          MOI_M_CID(3,3) = IZZ_M_CID
          MOI_M_CID(1,2) = MOI_M_CID(2,1)
          MOI_M_CID(1,3) = MOI_M_CID(3,1)
-         MOI_M_CID(2,3) = MOI_M_CID(3,2) 
- 
+         MOI_M_CID(2,3) = MOI_M_CID(3,2)
+
 ! Get actual grid pt no. (AGRID) that this CONM2 is attached to and internal value for it (GRID_ID_ROW_NUM).
 
          GRID_FND = 'Y'
@@ -184,10 +184,10 @@ outer:DO I=1,NCONM2
             WRITE(ERR,1822) 'GRID ', AGRID, NAME, CONM2(I,1)
             WRITE(F06,1822) 'GRID ', AGRID, NAME, CONM2(I,1)
          ENDIF
- 
+
 ! The local system that CONM2 is defined in is ACID (or X). If not basic, transform from local to basic
 ! (princ local since no grid point is used on CONM card). Write error message if couldn't find coord system
- 
+
          CORD_FND = 'N'
          ACID = CONM2(I,3)
          IF (ACID /= 0) THEN
@@ -210,28 +210,28 @@ j_loop1:    DO J=1,NCORD
                CYCLE outer                                 ! Can't continue (GRID_ID_ROW_NUM or ACID not found),
 !                                                            so CYCLE and read next CONM2
             ENDIF
- 
+
 ! Get transformation matrix from coord ACID to basic, T_0_CID
- 
+
             CALL GEN_T0L ( GRID_ID_ROW_NUM, ICORD, THETAD, PHID, T_0_CID )
 
 ! Transpose T_0_CID to T_CID_0
- 
+
             DO J=1,3
                DO K=1,3
                   T_CID_0(J,K) = T_0_CID(K,J)
                ENDDO
             ENDDO
-    
+
 ! Transform D_CID to basic
- 
+
             NROWA  = 3
             NCOLA  = 3
             NCOLB  = 1
             CALL MATMULT_FFF (T_0_CID, D_CID, NROWA, NCOLA, NCOLB, D_0 )
- 
+
 ! Transform MOI's to basic
- 
+
             NROWA  = 3
             NCOLA  = 3
             NCOLB  = 3
@@ -248,7 +248,7 @@ j_loop1:    DO J=1,NCORD
                DO K=1,3
                   MOI_M_0(J,K) = MOI_M_CID(J,K)
                ENDDO
-            ENDDO   
+            ENDDO
          ENDIF
          DX_0    = D_0(1)
          DY_0    = D_0(2)
@@ -259,9 +259,9 @@ j_loop1:    DO J=1,NCORD
          IZX_M_0 = MOI_M_0(3,1)
          IZY_M_0 = MOI_M_0(3,2)
          IZZ_M_0 = MOI_M_0(3,3)
- 
-! Rewrite RCONM2 with values in basic coord system at the mass point 
- 
+
+! Rewrite RCONM2 with values in basic coord system at the mass point
+
          RCONM2(I, 1) = MASS
          RCONM2(I, 2) = DX_0
          RCONM2(I, 3) = DY_0
@@ -284,27 +284,27 @@ j_loop1:    DO J=1,NCORD
          ENDIF
 
       ENDDO outer
- 
+
       IF (IERROR > 0) THEN
          WRITE(ERR,9996) SUBR_NAME, IERROR
          WRITE(F06,9996) SUBR_NAME, IERROR
          CALL OUTA_HERE ( 'Y' )                            ! Quit due to undefined grid and coord sys ID's
       ENDIF
- 
+
 ! Write mass data to L1Y.
- 
+
       DATA_SET_NAME = 'CONM2, RCONM2'
       WRITE(L1Y) DATA_SET_NAME
       WRITE(L1Y) NCONM2
       DO I=1,NCONM2
          DO J=1,MCONM2
             WRITE(L1Y) CONM2(I,J)
-         ENDDO 
+         ENDDO
          DO J=1,MRCONM2
             WRITE(L1Y) RCONM2(I,J)
          ENDDO
       ENDDO
- 
+
       DATA_SET_NAME = 'CMASS, PMASS, RPMASS'
       WRITE(L1Y) DATA_SET_NAME
       WRITE(L1Y) NCMASS
@@ -314,7 +314,7 @@ j_loop1:    DO J=1,NCORD
          ENDDO
       ENDDO
       WRITE(L1Y) NPMASS
-      DO I=1,NPMASS 
+      DO I=1,NPMASS
          DO J=1,MPMASS
             WRITE(L1Y) PMASS(I,J)
          ENDDO
@@ -322,7 +322,7 @@ j_loop1:    DO J=1,NCORD
             WRITE(L1Y) RPMASS(I,J)
          ENDDO
       ENDDO
- 
+
 
 
       RETURN
@@ -335,7 +335,7 @@ j_loop1:    DO J=1,NCORD
  9996 FORMAT(/,' PROCESSING ABORTED IN SUBROUTINE ',A,' DUE TO ABOVE ',I8,' ERRORS')
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
 
       CONTAINS

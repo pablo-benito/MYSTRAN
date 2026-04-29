@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ARPACK_INFO_MSG ( SUBNAME, INFO, IPARAM, LWORKL, NEV, NCV )
 
@@ -84,7 +84,7 @@
 
 
       IF ((SUBNAME == 'DSAUPD') .OR. (SUBNAME == 'dsaupd')) THEN
-      
+
          IF      (INFO ==     1) THEN                      ! MSG( 2)
 
             ERROR_NUM = ' 7101'
@@ -417,7 +417,7 @@
 ! **********************************************************************************************************************************
   100 FORMAT(' *INFORMATION: THE FOLLOWING MESSAGE WAS FOUND BY ARPACK SUBR ',A,' CALLED BY ARPACK DRIVER DSBAND IN ',A,           &
                            ' SUBR EIG_LANCZOS.'                                                                                    &
-                    ,/,14X,' IT RELATES TO AN ERROR, LISTED BELOW, FOR ARPACK "INFO" = ',I6,' IN THE LANCZOS EIGENVALUE METHOD:',/) 
+                    ,/,14X,' IT RELATES TO AN ERROR, LISTED BELOW, FOR ARPACK "INFO" = ',I6,' IN THE LANCZOS EIGENVALUE METHOD:',/)
 
   710 FORMAT(' *ERROR ',A,': PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' FOR LANCZOS EIGENVALUE EXTRACTION WITH ARPACK "INFO" = ',I6,':'                                       &

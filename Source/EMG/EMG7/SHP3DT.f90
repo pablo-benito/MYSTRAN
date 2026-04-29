@@ -1,48 +1,48 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE SHP3DT ( GAUSS_PT, NUM_NODES, CALLING_SUBR, IORD_MSG, IORZZZ, SSI, SSJ, SSK, WRT_BUG_THIS_TIME, PSH,  &
                           DPSHG )
 
 ! Generates shape functions for 3D TETRA (4 node and 10 node) elements.
-  
+
 ! The node numbering and axes convention are shown below with XI, ET, ZI ranging from 0 to 1
 
- 
+
 !                                       ZI
-!                                        .  
+!                                        .
 !                                        .
 !                                        .
 !                                        .4
 !                                       . .
-!                                      . . . 
-!                                     .  .  .  
-!                                    .   .   .   
-!                                   .    .    .    
-!                                  .     .     .   
+!                                      . . .
+!                                     .  .  .
+!                                    .   .   .
+!                                   .    .    .
+!                                  .     .     .
 !                                 .      .8     .
 !                                .       .       .
 !                               .        .        .
@@ -56,13 +56,13 @@
 !                       .      .                   .      .
 !                      .     .5                     7.     .
 !                     .    .                           .    .
-!                    .   .                               .   . 
-!                   .  .                                   .  .     
-!                  . .                                       . .        
+!                    .   .                               .   .
+!                   .  .                                   .  .
+!                  . .                                       . .
 !                 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ET
-!               . 2                     6                       3           
-!             .                                                                
-!         .                                                                       
+!               . 2                     6                       3
+!             .
+!         .
 !         .
 !        XI
 
@@ -73,11 +73,11 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE, TWO, FOUR
       USE MODEL_STUF, ONLY            :  EID, TYPE
- 
+
       USE SHP3DT_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SHP3DT'
       CHARACTER(LEN=*)  , INTENT(IN)  :: CALLING_SUBR      ! Subr that called this subr (used for debug output)
       CHARACTER(LEN=*)  , INTENT(IN)  :: IORD_MSG          ! Character name of the integration order (used for debug output)
@@ -91,14 +91,14 @@
       INTEGER(LONG)                   :: NODES_4     = 4   ! Number of nodes for one type of element
       INTEGER(LONG)                   :: NODES_10    = 10  ! Number of nodes for one type of element
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: SSI               ! Gauss point location component 1
       REAL(DOUBLE) , INTENT(IN)       :: SSJ               ! Gauss point location component 2
       REAL(DOUBLE) , INTENT(IN)       :: SSK               ! Gauss point location component 3
       REAL(DOUBLE) , INTENT(OUT)      :: PSH(NUM_NODES)    ! Shape functions for all grid points for this Gauss point
       REAL(DOUBLE) , INTENT(OUT)      :: DPSHG(3,NUM_NODES)! Derivatives of PSH with respect to xi, eta, zi.
       REAL(DOUBLE)                    :: PHI               ! Intermediate variable in calculating DPSHG
- 
+
 
 ! **********************************************************************************************************************************
 ! Initialize outputs
@@ -114,9 +114,9 @@
       ENDDO
 
 ! Generate shape functions and derivatives for 3D element with 4 nodes
-  
+
       IF (NUM_NODES == NODES_4) THEN
- 
+
          PSH(1) = 1 - SSI - SSJ - SSK
          PSH(2) = SSI
          PSH(3) = SSJ
@@ -129,9 +129,9 @@
 
 ! **********************************************************************************************************************************
 ! Generate shape functions and derivatives for 3D element with 10 nodes
-  
+
       ELSE IF (NUM_NODES == NODES_10) THEN
-  
+
          PHI = ONE - SSI - SSJ - SSK
 
          PSH( 1) = PHI*(TWO*PHI - ONE)
@@ -164,19 +164,19 @@
 
 ! **********************************************************************************************************************************
 ! Error: NUM_NODES is not 4 or 10
-  
+
       ELSE
-  
+
          WRITE(ERR,1932) SUBR_NAME, NUM_NODES, EID, TYPE, NODES_4, NODES_10
          WRITE(F06,1932) SUBR_NAME, NUM_NODES, EID, TYPE, NODES_4, NODES_10
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )                            ! Coding error, so quit
-  
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! ELDATA output:
- 
+
       IF ((WRT_BUG_THIS_TIME == 'Y') .AND. (WRT_BUG(7) > 0)) THEN
 
          WRITE(BUG,1101) ELDT_BUG_SHPJ_BIT, TYPE, EID, CALLING_SUBR
@@ -223,7 +223,7 @@
             ENDDO
             WRITE(BUG,*)
             WRITE(BUG,*)
- 
+
             J = 0
             WRITE(BUG,1125)
             DO I=1,NUM_NODES,5
@@ -232,7 +232,7 @@
             ENDDO
             WRITE(BUG,*)
             WRITE(BUG,*)
- 
+
             J = 0
             WRITE(BUG,1135)
             DO I=1,NUM_NODES,5
@@ -245,7 +245,7 @@
          ENDIF
 
       ENDIF
-  
+
 
 
       RETURN
@@ -280,5 +280,5 @@
  1202 FORMAT(22X,A,1X,5(1ES16.6))
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE SHP3DT

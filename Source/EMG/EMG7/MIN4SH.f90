@@ -1,51 +1,51 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE MIN4SH ( SSI, SSJ, XSD, YSD, WRT_BUG_THIS_TIME, NXSH, NYSH, DNXSHG, DNYSHG )
- 
+
 ! Generates constrained shapes for use with MIN4 plate element for transverse shear. This is based on the paper referenced in subr
 ! QPLT2.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  BUG, F06, WRT_BUG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE, TWO, EIGHT
-  
+
       USE MIN4SH_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MIN4SH'
       CHARACTER(17*BYTE)              :: NAME(2)           ! Used for BUG output annotation
       CHARACTER( 1*BYTE), INTENT(IN)  :: WRT_BUG_THIS_TIME ! If 'Y' then write to BUG file if WRT_BUG array says to
 
       INTEGER(LONG)                   :: I,J               ! DO loop indices
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: SSI               ! Gauss point coordinate
       REAL(DOUBLE) , INTENT(IN)       :: SSJ               ! Gauss point coordinate
       REAL(DOUBLE) , INTENT(IN)       :: XSD(4)            ! 1-D arrays of differences in x side dimensions (local)
@@ -72,7 +72,7 @@
       REAL(DOUBLE)                    :: YM                ! Intermediate variable used in calculating outputs
       REAL(DOUBLE)                    :: YP                ! Intermediate variable used in calculating outputs
       REAL(DOUBLE)                    :: Y2M               ! Intermediate variable used in calculating outputs
-  
+
 
 ! **********************************************************************************************************************************
 ! Initialize outputs
@@ -91,82 +91,82 @@
 
 ! Get constants needed from local G.P. geometry. Xij = Xi - Xj  and  Yij = Yi - Yj where Xi, Yi, etc., are element
 ! node coords in local element coord system
-  
+
       X12 = XSD(1)
       X23 = XSD(2)
       X34 = XSD(3)
       X41 = XSD(4)
-  
+
       Y12 = YSD(1)
       Y23 = YSD(2)
       Y34 = YSD(3)
       Y41 = YSD(4)
-  
+
       XM  = ONE - SSI
       XP  = ONE + SSI
       YM  = ONE - SSJ
       YP  = ONE + SSJ
       X2M = ONE - SSI*SSI
       Y2M = ONE - SSJ*SSJ
-  
+
 ! N5 thru N8 are the virgin shape functions used in finding the  constrained shape functions (NXSH, NYSH)
-  
+
       N5 = X2M*YM/TWO
       N6 = Y2M*XP/TWO
       N7 = X2M*YP/TWO
       N8 = Y2M*XM/TWO
-  
+
 ! N5X thru N8Y are derivatives of N5 thru N8 wrt xi, eta
-  
+
       N5X = -SSI*YM
       N6X =  Y2M/TWO
       N7X = -SSI*YP
       N8X = -Y2M/TWO
-  
+
       N5Y = -X2M/TWO
       N6Y = -SSJ*XP
       N7Y =  X2M/TWO
       N8Y = -SSJ*XM
-  
+
 ! Constrained shapes:
-  
+
       NXSH(1) = (-Y41*N8 + Y12*N5)/EIGHT
       NXSH(2) = (-Y12*N5 + Y23*N6)/EIGHT
       NXSH(3) = (-Y23*N6 + Y34*N7)/EIGHT
       NXSH(4) = (-Y34*N7 + Y41*N8)/EIGHT
-  
+
       NYSH(1) = (-X41*N8 + X12*N5)/EIGHT
       NYSH(2) = (-X12*N5 + X23*N6)/EIGHT
       NYSH(3) = (-X23*N6 + X34*N7)/EIGHT
       NYSH(4) = (-X34*N7 + X41*N8)/EIGHT
-  
+
 ! Derivatives of NXSH wrt xi, eta:
-  
+
       DNXSHG(1,1) = (-Y41*N8X + Y12*N5X)/EIGHT
       DNXSHG(1,2) = (-Y12*N5X + Y23*N6X)/EIGHT
       DNXSHG(1,3) = (-Y23*N6X + Y34*N7X)/EIGHT
       DNXSHG(1,4) = (-Y34*N7X + Y41*N8X)/EIGHT
-  
+
       DNXSHG(2,1) = (-Y41*N8Y + Y12*N5Y)/EIGHT
       DNXSHG(2,2) = (-Y12*N5Y + Y23*N6Y)/EIGHT
       DNXSHG(2,3) = (-Y23*N6Y + Y34*N7Y)/EIGHT
       DNXSHG(2,4) = (-Y34*N7Y + Y41*N8Y)/EIGHT
-  
+
 ! Derivatives of NYSH wrt xi, eta:
-  
+
       DNYSHG(1,1) = (-X41*N8X + X12*N5X)/EIGHT
       DNYSHG(1,2) = (-X12*N5X + X23*N6X)/EIGHT
       DNYSHG(1,3) = (-X23*N6X + X34*N7X)/EIGHT
       DNYSHG(1,4) = (-X34*N7X + X41*N8X)/EIGHT
-  
+
       DNYSHG(2,1) = (-X41*N8Y + X12*N5Y)/EIGHT
       DNYSHG(2,2) = (-X12*N5Y + X23*N6Y)/EIGHT
       DNYSHG(2,3) = (-X23*N6Y + X34*N7Y)/EIGHT
       DNYSHG(2,4) = (-X34*N7Y + X41*N8Y)/EIGHT
-  
+
 ! **********************************************************************************************************************************
 ! Debug output:
- 
+
       IF ((WRT_BUG_THIS_TIME == 'Y') .AND. (WRT_BUG(7) > 0)) THEN
 
          NAME(1) = 'Nodes  1 thru  4:'
@@ -212,7 +212,7 @@
          WRITE(BUG,*)
 
       ENDIF
-  
+
 
 
       RETURN
@@ -239,5 +239,5 @@
  1305 FORMAT(36X,'Derivatives of constrained shape functions with respect to ET')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE MIN4SH

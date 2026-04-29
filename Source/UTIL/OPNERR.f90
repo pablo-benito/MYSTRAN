@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE OPNERR ( IOCHK, FILNAM, OUNT )
- 
-! Prints error messages when IOSTAT is not zero on a file OPEN. 
- 
+
+! Prints error messages when IOSTAT is not zero on a file OPEN.
+
       USE PENTIUM_II_KIND, ONLY       :  LONG
       USE SCONTR, ONLY                :  FATAL_ERR, RESTART
- 
+
       USE OPNERR_USE_IFs
 
       IMPLICIT NONE
@@ -39,17 +39,17 @@
       LOGICAL                         :: FILE_OPENED       ! True if FILNAM is open
 
       CHARACTER(LEN=*), INTENT(IN)    :: FILNAM            ! File name
- 
+
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG), INTENT(IN)       :: IOCHK             ! IOSTAT error number when opening/reading a file
       INTEGER(LONG), INTENT(IN)       :: OUNT(2)           ! File units to write messages to
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! IOCHK < 0 is due to EOF/EOR during open. IOCHK > 0 is due to error during open.
- 
+
       INQUIRE (FILE=FILNAM,OPENED=FILE_OPENED)
       INQUIRE (FILE=FILNAM, EXIST=FILE_EXIST)
       DO I=1,2
@@ -85,7 +85,7 @@
                CALL WRITE_FILNAM ( FILNAM, OUNT(I), 15 )
                WRITE(OUNT(I),9242)
 
-            ENDIF               
+            ENDIF
 
          ENDIF
 
@@ -96,7 +96,7 @@
       ENDDO
 
       FATAL_ERR = FATAL_ERR + 1
- 
+
       IF (FILE_OPENED) THEN
          CALL OUTA_HERE ( 'N' )
       ENDIF
@@ -106,7 +106,7 @@
 
 ! **********************************************************************************************************************************
   902 FORMAT(' *ERROR   902: EOF/EOR ENCOUNTERED WITH IOSTAT = ',I8,' OPENING FILE:')
- 
+
   903 FORMAT(' *ERROR   903: ERROR ENCOUNTERED WITH IOSTAT = ',I8,' OPENING FILE:')
 
  9222 FORMAT('               THE FILE DOES NOT EXIST. THIS IS A PROGRAMMING ERROR.',/)
@@ -119,5 +119,5 @@
  9242 FORMAT('               THE FILE EXISTS AND IS NOT OPENED.  THIS IS A PROGRAMMING ERROR.')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE OPNERR

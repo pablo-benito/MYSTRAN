@@ -50,7 +50,7 @@
 
       USE EIG_LANCZOS_ARPACK_USE_IFs
       USE LINK_MESSAGE_Interface
-      
+
       IMPLICIT NONE
 
       LOGICAL                         :: RVEC              ! = .TRUE. or .FALSE. Specifies whether eigenvectors are to be calculated

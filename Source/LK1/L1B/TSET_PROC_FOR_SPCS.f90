@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
 
       SUBROUTINE TSET_PROC_FOR_SPCS ( IERRT )
- 
-! DOF Processor for SPC's 
- 
+
+! DOF Processor for SPC's
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1H, L1O, L1O_MSG, LINK1O
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ENFORCED, FATAL_ERR, LSPCADDC, NDOFSB, NDOFSE, NDOFSG, NGRID, NSPCADD,      &
@@ -37,7 +37,7 @@
       USE PARAMS, ONLY                :  EPSIL
       USE DOF_TABLES, ONLY            :  TSET_CHR_LEN, TSET
       USE MODEL_STUF, ONLY            :  GRID, GRID_ID, SPCADD_SIDS, SPCSET, SPCSIDS
- 
+
       USE TSET_PROC_FOR_SPCS_USE_IFs                       ! Added 2019/07/14
 
       IMPLICIT NONE
@@ -45,7 +45,7 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'TSET_PROC_FOR_SPCS'
       CHARACTER( 1*BYTE)              :: CDOF(6)           ! An output from subr RDOF
       CHARACTER(LEN=LEN(TSET_CHR_LEN)):: DOFSET            ! The name of a DOF set (e.g. 'SB', 'A ', etc)
- 
+
       INTEGER(LONG), INTENT(INOUT)    :: IERRT             ! Sum of all grid and DOF errors
       INTEGER(LONG)                   :: GRID1             ! An actual grid ID
       INTEGER(LONG)                   :: GRID2             ! An actual grid ID
@@ -56,27 +56,27 @@
       INTEGER(LONG)                   :: ICOMP             ! DOF components read from file LINK1O (SPC's) or LINK1N (ASET/OMIT's)
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening or reading a file
       INTEGER(LONG)                   :: NUM_COMPS         ! Number of displ components (1 for SPOINT, 6 for physical grid)
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.   
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.
       INTEGER(LONG)                   :: REC_NO    = 0     ! Record number when reading a file
       INTEGER(LONG)                   :: SETID             ! An SPC set ID read from file LINK1O
 
- 
+
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
       REAL(DOUBLE)                    :: RSPC              ! SPC displ value (nonzero's are enforced displ's)
- 
+
 
 
 ! **********************************************************************************************************************************
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
       EPS1 = EPSIL(1)
 
 ! **********************************************************************************************************************************
 ! Process the permanent SPC DOF data on the GRID card. The PSPC's are in GRID(I,4) for each GRID PT., I
- 
+
       GID_ERR = 0
       DOF_ERR = 0
       DOFSET = 'SG'
@@ -100,17 +100,17 @@
             ENDDO
          ENDIF
       ENDDO
- 
+
       IERRT = IERRT + GID_ERR + DOF_ERR
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
 ! Process SPC data from file L1O (data written when SPC and SPC1 Bulk Data cards were read)
- 
+
 ! Make a list of all of the individual SPC sets that make up what was called for in Case Control (name this list array SPCSIDS).
 ! The first one in the list is the SPC set ID called for in Case Control. Subsequent ones are the set ID's from any
 ! SPCADD cards that have the set ID called for in Case Control. So, if there are 2 SPCADD's that have the same ID as
 ! called for in Case Control and there are (for example) 25 individual SPC/SPC1 set ID's identified on these
-! SPCADD cards, then SPCSIDS will contain 26 entries. 
+! SPCADD cards, then SPCSIDS will contain 26 entries.
 
       GID_ERR = 0
       DOF_ERR = 0
@@ -124,7 +124,7 @@ j_do4:      DO J=2,LSPCADDC
                   NUM_SPCSIDS = NUM_SPCSIDS + 1
                   CYCLE
                ELSE
-                  EXIT j_do4 
+                  EXIT j_do4
                ENDIF
             ENDDO j_do4
          ENDIF
@@ -142,15 +142,15 @@ j_do5:      DO J=2,LSPCADDC
                   SPCSIDS(K) = SPCADD_SIDS(I,J)
                   CYCLE
                ELSE
-                  EXIT j_do5 
+                  EXIT j_do5
                ENDIF
             ENDDO j_do5
          ENDIF
       ENDDO i_do5
 
 i_do6:DO I=1,NUM_SPC_RECORDS + NUM_SPC1_RECORDS
- 
-         READ(L1O,IOSTAT=IOCHK) SETID, ICOMP, GRID1, GRID2, RSPC, DOFSET  
+
+         READ(L1O,IOSTAT=IOCHK) SETID, ICOMP, GRID1, GRID2, RSPC, DOFSET
          REC_NO = REC_NO + 1
          IF (IOCHK /= 0) THEN
             CALL READERR ( IOCHK, LINK1O, L1O_MSG, REC_NO, OUNT )
@@ -165,15 +165,15 @@ i_do6:DO I=1,NUM_SPC_RECORDS + NUM_SPC1_RECORDS
             FATAL_ERR = FATAL_ERR + 1
             CALL OUTA_HERE ( 'Y' )                         ! Pgm error (data in file LINK1O must be for sets 'SB' or 'SE')
          ENDIF
- 
+
 ! No error, so processes data. First, make sure SETID is the one called for in Case Control:
- 
+
 j_do6:   DO J=1,NUM_SPCSIDS
 
             IF (SETID == SPCSIDS(J)) THEN
                                                            ! Check for existence of grid pt
                CALL RDOF ( ICOMP, CDOF )                   ! Convert ICOMP to CDOF char form for use below
- 
+
                CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, GRID1, GRID_ID_ROW_NUM )
                IF (GRID_ID_ROW_NUM == -1) THEN
                   GID_ERR = GID_ERR + 1
@@ -186,11 +186,11 @@ j_do6:   DO J=1,NUM_SPCSIDS
                   IF (GRID_ID_ROW_NUM == -1) THEN
                      GID_ERR = GID_ERR + 1
                      FATAL_ERR = FATAL_ERR + 1
-                     WRITE(ERR,1822) 'GRID ', GRID2, 'SPC OR SPC1', SPCSIDS(J) 
-                     WRITE(F06,1822) 'GRID ', GRID2, 'SPC OR SPC1', SPCSIDS(J) 
+                     WRITE(ERR,1822) 'GRID ', GRID2, 'SPC OR SPC1', SPCSIDS(J)
+                     WRITE(F06,1822) 'GRID ', GRID2, 'SPC OR SPC1', SPCSIDS(J)
                   ENDIF
-               ENDIF 
- 
+               ENDIF
+
                IF (GID_ERR == 0) THEN                      ! Put CDOF data in TSET for GRID1 thru GRID2
                   DO GRID_NUM=GRID1,GRID2                  ! GRID2 >= GRID1 was checked in subr BD_SPC1
                      CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, GRID_NUM, GRID_ID_ROW_NUM )
@@ -203,7 +203,7 @@ j_do6:   DO J=1,NUM_SPCSIDS
                                     TSET(GRID_ID_ROW_NUM,K) = 'SE'
                                     NDOFSE = NDOFSE + 1
                                                            ! Write enforced displs to L1H. If ENFORCED = 'Y' write all terms
-                                    IF (ENFORCED == 'Y') THEN    
+                                    IF (ENFORCED == 'Y') THEN
                                        IF (DOFSET == 'SE') THEN
                                           WRITE(L1H) GRID_ID_ROW_NUM, K, RSPC
                                        ENDIF
@@ -236,16 +236,16 @@ j_do6:   DO J=1,NUM_SPCSIDS
                            ENDIF
                         ENDDO
                      ENDIF
-                  ENDDO 
+                  ENDDO
                ENDIF
 
                EXIT j_do6                                     ! We found and processed the SPC set, so quit
 
             ENDIF
 
-         ENDDO j_do6 
- 
-      ENDDO i_do6 
+         ENDDO j_do6
+
+      ENDDO i_do6
 
       CALL DEALLOCATE_MODEL_STUF ( 'SPCSIDS' )
 

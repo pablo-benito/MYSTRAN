@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE WRITE_ELEM_NODE_FORCE ( JSUB, NUM_ELGP, NUM, IHDR )
-  
+
 ! Writes blocks of elem nodal force output for one elem type, one subcase. All elements can have node force output
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, INT_SC_NUM, NDOFR, NUM_CB_DOFS, MOGEL, NVEC, SOL_NAME
@@ -37,12 +37,12 @@
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE LINK9_STUFF, ONLY           :  GID_OUT_ARRAY, EID_OUT_ARRAY, MAXREQ, OGEL
       USE MODEL_STUF, ONLY            :  ELEM_ONAME, LABEL, SCNUM, STITLE, TITLE
-      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM  
-  
+      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM
+
       USE WRITE_ELEM_NODE_FORCE_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_ELEM_NODE_FORCE'
       CHARACTER(LEN=*), INTENT(IN)    :: IHDR              ! Indicator of whether to write output header
       CHARACTER(14*BYTE)              :: ABS_ANS_CHAR(6)   ! Character variable that contains the 6 grid abs  outputs
@@ -51,7 +51,7 @@
       CHARACTER(11*BYTE)              :: FORCE_COORD_SYS   ! Indicator of whether output is in global or basic coord system
       CHARACTER(14*BYTE)              :: OGEL_CHAR(MOGEL)  ! Char representation of 1 row of OGEL outputs
       CHARACTER(LEN=LEN(ELEM_ONAME))  :: ONAME             ! Element name to write out in F06 file
-  
+
       INTEGER(LONG), INTENT(IN)       :: JSUB              ! Solution vector number
       INTEGER(LONG), INTENT(IN)       :: NUM               ! The number of rows of OGEL to write out
       INTEGER(LONG), INTENT(IN)       :: NUM_ELGP          ! The number of grid points for the elem being processed
@@ -61,7 +61,7 @@
       INTEGER(LONG)                   :: I,J,K,M           ! DO loop indices
       INTEGER(LONG)                   :: L                 ! Counter
 
-  
+
       REAL(DOUBLE)                    :: ABS_ANS(6)        ! Max Abs for all grids output for each of the 6 disp components
       REAL(DOUBLE)                    :: MAX_ANS(6)        ! Max for all grids output for each of the 6 disp components
       REAL(DOUBLE)                    :: MIN_ANS(6)        ! Min for all grids output for each of the 6 disp components
@@ -70,10 +70,10 @@
 
 ! **********************************************************************************************************************************
 ! Get element output name
- 
+
       ONAME(1:) = ' '
       CALL GET_ELEM_ONAME ( ONAME )
- 
+
 ! Write output headers if this is not the first use of this subr.
 
       IF (IHDR == 'Y') THEN
@@ -90,7 +90,7 @@
 
          ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN   ! Write info on what CB DOF the output is for
 
-            IF ((JSUB <= NDOFR) .OR. (JSUB >= NDOFR+NVEC)) THEN 
+            IF ((JSUB <= NDOFR) .OR. (JSUB >= NDOFR+NVEC)) THEN
                IF (JSUB <= NDOFR) THEN
                   BDY_DOF_NUM = JSUB
                ELSE
@@ -141,12 +141,12 @@
          WRITE(F06,213)
 
       ENDIF
- 
+
 ! Get MAX, MIN, ABS values
 
       DO J=1,6
-         MAX_ANS(J) = -MACH_LARGE_NUM 
-      ENDDO 
+         MAX_ANS(J) = -MACH_LARGE_NUM
+      ENDDO
 
       L = 0
       DO I=1,NUM
@@ -203,10 +203,10 @@
       ENDDO
 
 ! Write the elem force output
-  
+
       L = 0
       DO I=1,NUM
-  
+
          DO J=1,NUM_ELGP
 
             L = L + 1
@@ -216,15 +216,15 @@
             IF (J == 1) THEN
                WRITE(F06,221) EID_OUT_ARRAY(I,1),GID_OUT_ARRAY(I,J),(OGEL_CHAR(K),K=1,6)
             ELSE
-               WRITE(F06,222) GID_OUT_ARRAY(I,J),(OGEL_CHAR(K),K=1,6)        
+               WRITE(F06,222) GID_OUT_ARRAY(I,J),(OGEL_CHAR(K),K=1,6)
             ENDIF
 
          ENDDO
- 
+
          WRITE(F06,*)
 
-      ENDDO 
-  
+      ENDDO
+
       DO I=1,6
          ABS_ANS(I) = MAX( DABS(MAX_ANS(I)), DABS(MIN_ANS(I)) )
       ENDDO
@@ -265,7 +265,7 @@
              16X,'ABS* :  ',6A,/                                                                                                   &
              16X,'* for output set')
 
-  
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_ELEM_NODE_FORCE

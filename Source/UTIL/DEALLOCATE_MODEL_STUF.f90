@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE DEALLOCATE_MODEL_STUF ( NAME_IN )
- 
+
 ! DEallocates arrays defined in module MODEL_STUF (see comments there for definition of these matrices)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC
@@ -50,11 +50,11 @@
       USE MODEL_STUF, ONLY            :  SNORM, RSNORM, GRID_SNORM
       USE MODEL_STUF, ONLY            :  MATL, RMATL, PBAR, RPBAR, PBEAM, RPBEAM, PBUSH, RPBUSH, PCOMP, RPCOMP, PELAS, RPELAS,     &
                                          PROD, RPROD, PSHEAR, RPSHEAR, PSHEL, RPSHEL, PSOLID, PUSER1, RPUSER1, PUSERIN,            &
-                                         USERIN_ACT_COMPS, USERIN_ACT_GRIDS, USERIN_MAT_NAMES 
-      USE MODEL_STUF, ONLY            :  MPC_SIDS, MPCSIDS, MPCADD_SIDS 
-      USE MODEL_STUF, ONLY            :  SPC_SIDS, SPC1_SIDS, SPCSIDS, SPCADD_SIDS 
+                                         USERIN_ACT_COMPS, USERIN_ACT_GRIDS, USERIN_MAT_NAMES
+      USE MODEL_STUF, ONLY            :  MPC_SIDS, MPCSIDS, MPCADD_SIDS
+      USE MODEL_STUF, ONLY            :  SPC_SIDS, SPC1_SIDS, SPCSIDS, SPCADD_SIDS
       USE MODEL_STUF, ONLY            :  ALL_SETS_ARRAY, ONE_SET_ARRAY, SETS_IDS, SC_ACCE, SC_DISP, SC_ELFN, SC_ELFE, SC_GPFO,     &
-                                         SC_MPCF, SC_OLOA, SC_SPCF, SC_STRE, SC_STRN, LOAD_SIDS, LOAD_FACS       
+                                         SC_MPCF, SC_OLOA, SC_SPCF, SC_STRE, SC_STRN, LOAD_SIDS, LOAD_FACS
       USE MODEL_STUF, ONLY            :  ELDT, ELOUT, GROUT, OELOUT, OGROUT, LABEL, SCNUM, STITLE, SUBLOD, TITLE
       USE MODEL_STUF, ONLY            :  SYS_LOAD
       USE MODEL_STUF, ONLY            :  CETEMP, CETEMP_ERR, CGTEMP, CGTEMP_ERR, ETEMP, ETEMP_INIT, GTEMP, GTEMP_INIT, TDATA, TPNT
@@ -70,11 +70,11 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'DEALLOCATE_MODEL_STUF'
       CHARACTER(LEN=*), INTENT(IN)    :: NAME_IN           ! Name of group of arrays to allocate
       CHARACTER(31*BYTE)              :: NAME              ! Specific array name used for output error message
- 
+
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
 
- 
+
       REAL(DOUBLE)                    :: CUR_MB_ALLOCATED  ! MB of memory that is currently allocated to ARRAY_NAME when subr
 !                                                            ALLOCATED_MEMORY is called (before entering MB_ALLOCATED into array
 !                                                            ALLOCATED_ARRAY_MEM
@@ -443,7 +443,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME_IN == 'MPCSIDS') THEN                  ! Deallocate arrays for MPC set ID's used in 1 execution
 
          NAME = 'MPCSIDS'
@@ -457,7 +457,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME_IN == 'MPCADD_SIDS') THEN              ! Deallocate arrays for MPCADD set ID's
 
          NAME = 'MPCADD_SIDS'
@@ -469,7 +469,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'RFORCE_SIDS') THEN              ! Deallocate arrays for grav load set ID's
@@ -513,7 +513,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
          NAME = 'SPC1_SIDS'
          IF (ALLOCATED(SPC1_SIDS)) THEN
             DEALLOCATE (SPC1_SIDS,STAT=IERR)
@@ -539,7 +539,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME_IN == 'SPCADD_SIDS') THEN              ! Deallocate arrays for SPCADD set ID's
 
          NAME = 'SPCADD_SIDS'
@@ -551,7 +551,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'ETYPE, EDAT, EPNT') THEN        ! Deallocate arrays for ETYPE, EDAT, EPNT
@@ -617,7 +617,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RMATL'
@@ -641,7 +641,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPBAR'
@@ -665,7 +665,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPBEAM'
@@ -689,7 +689,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPBUSH'
@@ -713,7 +713,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPCOMP'
@@ -737,7 +737,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPELAS'
@@ -761,7 +761,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPROD'
@@ -785,7 +785,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPSHEAR'
@@ -809,7 +809,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPSHEL'
@@ -833,7 +833,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'PUSER1'
@@ -845,7 +845,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RPUSER1'
@@ -869,7 +869,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'USERIN_MAT_NAMES'
@@ -881,7 +881,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'USERIN_ACT_GRDS, USERIN_ACT_COMPS') THEN
@@ -895,7 +895,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'USERIN_ACT_GRIDS'
@@ -907,7 +907,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'VVEC, OFFSETS, PLATE stuff') THEN! Deallocate arrays for bar v vectors and offsets
@@ -1021,7 +1021,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'RCORD'
@@ -1297,7 +1297,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'GTEMP') THEN                    ! Deallocate arrays for GTEMP
@@ -1311,7 +1311,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'CGTEMP') THEN                   ! Deallocate arrays for CGTEMP
@@ -1325,7 +1325,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'ETEMP') THEN                    ! Deallocate arrays for ETEMP
@@ -1339,7 +1339,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'CETEMP') THEN                   ! Deallocate arrays for CETEMP
@@ -1353,7 +1353,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'TPNT, TDATA') THEN              ! Deallocate arrays for TPNT, TDATA
@@ -1379,7 +1379,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'PPNT, PDATA, PTYPE') THEN       ! Deallocate arrays for PPNT, PDATA
@@ -1405,7 +1405,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
          NAME = 'PTYPE'
@@ -1417,7 +1417,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'PLOAD4_3D_DATA') THEN  ! Deallocate arrays for PLOAD4_3D_DATA
@@ -1431,7 +1431,7 @@
                WRITE(ERR,992) NAME, SUBR_NAME
                WRITE(F06,992) NAME, SUBR_NAME
                JERR = JERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME_IN == 'SINGLE ELEMENT ARRAYS') THEN! Deallocate arrays for element subcase arrays
@@ -1918,7 +1918,7 @@
          JERR = JERR + 1
 
       ENDIF
- 
+
 ! Quit if there were errors
 
       IF (JERR /= 0) THEN
@@ -1936,5 +1936,5 @@
   992 FORMAT(' *ERROR   992: CANNOT DEALLOCATE MEMORY FROM ARRAY ',A,' IN SUBROUTINE ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE DEALLOCATE_MODEL_STUF

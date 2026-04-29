@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BCHECK_2D ( B, BTYPE, ID, NROWB, NCOLB, NUM_GRIDS, XB, XL, BW )
 
 ! Checks strain-displacement matrices for rigid body motion and constant strain for 2-D shell elements
 ! (6 DOF per grid point and up to 4 grid points)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  BUG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
@@ -36,24 +36,24 @@
       USE CONSTANTS_1, ONLY           :  ZERO, TWO
       USE MODEL_STUF, ONLY            :  ELDOF, NELGP, TE
       USE MODEL_STUF, ONLY            :  AGRID, ELGP
- 
+
       USE BCHECK_2D_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BCHECK_2D'
       CHARACTER(LEN=*), INTENT(IN)    :: BTYPE             ! Type of B matrix ('M' for membrane, 'B' for bending, 'S' for shear)
       CHARACTER(45*BYTE)              :: MESSAG(14)        ! Output messages for the 14 modes of deformation (6 RB + 8 const strain)
-  
+
       INTEGER(LONG), INTENT(IN)       :: NROWB             ! Number of rows in the input B matrix
       INTEGER(LONG), INTENT(IN)       :: NCOLB             ! Number of cols in the input B matrix
       INTEGER(LONG), INTENT(IN)       :: NUM_GRIDS         ! Number of grids for the input B matrix
       INTEGER(LONG), INTENT(IN)       :: ID(NCOLB)         ! List of elem DOF's for each of the elem grids (e.g 3,4,5 for each of
-!                                                            4 grids for a 4 node plate bending elem 
+!                                                            4 grids for a 4 node plate bending elem
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: KK                ! A computed index into array W
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: B(NROWB,NCOLB)    ! Strain-displ matrix
       REAL(DOUBLE) , INTENT(IN)       :: XB(NUM_GRIDS,3)   ! Basic coords of elem grids (diff than XEB for TPLT2's in a MIN4T QUAD4)
       REAL(DOUBLE) , INTENT(IN)       :: XL(NUM_GRIDS,3)   ! Local coords of elem grids (diff than XEL for TPLT2's in a MIN4T QUAD4)
@@ -63,7 +63,7 @@
       REAL(DOUBLE)                    :: REF_COORDS(3)     ! 3 coords from XEB for node 1
       REAL(DOUBLE)                    :: RB_DISP(6,6)      ! 6 x 6 RB matrix for one grid for this element
       REAL(DOUBLE)                    :: W(24,14)          ! Displs for the 14 modes of elem deformation (6 RB + 8 constant strain)
-  
+
 
 
 ! **********************************************************************************************************************************
@@ -80,24 +80,24 @@
       DO I=1,24
          DO J=1,14
             W(I,J) = ZERO
-         ENDDO 
-      ENDDO 
-  
-      MESSAG( 1) = '      Rigid Body Displacement,      T1  = 1.0' 
-      MESSAG( 2) = '      Rigid Body Displacement,      T2  = 1.0' 
-      MESSAG( 3) = '      Rigid Body Displacement,      T3  = 1.0' 
-      MESSAG( 4) = '      Rigid Body Rotation,          R1  = 1.0' 
-      MESSAG( 5) = '      Rigid Body Rotation,          R2  = 1.0' 
-      MESSAG( 6) = '      Rigid Body Rotation,          R3  = 1.0' 
-      MESSAG( 7) = '      Constant in-plane strain,     Exx = 1.0' 
-      MESSAG( 8) = '      Constant in-plane strain,     Eyy = 1.0' 
-      MESSAG( 9) = '      Constant in-plane strain,     Exy = 1.0' 
-      MESSAG(10) = '      Constant curvature,           Cxx = 1.0' 
-      MESSAG(11) = '      Constant curvature,           Cyy = 1.0' 
-      MESSAG(12) = '      Constant curvature,           Cxy = 1.0' 
-      MESSAG(13) = '      Constant transv shear strain, Gxz = 1.0' 
-      MESSAG(14) = '      Constant transv shear strain, Gyz = 1.0' 
-  
+         ENDDO
+      ENDDO
+
+      MESSAG( 1) = '      Rigid Body Displacement,      T1  = 1.0'
+      MESSAG( 2) = '      Rigid Body Displacement,      T2  = 1.0'
+      MESSAG( 3) = '      Rigid Body Displacement,      T3  = 1.0'
+      MESSAG( 4) = '      Rigid Body Rotation,          R1  = 1.0'
+      MESSAG( 5) = '      Rigid Body Rotation,          R2  = 1.0'
+      MESSAG( 6) = '      Rigid Body Rotation,          R3  = 1.0'
+      MESSAG( 7) = '      Constant in-plane strain,     Exx = 1.0'
+      MESSAG( 8) = '      Constant in-plane strain,     Eyy = 1.0'
+      MESSAG( 9) = '      Constant in-plane strain,     Exy = 1.0'
+      MESSAG(10) = '      Constant curvature,           Cxx = 1.0'
+      MESSAG(11) = '      Constant curvature,           Cyy = 1.0'
+      MESSAG(12) = '      Constant curvature,           Cxy = 1.0'
+      MESSAG(13) = '      Constant transv shear strain, Gxz = 1.0'
+      MESSAG(14) = '      Constant transv shear strain, Gyz = 1.0'
+
 ! Calc RB modes (cols 1-6 of W)
 
       DO I=1,NUM_GRIDS
@@ -140,7 +140,7 @@
 
          W(KK+3,14) =  XL(K,2)                            ! This gives constant transverse shear strain
 
-      ENDDO 
+      ENDDO
 
 ! Calc BW = B*W (but B has fewer cols since element has no stiffness for some DOF's)
 
@@ -149,23 +149,23 @@
             BW(I,J) = ZERO
             DO K=1,NCOLB
                BW(I,J) = BW(I,J) + B(I,K)*W(ID(K),J)
-            ENDDO 
-         ENDDO 
-      ENDDO 
-  
+            ENDDO
+         ENDDO
+      ENDDO
+
 ! Write results
 
       IF ((BTYPE == 'B') .OR. (BTYPE == 'M')) THEN
          DO J=1,6
             WRITE(BUG,9101) MESSAG(J),(BW(I,J),I=1,NROWB)
          ENDDO
-      ELSE IF (BTYPE == 'S') THEN 
+      ELSE IF (BTYPE == 'S') THEN
          DO J=1,6
             WRITE(BUG,9201) MESSAG(J),(BW(I,J),I=1,NROWB)
          ENDDO
       ENDIF
-      WRITE(BUG,*)        
-  
+      WRITE(BUG,*)
+
       IF (BTYPE == 'B') THEN
          DO J=7,9
             WRITE(BUG,9101) MESSAG(J),(BW(I,J),I=1,NROWB)
@@ -179,7 +179,7 @@
             WRITE(BUG,9201) MESSAG(J),(BW(I,J),I=1,NROWB)
          ENDDO
       ENDIF
-      WRITE(BUG,*)        
+      WRITE(BUG,*)
 
       IF (BTYPE == 'B') THEN
          WRITE(BUG,9102) MESSAG(10),(BW(I,10),I=1,NROWB)
@@ -194,18 +194,18 @@
             WRITE(BUG,9201) MESSAG(J),(BW(I,J),I=1,NROWB)
          ENDDO
       ENDIF
-      WRITE(BUG,*)        
+      WRITE(BUG,*)
 
       IF ((BTYPE == 'B') .OR. (BTYPE == 'M')) THEN
          DO J=13,14
            WRITE(BUG,9101) MESSAG(J),(BW(I,J),I=1,NROWB)
          ENDDO
-      ELSE IF (BTYPE == 'S') THEN 
+      ELSE IF (BTYPE == 'S') THEN
          WRITE(BUG,9202) MESSAG(13),(BW(I,13),I=1,NROWB)
          WRITE(BUG,9203) MESSAG(14),(BW(I,14),I=1,NROWB)
       ENDIF
-      WRITE(BUG,*)        
-  
+      WRITE(BUG,*)
+
 
 
       RETURN
@@ -227,5 +227,5 @@
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BCHECK_2D

@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE READ_L1A ( CLOSE_STAT )
- 
+
 ! Reads in data that is in formatted file LINK1A, which is read by all LINK's after LINK1, as they begin. This text file contains
 ! the names of files opened for a run, the "counter" info (e.g. NGRID, number of grids, etc), solution number, PARAM's
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
 
       USE IOUNT1, ONLY                :  MOT4,    MOU4,    WRT_ERR
@@ -88,7 +88,7 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'READ_L1A'
       CHARACTER(LEN=*), INTENT(IN)    :: CLOSE_STAT        ! STATUS when closing file LINK1A
       CHARACTER(80*BYTE)              :: MESSAG            ! File description. Used for error messaging
- 
+
       INTEGER(LONG), PARAMETER        :: NUMIO      = 304  ! Number of terms in IOCHKI array
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: IOCHKI(NUMIO)     ! Array of IOSTAT error numbers when opening/reading a file
@@ -97,7 +97,7 @@
       INTEGER(LONG)                   :: REC_NO            ! Indicator of record number when error encountered reading file
       INTEGER(LONG)                   :: XTIME             ! Time stamp read from file LINK1A
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -105,12 +105,12 @@
 
       OUNT(1) = SC1
       OUNT(2) = SC1
- 
-! Initialize terms 
- 
+
+! Initialize terms
+
       REC_NO = 0
       JERR   = 0
- 
+
 ! Open L1A file (file name read in calling routine)
 
       OPEN (L1A,FILE=LINK1A,STATUS='OLD',IOSTAT=IOCHKI(1),ACTION='READWRITE')
@@ -119,10 +119,10 @@
          CALL FILERR ( OUNT )
          CALL OUTA_HERE ( 'Y' )                                    ! Can't open file LINK1A, so quit
       ENDIF
- 
+
 
 ! Read start time
- 
+
       MESSAG = 'STIME'
       READ(L1A,110,IOSTAT=IOCHKI(1)) XTIME
       IF (IOCHKI(1) /= 0) THEN
@@ -139,7 +139,7 @@
             STIME = XTIME
          ENDIF
       ENDIF
- 
+
 ! Read LINK number that was executing when file LINK1A was written
 
       MESSAG = ' LINK number executing when file LINK1A was written'
@@ -161,13 +161,13 @@
       ENDIF
 
 ! Read I/0 unit no's and names. First, null IOCHKI since it won't be checked until after all records, below, are read.
- 
+
       DO I=1,NUMIO
          IOCHKI(I) = 0
       ENDDO
-  
+
       MESSAG = 'I/O UNITS AND FILE NAMES  '
- 
+
       READ(L1A,140,IOSTAT=IOCHKI(  1)) SC1
 
       READ(L1A,151,IOSTAT=IOCHKI(  3)) BUG,BUGSTAT,BUG_MSG,BUGFIL
@@ -242,38 +242,38 @@
       READ(L1A,151,IOSTAT=IOCHKI( 72)) OP2,OP2STAT,OP2_MSG,OP2FIL
 
       IF                        ( 72 > MAX_FIL) THEN
-         WRITE(ERR,944) SUBR_NAME, MAX_FIL   
-         WRITE(F06,944) SUBR_NAME, MAX_FIL   
+         WRITE(ERR,944) SUBR_NAME, MAX_FIL
+         WRITE(F06,944) SUBR_NAME, MAX_FIL
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )
-      ENDIF 
+      ENDIF
 
-      DO I=1,MOU4 
+      DO I=1,MOU4
          READ(L1A,151,IOSTAT=IOCHKI(71+I)) OU4(I),OU4STAT(I),OU4FIL(I)
-      ENDDO 
-      DO I=1,MOT4 
+      ENDDO
+      DO I=1,MOT4
          READ(L1A,151,IOSTAT=IOCHKI(71+MOU4+I)) OT4(I),OT4STAT(I),OT4FIL(I)
-      ENDDO 
+      ENDDO
       DO I=1,71+MOT4+MOU4
          IF (IOCHKI(I) /= 0) THEN
             REC_NO = I
             CALL READERR ( IOCHKI(1), LINK1A, MESSAG, REC_NO, OUNT )
             JERR = JERR + 1
          ENDIF
-      ENDDO 
+      ENDDO
 
 ! Read counter info. First, null IOCHK since it won't be checked until after all records, below, are read
- 
+
       DO I=1,NUMIO
          IOCHKI(I) = 0
       ENDDO
 
       MESSAG = 'VARIABLES FROM MODULE SCONTR'
-      READ(L1A,160,IOSTAT=IOCHKI(  1)) LBAROFF             !   1 (From module SCONTR) 
-      READ(L1A,160,IOSTAT=IOCHKI(  2)) LBUSHOFF            !   2 (From module SCONTR) 
-      READ(L1A,160,IOSTAT=IOCHKI(  3)) LCMASS              !   3 (From module SCONTR) 
-      READ(L1A,160,IOSTAT=IOCHKI(  4)) LCONM2              !   4 (From module SCONTR) 
-      READ(L1A,160,IOSTAT=IOCHKI(  5)) LCORD               !   5 (From module SCONTR) 
+      READ(L1A,160,IOSTAT=IOCHKI(  1)) LBAROFF             !   1 (From module SCONTR)
+      READ(L1A,160,IOSTAT=IOCHKI(  2)) LBUSHOFF            !   2 (From module SCONTR)
+      READ(L1A,160,IOSTAT=IOCHKI(  3)) LCMASS              !   3 (From module SCONTR)
+      READ(L1A,160,IOSTAT=IOCHKI(  4)) LCONM2              !   4 (From module SCONTR)
+      READ(L1A,160,IOSTAT=IOCHKI(  5)) LCORD               !   5 (From module SCONTR)
       READ(L1A,160,IOSTAT=IOCHKI(  6)) LDOFG               !   6 (From module SCONTR)
       READ(L1A,160,IOSTAT=IOCHKI(  7)) LEDAT               !   7 (From module SCONTR)
       READ(L1A,160,IOSTAT=IOCHKI(  8)) LELE                !   8 (From module SCONTR)
@@ -580,8 +580,8 @@
             CALL READERR ( IOCHKI(I), LINK1A, MESSAG, REC_NO, OUNT )
             JERR = JERR + 1
          ENDIF
-      ENDDO 
- 
+      ENDDO
+
 ! Read PARAM's (some need to stay the same in a restart)
 
       MESSAG = 'PARAMS THAT NEED TO STAY SAME IN A RESTART'
@@ -611,8 +611,8 @@
             CALL READERR ( IOCHKI(I), LINK1A, MESSAG, REC_NO, OUNT )
             JERR = JERR + 1
          ENDIF
-      ENDDO 
- 
+      ENDDO
+
 ! Read COMM
 
       MESSAG = 'COMM                    '
@@ -624,16 +624,16 @@
       ENDIF
 
 ! Finished reading L1A, so close:
- 
+
       CALL FILE_CLOSE ( L1A, LINK1A, CLOSE_STAT )
- 
+
 ! Check JERR and stop if > 0
- 
+
       IF (JERR > 0) THEN
          WRITE(SC1,911) JERR, LINK1A
          CALL OUTA_HERE ( 'Y' )                                    ! Errors reading file LINK1A, so quit
       ENDIF
- 
+
 
 
       RETURN
@@ -658,10 +658,10 @@
   193 FORMAT(1X,1ES14.6)
 
   911 FORMAT(/,' PROCESSING TERMINATED DUE TO ABOVE ',I8,' ERRORS READING FILE ',/,A)
- 
+
   944 FORMAT(' *ERROR   944: PROGRAMMING ERROR IN SUBROUTINE ',A,/,                                                                &
                       /,14X,'ATTEMPT TO EXCEED MAX_FIL = ',I4,' NUMBER OF FILES IN WRITING FILE STATUS')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE READ_L1A

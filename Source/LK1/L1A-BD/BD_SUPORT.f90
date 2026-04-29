@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_SUPORT ( CARD )
- 
+
 ! Processes SUPORT Bulk Data Cards
 ! Data is written to file LINK1T for later processing after checks on format of data.
 ! Each record contains:   GRIDJ1, COMPJ
@@ -34,17 +34,17 @@
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1T
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, NUM_SUPT_CARDS
       USE TIMDAT, ONLY                :  TSEC
- 
+
       USE BD_SUPORT_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_SUPORT'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER( 8*BYTE)              :: IP6TYP            ! An output from subr IP6CHK called herein
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
       CHARACTER(LEN(JCARD))           :: JCARDO            ! An output from subr IP6CHK called herein
- 
+
       INTEGER(LONG)                   :: COMP(4)   = 0     ! Displ component(s)  read from a B.D. SUPORT card
       INTEGER(LONG)                   :: GRID(4)   = 0     ! A grid point number read from a B.D. SUPORT card
       INTEGER(LONG)                   :: IERR              ! Error indicator returned from subr NEXTC called herein
@@ -53,14 +53,14 @@
       INTEGER(LONG)                   :: JERR      = 0     ! Error indicator for several types of error
       INTEGER(LONG)                   :: NUM_PAIRS         ! Number of pairs of grid/comp found on this SUPORT card
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! SUPORT Bulk Data Card routine
- 
-!   FIELD   ITEM           
-!   -----   ------------   
+
+!   FIELD   ITEM
+!   -----   ------------
 !    2      GRID, Grid ID number 1
 !    3      COMP, Displ component(s) for GRID1
 !    4      GRID, Grid ID number 2
@@ -69,11 +69,11 @@
 !    7      COMP, Displ component(s) for GRID3
 !    8      GRID, Grid ID number 4
 !    9      COMP, Displ component(s) for GRID4
- 
+
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! **********************************************************************************************************************************
       JERR = 0
 
@@ -102,7 +102,7 @@
                   CALL I4FLD ( JCARDO, JF(I+1), COMP(NUM_PAIRS) )
                ELSE
                   JERR      = JERR + 1
-                  FATAL_ERR = FATAL_ERR + 1 
+                  FATAL_ERR = FATAL_ERR + 1
                   WRITE(ERR,1123) JF(I+1),JCARD(1),JF(I+1),JCARD(I+1)
                   WRITE(F06,1123) JF(I+1),JCARD(1),JF(I+1),JCARD(I+1)
                ENDIF
@@ -120,7 +120,7 @@
             NUM_SUPT_CARDS = NUM_SUPT_CARDS + 1
          ENDDO
       ENDIF
- 
+
 
 
       RETURN
@@ -128,9 +128,9 @@
 ! **********************************************************************************************************************************
  1123 FORMAT(' *ERROR  1123: INVALID DOF NUMBER IN FIELD ',I3,' ON ',A,' CARD. MUST BE A COMBINATION OF DIGITS 1-6'                &
                     ,/,14X,' HOWEVER, FIELD ',I3, ' HAS: "',A,'"')
- 
+
  1125 FORMAT(' *ERROR  1125: NO ',A,' SPECIFIED IN FIELD',I4,' ON ',A,' CARD')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_SUPORT

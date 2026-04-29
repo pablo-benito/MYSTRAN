@@ -1,37 +1,37 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE BUILD_G_NM
- 
+
 ! For one subcase:
-    
+
 !   1) Calcs UM displacements: UM = GMN*UN where:
- 
+
 !          UN  = Displs calc'd in subr BUILD_N_FS
- 
+
 !   2) Merge UM and UN to get UG
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -41,21 +41,21 @@
       USE CONSTANTS_1, ONLY           :  ONE
       USE PARAMS, ONLY                :  PRTDISP
       USE SPARSE_MATRICES, ONLY       :  I_GMN, J_GMN, GMN, SYM_GMN
-      USE COL_VECS, ONLY              :  UG_COL, UM_COL, UN_COL 
- 
+      USE COL_VECS, ONLY              :  UG_COL, UM_COL, UN_COL
+
       USE BUILD_G_NM_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME   = 'BUILD_G_NM'
- 
+
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: G_SET_COL         ! Col no. in TDOF for G  displ set definition
       INTEGER(LONG)                   :: N_SET_COL         ! Col no. in TDOF for N  displ set definition
       INTEGER(LONG)                   :: M_SET_COL         ! Col no. in TDOF for M  displ set definition
       INTEGER(LONG), PARAMETER        :: NUMCOLS     = 1   ! Variable for number of cols of an array
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -77,7 +77,7 @@
 
          DO I=1,NDOFG
             UG_COL(I) = UN_COL(I)
-         ENDDO 
+         ENDDO
 
       ENDIF
 
@@ -107,5 +107,5 @@
       RETURN
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BUILD_G_NM

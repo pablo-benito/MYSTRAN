@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE USET_PROC
- 
+
 ! USET is a table that specifies which grid/component pairs are ones defined by the user on Bulk Data USET or USET1 entries.
 ! The table has NGRID rows and 6 columns (1 col for each of the 6 components of displ at a grid). The table can have entries that
 ! are either 'U1' or 'U2' (i.e. user set U1 or U2). The table is constructed like tha TSET table (see explanation in subr TSET_PROC)
@@ -44,7 +44,7 @@
 !                     1033       --       U1       --       U1       --       --
 !                     1041       U1       --       U1       U2       U1       U2
 
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
       USE IOUNT1, ONLY                :  ERR, F06, L1X, L1X_MSG, LINK1X
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ENFORCED, FATAL_ERR, NGRID, NUM_USET_RECORDS, NUM_USET_U1, NUM_USET_U2
@@ -52,7 +52,7 @@
       USE PARAMS, ONLY                :  EPSIL
       USE DOF_TABLES, ONLY            :  TSET_CHR_LEN, USET
       USE MODEL_STUF, ONLY            :  GRID, GRID_ID
- 
+
       USE USET_PROC_USE_IFs
 
       IMPLICIT NONE
@@ -60,7 +60,7 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'USET_PROC'
       CHARACTER( 1*BYTE)              :: CDOF(6)           ! An output from subr RDOF
       CHARACTER(LEN=LEN(TSET_CHR_LEN)):: SNAME             ! The name of a set ('U1' or 'U2')
- 
+
       INTEGER(LONG)                   :: USET_ERR   = 0    ! Count of errors that result from setting displ sets in USET
       INTEGER(LONG)                   :: GRID1             ! An actual grid ID
       INTEGER(LONG)                   :: GRID2             ! An actual grid ID
@@ -71,18 +71,18 @@
       INTEGER(LONG)                   :: IERRT             ! Total number of errors found here
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening or reading a file
       INTEGER(LONG)                   :: NUM_COMPS         ! Number of displ components (1 for SPOINT, 6 for physical grid)
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.   
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.
       INTEGER(LONG)                   :: REC_NO    = 0     ! Record number when reading a file
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! ----------------------------------------------------------------------------------------------------------------------------------
 ! Initialize
 
@@ -103,11 +103,11 @@
       ENDDO
 
 ! Process USET data from file L1X (data written when USET and USET1 Bulk Data entries were read)
- 
+
       CALL FILE_OPEN ( L1X, LINK1X, OUNT, 'OLD', L1X_MSG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
 
 i_do6:DO I=1,NUM_USET_RECORDS
- 
+
          READ(L1X,IOSTAT=IOCHK) SNAME, ICOMP, GRID1, GRID2
          REC_NO = REC_NO + 1
          IF (IOCHK /= 0) THEN
@@ -121,9 +121,9 @@ i_do6:DO I=1,NUM_USET_RECORDS
             FATAL_ERR = FATAL_ERR + 1
             CALL OUTA_HERE ( 'Y' )                         ! Pgm error (data in file LINK1X must be for sets 'U1' or 'U2')
          ENDIF
- 
+
 ! No error, so processes data.
- 
+
          CALL RDOF ( ICOMP, CDOF )                   ! Convert ICOMP to CDOF char form for use below
 
          CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, GRID1, GRID_ID_ROW_NUM )
@@ -141,7 +141,7 @@ i_do6:DO I=1,NUM_USET_RECORDS
                WRITE(ERR,1822) 'GRID ', GRID1, 'USET OR USET1', SNAME
                WRITE(F06,1822) 'GRID ', GRID1, 'USET OR USET1', SNAME
             ENDIF
-         ENDIF 
+         ENDIF
 
          IF (GID_ERR == 0) THEN                      ! Put CDOF data in USET for GRID1 thru GRID2
             DO GRID_NUM=GRID1,GRID2                  ! GRID2 >= GRID1 was checked in subr BD_SPC1
@@ -178,10 +178,10 @@ i_do6:DO I=1,NUM_USET_RECORDS
                      ENDIF
                   ENDDO
                ENDIF
-            ENDDO 
+            ENDDO
          ENDIF
 
-      ENDDO i_do6 
+      ENDDO i_do6
 
       IERRT = GID_ERR + USET_ERR
       IF (IERRT > 0) THEN

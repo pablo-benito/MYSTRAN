@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
 
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE MATL_TRANSFORM_MATRIX ( T21, TS )
 
@@ -39,7 +39,7 @@
 !                                                       |  cos(THETA)  sin(THETA)  0 |
 !                                                 T21 = | -sin(THETA)  cos(THETA)  0 |                                 (2)
 !                                                       |      0           0       1 |
- 
+
 ! The stresses in any coord sys is a tensor (call it S) that is written as:
 !                                                    ~
 !                                                       | Sxx  Sxy  Sxz |
@@ -56,7 +56,7 @@
 ! The terms in this triple matrix product can be used to rewrite the stress transformation with the 6 independent stresses
 ! in a vector (instead of as the 3x3 stress tensor). To this end, define the vector:
 
-!                                                       | Sxx | 
+!                                                       | Sxx |
 !                                                       | Syy |
 !                                                   S = | Szz |                                                        (5)
 !                                                       | Sxy |
@@ -76,7 +76,7 @@
 ! matrix product (symbolically) in eqn (4) and then rewriting the 6 independent of the resulting 9 equations in the 6x6
 ! matrix form of (6).
 
-! Matrix TS can also be used to rotate the material matrices from coord sys 1 to coord sys 2 as follows. 
+! Matrix TS can also be used to rotate the material matrices from coord sys 1 to coord sys 2 as follows.
 ! The stress-strain relations in coord sys 1 and 2 are:
 
 !                                                  S1 = E1*e1
@@ -100,10 +100,10 @@
 
 !                                                ------------------
 !                                               |                  |
-!                                               |  E2 = TS*E1*TS'  |                                                   (11)                 
+!                                               |  E2 = TS*E1*TS'  |                                                   (11)
 !                                               |                  |
 !                                                ------------------
- 
+
 ! ----------------------------------------------------------------------------------------------------------------------------------
 
       USE PENTIUM_II_KIND, ONLY       :  LONG, DOUBLE
@@ -136,32 +136,32 @@
 
 ! Row 1 of TS:
 
-      TS(1,1)= A11*A11           ;   TS(1,2)= A21*A21           ;   TS(1,3)= A31*A31; 
+      TS(1,1)= A11*A11           ;   TS(1,2)= A21*A21           ;   TS(1,3)= A31*A31;
       TS(1,4)= 2*A11*A21         ;   TS(1,5)= 2*A21*A31         ;   TS(1,6)= 2*A11*A31
 
 ! Row 2 of TS:
 
-      TS(2,1)= A12*A12           ;   TS(2,2)= A22*A22           ;   TS(2,3)= A32*A32; 
+      TS(2,1)= A12*A12           ;   TS(2,2)= A22*A22           ;   TS(2,3)= A32*A32;
       TS(2,4)= 2*A12*A22         ;   TS(2,5)= 2*A22*A32         ;   TS(2,6)= 2*A12*A32
 
 ! Row 3 of TS:
 
-      TS(3,1)= A13*A13           ;   TS(3,2)= A23*A23           ;   TS(3,3)= A33*A33; 
+      TS(3,1)= A13*A13           ;   TS(3,2)= A23*A23           ;   TS(3,3)= A33*A33;
       TS(3,4)= 2*A13*A23         ;   TS(3,5)= 2*A23*A33         ;   TS(3,6)= 2*A13*A33
 
 ! Row 4 of TS:
 
-      TS(4,1)= A11*A12           ;   TS(4,2)= A21*A22           ;   TS(4,3)= A31*A32; 
+      TS(4,1)= A11*A12           ;   TS(4,2)= A21*A22           ;   TS(4,3)= A31*A32;
       TS(4,4)= A11*A22+A21*A12   ;   TS(4,5)= A21*A32+A31*A22   ;   TS(4,6)= A11*A32+A31*A12
 
 ! Row 5 of TS:
 
-      TS(5,1)= A12*A13           ;   TS(5,2)= A22*A23           ;   TS(5,3)= A32*A33; 
+      TS(5,1)= A12*A13           ;   TS(5,2)= A22*A23           ;   TS(5,3)= A32*A33;
       TS(5,4)= A12*A23+A22*A13   ;   TS(5,5)= A22*A33+A32*A23   ;   TS(5,6)= A12*A33+A32*A13
 
 ! Row 6 of TS:
 
-      TS(6,1)= A13*A11           ;   TS(6,2)= A23*A21           ;   TS(6,3)= A33*A31; 
+      TS(6,1)= A13*A11           ;   TS(6,2)= A23*A21           ;   TS(6,3)= A33*A31;
       TS(6,4)= A13*A21+A23*A11   ;   TS(6,5)= A23*A31+A33*A21   ;   TS(6,6)= A13*A31+A33*A11
 
 
@@ -171,9 +171,9 @@
 ! **********************************************************************************************************************************
 99664 format('  Transformation matrix TS: transforms 6 stress and 6x6 matl matrices from matl to elem axes')
 
-99667 format(3(1es14.6),4x,3(1es14.6))                                                                                            
+99667 format(3(1es14.6),4x,3(1es14.6))
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE MATL_TRANSFORM_MATRIX
 

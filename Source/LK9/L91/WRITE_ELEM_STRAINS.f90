@@ -350,7 +350,7 @@
 
          ENDIF ! write f06
 
-      ENDIF    
+      ENDIF
 
       ! Write the element strain output
       !IF      (TYPE == 'BAR     ') THEN
@@ -375,7 +375,7 @@
          ENDIF   ! end of op2
 
          WRITE(F06,1103) (FILL(1:1), EID_OUT_ARRAY(I,1), OGEL(I,1),I=1,NUM)
-         
+
 
       ELSE IF((TYPE(1:4) == 'HEXA') .OR. (TYPE(1:5) == 'PENTA') .OR. (TYPE(1:5) == 'TETRA')) THEN
          !       12345

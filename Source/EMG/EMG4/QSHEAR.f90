@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE QSHEAR ( OPT, IORD, RED_INT_SHEAR, XSD, YSD )
- 
+
 ! Isoparametric membrane quadrilateral shear element. Element can be nonplanar. HBAR is the dist that the nodes are away from the
 ! mean plane (+/-). If HBAR is small, the virgin element has 8 DOF (2 displ DOF's/node) and is expanded to MYSTRAN 24 DOF
 ! (6 DOF/node) using array ID1. If HBAR is larger than MXWARP, then matrix BMEANT (from subr ELMGM2) is used to acount
@@ -37,7 +37,7 @@
 !  2) SEi, STEi = element stress data recovery matrices, if OPT(3) = 'Y'
 !  3) KE        = element linea stiffness matrix       , if OPT(4) = 'Y'
 !  4) KED       = element differen stiff matrix calc   , if OPT(6) = 'Y' = 'Y'
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MAX_ORDER_GAUSS, MAX_STRESS_POINTS, MEFE, NSUB, NTSUB
@@ -47,11 +47,11 @@
                                          NUM_EMG_FATAL_ERRS, PCOMP_LAM, PCOMP_PROPS, PPE, PRESS, PTE,                              &
                                          SE1, STE1, SHELL_AALP, SHELL_A, TREF, TYPE
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE QSHEAR_USE_IFs
 
-      IMPLICIT NONE 
-  
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'QSHEAR'
       CHARACTER(1*BYTE) , INTENT(IN)  :: OPT(6)            ! 'Y'/'N' flags for whether to calc certain elem matrices
       CHARACTER( 1*BYTE), INTENT(IN)  :: RED_INT_SHEAR     ! If 'Y', use Gaussian weighted average of B matrices for shear terms
@@ -81,11 +81,11 @@
                                                      19, & ! ID2(10)= 19 means expand 12x12 elem DOF 10 is MYSTRAN 24X24 elem DOF 19
                                                      20, & ! ID2(11)= 20 means expand 12x12 elem DOF 11 is MYSTRAN 24X24 elem DOF 20
                                                      21 /) ! ID2(12)= 21 means expand 12x12 elem DOF 12 is MYSTRAN 24X24 elem DOF 21
- 
+
       INTEGER(LONG), PARAMETER        :: NUM_NODES = 4     ! Quad has 4 nodes
                                                            ! Indicator of no output of elem data to BUG file
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: XSD(4)            ! Diffs in x coords of quad sides in local coords
       REAL(DOUBLE) , INTENT(IN)       :: YSD(4)            ! Diffs in y coords of quad sides in local coords
       REAL(DOUBLE)                    :: BI(3,2*ELGP)      ! Strain-displ matrix for this element for one Gauss point
@@ -96,11 +96,11 @@
       REAL(DOUBLE)                    :: DETJ(IORD*IORD)   ! Determinant of JAC for all Gauss points
       REAL(DOUBLE)                    :: DPSHG(2,4)        ! Output from subr SHP2DQ. Derivatives of PSH wrt elem isopar coords.
       REAL(DOUBLE)                    :: DPSHX(2,4)        ! Derivatives of PSH wrt elem x, y coords.
-      REAL(DOUBLE)                    :: DUM1(3,8)         ! Intermediate matrix used in solving for KE stiffness matrix       
-      REAL(DOUBLE)                    :: DUM2(8,8)         ! Intermediate matrix used in solving for KE stiffness matrix     
+      REAL(DOUBLE)                    :: DUM1(3,8)         ! Intermediate matrix used in solving for KE stiffness matrix
+      REAL(DOUBLE)                    :: DUM2(8,8)         ! Intermediate matrix used in solving for KE stiffness matrix
       REAL(DOUBLE)                    :: DUM5(8,8)         ! Intermediate matrix used in solving for KE stiffness matrix
-      REAL(DOUBLE)                    :: DUM6(12,8)        ! Intermediate matrix used in solving for KE stiffness matrix     
-      REAL(DOUBLE)                    :: DUM7(12,12)       ! Intermediate matrix used in solving for KE stiffness matrix     
+      REAL(DOUBLE)                    :: DUM6(12,8)        ! Intermediate matrix used in solving for KE stiffness matrix
+      REAL(DOUBLE)                    :: DUM7(12,12)       ! Intermediate matrix used in solving for KE stiffness matrix
       REAL(DOUBLE)                    :: DUM9(3,8)         ! Intermediate matrix used in solving for SEi stress recovery matrices
       REAL(DOUBLE)                    :: EMS(3,3)          ! In-plane shear portion of membrane material matrix
 
@@ -118,7 +118,7 @@
 
       REAL(DOUBLE)                    :: SUMB              ! An intermediate variable used in calc B matrix for reduced integration
       REAL(DOUBLE)                    :: SUMD              ! An intermediate variable used in calc B matrix for reduced integration
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -167,19 +167,19 @@
       ENDIF
 
 ! **********************************************************************************************************************************
-! Calculate element thermal loads. 
-  
+! Calculate element thermal loads.
+
       IF (OPT(2) == 'Y') THEN
 
-      
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate BE1, SE1 matrix (3 x 24) for strain/stress data recovery. All calculated at center of element
 ! Note: For the SHEAR element only the 3rd row of BE1 should be nonzero
- 
+
       IF (OPT(3) == 'Y') THEN
- 
+
          GAUSS_PT = 1
          IORD_MSG = 'for in-plane direct strains,                = '
          CALL SHP2DQ ( 1, 1, NUM_NODES, SUBR_NAME, 'UNITY ', 1, ZERO, ZERO, 'N', PSH, DPSHG )
@@ -190,12 +190,12 @@
          DO I=1,3                                          ! Strain-displ matrix (only 3rd row, for in-plane shear strains, is /= 0
             DO J=1,8
                BE1(I,ID1(J),1) = ZERO
-            ENDDO 
+            ENDDO
          ENDDO
          DO J=1,8
             BE1(3,ID1(J),1) = BI(3,J)
-         ENDDO 
-            
+         ENDDO
+
 
 ! SE1 generated in elem coords
 
@@ -210,24 +210,24 @@
          DO I=1,3
             DO J=1,8
                SE1(I,ID1(J),1) = DUM9(I,J)
-            ENDDO 
+            ENDDO
          ENDDO
 
-      ENDIF  
-  
+      ENDIF
+
 ! **********************************************************************************************************************************
 ! Calculate portion of element stiffness matrix KE due to in-plane shear.
- 
+
       IF(OPT(4) == 'Y') THEN
-  
+
          DO I=1,8
             DO J=1,8
                DUM5(I,J) = ZERO
-            ENDDO 
-         ENDDO   
- 
+            ENDDO
+         ENDDO
+
          CALL ORDER_GAUSS ( IORD, SSS, HHH )
-  
+
          GAUSS_PT = 0
          IORD_MSG = 'for in-plane direct strains,  IORD = '
          DO I=1,IORD
@@ -245,10 +245,10 @@
                DO K=1,8
                   DO L=1,8
                      DUM5(K,L) = DUM5(K,L) + DUM2(K,L)*INTFAC
-                  ENDDO 
-               ENDDO   
-            ENDDO 
-         ENDDO   
+                  ENDDO
+               ENDDO
+            ENDDO
+         ENDDO
 
          IF ((DABS(HBAR) > MXWARP) .AND. (DEBUG(4) == 0)) THEN
             CALL MATMULT_FFF_T ( BMEANT, DUM5, 8, 12, 8, DUM6 )
@@ -256,26 +256,26 @@
             DO I=1,12
                DO J=1,12
                   KE(ID2(I),ID2(J)) = KE(ID2(I),ID2(J)) + DUM7(I,J)
-               ENDDO   
-            ENDDO 
+               ENDDO
+            ENDDO
          ELSE
             DO I=1,8
                DO J=1,8
                   KE(ID1(I),ID1(J)) = DUM5(I,J)
-               ENDDO   
-            ENDDO 
+               ENDDO
+            ENDDO
          ENDIF
-  
+
 ! Set lower triangular portion of KE equal to upper portion
-  
+
          DO I=2,24
             DO J=1,I-1
                KE(I,J) = KE(J,I)
-            ENDDO 
-         ENDDO 
-  
+            ENDDO
+         ENDDO
+
       ENDIF
-  
+
 
 
       RETURN

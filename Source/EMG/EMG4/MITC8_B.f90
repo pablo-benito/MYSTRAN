@@ -1,34 +1,34 @@
 ! #################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
       SUBROUTINE MITC8_B ( R, S, T, INLAYER, SHEAR, B )
- 
+
 ! Calculates the strain-displacement matrix in the cartesian local coordinate system
 ! for MITC8 shell at one point in isoparametric coordinates.
 ! Based on
-! MITC8 paper "A FORMULATION OF GENERAL SHELL ELEMENTS-THE USE OF MIXED INTERPOLATION OF TENSORIAL COMPONENTS" 
+! MITC8 paper "A FORMULATION OF GENERAL SHELL ELEMENTS-THE USE OF MIXED INTERPOLATION OF TENSORIAL COMPONENTS"
 !   by Dvorkin and Bathe, 1986
 
 
@@ -45,7 +45,7 @@
       USE MITC8_CARTESIAN_LOCAL_BASIS_Interface
       USE MITC_TRANSFORM_B_Interface
 
-      IMPLICIT NONE 
+      IMPLICIT NONE
 
       LOGICAL, INTENT(IN)             :: INLAYER           ! TRUE for in-layer rows (1-4)
       LOGICAL, INTENT(IN)             :: SHEAR             ! TRUE for transverse shear rows (5-6)
@@ -90,18 +90,18 @@
       REAL(DOUBLE)                    :: TRANSFORM(3,3)    ! Transformation matrix
 
       INTRINSIC                       :: DSQRT
-      
+
 ! **********************************************************************************************************************************
 ! Initialize empty matrix
 
       B(:,:) = ZERO
- 
+
 
 ! **********************************************************************************************************************************
 ! Add in-layer strain-displacement terms
 
 
-      IF ( INLAYER ) THEN                                  
+      IF ( INLAYER ) THEN
 
                                                            ! 8 in-layer sampling points
         !         ^ s
@@ -115,7 +115,7 @@
         !   | o   o   o |
         !   +-----+-----+
         !  1      5      2
-        ! 
+        !
 
         A = ONE / DSQRT(THREE)
         POINT_R = (/ A, -A, -A,  A, ZERO, -A,     ZERO, A    /)
@@ -174,7 +174,7 @@
 
 
         DO POINT=5,8
-                                                           
+
           SELECT CASE (POINT)
             CASE (5); I=1; J=2; POINT_A=1; POINT_B=2
             CASE (6); I=2; J=1; POINT_A=2; POINT_B=3
@@ -207,12 +207,12 @@
           CALL MITC_CONTRAVARIANT_BASIS( G, G_CONTRA )
 
           B_2(:,:,1) = ZERO
-          
+
           CALL OUTER_PRODUCT( G_CONTRA(:,J), G_CONTRA(:,J), 3, 3, GG )
           DO COL=1,6*ELGP
             CALL MITC_ADD_TO_B( B_2, 1, COL, EJJ(J, COL), GG )
           ENDDO
-          
+
                                                            ! [1/2 (ε|_A + ε|_B)]
           E_AVERAGE = (B_1(:,:,POINT_A) + B_1(:,:,POINT_B)) / TWO
 
@@ -227,8 +227,8 @@
                                                            ! [...] · g_i
             SCALAR = DUM1(1) * G(1,I) + DUM1(2) * G(2,I) + DUM1(3) * G(3,I)
             CALL MITC_ADD_TO_B( B_2, 1, COL, SCALAR, GG )
-          ENDDO        
-        
+          ENDDO
+
                       ! {g_r · [1/2 (ε|_A + ε|_B)] · g_s} (g^r g^s + [g^r g^s]^T |_SamplingPoint
           CALL OUTER_PRODUCT( G_CONTRA(:,1), G_CONTRA(:,2), 3, 3, GG )
           GG = GG + TRANSPOSE(GG)
@@ -240,8 +240,8 @@
                                                            ! [...] · g_s
             SCALAR = DUM1(1) * G(1,2) + DUM1(2) * G(2,2) + DUM1(3) * G(3,2)
             CALL MITC_ADD_TO_B( B_2, 1, COL, SCALAR, GG )
-          ENDDO   
-       
+          ENDDO
+
           B = B + B_2(:,:,1) * H_IS(POINT)
 
         ENDDO
@@ -255,7 +255,7 @@
 ! **********************************************************************************************************************************
 ! Add transverse shear strain-displacement terms
 
-      IF ( SHEAR ) THEN                                    
+      IF ( SHEAR ) THEN
 
         DO I=1,2
 
@@ -277,7 +277,7 @@
           !   | 3       4 |
           !   +-o---+---o-+
           !  1      5      2
-          ! 
+          !
 
           ! 7 sampling points for ε_st (I=2)
           ! Points 2 and 4 are interchanged compared to Bathe because this makes it symmetric with ε_rt to reuse code.
@@ -292,7 +292,7 @@
           !   o3  SBo    2o
           !   +-----+-----+
           !  1      2      3
-          ! 
+          !
 
           ! Points 6 and 7 are called RA and RB respectively in Bathe.
           A = ONE / DSQRT(THREE)
@@ -322,7 +322,7 @@
             ! I guess that the transverse shear sampling points are at the nodal surface (t=0, T=0). Same as MITC4.
             CALL MITC_COVARIANT_BASIS( POINT_R(POINT), POINT_S(POINT), ZERO, G )
             CALL MITC_CONTRAVARIANT_BASIS( G, G_CONTRA )
-            
+
             IF(POINT == 5) THEN
               CALL MITC_COVARIANT_STRAIN_DIRECT_INTERPOLATION( POINT_R(6), POINT_S(6), ZERO, ROW, ROW, EIT_RA )
               CALL MITC_COVARIANT_STRAIN_DIRECT_INTERPOLATION( POINT_R(7), POINT_S(7), ZERO, ROW, ROW, EIT_RB )
@@ -332,7 +332,7 @@
             ENDIF
 
             B_2(:,:,1) = ZERO
-            
+
             CALL OUTER_PRODUCT( G_CONTRA(:,I), G_CONTRA(:,3), 3, 3, GG )
             ! Evaluate both the g^r g^t term and the [g^r g^t]^T term together so their sum is symmetric since only
             ! the unique elements are stored in the B matrix.
@@ -340,14 +340,14 @@
             DO COL=1,6*ELGP
               CALL MITC_ADD_TO_B( B_2, 1, COL, EIT(ROW, COL), GG )
             ENDDO
-            
+
             B = B + B_2(:,:,1) * H_IT(POINT)
 
           ENDDO
-        
-        
-        
-        
+
+
+
+
         ENDDO
 
 
@@ -369,5 +369,5 @@
 
 
 ! **********************************************************************************************************************************
-  
+
       END SUBROUTINE MITC8_B

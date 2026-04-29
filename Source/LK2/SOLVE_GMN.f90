@@ -1,58 +1,58 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE SOLVE_GMN ( PART_VEC_G_NM, PART_VEC_M )
- 
+
 ! Solves the sustem of equations: RMM*GMN = -RMN for matrix GMN which is used in the reduction of the G set stiffness, mass and
 ! load matrices from the G-set to the N, M_sets. If RMM is diagonal, a simple algorithm is used. If it is not, routines
 ! are called to do the decomp of RMM and the forward-backward substitution (FBS) to obtain GMN
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SCR, L2A, LINK2A, L2A_MSG, SC1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, NDOFG, NDOFM, NTERM_RMG, NTERM_RMN, NTERM_RMM, NTERM_GMN
       USE PARAMS, ONLY                :  EPSIL, PRTRMG, PRTGMN, SOLLIB, SPARSE_FLAVOR, SUPINFO
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ONE
-      USE SPARSE_MATRICES, ONLY       :  I_RMG, J_RMG, RMG, I_RMN, J_RMN, RMN, I_RMM, J_RMM, RMM, I_GMN, J_GMN, GMN 
+      USE SPARSE_MATRICES, ONLY       :  I_RMG, J_RMG, RMG, I_RMN, J_RMN, RMN, I_RMM, J_RMM, RMM, I_GMN, J_GMN, GMN
       USE SPARSE_MATRICES, ONLY       :  SYM_RMG, SYM_RMN, SYM_RMM
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE SOLVE_GMN_USE_IFs
 
       IMPLICIT NONE
-               
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SOLVE_GMN'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT            ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT            ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
       CHARACTER(  8*BYTE)             :: CLOSE_STAT          ! Char constant for the CLOSE status of a file
       CHARACTER(  1*BYTE)             :: RMM_DIAG            ! 'Y' if matrix RMM is diagonal.
       CHARACTER(  1*BYTE)             :: RMM_IDENTITY        ! 'Y' if matrix RMM is an identity matrix.
- 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_G_NM(NDOFG)! Partitioning vector (G set into N and M sets) 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_M(NDOFM)   ! Partitioning vector (1's for all M set DOF's) 
+
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_G_NM(NDOFG)! Partitioning vector (G set into N and M sets)
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_M(NDOFM)   ! Partitioning vector (1's for all M set DOF's)
       INTEGER(LONG)                   :: I,J,K               ! DO loop indices
       INTEGER(LONG), PARAMETER        :: NUM1        = 1     ! Used in subr's that partition matrices
       INTEGER(LONG), PARAMETER        :: NUM2        = 2     ! Used in subr's that partition matrices
@@ -62,7 +62,7 @@
 
 
       REAL(DOUBLE)                    :: EPS1                ! A small number to compare real zero
- 
+
       INTRINSIC                       :: DABS
 
 
@@ -86,7 +86,7 @@
       IF (NTERM_RMN > 0) THEN
          CALL ALLOCATE_SPARSE_MAT ( 'RMN', NDOFM, NTERM_RMN, SUBR_NAME )
          CALL PARTITION_SS ( 'RMG', NTERM_RMG, NDOFM, NDOFG, SYM_RMG, I_RMG, J_RMG, RMG, PART_VEC_M, PART_VEC_G_NM,                &
-                              NUM1, NUM1, RMN_ROW_MAX_TERMS, 'RMN', NTERM_RMN, NDOFM, SYM_RMN, I_RMN, J_RMN, RMN ) 
+                              NUM1, NUM1, RMN_ROW_MAX_TERMS, 'RMN', NTERM_RMN, NDOFM, SYM_RMN, I_RMN, J_RMN, RMN )
       ELSE
          WRITE(ERR,2201) NTERM_RMN
          WRITE(F06,2201) NTERM_RMN
@@ -97,14 +97,14 @@
 ! Partition RMM from RMG. If no terms in RMM, write error and quit
 
       CALL PARTITION_SS_NTERM ( 'RMG', NTERM_RMG, NDOFM, NDOFG, SYM_RMG, I_RMG, J_RMG ,     PART_VEC_M, PART_VEC_G_NM,             &
-                                 NUM1, NUM2, RMM_ROW_MAX_TERMS, 'RMM', NTERM_RMM, SYM_RMM ) 
+                                 NUM1, NUM2, RMM_ROW_MAX_TERMS, 'RMM', NTERM_RMM, SYM_RMM )
 
       IF (NTERM_RMM > 0) THEN
          CALL ALLOCATE_SPARSE_MAT ( 'RMM', NDOFM, NTERM_RMM, SUBR_NAME )
          CALL PARTITION_SS ( 'RMG', NTERM_RMG, NDOFM, NDOFG, SYM_RMG, I_RMG, J_RMG, RMG, PART_VEC_M, PART_VEC_G_NM,                &
                               NUM1, NUM2, RMM_ROW_MAX_TERMS, 'RMM', NTERM_RMM, NDOFM, SYM_RMM, I_RMM, J_RMM, RMM )
       ELSE
-         WRITE(ERR,2202) SUBR_NAME,NTERM_RMM 
+         WRITE(ERR,2202) SUBR_NAME,NTERM_RMM
          WRITE(F06,2202) SUBR_NAME,NTERM_RMM
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )
@@ -126,21 +126,21 @@
       RMM_DIAG     = 'Y'                                   ! Find out if RMM is a diagonal or identity matrix
       RMM_IDENTITY = 'Y'
       IF (NTERM_RMM == NDOFM) THEN                         ! There are as many terms in RMM as rows so maybe diag or identity
-         DO I=1,NDOFM 
+         DO I=1,NDOFM
             IF (J_RMM(I) /= I) THEN                        ! The i-th term in RMM is not a diagonal term
                RMM_DIAG     = 'N'
                RMM_IDENTITY = 'N'
                EXIT
             ENDIF
-         ENDDO 
+         ENDDO
          IF (RMM_DIAG == 'Y') THEN                         ! If RMM is diagonal, check for 1.0 on diagonal (identity matrix)
             DO I=1,NDOFM
                IF (DABS(RMM(I) - ONE) > EPS1) THEN
                   RMM_IDENTITY = 'N'
                ENDIF
-            ENDDO 
+            ENDDO
          ENDIF
-      ELSE                                                 ! RMM is not identity or diagonal        
+      ELSE                                                 ! RMM is not identity or diagonal
          RMM_DIAG     = 'N'
          RMM_IDENTITY = 'N'
       ENDIF
@@ -148,9 +148,9 @@
 
       IF ((RMM_DIAG == 'Y') .AND. (DEBUG(20) /= 1)) THEN  ! We can do simple inverse of diagonal matrix RMM
 
-         WRITE(ERR,2293) 
+         WRITE(ERR,2293)
          IF (SUPINFO == 'N') THEN
-            WRITE(F06,2293) 
+            WRITE(F06,2293)
          ENDIF
          NTERM_GMN = NTERM_RMN
 
@@ -159,7 +159,7 @@
 
          DO I=1,NDOFM+1
             I_GMN(I) = I_RMN(I)
-         ENDDO      
+         ENDDO
          K = 0
          DO I=1,NDOFM
             RMN_ROW_I_NTERMS = I_RMN(I+1) - I_RMN(I)
@@ -169,7 +169,7 @@
                IF (RMM_IDENTITY == 'Y') THEN
                   GMN(K) = -RMN(K)
                ELSE
-                  IF (DABS(RMM(I)) > EPS1) THEN  
+                  IF (DABS(RMM(I)) > EPS1) THEN
                      J_GMN(K)  = J_RMN(K)
                        GMN(K)  = -RMN(K)/RMM(I)
                   ELSE
@@ -179,7 +179,7 @@
                      CALL OUTA_HERE ( 'Y' )
                   ENDIF
                ENDIF
-            ENDDO 
+            ENDDO
          ENDDO
 
       ELSE                                                 ! Either RMM is not diagonal or DEBUG(20) =1 so we will do full sol'n
@@ -189,7 +189,7 @@
             IF (SUPINFO == 'N') THEN
                WRITE(F06,2294)
             ENDIF
-         ENDIF 
+         ENDIF
          CALL SOLVE_GMN_SOLVER
 
       ENDIF
@@ -222,7 +222,7 @@
 ! Deallocate partitions of RMG: RMN, RMM. Keep GMN, it is needed in the reduction of KGG, MGG and PG
 
       WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate RMN', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'RMN' )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate RMM', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'RMM' )
 
@@ -257,15 +257,15 @@
 12345 FORMAT(A,10X)
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
- 
+
       SUBROUTINE SOLVE_GMN_SOLVER
 
-! Solves RMM x GMN = -RMN for matrix GMN using unsymmetric decomp from LAPACK 
- 
+! Solves RMM x GMN = -RMN for matrix GMN using unsymmetric decomp from LAPACK
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE IOUNT1, ONLY                :  FILE_NAM_MAXLEN, WRT_ERR, ERR, F06
@@ -277,25 +277,25 @@
       USE FULL_MATRICES, ONLY         :  RMM_FULL
       USE LAPACK_LIN_EQN_DGE
       USE SuperLU_STUF, ONLY          :  SLU_FACTORS, SLU_INFO
- 
+
 ! Interface module not needed for subr's DGETRF and DGETRS. These are "CONTAIN'ed" in module LAPACK_LIN_EQN_DPB, which
 ! is "USE'd" above
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SOLVE_GMN_SOLVER'
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: CALLED_SUBR = ' ' ! Name of a called subr (for output error purposes)
-      CHARACTER( 1*BYTE)              :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
+      CHARACTER( 1*BYTE)              :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
       CHARACTER( 8*BYTE)              :: CLOSE_STAT        ! What to do with file when it is closed
-      CHARACTER(24*BYTE)              :: MESSAG            ! File description. Input to subr UNFORMATTED_OPEN 
+      CHARACTER(24*BYTE)              :: MESSAG            ! File description. Input to subr UNFORMATTED_OPEN
       CHARACTER(44*BYTE)              :: MODNAM            ! Name to write to screen to describe module being run
       CHARACTER(24*BYTE)              :: MODNAM1           ! Name to write to screen to describe module being run
-      CHARACTER( 1*BYTE)              :: READ_NTERM        ! 'Y' or 'N' Input to subr READ_MATRIX_1 
-      CHARACTER( 1*BYTE)              :: NULL_COL          ! 'Y' if a col of RMN is null 
-      CHARACTER( 1*BYTE)              :: OPND              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not 
+      CHARACTER( 1*BYTE)              :: READ_NTERM        ! 'Y' or 'N' Input to subr READ_MATRIX_1
+      CHARACTER( 1*BYTE)              :: NULL_COL          ! 'Y' if a col of RMN is null
+      CHARACTER( 1*BYTE)              :: OPND              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not
       CHARACTER(FILE_NAM_MAXLEN*BYTE) :: SCRFIL            ! File name
-      CHARACTER( 1*BYTE)              :: TRANS             ! 'Y' if  
- 
+      CHARACTER( 1*BYTE)              :: TRANS             ! 'Y' if
+
       INTEGER(LONG)                   :: COMPV             ! Component number (1-6) of a grid DOF
       INTEGER(LONG)                   :: GRIDV             ! Grid number
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices or counters
@@ -303,7 +303,7 @@
       INTEGER(LONG)                   :: IPIV(NDOFM)       ! Pivot indices from factorization of RMM
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening a file
       INTEGER(LONG)                   :: NRHS              ! No. of RHS's in solving (RMM)*(GMN) = -RMN
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
 
 
       REAL(DOUBLE)                    :: BETA              ! Multiple for rhs for use in subr FBS
@@ -320,12 +320,12 @@
       EPS1 = EPSIL(1)
 
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
       IF (SOLLIB == 'BANDED  ') THEN
-                                                           ! Create full matrix RMM_FULL from sparse RMM 
+                                                           ! Create full matrix RMM_FULL from sparse RMM
          CALL ALLOCATE_FULL_MAT  ( 'RMM_FULL', NDOFM, NDOFM, SUBR_NAME )
          CALL SPARSE_CRS_TO_FULL ( 'RMM       ', NTERM_RMM, NDOFM, NDOFM, SYM_RMM, I_RMM, J_RMM, RMM, RMM_FULL )
 
@@ -336,7 +336,7 @@
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
          CALL DGETRF (NDOFM, NDOFM, RMM_FULL, NDOFM, IPIV, INFO )
 
-         CALLED_SUBR = 'DGETRF'      
+         CALLED_SUBR = 'DGETRF'
          IF      (INFO < 0) THEN                           ! LAPACK subr XERBLA should have reported error on an illegal argument
 !                                                            in a called LAPACK subr, so we should not have gotten here
             WRITE(ERR,993) SUBR_NAME, CALLED_SUBR
@@ -401,9 +401,9 @@
          CALL OUTA_HERE ( 'Y' )                            ! Can't open scratch file, so quit
       ENDIF
       REWIND (SCR(1))
- 
+
 ! Loop on columns of RMN
- 
+
 !xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
       NTERM_GMN = 0
@@ -412,7 +412,7 @@
 
          !CALL OURTIM
          !MODNAM1 = '      Solve for GMN col '
-         
+
 
 
 ! Set RMN_COL to the negative of i-th col of array RMN. First, initialize RMN_COL to zero
@@ -422,13 +422,13 @@
          DO I=1,NDOFM
             RMN_COL(I) = ZERO
             gmn_col(i) = zero
-         ENDDO 
-         
+         ENDDO
+
          BETA = -ONE
          CALL GET_SPARSE_CRS_COL ( 'RMN       ',J, NTERM_RMN, NDOFM, NDOFN, I_RMN, J_RMN, RMN, BETA, RMN_COL, NULL_COL )
 
 ! Calculate GMN_COL via forward/backward substitution. Remember that rhs is -RMN.
- 
+
          IF (NULL_COL == 'N') THEN                         ! DGETRS will solve for GMN_COL & load it into GMN array
 
             IF      (SOLLIB == 'BANDED  ') THEN
@@ -436,7 +436,7 @@
                NRHS = 1
                CALL DGETRS ( TRANS, NDOFM, NRHS ,RMM_FULL, NDOFM, IPIV, RMN_COL, NDOFM, INFO )
 
-               CALLED_SUBR = 'DGETRS'      
+               CALLED_SUBR = 'DGETRS'
                IF      (INFO < 0) THEN                     ! LAPACK subr XERBLA should have reported error on an illegal argument
 !                                                            in calling a LAPACK subr, so we should not have gotten here
                   WRITE(ERR,993) SUBR_NAME, CALLED_SUBR
@@ -508,7 +508,7 @@ FreeS:IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free the stor
          ENDIF
 
       ENDIF FreeS
- 
+
 ! The GMN data in SCRATCH-991 is written 1 col at a time. We need it to be written for 1 row at a time with rows in numerical order
 
       CALL ALLOCATE_L2_GMN_2 ( SUBR_NAME )
@@ -532,7 +532,7 @@ FreeS:IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free the stor
       CALL DEALLOCATE_L2_GMN_2
 
       WRITE(SC1, * ) '    Reallocate GMN'
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate GMN', CR13   ;  CALL DEALLOCATE_SPARSE_MAT ( 'GMN' )
       WRITE(SC1,12345,ADVANCE='NO') '       Allocate   GMN', CR13   ;  CALL ALLOCATE_SPARSE_MAT ('GMN', NDOFM, NTERM_GMN, SUBR_NAME)
 
@@ -544,7 +544,7 @@ FreeS:IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free the stor
       CLOSE_STAT = 'DELETE  '
       CALL READ_MATRIX_1 ( SCRFIL, SCR(1), OPND, CLOSE_IT, CLOSE_STAT, MESSAG, 'GMN', NTERM_GMN, READ_NTERM, NDOFM,                &
                            I_GMN, J_GMN, GMN)
- 
+
       CALL FILE_CLOSE ( SCR(1), SCRFIL, 'DELETE' )
 
 
@@ -575,7 +575,7 @@ FreeS:IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free the stor
                     ,/,15X,A,' (OR A SUBR CALLED BY IT) AND THEN ABORTED')
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE SOLVE_GMN_SOLVER         
- 
+
+      END SUBROUTINE SOLVE_GMN_SOLVER
+
       END SUBROUTINE SOLVE_GMN

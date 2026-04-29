@@ -1,30 +1,30 @@
 ! #################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
       SUBROUTINE MITC4_B ( R, S, T, MEMBRANE, BENDING, SHEAR, B )
- 
+
 ! Calculates the strain-displacement matrix in the cartesian local coordinate system
 ! for MITC4 shell at one point in isoparametric coordinates.
 !
@@ -32,7 +32,7 @@
 !  "A new MITC4+ shell element" by Ko, Lee, Bathe, 2016
 !
 ! Reference [2]:
-!  MITC4 paper "A continuum mechanics based four-node shell element for general nonlinear analysis" 
+!  MITC4 paper "A continuum mechanics based four-node shell element for general nonlinear analysis"
 !     by Dvorkin and Bathe
 
 
@@ -47,7 +47,7 @@
       USE MITC4_COVARIANT_STRAIN_DIRECT_INTERPOLATION_Interface
       USE MITC_TRANSFORM_CONTRAVARIANT_TO_LOCAL_Interface
 
-      IMPLICIT NONE 
+      IMPLICIT NONE
 
       INTEGER(LONG)                   :: COL               ! A column (element DOF) of B. 1-24.
       INTEGER(LONG)                   :: GP                ! Grid point number. 1-4.
@@ -82,12 +82,12 @@
       LOGICAL      , INTENT(IN)       :: BENDING           ! If true, generate bending parts of B (rows 1,2,4)
       LOGICAL      , INTENT(IN)       :: SHEAR             ! If true, generate shear parts of B (rows 5,6)
 
-      
+
 ! **********************************************************************************************************************************
 ! Initialize empty matrix
 
       B(:,:) = ZERO
- 
+
 
 ! **********************************************************************************************************************************
 ! Add in-layer strain-displacement terms
@@ -102,7 +102,7 @@
          X_D(:) = X_D(:) + QUARTER * GP_RS(1, GP) * GP_RS(2, GP) * XEL(GP, :)
       ENDDO
 
-     
+
       IF(QUAD4TYP == 'MITC4+') THEN
                                                            ! MITC4+ according to ref [1]
 
@@ -177,9 +177,9 @@
          ENDIF
 
       ELSEIF(QUAD4TYP == 'MITC4 ') THEN
-      
+
          IF(.TRUE.) THEN
-         
+
             IF(MEMBRANE) THEN
                                                            ! MITC4+ form of MITC4 according to ref [1]
                CALL MITC4_COVARIANT_STRAIN_DIRECT_INTERPOLATION( R, S, T, X_R, X_S, X_D, .TRUE., .FALSE., 1, 4, BM )
@@ -190,7 +190,7 @@
                CALL MITC4_COVARIANT_STRAIN_DIRECT_INTERPOLATION( R, S, T, X_R, X_S, X_D, .FALSE., .TRUE., 1, 4, BB )
                B(1:4,:) = B(1:4,:) + BB(1:4,:)
             ENDIF
-            
+
          ELSE
 
                                                            ! MITC4 according to ref [2]
@@ -258,5 +258,5 @@
 
 
 ! **********************************************************************************************************************************
-  
+
       END SUBROUTINE MITC4_B

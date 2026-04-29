@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MGGS_MASS_MATRIX
- 
+
 ! Forms the sparse scalar mass matrix, MGGS, (for masses defined on Bulk Data CMASS)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  FATAL_ERR, NCMASS, NDOFG, NGRID, NPMASS, NTERM_MGGS, BLNK_SUB_NAM
@@ -38,19 +38,19 @@
       USE DOF_TABLES, ONLY            :  TDOF
       USE MODEL_STUF, ONLY            :  CMASS, GRID_ID, PMASS, RPMASS
       USE SPARSE_MATRICES, ONLY       :  I_MGGS, J_MGGS, MGGS
- 
+
       USE MGGS_MASS_MATRIX_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MGGS_MASS_MATRIX'
       CHARACTER( 1*BYTE)              :: FOUND             ! 'Y'/'N' indicator of whether we found something
 
       INTEGER(LONG)                   :: G_SET_DOF(NGRID)  ! G-set array with grid actual ID's for the grids that have scalar mass
       INTEGER(LONG)                   :: G_SET_COL         ! Col in TDOF where G-set exists
-      INTEGER(LONG)                   :: I,J,K             ! DO loop indices or counters   
+      INTEGER(LONG)                   :: I,J,K             ! DO loop indices or counters
       INTEGER(LONG)                   :: IERROR            ! Local error count
-      INTEGER(LONG)                   :: IDOF(NCMASS)      ! G-set DOF number   
+      INTEGER(LONG)                   :: IDOF(NCMASS)      ! G-set DOF number
       INTEGER(LONG)                   :: KTERM_MGGS        ! Count of number of terma going into MGGS
       INTEGER(LONG)                   :: ROW_NUM           ! Row number in TDOF where data begins for IGRID
       INTEGER(LONG)                   :: SGRID(NCMASS)     ! Grid number for a scalar mass (from array CMASS)
@@ -102,7 +102,7 @@
 
       ENDDO
 
-! Get mass value at each SGRID (PMASS_VAL array) 
+! Get mass value at each SGRID (PMASS_VAL array)
 
 i_do1:DO I=1,NCMASS
          FOUND = 'N'
@@ -116,11 +116,11 @@ j_do1:   DO J=1,NPMASS
          IF (FOUND == 'N') THEN
             IERROR    = IERROR + 1
             FATAL_ERR = FATAL_ERR + 1
-            WRITE(ERR,1601) PMASS_ID(I), CMASS(I,1) 
-            WRITE(ERR,1601) PMASS_ID(I), CMASS(I,1) 
+            WRITE(ERR,1601) PMASS_ID(I), CMASS(I,1)
+            WRITE(ERR,1601) PMASS_ID(I), CMASS(I,1)
          ENDIF
       ENDDO i_do1
-         
+
       IF (DEBUG(182) > 0) CALL DEB_MGGS ( 1 )
 
 ! Quit if IERROR > 0
@@ -156,7 +156,7 @@ j_do2:   DO J=1,NCMASS
       ENDDO i_do2
 
       IF (DEBUG(182) > 0) CALL DEB_MGGS ( 3 )
-      
+
 ! Reset NTERM_MGGS to what was counted above
 
       NTERM_MGGS = KTERM_MGGS
@@ -174,9 +174,9 @@ j_do2:   DO J=1,NCMASS
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE DEB_MGGS ( WHAT )

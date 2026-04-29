@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ROT_COMP_ELEM_AXES ( INT_ELEM_ID, IPLY, THETA, DIRECTION )
 
@@ -35,7 +35,7 @@
 ! Ref 2: "Practical Analysis of Composites" by J.N. Reddy and A. Miravete, CRC Press, 1995 section 3.3. Eqn 7 in Ref 2 is matrix T1
 ! whereas my matrix is T1P (in the code below). Note that Ref 2 stress tensor definition and mine have a different order:
 
-!      -------------------------------------------------------------------------  
+!      -------------------------------------------------------------------------
 !     | Ref 2 stress tensor for matrix T1 | MYSTRAN stress tensor for matrix T1P|
 !     |-----------------------------------|-------------------------------------|
 !     |         sig-1 = sig-xx            |            sig-1 = sig-xx           |
@@ -102,13 +102,13 @@
       INTEGER(LONG)                   :: INT41,INT42       ! An integer used in getting MATANGLE
       CHARACTER( 2*BYTE)              :: LOC               ! Location where THETAM is calculated (for DEBUG output purposes)
       INTEGER(LONG)                   :: EPNTK             ! Value from array EPNT at the row for this internal elem ID.
- 
- 
+
+
 
 
 ! **********************************************************************************************************************************
 ! Calc T1P matrix from eqn 3.3-7 in Ref 1. (with order 1,2,3,4,5,6 changed to 1,2,3,6,4,5 to account for the fact that Ref (1) has
-! the 6 position for xy stress whereas it is the 4th position here) 
+! the 6 position for xy stress whereas it is the 4th position here)
 
       RADIANS_ROT = CONV_DEG_RAD*THETA                     ! THETA is angle (deg) from elem matl axis to ply K longitudinal axis
 
@@ -259,13 +259,13 @@
 
          CALL MATMULT_FFF ( T1M   , EM  , 3, 3, 3, DUM33 ) ! (1) Transform EM  membrane matl matrix from ply to elem coords
          CALL MATMULT_FFF ( DUM33 , T1Mt, 3, 3, 3, EM)
-                                                          
+
          CALL MATMULT_FFF ( T1M   , EB  , 3, 3, 3, DUM33 ) ! (2) Transform EB  bending matl matrix from ply to elem coords
          CALL MATMULT_FFF ( DUM33 , T1Mt, 3, 3, 3, EB)
-                                                          
+
          CALL MATMULT_FFF ( T1T   , ET  , 2, 2, 2, DUM22 ) ! (3) Transform TM  transverse shear matl matrix from ply to elem coords
          CALL MATMULT_FFF ( DUM22 , T1Tt, 2, 2, 2, ET)
-                                                          
+
          CALL MATMULT_FFF ( T1M   , EBM , 3, 3, 3, DUM33 ) ! (4) Transform EBM bending/membrane matl matrix from ply to elem coords
          CALL MATMULT_FFF ( DUM33 , T1Mt, 3, 3, 3, EBM)
 

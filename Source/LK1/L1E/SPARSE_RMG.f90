@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SPARSE_RMG
- 
+
 ! Reads RMG constraint terms from file LINK1J. Zero terms are stripped and rows are sorted in numerical order. The final sparse RMG
 ! constraint matrix is written to file LINK1J in format: i, j, RMG(i,j)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1J, LINK1J, L1J_MSG
       USE SCONTR, ONLY                :  NDOFM, NTERM_RMG, BLNK_SUB_NAM
@@ -36,13 +36,13 @@
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  EPSIL
       USE SPARSE_MATRICES, ONLY       :  I_RMG, J_RMG, RMG
- 
+
       USE SPARSE_RMG_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SPARSE_RMG'
- 
+
       INTEGER(LONG)                   :: I,K               ! DO loop indices or counters
 
       INTEGER(LONG)                   :: I2_RMG(NTERM_RMG) ! Row numbers of all terms in matrix RMG. Coming into this subr there is
@@ -55,34 +55,34 @@
       INTEGER(LONG)                   :: JRMG              ! Col number for RMG
       INTEGER(LONG)                   :: KTERM_RMG         ! Count of number of terms in RMG
       INTEGER(LONG)                   :: NTERM_ROW_I       ! Number of nonzero terms in row I of RMG
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG)                   :: REC_NO            ! Record number when reading a file
 
- 
+
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
       REAL(DOUBLE)                    :: RRMG              ! Real value for RMG
- 
+
       INTRINSIC DABS
- 
+
 
 
 ! **********************************************************************************************************************************
       EPS1 = EPSIL(1)
 
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! Read RMG constraint matrix. The matrix is not in DOF order
 
       IF (NDOFM > 0) THEN
 
          CALL FILE_OPEN ( L1J, LINK1J, OUNT, 'OLD', L1J_MSG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
- 
+
          NTERM_RMG = 0                                     ! First, calc NTERM_RMG
          REC_NO = 0
-nterm:   DO                        
+nterm:   DO
             IRMG = 0
             JRMG = 0
             RRMG = ZERO
@@ -145,13 +145,13 @@ read_l1j:DO                                                ! Now calc sparse arr
 
          CALL SORT_INT2_REAL1 ( SUBR_NAME, 'I2_RMG, J_RMG, RMG', NTERM_RMG, I2_RMG, J_RMG, RMG )
 
-! Rewrite RMG matrix in the format i, j, RMG(i,j) to L1J 
- 
+! Rewrite RMG matrix in the format i, j, RMG(i,j) to L1J
+
          CALL FILE_OPEN ( L1J, LINK1J, OUNT, 'REPLACE', L1J_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
          WRITE(L1J) NTERM_RMG
          DO I=1,NTERM_RMG
-            WRITE(L1J) I2_RMG(I),J_RMG(I),RMG(I) 
-         ENDDO      
+            WRITE(L1J) I2_RMG(I),J_RMG(I),RMG(I)
+         ENDDO
          CALL FILE_CLOSE ( L1J, LINK1J, 'KEEP' )
 
       ENDIF
@@ -174,10 +174,10 @@ read_l1j:DO                                                ! Now calc sparse arr
 ! **********************************************************************************************************************************
  1616 FORMAT(' *ERROR  1616: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' THE NUMBER OF TERMS IN THE RMG MATRIX   = ',I12,' BUT SHOULD BE NTERM_RMG = ',I12,' IN FILE:'         &
-                    ,/,15X,A)   
+                    ,/,15X,A)
 
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE SPARSE_RMG

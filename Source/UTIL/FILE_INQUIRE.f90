@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE FILE_INQUIRE ( MESSAGE )
 
@@ -58,14 +58,14 @@
       USE FILE_INQUIRE_USE_IFs
 
       IMPLICIT NONE
- 
+
       LOGICAL                         :: LEXIST            ! True if file exists
       LOGICAL                         :: LOPND             ! True if file is opened
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'FILE_INQUIRE'
       CHARACTER(LEN=*), INTENT(IN)    :: MESSAGE           ! Message written when this subr is called
       CHARACTER( 3*BYTE)              :: FIL(100)          ! Descriptor of a MYSTRAN file
-      CHARACTER(FILE_NAM_MAXLEN*BYTE) :: FILNAM(100)       ! Filename                     
+      CHARACTER(FILE_NAM_MAXLEN*BYTE) :: FILNAM(100)       ! Filename
       CHARACTER(14*BYTE)              :: ANSE              ! Message set based on value of LEXIST
       CHARACTER(10*BYTE)              :: ANSO              ! Message set based on value of LOPND
 
@@ -148,11 +148,11 @@
       FIL( 72) = 'OP2'   ;   UNT( 72) =  OP2   ;   FILNAM( 71) = OP2FIL
 
       IF ( 72 > MAX_FIL) THEN
-         WRITE(ERR,944) SUBR_NAME, MAX_FIL   
-         WRITE(F06,944) SUBR_NAME, MAX_FIL   
+         WRITE(ERR,944) SUBR_NAME, MAX_FIL
+         WRITE(F06,944) SUBR_NAME, MAX_FIL
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )
-      ENDIF 
+      ENDIF
 
       DO I=1,MOU4
          FIL(MAX_FIL+I)      = OU4_EXT(I);   UNT(MAX_FIL+I)      =  OU4(I)   ;   FILNAM(MAX_FIL+I)      = OU4FIL(I)
@@ -162,10 +162,10 @@
       ENDDO
 
       WRITE(ERR,1)
-      WRITE(ERR,2) MESSAGE 
+      WRITE(ERR,2) MESSAGE
 
       WRITE(F06,1)
-      WRITE(F06,2) MESSAGE 
+      WRITE(F06,2) MESSAGE
 
       DO I=2,MAX_FIL+MOU4+MOT4                                  ! Start at 2 since SC1 was 1 and we do not do INQUIRE on it
          IF (UNT(I) /= 0) THEN
@@ -183,7 +183,7 @@
             WRITE(ERR,2999) FIL(I), UNT(I), ANSE, ANSO, FILNAM(I)
             WRITE(F06,2999) FIL(I), UNT(I), ANSE, ANSO, FILNAM(I)
          ENDIF
-      ENDDO 
+      ENDDO
 
 
 

@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_F_AO
- 
+
 ! Call routines to reduce stiffness, mass, loads from F-set to A, O-sets
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
       USE CONSTANTS_1, ONLY           :  ZERO
@@ -48,22 +48,22 @@
       USE SPARSE_MATRICES, ONLY       :  SYM_KAA
       USE SCRATCH_MATRICES
       USE SuperLU_STUF, ONLY          :  SLU_FACTORS, SLU_INFO
- 
+
       USE REDUCE_F_AO_USE_IFs
 
       IMPLICIT NONE
-               
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_F_AO'
-      CHARACTER(132*BYTE)             :: MATRIX_NAME         ! Name of matrix for printout 
+      CHARACTER(132*BYTE)             :: MATRIX_NAME         ! Name of matrix for printout
       CHARACTER(44*BYTE)              :: MODNAM              ! Name to write to screen to describe module being run
- 
+
       INTEGER(LONG)                   :: A_SET_COL           ! Col no. in array TDOFI where the A-set is (from subr TDOF_COL_NUM)
       INTEGER(LONG)                   :: A_SET_DOF           ! A-set DOF number
       INTEGER(LONG)                   :: DO_WHICH_CODE_FRAG    ! 1 or 2 depending on which seg of code to run (depends on BUCKLING)
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
-      INTEGER(LONG)                   :: PART_VEC_F_AO(NDOFF)! Partitioning vector (G set into N and M sets) 
-      INTEGER(LONG)                   :: PART_VEC_SUB(NSUB)  ! Partitioning vector (1's for all subcases) 
+      INTEGER(LONG)                   :: PART_VEC_F_AO(NDOFF)! Partitioning vector (G set into N and M sets)
+      INTEGER(LONG)                   :: PART_VEC_SUB(NSUB)  ! Partitioning vector (1's for all subcases)
 
 
       REAL(DOUBLE)                    :: DUM_COL(NDOFO)      ! Temp variable used in SuperLU
@@ -103,7 +103,7 @@
                PART_VEC_SUB = 1
             ENDDO
 
-            CALL OURTIM                                    ! Reduce KFF to KAA 
+            CALL OURTIM                                    ! Reduce KFF to KAA
             IF (MATSPARS == 'Y') THEN
                MODNAM = 'REDUCE KFF TO KAA (SPARSE MATRIX ROUTINES)'
             ELSE
@@ -113,7 +113,7 @@
 
             CALL REDUCE_KFF_TO_KAA ( PART_VEC_F_AO )
 
-            CALL OURTIM                                    ! Reduce MFF to MAA 
+            CALL OURTIM                                    ! Reduce MFF to MAA
             IF (MATSPARS == 'Y') THEN
                MODNAM = 'REDUCE MFF TO MAA (SPARSE MATRIX ROUTINES)'
             ELSE
@@ -126,7 +126,7 @@
 
             IF ((SOL_NAME(1:5) /= 'MODES') .AND. (SOL_NAME(1:12) /= 'GEN CB MODEL')) THEN
 
-               IF (NTERM_PF > 0) THEN                      ! Reduce PF to PA 
+               IF (NTERM_PF > 0) THEN                      ! Reduce PF to PA
 
                   CALL OURTIM
                   IF (MATSPARS == 'Y') THEN
@@ -167,7 +167,7 @@ FreeS:      IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free th
                ENDIF
 
             ENDIF FreeS
- 
+
          ELSE                                              ! There is no O-set, so equate F, A sets
 
             CALL OURTIM
@@ -230,7 +230,7 @@ FreeS:      IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free th
 
          MODNAM = 'DEALLOCATE F-SET ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KFF  ', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KFF' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MFF  ', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'MFF' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PF   ', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'PF' )
@@ -240,7 +240,7 @@ FreeS:      IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free th
 
          MODNAM = 'DEALLOCATE GOA, ABAND ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate GOA  ', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'GOA' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate ABAND', CR13   ;   CALL DEALLOCATE_LAPACK_MAT ( 'ABAND' )
          WRITE(SC1,*) CR13
@@ -271,7 +271,7 @@ FreeS:      IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free th
 
          MODNAM = 'DEALLOCATE O SET ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KAO', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KAO' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KOO', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KOO' )
          WRITE(SC1,*) CR13
@@ -368,7 +368,7 @@ FreeS:      IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free th
                PART_VEC_SUB = 1
             ENDDO
 
-            CALL OURTIM                                       ! Reduce KFF to KAA 
+            CALL OURTIM                                       ! Reduce KFF to KAA
             IF (MATSPARS == 'Y') THEN
                MODNAM = 'REDUCE KFFD TO KAAD (SPARSE MATRIX ROUTINES)'
             ELSE
@@ -398,7 +398,7 @@ FreeS:      IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free th
 
          MODNAM = 'DEALLOCATE F-SET ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KFFD  ', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KFFD' )
          WRITE(SC1,*) CR13
 
@@ -406,7 +406,7 @@ FreeS:      IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free th
 
          MODNAM = 'DEALLOCATE GOA, ABAND ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate GOA  ', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'GOA' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate ABAND', CR13   ;   CALL DEALLOCATE_LAPACK_MAT ( 'ABAND' )
          WRITE(SC1,*) CR13
@@ -437,7 +437,7 @@ FreeS:      IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free th
 
          MODNAM = 'DEALLOCATE O SET ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KAOD', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KAOD' )
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KOOD', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KOOD' )
          WRITE(SC1,*) CR13

@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_A_LR
- 
+
 ! Call routines to reduce stiffness, mass, loads from A-set to L, R-sets
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, LINKNO,   NDOFA, NDOFG, NDOFL, NDOFR, NSUB, SOL_NAME,                       &
@@ -35,7 +35,7 @@
                                          NTERM_KAAD, NTERM_KLLD, NTERM_KRLD, NTERM_KRRD,                                           &
                                          NTERM_MAA , NTERM_MLL , NTERM_MRL , NTERM_MRR ,                                           &
                                          NTERM_PA  , NTERM_PL  , NTERM_PR
-      USE TIMDAT, ONLY                :  TSEC, YEAR, MONTH, DAY, HOUR, MINUTE, SEC, SFRAC, STIME       
+      USE TIMDAT, ONLY                :  TSEC, YEAR, MONTH, DAY, HOUR, MINUTE, SEC, SFRAC, STIME
       USE CONSTANTS_1, ONLY           :  ONE
       USE DOF_TABLES, ONLY            :  TDOFI
       USE RIGID_BODY_DISP_MATS, ONLY  :  RBGLOBAL_ASET, RBGLOBAL_GSET, RBGLOBAL_LSET
@@ -49,11 +49,11 @@
       USE FULL_MATRICES, ONLY         :  KAA_FULL
       USE OUTPUT4_MATRICES, ONLY      :  ACT_OU4_MYSTRAN_NAMES, NUM_OU4_REQUESTS
       USE DEBUG_PARAMETERS
- 
+
       USE REDUCE_A_LR_USE_IFs
-                   
+
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_A_LR'
       CHARACTER(  1*BYTE)             :: DEALLOCATE_KAA = 'Y'  ! Indicator of whether we need to keep KAA allocated for OU4 output
@@ -65,15 +65,15 @@
       CHARACTER(  1*BYTE)             :: DEALLOCATE_MRL = 'Y'  ! Indicator of whether we need to keep MRL allocated for OU4 output
       CHARACTER(  1*BYTE)             :: DEALLOCATE_MRR = 'Y'  ! Indicator of whether we need to keep MRR allocated for OU4 output
       CHARACTER(  1*BYTE)             :: DEALLOCATE_PA  = 'Y'  ! Indicator of whether we need to keep PA  allocated for OU4 output
-      CHARACTER(132*BYTE)             :: MATRIX_NAME           ! Name of matrix for printout 
+      CHARACTER(132*BYTE)             :: MATRIX_NAME           ! Name of matrix for printout
       CHARACTER( 44*BYTE)             :: MODNAM                ! Name to write to screen to describe module being run
- 
+
       INTEGER(LONG)                   :: DO_WHICH_CODE_FRAG    ! 1 or 2 depending on which seg of code to run (depends on BUCKLING)
       INTEGER(LONG)                   :: L_SET_COL             ! Col no. in array TDOFI where the F-set is (from subr TDOF_COL_NUM)
       INTEGER(LONG)                   :: L_SET_DOF             ! F-set DOF number
-      INTEGER(LONG)                   :: I,J                   ! DO loop indices               
-      INTEGER(LONG)                   :: PART_VEC_A_LR(NDOFA)  ! Partitioning vector (N set into F and S sets) 
-      INTEGER(LONG)                   :: PART_VEC_SUB(NSUB)    ! Partitioning vector (1's for all subcases) 
+      INTEGER(LONG)                   :: I,J                   ! DO loop indices
+      INTEGER(LONG)                   :: PART_VEC_A_LR(NDOFA)  ! Partitioning vector (N set into F and S sets)
+      INTEGER(LONG)                   :: PART_VEC_SUB(NSUB)    ! Partitioning vector (1's for all subcases)
 
 
       REAL(DOUBLE)                    :: KLL_DIAG(NDOFL)       ! Diagonal terms from KLL
@@ -170,7 +170,7 @@
 
             ENDIF
 
-! Reduce PA to PL. 
+! Reduce PA to PL.
 
             IF ((SOL_NAME(1:5) /= 'MODES') .AND. (SOL_NAME(1:12) /= 'GEN CB MODEL')) THEN
 
@@ -237,7 +237,7 @@
 
          MODNAM = '  DEALLOCATE A-SET ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
 
          IF (DEALLOCATE_KAA == 'Y') THEN
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KAA', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KAA' )
@@ -276,7 +276,7 @@
 
          MODNAM = '  DEALLOCATE R-SET ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
 
          IF (DEALLOCATE_KRL == 'Y') THEN
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KRL', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KRL' )
@@ -431,7 +431,7 @@
 
          MODNAM = '  DEALLOCATE A-SET ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
 
          IF (DEALLOCATE_KAAD == 'Y') THEN
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KAAD', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KAAD' )
@@ -460,7 +460,7 @@
 
          MODNAM = '  DEALLOCATE R-SET ARRAYS'
          WRITE(SC1,2092) MODNAM,HOUR,MINUTE,SEC,SFRAC
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
 
          IF (DEALLOCATE_KRLD == 'Y') THEN
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KRLD', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KRLD' )
@@ -494,4 +494,4 @@
 
 ! **********************************************************************************************************************************
 
-      END SUBROUTINE REDUCE_A_LR   
+      END SUBROUTINE REDUCE_A_LR

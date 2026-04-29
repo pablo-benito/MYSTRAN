@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE SHELL_ABD_MATRICES ( INT_ELEM_ID, WRITE_WARN )
 
@@ -95,10 +95,10 @@
       REAL(DOUBLE)                    :: PCOMP_TM           ! Membrane thickness of PCOMP for equivalent PSHELL
       REAL(DOUBLE)                    :: PCOMP_IB           ! Bending MOI of PCOMP for equivalent PSHELL
       REAL(DOUBLE)                    :: PCOMP_TS           ! Transverse shear thickness of PCOMP for equivalent PSHELL
-      REAL(DOUBLE)                    :: PLY_A(3,3)         ! Transformed material matrix A for a ply 
-      REAL(DOUBLE)                    :: PLY_B(3,3)         ! Transformed material matrix B for a ply 
-      REAL(DOUBLE)                    :: PLY_D(3,3)         ! Transformed material matrix D for a ply 
-      REAL(DOUBLE)                    :: PLY_T(2,2)         ! Transformed material matrix T for a ply 
+      REAL(DOUBLE)                    :: PLY_A(3,3)         ! Transformed material matrix A for a ply
+      REAL(DOUBLE)                    :: PLY_B(3,3)         ! Transformed material matrix B for a ply
+      REAL(DOUBLE)                    :: PLY_D(3,3)         ! Transformed material matrix D for a ply
+      REAL(DOUBLE)                    :: PLY_T(2,2)         ! Transformed material matrix T for a ply
       REAL(DOUBLE)                    :: SB                 ! Allowable interlaminar shear stress. Required if FT is specified
       REAL(DOUBLE)                    :: TREFK              ! Ref temperature for ply K
       REAL(DOUBLE)                    :: Z0                 ! Coord from ref plane to bottom surface of element
@@ -120,7 +120,7 @@
          WRITE(F06,1946) TYPE, SUBR_NAME
          RETURN
       ENDIF
-      
+
       CALL IS_ELEM_PCOMP_PROPS ( INT_ELEM_ID )
 
       SHELL_T_MOD = 'N'                                    ! Reset this to N every time this subr is called
@@ -150,7 +150,7 @@ pcom0:IF (PCOMP_PROPS == 'N') THEN                         ! Element is not a co
             FCONV(3)          =  TS
          ENDIF
 
-         IF ((TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'TRIA3')) THEN 
+         IF ((TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'TRIA3')) THEN
             MASS_PER_UNIT_AREA = (RHO(1)*TM + NSM)
          ENDIF
 
@@ -186,12 +186,12 @@ pcom0:IF (PCOMP_PROPS == 'N') THEN                         ! Element is not a co
          ALPM(1) = ALPVEC(1,1)                             ! xx
          ALPM(2) = ALPVEC(2,1)                             ! yy
          ALPM(3) = ALPVEC(4,1)                             ! xy
- 
+
          CALL MATMULT_FFF ( EB, ALPB, 3, 3, 1, DUM )
          DO I=1,3
             SHELL_DALP(I) = IB*DUM(I)
          ENDDO
- 
+
          CALL MATMULT_FFF ( EM, ALPM, 3, 3, 1, DUM )
          DO I=1,3
             SHELL_AALP(I) = TM*DUM(I)
@@ -219,7 +219,7 @@ pcom0:IF (PCOMP_PROPS == 'N') THEN                         ! Element is not a co
          EPROP(5) =  RPCOMP(INTL_PID,2)    ;    NSM   = EPROP(5)
          EPROP(6) =  RPCOMP(INTL_PID,3)    ;    SB    = EPROP(6)
          EPROP(7) =  RPCOMP(INTL_PID,4)    ;    TREFK = EPROP(7)
-         EPROP(8) =  Z0                    ;    ZS(1) = EPROP(8) 
+         EPROP(8) =  Z0                    ;    ZS(1) = EPROP(8)
          EPROP(9) = -Z0                    ;    ZS(2) = EPROP(9)
 
          FT = PCOMP(INTL_PID,3)
@@ -313,7 +313,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
             INTL_MID(1) = PCOMP(INTL_PID,PLY_PCOMP_INDEX)  ! Shell A, D, T use membrane material props
 
             INTL_MID(2) = INTL_MID(1)                      ! Need to have INTL_MID(2) nonzero so that subr QDEL1,TREL1
-!                                                            will call subr to calc bending stiffness. Also SEi depends on EB 
+!                                                            will call subr to calc bending stiffness. Also SEi depends on EB
 
             INTL_MID(3) = INTL_MID(1)                      ! Shell T uses transverse shear material props unless material matrix
 !                                                            calcuated below has zero transverse shear modulus in which case
@@ -327,7 +327,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
             ZPLY      = RPCOMP(INTL_PID,PLY_RPCOMP_INDEX+2)! Coord of mid plane of ply relative to mid plane of elem
 
             IF      ((TYPE == 'QDMEM   ') .OR. (TYPE == 'QUAD4K  ') .OR. (TYPE == 'QUAD4   ') .OR.                                 &
-                     (TYPE == 'TRMEM   ') .OR. (TYPE == 'TRIA3K  ') .OR. (TYPE == 'TRIA3   ')) THEN 
+                     (TYPE == 'TRMEM   ') .OR. (TYPE == 'TRIA3K  ') .OR. (TYPE == 'TRIA3   ')) THEN
                MASS_PER_UNIT_AREA = MASS_PER_UNIT_AREA + (RHO(1)*TPLY)
             ELSE IF ((TYPE == 'QDPLT1  ') .OR. (TYPE == 'QDPLT2  ') .OR.                                                           &
                      (TYPE == 'TRPLT1  ') .OR. (TYPE == 'TRPLT2  ')) THEN
@@ -354,7 +354,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
                   IF (INTL_MID(J) /= 0) THEN
                      EMAT(I,J) = RMATL(INTL_MID(J),I)
                   ENDIF
-               ENDDO 
+               ENDDO
             ENDDO
 
             IF (PCOMP(INTL_PID,2) == 0) THEN               ! Props were defined on a PCOMP entry so we need to modify TREF to be
@@ -368,7 +368,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
                   ENDIF
                ENDDO
             ENDIF
- 
+
             EMAT(MRMATLC+1,3) = SB                         ! SB is the allowable interlaminar shear stress (on PCOMP B.D. entry)
             EMAT(MRMATLC+2,3) = SB
             CALL MATERIAL_PROPS_2D ( WRITE_WARN )
@@ -390,7 +390,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
             PCOMP_IB = PCOMP_IB + THIRD*(ZTK3 - ZBK3)
                                                            ! PCMPTSTM is a factor (< 1) for shear to total plate thickness for PCOMP
             PCOMP_TS = PCOMP_TS +       (ZTK  - ZBK )*PCMPTSTM
- 
+
             IF (TYPE == 'SHEAR   ') THEN                   ! For SHEAR elem there is only SHELL_A and only its 3,3 term is nonzreo
                DO I=1,3
                   DO J=1,3
@@ -466,7 +466,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
          EPROP(2) = TWELVE*PCOMP_IB/(PCOMP_TM*PCOMP_TM*PCOMP_TM)
          EPROP(3) = PCOMP_TS/PCOMP_TM
 
-         IF (WRT_BUG(1) > 0) THEN  
+         IF (WRT_BUG(1) > 0) THEN
             CALL BUG_SHELL_ABD_MATRICES ( 0, 23 )
          ENDIF
 
@@ -478,10 +478,10 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
             IF ((PCOMP_TM > EPS1) .AND. (PCOMP_IB > EPS1) .AND. (PCOMP_TS > EPS1)) THEN
                CALL WRITE_PCOMP_EQUIV ( PCOMP_TM, PCOMP_IB, PCOMP_TS )
             ELSE
-               WRITE(ERR,9800) PCOMP(INTL_PID,1), PCOMP_TM, PCOMP_IB, PCOMP_TS 
-               WRITE(F06,9800) PCOMP(INTL_PID,1), PCOMP_TM, PCOMP_IB, PCOMP_TS 
+               WRITE(ERR,9800) PCOMP(INTL_PID,1), PCOMP_TM, PCOMP_IB, PCOMP_TS
+               WRITE(F06,9800) PCOMP(INTL_PID,1), PCOMP_TM, PCOMP_IB, PCOMP_TS
             ENDIF
-         ENDIF  
+         ENDIF
 
       ENDIF pcom0
 
@@ -495,7 +495,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
          SHELL_T(2,1) = ZERO
          WRITE(ERR,9801) EID, SHELL_T(1,1), SHELL_T(2,2)
 !        WRITE(F06,9801) EID, SHELL_T(1,1), SHELL_T(2,2)
-         SHELL_T_MOD = 'Y' 
+         SHELL_T_MOD = 'Y'
       ENDIF
 
 
@@ -518,7 +518,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
              ' TO SINGULARITY.',/, 14X,' THIS RESET COULD HAVE BEEN AVOIDED BY SPECIFYING TRANSVERSE SHEAR MATERIAL PROPERTIES',   &
              ' FOR THIS ELEMENT.',/,14X,' THE RESET VALUES FOR THE DIAGONALS OF THE 2 BY 2 SHELL_T',     &
              ' MATRIX FOR THIS ELEMENT ARE:', 2(1ES14.6),/,14X,' IN AN ATTEMPT TO SIMULATE ZERO TRANSVERSE SHEAR FLEXIBILITY'/)
-             
+
 
 
 49832 format(' In SHELL_ABD_MATRICES: TM, IB, TS, FCONV(1), FCONV(2) = ',5(1es14.6))
@@ -540,7 +540,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
 
 ! ##################################################################################################################################
@@ -555,7 +555,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
       CHARACTER(4*BYTE)               :: MTRL_NAME         ! Material name (MAT1, etc)
 
       INTEGER(LONG), INTENT(IN)       :: JPLY              ! Integer ply number
-      INTEGER(LONG)                   :: IIROW,IICOL       ! 
+      INTEGER(LONG)                   :: IIROW,IICOL       !
       INTEGER(LONG)                   :: J1,J2             ! Counters
       INTEGER(LONG)                   :: PCOMP_PLIES       ! Number of plies in 1 PCOMP entry incl sym plies not explicitly defined
       INTEGER(LONG), INTENT(IN)       :: WHAT              ! Which block of code to write
@@ -564,7 +564,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
       IF      (WHAT == 13) THEN
 
          WRITE(BUG,91301)
- 
+
          DO I=1,3                                         ! Write final result, SHELL_A
             WRITE(BUG,91302) I, (SHELL_A(I,J),J=1,3)
          ENDDO
@@ -584,7 +584,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
             WRITE(BUG,91305) I, (SHELL_T(I,J),J=1,2)
          ENDDO
          WRITE(BUG,*)
- 
+
       ELSE IF (WHAT == 20) THEN
 
          PCOMP_PLIES = PCOMP(INTL_PID,5)
@@ -632,12 +632,12 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
                J1 = MPCOMP0 + MPCOMP_PLIES*(J-1) + 1
                J2 = MRPCOMP0 + MRPCOMP_PLIES*(J-1) + 1
                IF (PCOMP(INTL_PID,J1+1) == 0) THEN
-                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (NO )', RPCOMP(INTL_PID,J2+2) 
+                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (NO )', RPCOMP(INTL_PID,J2+2)
                ELSE
-                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (YES)', RPCOMP(INTL_PID,J2+2) 
+                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (YES)', RPCOMP(INTL_PID,J2+2)
                ENDIF
             ENDDO
-            WRITE(BUG,92007) RPCOMP(INTL_PID,6) 
+            WRITE(BUG,92007) RPCOMP(INTL_PID,6)
             WRITE(BUG,*)
 
          ELSE
@@ -650,9 +650,9 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
                J1 = MPCOMP0 + MPCOMP_PLIES*(J-1) + 1
                J2 = MRPCOMP0 + MRPCOMP_PLIES*(J-1) + 1
                IF (PCOMP(INTL_PID,J1+1) == 0) THEN
-                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (NO )', RPCOMP(INTL_PID,J2+2) 
+                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (NO )', RPCOMP(INTL_PID,J2+2)
                ELSE
-                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (YES)', RPCOMP(INTL_PID,J2+2) 
+                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (YES)', RPCOMP(INTL_PID,J2+2)
                ENDIF
             ENDDO
             WRITE(BUG,*)
@@ -663,12 +663,12 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
                J1 = MPCOMP0 + MPCOMP_PLIES*(J-1) + 1
                J2 = MRPCOMP0 + MRPCOMP_PLIES*(J-1) + 1
                IF (PCOMP(INTL_PID,J1+1) == 0) THEN
-                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (NO )', RPCOMP(INTL_PID,J2+2) 
+                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (NO )', RPCOMP(INTL_PID,J2+2)
                ELSE
-                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (YES)', RPCOMP(INTL_PID,J2+2) 
+                  WRITE(BUG,92008) J, MATL(IIROW,1), RPCOMP(INTL_PID,J2), RPCOMP(INTL_PID,J2+1), '0 (YES)', RPCOMP(INTL_PID,J2+2)
                ENDIF
             ENDDO
-            WRITE(BUG,92007) RPCOMP(INTL_PID,6) 
+            WRITE(BUG,92007) RPCOMP(INTL_PID,6)
             WRITE(BUG,*)
 
          ENDIF
@@ -717,7 +717,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
          DO I=1,2                                          ! Write transformed material matrices, EM, ET
             WRITE(BUG,92205) I, (EM(I,J),J=1,3), I, (ET(I,J),J=1,2)
          ENDDO
-         DO I=3,3 
+         DO I=3,3
             WRITE(BUG,92206) I, (EM(I,J),J=1,3)
          ENDDO
          WRITE(BUG,*)
@@ -745,7 +745,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
          WRITE(BUG,*)
 
       ELSE IF (WHAT == 23) THEN
-         
+
          PCOMP_PLIES = PCOMP(INTL_PID,5)
          WRITE(BUG,92301) PCOMP(INTL_PID,1), PCOMP_PLIES
 
@@ -797,7 +797,7 @@ ply_do:  DO K=1,NUM_PLIES_TO_PROC
 
 92006 format(29x,'Ply no.         Actual      Thickness     Matl angle      SOUTi           ZI      ',/,                           &
              29x,'               Matl  ID       TPLY          THETAi                  (Coord of mid)',/,                           &
-             29x,'-------      ------------  ------------  ------------  ------------  ------------') 
+             29x,'-------      ------------  ------------  ------------  ------------  ------------')
 
 92007 FORMAT(56x,'------------',/,54X,1ES14.6,'  total thickness')
 

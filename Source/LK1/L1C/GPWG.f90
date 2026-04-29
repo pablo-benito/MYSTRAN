@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                            
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
 
 ! End MIT license text
 
       SUBROUTINE GPWG ( WHICH )
- 
+
 ! Generates rigid body mass properties for the finite element model
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, OP2, SC1, WRT_BUG, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELDT_BUG_ME_BIT, IBIT, MBUG, NCONM2, NCORD, NELE, NGRID, SOL_NAME, WARN_ERR
@@ -39,11 +39,11 @@
                                          GRID, GRID_ID, MCG, ME, MEFFMASS_CALC, MEFM_RB_MASS,                                      &
                                          MODEL_MASS, MODEL_IXX, MODEL_IYY, MODEL_IZZ, MODEL_XCG, MODEL_YCG, MODEL_ZCG,             &
                                          OFFDIS, OFFSET, PLY_NUM, RCONM2, RGRID, TYPE, USERIN_RBM0
- 
+
       USE GPWG_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'GPWG'
       CHARACTER(12*BYTE), INTENT(IN)  :: WHICH             ! Whether to get mass props for
@@ -102,14 +102,14 @@
       INTEGER(LONG)                   :: ANALYSIS_CODE     ! the result type
       INTEGER(LONG), PARAMETER        :: TABLE_CODE = 0    ! is this right?
       CHARACTER(LEN=8)                :: TABLE_NAME         ! Name of the op2 table that we're writing
- 
+
       INTRINSIC                       :: DABS
       INTRINSIC                       :: IAND
 
 
 
 ! **********************************************************************************************************************************
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
       EPS1 = EPSIL(1)
 
@@ -123,7 +123,7 @@
          REFPNT = MEFMGRID
       ELSE
          REFPNT = GRDPNT
-      ENDIF 
+      ENDIF
 
       ! Get reference point coordinates in basic system for the reference point
       IF (REFPNT /= -1) THEN
@@ -143,15 +143,15 @@
             REFPNT = REFPNT_DEF
          ENDIF
       ENDIF
- 
+
 ! Generate total mass, first and second moments by summing up mass terms. XD(i) are components of vector from
 ! ref point to a mass point. At this time, mass units are input units without PARAM WTMASS which is what we want for
 ! the grid point weight generator. Later the mass will be converted by multiplying by WTMASS.
- 
+
       MASS  = ZERO
       MX    = ZERO
       MY    = ZERO
-      MZ    = ZERO   
+      MZ    = ZERO
       DO I=1,3
          DO J=1,3
             MOI1(I,J) = ZERO
@@ -160,7 +160,7 @@
       XB(1) = ZERO
       XB(2) = ZERO
       XB(3) = ZERO
- 
+
       ! First process element mass terms
       OPT(1) = 'Y'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'N'                                         ! OPT(2) is for calc of PTE
@@ -268,7 +268,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
 
             ENDIF
 
-         ELSE 
+         ELSE
 
             IERROR = IERROR + NUM_EMG_FATAL_ERRS
             CYCLE
@@ -292,7 +292,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
 ! so that this subr must be run after subr CONM2_PROC_1 and before subr CONM2_PROC_2.
 ! We process all CONM2's, and add values for repeated grids (i.e. if model has 2 diff CONM2's at the same grid the mass props
 ! for that grid will be the sum of the mass props for each grid)
- 
+
       DO I=1,NCONM2
 
          GRID_NUM = CONM2(I,2)
@@ -304,7 +304,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
          DY        = RCONM2(I,3)
          DZ        = RCONM2(I,4)
 
-         ! XD(i) are distances from XREF to the i-th mass 
+         ! XD(i) are distances from XREF to the i-th mass
          XD(1)     = RGRID(GRID_ID_ROW_NUM,1) + DX - XREF(1)
          XD(2)     = RGRID(GRID_ID_ROW_NUM,2) + DY - XREF(2)
          XD(3)     = RGRID(GRID_ID_ROW_NUM,3) + DZ - XREF(3)
@@ -332,7 +332,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
          MOI1(3,1) = MOI1(3,1) + RCONM2(I, 8) - M0*XZ
          MOI1(3,2) = MOI1(3,2) + RCONM2(I, 9) - M0*YZ
 
-      ENDDO   
+      ENDDO
 
       ! Set other 3 products of inertia based on symmetry
       MOI1(1,2) = MOI1(2,1)
@@ -358,7 +358,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
          XB(2) = MY/MASS
          XB(3) = MZ/MASS
       ENDIF
- 
+
       ! M0 - RB_MASS_BASIC: is 6x6 rigid body mass matrix about ref point in basic coords
       DO I=1,6                                             ! Init
          DO J=1,6
@@ -436,7 +436,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
          WRITE(F06,*)
 
       ENDIF
- 
+
       ! S, TRANS: Generate moments of inertia about c.g. in basic coord. system
       TRANS(1,1) =  MASS*(XB(2)*XB(2) + XB(3)*XB(3))
       TRANS(2,2) =  MASS*(XB(1)*XB(1) + XB(3)*XB(3))
@@ -452,16 +452,16 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
             MOI1(I,J) = MOI1(I,J) - TRANS(I,J)
          ENDDO
       ENDDO
- 
+
       ! backup MOI1 to create IS
       IS(1,1) = MOI1(1,1)
       IS(2,2) = MOI1(2,2)
       IS(3,3) = MOI1(3,3)
-      
+
       IS(1,2) = MOI1(1,2)
       IS(1,3) = MOI1(1,3)
       IS(2,3) = MOI1(2,3)
-      
+
       IS(2,1) = MOI1(1,2)
       IS(3,1) = MOI1(1,3)
       IS(3,2) = MOI1(2,3)
@@ -497,12 +497,12 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
          WRITE(F06,*)
          WRITE(F06,*)
       ENDIF
- 
+
       ! Q - Get principal MOI's and S transformation matrix (eigenvectors of MOI1)
       CALL GPWG_PMOI ( MOI1, Q, INFO )
- 
+
       ! Write out princ MOI's and coord transf. Otherwise errors were written in subr GPWG_PMOI
-      IF ((INFO == 0) .AND. (REFPNT >= 0)) THEN  
+      IF ((INFO == 0) .AND. (REFPNT >= 0)) THEN
 
          IF(REFPNT > -1) THEN
            ITABLE = -3
@@ -510,7 +510,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
  2         FORMAT("* DEBUG OGPWG ITABLE=",i4)
            WRITE(ERR,1) "START"
            WRITE(ERR,2) ITABLE
-           
+
            TABLE_NAME = "OGPWG   "
            CALL WRITE_TABLE_HEADER(TABLE_NAME)
            ANALYSIS_CODE = 1   ! TODO: this is probably wrong, but is weird for this table
@@ -531,9 +531,9 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
            !data = (self.MO.ravel().tolist() + self.S.ravel().tolist() +
            !        mcg.ravel().tolist() + self.IS.ravel().tolist() + self.IQ.ravel().tolist() +
            !        self.Q.ravel().tolist())
-           
+
            ! not verified
-           ! mass shouldn't be a scalar (it's a vector), 
+           ! mass shouldn't be a scalar (it's a vector),
            ! but for physical structure they're all the same
            WRITE(OP2) 78   ! the number of values we're going to write
            WRITE(OP2) ((REAL(RB_MASS_BASIC(I,J), 4), J=1,6), I=1,6),              & ! (6,6) MO - 36
@@ -558,7 +558,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
 
          WRITE(F06,1008)
          WRITE(F06,1900)
-         
+
          ! I(Q) - MOI1 is now principal MOI matrix
          DO I=1,3
             WRITE(F06,1101) (MOI1(I,J),J=1,3)
@@ -566,7 +566,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
          WRITE(F06,1900)
          WRITE(F06,*)
          WRITE(F06,*)
- 
+
          WRITE(F06,1009)
          WRITE(F06,1900)
          DO I=1,3
@@ -576,7 +576,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
          WRITE(F06,*)
          WRITE(F06,*)
       ENDIF
- 
+
 
 
       RETURN
@@ -631,7 +631,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE GPWG
 
 !-------------------------------------------------------------------------------------------------------------
@@ -639,11 +639,11 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
 
      USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY               :  ERR, F06, OP2
- 
+
       USE WRITE_ROD_USE_IFs
 
       IMPLICIT NONE
- 
+
       !INTEGER(LONG), INTENT(IN)       :: ISUBCASE          ! the current subcase
       INTEGER(LONG), INTENT(INOUT)    :: ITABLE            ! the current op2 subtable, should be -3, -5, ...
       CHARACTER(LEN=128)              :: TITLE             ! the model TITLE
@@ -660,7 +660,7 @@ userin:        IF ((WHICH(1:8) == 'OA MODEL') .OR. (WHICH(1:6) == 'USERIN')) THE
       SUBTITLE = ""
       LABEL = ""
       DEVICE_CODE = 1  ! plot
-      
+
       APPROACH_CODE = ANALYSIS_CODE*10 + DEVICE_CODE
 
       ! 584 bytes

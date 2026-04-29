@@ -1,68 +1,68 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_BEAMOR0 ( CARD )
- 
+
 ! Processes BEAMOR Bulk Data Card to increment LVVEC if the BEAMOR card
 ! has a V vector. Also, determine type of V vector is on this BEAMOR card.
 ! When this subr finishes, BEAMOR_VVEC_TYPE will be either:
 !         a) 'VECTOR   ' means this BEAMOR card had V vector in fields 6-8
 !         b) 'GRID     ' means this BEAMOR card had an integer in field 6
-!                        and blank fields 7 and 8 (indicating a grid for V vector).           
+!                        and blank fields 7 and 8 (indicating a grid for V vector).
 !         c) 'UNDEFINED' means this BEAMOR card had blank fields 6, 7 and 8
 !         d) 'ERROR    ' means anything but (a), (b), or (c). Subr BD_BEAMOR will print error
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, IERRFL, JCARD_LEN, JF, LVVEC, NBEAMOR
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  BEAMOR_PID, BEAMOR_G0, BEAMOR_VV, BEAMOR_VVEC_TYPE, JBEAMOR
- 
+
       USE BD_BEAMOR0_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_BEAMOR0'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
- 
+
       INTEGER(LONG)                   :: I4INP     = 0     ! A value read from input file that should be an integer value
       INTEGER(LONG)                   :: J                 ! DO loop index
       INTEGER(LONG)                   :: JERR      = 0     ! A local error count
 
- 
+
       REAL(DOUBLE)                    :: R8INP             ! A value read from input file that should be a real value
 
 
 
 ! **********************************************************************************************************************************
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Count the number of BEAMOR cards. The count will be checked to make sure that there is no more than 1 in subr LOADB
 
       NBEAMOR = NBEAMOR + 1
@@ -74,7 +74,7 @@
 
          DO J=1,10                                         ! Set JBEAMOR to JCARD. We need JBEAMOR(3) (the prop ID) in subr ELEPRO
             JBEAMOR(J) = JCARD(J)
-         ENDDO 
+         ENDDO
 
          IF (JCARD(3)(1:) /= ' ') THEN
             CALL I4FLD ( JCARD(3), JF(3), I4INP )
@@ -107,7 +107,7 @@
                ENDIF
             ENDDO
             IF (JERR /= 0) THEN
-               BEAMOR_VVEC_TYPE = 'ERROR    '               ! Found err in V vec components, so reset BEAMOR_VVEC_TYPE to 'ERROR' 
+               BEAMOR_VVEC_TYPE = 'ERROR    '               ! Found err in V vec components, so reset BEAMOR_VVEC_TYPE to 'ERROR'
             ENDIF
 
          ELSE                                              ! Check to see if there is a grid no. for specifying VVEC
@@ -136,7 +136,7 @@
             ENDIF
 
          ENDIF
- 
+
       ENDIF
 
 
@@ -144,5 +144,5 @@
       RETURN
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_BEAMOR0

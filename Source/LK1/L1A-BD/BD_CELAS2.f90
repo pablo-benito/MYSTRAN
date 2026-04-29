@@ -1,65 +1,65 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_CELAS2 ( CARD )
- 
+
 ! Processes CELAS2 Bulk Data Cards
 !  1) Sets ETYPE for this element type
 !  2) Calls subr ELEPRO to read element ID, property ID and connection data into array EDAT
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, MEDAT_CELAS2, NCELAS2, NELE, NEDAT, NPELAS
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  EDAT, ETYPE, PELAS, RPELAS
- 
+
       USE BD_CELAS2_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_CELAS2'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
       CHARACTER(LEN(JCARD))           :: CELAS_ELID        ! Field 2 of CELAS2 card (this CELAS2's elem ID)
       CHARACTER(LEN(JCARD))           :: JCARD_EDAT(10)    ! JCARD but with fields 5 and 6 switched to get G.P.'s together in EDAT
- 
+
       INTEGER(LONG)                   :: ELEM_ID           ! Elem ID from field 2
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: I4INP             ! An integer read
       INTEGER(LONG)                   :: IDOF              ! Displ component (1,2,3,4,5 or 6) that one end of CELSA conn. to
       INTEGER(LONG)                   :: IERR              ! Error count
 
- 
+
       REAL(DOUBLE)                    :: R8INP             ! A real value read
 
 
 
 ! **********************************************************************************************************************************
 ! CELAS2 scalar spring element Bulk Data Card routine
- 
+
 !   FIELD   ITEM           ARRAY ELEMENT
 !   -----   ------------   -------------
 !    1      Element type   ETYPE(nele) =E1 for CELAS2
@@ -74,9 +74,9 @@
 !  none     Prop ID, PID   EDAT(nedat,2) (created: PID = -EID)
 
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! First, check that fields 2-9 have the proper data type (we are going to have to rearrange the fields prior to calling ELEPRO).
 ! If any erors, return
 
@@ -114,7 +114,7 @@
 
       DO I=1,10
          JCARD_EDAT(I) = JCARD(I)
-      ENDDO 
+      ENDDO
 
 ! Now change JCARD(3) to be a property ID so that subr ELEPRO will handle EDAT data correctly. We want PID = -EID but we send
 ! JCARD(3) = JCARD(2) (which has PID = EID) to ELEPRO. When ELEPRO returns change term in EDAT for PID to be -PID (i.e. PID = -EID)
@@ -122,20 +122,20 @@
       JCARD_EDAT(3) = JCARD_EDAT(2)
 
 ! Flip Comp-A and Grid-B in JCARD_EDAT so when ELEPRO runs it will have Grid-A and Grid-B back-to-back
- 
+
       JCARD_EDAT(5) = JCARD(6)
       JCARD_EDAT(6) = JCARD(5)
                                                            ! Do not check fields. That was already done above
       CALL ELEPRO ( 'Y', JCARD_EDAT, 6, MEDAT_CELAS2, 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N' )
       NCELAS2 = NCELAS2+1
       ETYPE(NELE) = 'ELAS2   '
- 
+
 ! Now change PID in EDAT to -PID
 
-      EDAT(NEDAT-4) = -EDAT(NEDAT-4)      
+      EDAT(NEDAT-4) = -EDAT(NEDAT-4)
 
 ! Check to make sure that numbers in fields 5 and 7 are valid component numbers
- 
+
       IF (IERRFL(JF(5)) == 'N') THEN
          CALL I4FLD ( JCARD(5), JF(5), IDOF )
          IF ((IDOF <= 0) .OR. (IDOF > 6)) THEN
@@ -144,7 +144,7 @@
             WRITE(F06,1133) IDOF,JF(5),CELAS_ELID
          ENDIF
       ENDIF
- 
+
       IF (IERRFL(JF(7)) == 'N') THEN
          CALL I4FLD ( JCARD(7), JF(7), IDOF )
          IF ((IDOF <= 0) .OR. (IDOF > 6)) THEN
@@ -153,10 +153,10 @@
             WRITE(F06,1133) IDOF,JF(7),CELAS_ELID
          ENDIF
       ENDIF
- 
+
       CALL BD_IMBEDDED_BLANK   ( JCARD,2,3,4,5,6,7,8,9 )   ! Make sure that there are no imbedded blanks in fields 2-7
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
- 
+
 
 
       RETURN
@@ -165,5 +165,5 @@
  1133 FORMAT(' *ERROR  1133: INVALID COMPONEMT NUMBER = ',I8,' IN FIELD ',I2,' ON CELAS2 ID = ',A8,' .MUST BE SINGLE DIGIT 1-6')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_CELAS2

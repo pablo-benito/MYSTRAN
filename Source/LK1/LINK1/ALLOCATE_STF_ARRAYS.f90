@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
-! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
 
-      SUBROUTINE ALLOCATE_STF_ARRAYS ( NAME, CALLING_SUBR )  
- 
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
+! _______________________________________________________________________________________________________
+
+! End MIT license text.
+
+      SUBROUTINE ALLOCATE_STF_ARRAYS ( NAME, CALLING_SUBR )
+
 !  Allocate some arrays for use in LINK1
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE CONSTANTS_1, ONLY           :  ZERO, TWO, ONEPP6
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
@@ -37,19 +37,19 @@
       USE PARAMS, ONLY                :  MEMAFAC, MXALLOCA, SUPINFO, WINAMEM
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE STF_ARRAYS, ONLY            :  STF, STFCOL, STFKEY, STFPNT, STF3
- 
+
       USE ALLOCATE_STF_ARRAYS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ALLOCATE_STF_ARRAYS'
       CHARACTER(LEN=*), INTENT(IN)    :: CALLING_SUBR      ! Array name of the matrix to be allocated in sparse format
       CHARACTER(LEN=*), INTENT(IN)    :: NAME              ! Array name (used for output error message)
       CHARACTER( 1*BYTE)              :: ALLOC_SUCCESS     ! 'Y' if an allocation attempt was successful
- 
+
       INTEGER(LONG)                   :: ALLOC_ATTEMPT_NUM ! The number of times an attempt has been made to allocate an array
-      INTEGER(LONG)                   :: I                 ! DO loop index   
+      INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
       INTEGER(LONG)                   :: LTERM             ! Count of number of estimated terms in KGG or KGGD
@@ -203,7 +203,7 @@
 
          NTERMS = LTERM
          MB_NEEDED = RDOUBLE*REAL(NTERMS)/ONEPP6 + TWO*RLONG*REAL(NTERMS)/ONEPP6
-         IF (MB_NEEDED >= WINAMEM) THEN                 ! Reduce request for memory to 
+         IF (MB_NEEDED >= WINAMEM) THEN                 ! Reduce request for memory to
             NTERMS = MEMAFAC*(WINAMEM/MB_NEEDED)*NTERMS
          ENDIF
          ALLOC_ATTEMPT_NUM = 1
@@ -320,6 +320,6 @@ i_do:          DO
 32345 FORMAT(5X,'Attempt ', I3,' to alloc ', F9.3,' MB memory to array ',A, A, A)
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE ALLOCATE_STF_ARRAYS  
+
+      END SUBROUTINE ALLOCATE_STF_ARRAYS
 

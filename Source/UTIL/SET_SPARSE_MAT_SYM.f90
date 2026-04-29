@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SET_SPARSE_MAT_SYM
 
 ! Sets symmetry indicators for sparse matrices depending on Bulk Data PARAM SPARSTOR
-                 
+
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
 
       USE PARAMS, ONLY                :  SPARSTOR, SUPINFO
@@ -115,11 +115,11 @@
          SYM_MSF      = 'N'
          SYM_MSS      = 'Y'
          SYM_PF       = 'N'
-         SYM_PF_TMP   = 'N' 
-         SYM_PFYS     = 'N'  
-         SYM_PFYS1    = 'N' 
-         SYM_PS       = 'N' 
-         SYM_QSYS     = 'N' 
+         SYM_PF_TMP   = 'N'
+         SYM_PFYS     = 'N'
+         SYM_PFYS1    = 'N'
+         SYM_PS       = 'N'
+         SYM_QSYS     = 'N'
 
          SYM_KAA      = 'Y'
          SYM_KAO      = 'N'
@@ -135,16 +135,16 @@
          SYM_GOA      = 'N'
          SYM_GOAt     = 'N'
 
-         SYM_KLL      = 'Y'        
-         SYM_KLLs     = 'Y'        
-         SYM_KRL      = 'N'      
-         SYM_KRR      = 'Y'     
-         SYM_KLLD     = 'Y'        
-         SYM_KLLDs    = 'Y'        
-         SYM_KRLD     = 'N'      
-         SYM_KRRD     = 'Y'     
-         SYM_MPF0     = 'N'  
-         SYM_MLL      = 'Y'  
+         SYM_KLL      = 'Y'
+         SYM_KLLs     = 'Y'
+         SYM_KRL      = 'N'
+         SYM_KRR      = 'Y'
+         SYM_KLLD     = 'Y'
+         SYM_KLLDs    = 'Y'
+         SYM_KRLD     = 'N'
+         SYM_KRRD     = 'Y'
+         SYM_MPF0     = 'N'
+         SYM_MLL      = 'Y'
          SYM_MLLn     = 'N'
          SYM_MLLs     = 'Y'
          SYM_MLR      = 'N'
@@ -223,11 +223,11 @@
          SYM_MSF      = 'N'
          SYM_MSS      = 'N'
          SYM_PF       = 'N'
-         SYM_PF_TMP   = 'N' 
-         SYM_PFYS     = 'N'  
-         SYM_PFYS1    = 'N' 
-         SYM_PS       = 'N' 
-         SYM_QSYS     = 'N' 
+         SYM_PF_TMP   = 'N'
+         SYM_PFYS     = 'N'
+         SYM_PFYS1    = 'N'
+         SYM_PS       = 'N'
+         SYM_QSYS     = 'N'
 
          SYM_KAA      = 'N'
          SYM_KAO      = 'N'
@@ -243,16 +243,16 @@
          SYM_GOA      = 'N'
          SYM_GOAt     = 'N'
 
-         SYM_KLL      = 'N'        
+         SYM_KLL      = 'N'
          SYM_KLLs     = 'Y'                                ! KLLs is always symmetric
-         SYM_KRL      = 'N'      
-         SYM_KRR      = 'N'     
-         SYM_KLLD     = 'N'        
+         SYM_KRL      = 'N'
+         SYM_KRR      = 'N'
+         SYM_KLLD     = 'N'
          SYM_KLLDs    = 'Y'                                ! KLLs is always symmetric
-         SYM_KRLD     = 'N'      
-         SYM_KRRD     = 'N'     
-         SYM_MPF0     = 'N'  
-         SYM_MLL      = 'N'  
+         SYM_KRLD     = 'N'
+         SYM_KRRD     = 'N'
+         SYM_MPF0     = 'N'
+         SYM_MLL      = 'N'
          SYM_MLLn     = 'N'
          SYM_MLLs     = 'Y'                                ! MLLs is always symmetric
          SYM_MLR      = 'N'

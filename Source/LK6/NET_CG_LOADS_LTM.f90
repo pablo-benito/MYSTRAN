@@ -1,38 +1,38 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE NET_CG_LOADS_LTM
- 
+
 ! Merges matrices to get the net CG Loads Transformation Matrix (LTM):
 
 !            CG_LTM   = MCG(-1)*TR6_CG'*| MRRcb  MRN  0RR |     6x(2R+N)
 
 ! For a description of Craig-Bamptom analyses, see Appendix D to the MYSTRAN User's Referance Manual
 
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, NDOFR, NTERM_MRRcbn, NTERM_MRN, NTERM_CG_LTM, NUM_CB_DOFS
@@ -42,9 +42,9 @@
       USE RIGID_BODY_DISP_MATS, ONLY  :  TR6_CG, TR6_0
       USE MODEL_STUF, ONLY            :  MCG
       USE OUTPUT4_MATRICES, ONLY      :  RBM0
-      USE SPARSE_MATRICES, ONLY       :  SYM_MRN   , SYM_MRRcbn, SYM_CG_LTM  
+      USE SPARSE_MATRICES, ONLY       :  SYM_MRN   , SYM_MRRcbn, SYM_CG_LTM
       USE SPARSE_MATRICES, ONLY       :  I_MRRcbn  , J_MRRcbn  , MRRcbn   ,  I_MRN      , J_MRN      , MRN      ,                  &
-                                         I_CG_LTM  , J_CG_LTM  , CG_LTM   
+                                         I_CG_LTM  , J_CG_LTM  , CG_LTM
 
       USE SCRATCH_MATRICES, ONLY      :  I_CRS1, J_CRS1, CRS1, I_CRS2, J_CRS2, CRS2, I_CCS1, J_CCS1, CCS1
 
@@ -52,7 +52,7 @@
       USE NET_CG_LOADS_LTM_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'NET_CG_LOADS_LTM'
 
       INTEGER(LONG)                   :: AROW_MAX_TERMS    ! Max number of terms in any row of matrix A sent to subr MATMULT_SSS
@@ -64,7 +64,7 @@
 
 
       REAL(DOUBLE)                    :: DUM1(NDOFR,6)     ! MRRcbn*TR6_CG
-      REAL(DOUBLE)                    :: DUM2(6,NDOFR)     ! 
+      REAL(DOUBLE)                    :: DUM2(6,NDOFR)     !
       REAL(DOUBLE)                    :: WCG(6,6)          ! MCG/WTMASS
       REAL(DOUBLE)                    :: WBASIC(6,6)       ! RBM0/WTMASS
       REAL(DOUBLE)                    :: MCGI(6,6)         ! MCG inverse
@@ -142,7 +142,7 @@
 ! Calc DUM2 =  MCG(-1)*TR6_CG'. First, transpose TR6_CG to TR6_CGt. Then rewrite DUM2 as a sparse matrix CRS1 so we can use
 ! MATMULT_SSS to multiply it times the sparse matrix CRS2 below (to get final CG loads LTM)
 ! If user wants cg LTM calculated such that translational terms are in G's, scale the upper 3 rows of the LTM (but do it on DUM2
-! since it is easier here) 
+! since it is easier here)
 
       DO I=1,6
          DO J=1,NDOFR
@@ -167,7 +167,7 @@
 ! Merge MRRcbn and MRN (both in nonsym format) into nonsym format temporary scratch matrix CRS2.
 ! First allocate enough memory for merge of cols of MRRcbn with MRN  .
 
-      NTERM_CRS2 = NTERM_MRRcbn + NTERM_MRN  
+      NTERM_CRS2 = NTERM_MRRcbn + NTERM_MRN
       CALL ALLOCATE_SCR_CRS_MAT ( 'CRS2', NDOFR, NTERM_CRS2, SUBR_NAME )
       CALL MERGE_MAT_COLS_SSS ( 'MRRcbn', NTERM_MRRcbn, I_MRRcbn, J_MRRcbn, MRRcbn, SYM_MRRcbn, NDOFR,                             &
                                 'MRN  ' , NTERM_MRN   , I_MRN   , J_MRN   , MRN   , SYM_MRN   , NDOFR,                             &
@@ -198,7 +198,7 @@
       ENDIF
 
 
- 
+
       RETURN
 
 ! **********************************************************************************************************************************

@@ -1,63 +1,63 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_CELAS4 ( CARD )
- 
+
 ! Processes CELAS4 Bulk Data Cards
 !  1) Sets ETYPE for this element type
 !  2) Calls subr ELEPRO to read element ID, property ID and connection data into array EDAT
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, MEDAT_CELAS4, NCELAS4, NELE, NEDAT, NPELAS
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  EDAT, ETYPE, PELAS, RPELAS
- 
+
       USE BD_CELAS4_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_CELAS4'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
       CHARACTER(LEN(JCARD))           :: JCARD_EDAT(10)    ! JCARD but with fields 5 and 6 switched to get G.P.'s together in EDAT
- 
+
       INTEGER(LONG)                   :: ELEM_ID           ! Elem ID from field 2
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: I4INP             ! Integer value read from a field of the CELAS4 entry
       INTEGER(LONG)                   :: IERR              ! Error count
 
- 
+
       REAL(DOUBLE)                    :: R8INP             ! Real value read from a field on the PSHEAR entry
 
 
 
 ! **********************************************************************************************************************************
 ! CELAS4 scalar spring element Bulk Data Card routine
- 
+
 !   FIELD   ITEM           ARRAY ELEMENT
 !   -----   ------------   -------------
 !    1      Element type   ETYPE(nele) =E1 for CELAS4
@@ -66,11 +66,11 @@
 !    3      Stiffness      PELAS(npelas,1)
 !    4      Scalar point A EDAT(nedat+3)
 !    5      Scalar point B EDAT(nedat+5)
- 
+
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! First, check that fields 2-5 have the proper data type (we are going to have to rearrange the fields prior to calling ELEPRO).
 ! If any erors, return
 
@@ -104,7 +104,7 @@
 
       DO I=1,10
          JCARD_EDAT(I) = JCARD(I)
-      ENDDO 
+      ENDDO
 
 ! Now change JCARD(3) to be a property ID so that subr ELEPRO will handle EDAT data correctly. We want PID = -EID but we send
 ! JCARD(3) = JCARD(2) (which has PID = EID) to ELEPRO. When ELEPRO returns we change term in EDAT for PID to be -PID (i.e. -EID)
@@ -114,15 +114,15 @@
       CALL ELEPRO ( 'Y', JCARD_EDAT, 4, MEDAT_CELAS4, 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N' )
       NCELAS4 = NCELAS4+1
       ETYPE(NELE) = 'ELAS4   '
- 
+
 ! Now change PID in EDAT to -PID
 
-      EDAT(NEDAT-2) = -EDAT(NEDAT-2)      
+      EDAT(NEDAT-2) = -EDAT(NEDAT-2)
 
 
 
       RETURN
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_CELAS4

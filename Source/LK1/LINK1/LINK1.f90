@@ -1,42 +1,42 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE LINK1
-  
+
 ! LINK1 processes:
 
 !  - MPC's and rigid elements resulting in a sparse RMG array of constraint coefficients
 !  - applied forces (incl grid forces and moments, gravity, pressure, thermal, centrifugal, scalar). Result is a sparse load array
 !  - G-set mass, stiffness and load matrices. Results are sparse stiffness, mass and load arrays
 !  - process differential stiffness resulting in a sparse array of differential stiffness values
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
 
       USE IOUNT1, ONLY                :  ERR, F06, F21, F22, F23, F24, L1C, L1F, L1I, L1G, L1J, L1P, L1S, L1U, L1W, SC1
-                                         
+
 
       USE IOUNT1, ONLY                :  F21FIL, F22FIL, F23FIL, F24FIL, LINK1C, LINK1F, LINK1I, LINK1G, LINK1J, LINK1P, LINK1S,   &
                                          LINK1U, LINK1W
@@ -56,10 +56,10 @@
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE MODEL_STUF, ONLY            :  OELDT
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
-        
+
       USE LINK1_USE_IFs
       USE LINK_MESSAGE_Interface
-      
+
       IMPLICIT NONE
 
       LOGICAL                         :: LEXIST            ! .TRUE. if a file exists
@@ -69,18 +69,18 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LINK1'
       CHARACTER(10*BYTE)              :: LTERM_NAME        ! Name for an LTERM value
       CHARACTER( 1*BYTE)              :: RESPONSE          ! User response ('Y' or 'N') to a screen prompt
-     
+
       INTEGER(LONG)                   :: BUCKLING_STEP     ! If SOL is BUCKLING then this is step 1 or 2 in the process, otherwise 0
       INTEGER(LONG)                   :: I1                ! Intermediate integer variable
       INTEGER(LONG)                   :: I2                ! Intermediate integer variable
       INTEGER(LONG)                   :: I3                ! Intermediate integer variable
       INTEGER(LONG)                   :: I4                ! Intermediate integer variable
-      INTEGER(LONG)                   :: LTERM             ! Value for LTERM_KGGD or LTERM_KGG 
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: LTERM             ! Value for LTERM_KGGD or LTERM_KGG
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG), PARAMETER        :: P_LINKNO    = 0   ! Prior LINK no's that should have run before this LINK can execute
 
       INTRINSIC                       :: IAND
-   
+
 ! **********************************************************************************************************************************
       LINKNO = 1
 
@@ -100,12 +100,12 @@
       OUNT(2) = F06
 
 ! Write info to text files
-  
+
       WRITE(F06,150) LINKNO
       WRITE(ERR,150) LINKNO
 
 ! Read LINK1A file
- 
+
 !xx   CALL READ_L1A ( 'KEEP' )
       CALL INIT_COUNTERS
 
@@ -144,7 +144,7 @@ res19:IF (RESTART == 'N') THEN
 
             CALL FILE_OPEN ( L1J, LINK1J, OUNT, 'REPLACE', L1J_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
 
-            IF (NMPC > 0) THEN 
+            IF (NMPC > 0) THEN
                CALL FILE_OPEN ( L1S, LINK1S, OUNT, 'OLD', L1S_MSG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
                CALL LINK_MESSAGE('MPC PROCESSOR                               ')
                CALL MPC_PROC
@@ -170,7 +170,7 @@ res19:IF (RESTART == 'N') THEN
          ENDIF
 
 ! FORCE/MOMENT processing. Open L1I which contains FORCE/MOMENT Bulk Data.
-  
+
             IF ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC') .OR.                                               &
                ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1))) THEN
             CALL LINK_MESSAGE('ALLOCATE MEMORY FOR SYS_LOAD ARRAY          ')
@@ -181,9 +181,9 @@ res19:IF (RESTART == 'N') THEN
                CALL FILE_CLOSE ( L1I, LINK1I, L1ISTAT )
             ENDIF
          ENDIF
-     
+
 ! Element thermal and pressure load processing
-  
+
          IF ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC') .OR. (SOL_NAME(1:8) == 'BUCKLING')) THEN
 !xx         ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1))) THEN
             CALL LINK_MESSAGE('ALLOCATE MEMORY FOR THERMAL LOAD ARRAYS       ')
@@ -214,10 +214,10 @@ res19:IF (RESTART == 'N') THEN
                   WRITE(SC1,'(A,I12)') 'New LTERM_MGGE will be = ',LTERM_MGGE
                ENDIF
             ENDIF
-      
+
             CALL LINK_MESSAGE('ALLOCATE MEM FOR EMSKEY, EMSCOL, EMSPNT, EMS')
             CALL ALLOCATE_EMS_ARRAYS ( SUBR_NAME )
-      
+
             CALL LINK_MESSAGE('ELEMENT MASS MATRIX PROCESSOR               ')
             CALL EMP
             INQUIRE ( FILE=F22FIL, EXIST=LEXIST, OPENED=LOPEN )
@@ -258,7 +258,7 @@ res19:IF (RESTART == 'N') THEN
          ENDIF
 
 ! Gravity load processing. Open L1P which contains GRAV Bulk Data.
-  
+
          IF ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC') .OR.                                                  &
             ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1))) THEN
             IF (NGRAV > 0) THEN
@@ -270,9 +270,9 @@ res19:IF (RESTART == 'N') THEN
                CALL FILE_CLOSE ( L1P, LINK1P, L1PSTAT )
             ENDIF
          ENDIF
-  
+
 ! RFORCE load processing. Open L1U which contains RFORCE Bulk Data.
-  
+
          IF ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC') .OR.                                                  &
             ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1))) THEN
             IF (NRFORCE > 0) THEN
@@ -287,7 +287,7 @@ res19:IF (RESTART == 'N') THEN
          CALL DEALLOCATE_L1_MGG ( 'I2_MGG' )
 
 ! SLOAD load processing. Open L1W which contains SLOAD Bulk Data.
-  
+
          IF ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC') .OR.                                                  &
             ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1))) THEN
             IF (NSLOAD > 0) THEN
@@ -299,7 +299,7 @@ res19:IF (RESTART == 'N') THEN
                CALL FILE_CLOSE ( L1W, LINK1W, L1WSTAT )
             ENDIF
          ENDIF
-  
+
 ! Deallocate
 
          CALL DEALLOCATE_MODEL_STUF ( 'LOAD_SIDS, LOAD_FACS' )
@@ -314,7 +314,7 @@ res19:IF (RESTART == 'N') THEN
          ENDIF
 
 ! Estimate LTERM so arrays can be allocated for G-set stiffness matrix
-  
+
          CALL ESP0
          IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
             CALL LINK_MESSAGE('CALCULATE ESTIMATE OF KGGD MATRIX SIZE        ')
@@ -325,7 +325,7 @@ res19:IF (RESTART == 'N') THEN
             LTERM_NAME = 'LTERM_KGG'
             LTERM      =  LTERM_KGG
          ENDIF
-         
+
          IF (ESP0_PAUSE == 'Y') THEN
             WRITE(SC1,'(A,A,A,I12)') ' From ESP0: ', LTERM_NAME,' = ',LTERM
             WRITE(SC1,'(A,A,A)') ' Do you want to change ',LTERM_NAME,' estimate? (Y/N)'
@@ -342,7 +342,7 @@ res19:IF (RESTART == 'N') THEN
                WRITE(SC1,'(A,A,A,I12)') 'New ', LTERM_NAME,' will be = ',LTERM
             ENDIF
          ENDIF
-   
+
          if (setlktk /= 3) then                            ! Subr ESP0 estimated LTERM conservatively. Now allocate this amount
             CALL LINK_MESSAGE('ALLOCATE MEM FOR STFKEY, STFCOL, STFPNT, STF')
             CALL ALLOCATE_STF_ARRAYS ( 'STFKEY', SUBR_NAME )
@@ -351,9 +351,9 @@ res19:IF (RESTART == 'N') THEN
             Write(err,*) '*ERROR     : PROGRAMMING ERROR IN SUBR ',SUBR_NAME,' SETLKTK CANNOT = 3'
             Write(f06,*) '*ERROR     : PROGRAMMING ERROR IN SUBR ',SUBR_NAME,' SETLKTK CANNOT = 3'
          endif
-     
+
 ! Compute element stiffness and merge into system stiffness matrix.
-  
+
          CALL LINK_MESSAGE('G-SET STIFFNESS MATRIX PROCESSOR            ')
          CALL ESP
 
@@ -424,16 +424,16 @@ res19:IF (RESTART == 'N') THEN
             ENDIF
 
             CALL FILE_CLOSE ( L1G, LINK1G, 'KEEP' )
-  
+
          ENDIF
 
       ENDIF res19
-  
+
 ! Deallocate
 
       CALL DEALLOCATE_MODEL_STUF ( 'SINGLE ELEMENT ARRAYS' )
       IF ((SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
-      	CALL DEALLOCATE_MODEL_STUF ( 'SUBLOD' )
+         CALL DEALLOCATE_MODEL_STUF ( 'SUBLOD' )
       ENDIF
 
 ! Check allocation status of allocatable arrays, if requested
@@ -476,9 +476,9 @@ res20:IF (RESTART == 'N') THEN
  9998 FORMAT(/,' PROCESSING TERMINATED DUE TO ',I8,' INPUT ERRORS. CHECK OUTPUT FILE FOR ERROR MESSAGES')
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE INIT_COUNTERS

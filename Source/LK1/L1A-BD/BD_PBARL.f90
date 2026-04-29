@@ -1,37 +1,37 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_PBARL ( CARD, LARGE_FLD_INP, PBARL_TYPE )
-  
+
 ! Processes PBARL Bulk Data Cards. Reads and checks:
 
 !  1) Prop ID and Material ID and enter into array PBAR
 !  2) Read data on type of crossection and dimensions and calculate section props
 !  3) Create an equivalent PBAR entry (data goes into arrays PBAR, RPBAR)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE DERIVED_DATA_TYPES, ONLY    :  CHAR1_INT1
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
@@ -42,11 +42,11 @@
 
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  PBAR, RPBAR
- 
+
       USE BD_PBARL_USE_IFs
 
       IMPLICIT NONE
- 
+
       INTEGER(LONG), PARAMETER        :: NS        = 25    ! Dimension of array BAR_SHAPE
       TYPE(CHAR1_INT1)                :: BAR_SHAPE(NS)     ! Array with the BAR crossection type and the num of D(i) needed for it
 
@@ -61,7 +61,7 @@
       CHARACTER(LEN(JCARD))           :: ID                ! Character value of element ID (field 2 of parent card)
       CHARACTER(99*BYTE)              :: MSG               ! Error message written out
       CHARACTER(LEN(JCARD))           :: NAME              ! JCARD(1) from parent entry
- 
+
       INTEGER(LONG)                   :: ICONT     = 0     ! Indicator of whether a cont card exists. Output from subr NEXTC
       INTEGER(LONG)                   :: IERR      = 0     ! Error indicator
       INTEGER(LONG)                   :: I,J               ! DO loop indices
@@ -70,7 +70,7 @@
       INTEGER(LONG)                   :: MATL_ID   = 0     ! Material ID (field 3 of this property card)
       INTEGER(LONG)                   :: PROP_ID   = 0     ! Property ID (field 2 of this property card)
 
- 
+
       REAL(DOUBLE)                    :: AREA      = ZERO  ! Cross-sectional area
       REAL(DOUBLE)                    :: D(NS)             ! Dimensions of cross-secion of the bar
       REAL(DOUBLE)                    :: I1,I2     = ZERO  ! Moments of inertia
@@ -86,7 +86,7 @@
 
 ! **********************************************************************************************************************************
 ! PBAR Bulk Data Card routine
- 
+
 !   FIELD   ITEM                                            ARRAY ELEMENT
 !   -----   ----                                            -------------
 !    2      Property ID                                     PBAR(npbar, 1)
@@ -108,8 +108,8 @@
 !    .       .
 !    .       .
 !    .      NSM (last entry)
- 
- 
+
+
       ! Initialize
       AREA = ZERO
       I1   = ZERO
@@ -133,36 +133,36 @@
 
       ! no idea what the Col_1 and Col_2 part refer to, but it's still
       ! easy to add a new section
-      BAR_SHAPE( 1)%Col_1(1:8) = 'BAR     ';  BAR_SHAPE( 1)%Col_2 = 2  
-      BAR_SHAPE( 2)%Col_1(1:8) = 'BOX     ';  BAR_SHAPE( 2)%Col_2 = 4  
-      BAR_SHAPE( 3)%Col_1(1:8) = 'BOX1    ';  BAR_SHAPE( 3)%Col_2 = 6  
-      BAR_SHAPE( 4)%Col_1(1:8) = 'CHAN    ';  BAR_SHAPE( 4)%Col_2 = 4  
-      BAR_SHAPE( 5)%Col_1(1:8) = 'CHAN1   ';  BAR_SHAPE( 5)%Col_2 = 4  
-      BAR_SHAPE( 6)%Col_1(1:8) = 'CHAN2   ';  BAR_SHAPE( 6)%Col_2 = 4  
-      BAR_SHAPE( 7)%Col_1(1:8) = 'CROSS   ';  BAR_SHAPE( 7)%Col_2 = 4  
-      BAR_SHAPE( 8)%Col_1(1:8) = 'H       ';  BAR_SHAPE( 8)%Col_2 = 4  
-      BAR_SHAPE( 9)%Col_1(1:8) = 'HAT     ';  BAR_SHAPE( 9)%Col_2 = 4  
-      BAR_SHAPE(10)%Col_1(1:8) = 'HEXA    ';  BAR_SHAPE(10)%Col_2 = 3  
-      BAR_SHAPE(11)%Col_1(1:8) = 'I       ';  BAR_SHAPE(11)%Col_2 = 6  
-      BAR_SHAPE(12)%Col_1(1:8) = 'I1      ';  BAR_SHAPE(12)%Col_2 = 4  
-      BAR_SHAPE(13)%Col_1(1:8) = 'ROD     ';  BAR_SHAPE(13)%Col_2 = 1  
-      BAR_SHAPE(14)%Col_1(1:8) = 'T       ';  BAR_SHAPE(14)%Col_2 = 4  
-      BAR_SHAPE(15)%Col_1(1:8) = 'T1      ';  BAR_SHAPE(15)%Col_2 = 4  
-      BAR_SHAPE(16)%Col_1(1:8) = 'T2      ';  BAR_SHAPE(16)%Col_2 = 4  
-      BAR_SHAPE(17)%Col_1(1:8) = 'TUBE    ';  BAR_SHAPE(17)%Col_2 = 2  
-      BAR_SHAPE(18)%Col_1(1:8) = 'Z       ';  BAR_SHAPE(18)%Col_2 = 4  
-      BAR_SHAPE(19)%Col_1(1:8) = 'TUBE2   ';  BAR_SHAPE(19)%Col_2 = 2  
+      BAR_SHAPE( 1)%Col_1(1:8) = 'BAR     ';  BAR_SHAPE( 1)%Col_2 = 2
+      BAR_SHAPE( 2)%Col_1(1:8) = 'BOX     ';  BAR_SHAPE( 2)%Col_2 = 4
+      BAR_SHAPE( 3)%Col_1(1:8) = 'BOX1    ';  BAR_SHAPE( 3)%Col_2 = 6
+      BAR_SHAPE( 4)%Col_1(1:8) = 'CHAN    ';  BAR_SHAPE( 4)%Col_2 = 4
+      BAR_SHAPE( 5)%Col_1(1:8) = 'CHAN1   ';  BAR_SHAPE( 5)%Col_2 = 4
+      BAR_SHAPE( 6)%Col_1(1:8) = 'CHAN2   ';  BAR_SHAPE( 6)%Col_2 = 4
+      BAR_SHAPE( 7)%Col_1(1:8) = 'CROSS   ';  BAR_SHAPE( 7)%Col_2 = 4
+      BAR_SHAPE( 8)%Col_1(1:8) = 'H       ';  BAR_SHAPE( 8)%Col_2 = 4
+      BAR_SHAPE( 9)%Col_1(1:8) = 'HAT     ';  BAR_SHAPE( 9)%Col_2 = 4
+      BAR_SHAPE(10)%Col_1(1:8) = 'HEXA    ';  BAR_SHAPE(10)%Col_2 = 3
+      BAR_SHAPE(11)%Col_1(1:8) = 'I       ';  BAR_SHAPE(11)%Col_2 = 6
+      BAR_SHAPE(12)%Col_1(1:8) = 'I1      ';  BAR_SHAPE(12)%Col_2 = 4
+      BAR_SHAPE(13)%Col_1(1:8) = 'ROD     ';  BAR_SHAPE(13)%Col_2 = 1
+      BAR_SHAPE(14)%Col_1(1:8) = 'T       ';  BAR_SHAPE(14)%Col_2 = 4
+      BAR_SHAPE(15)%Col_1(1:8) = 'T1      ';  BAR_SHAPE(15)%Col_2 = 4
+      BAR_SHAPE(16)%Col_1(1:8) = 'T2      ';  BAR_SHAPE(16)%Col_2 = 4
+      BAR_SHAPE(17)%Col_1(1:8) = 'TUBE    ';  BAR_SHAPE(17)%Col_2 = 2
+      BAR_SHAPE(18)%Col_1(1:8) = 'Z       ';  BAR_SHAPE(18)%Col_2 = 4
+      BAR_SHAPE(19)%Col_1(1:8) = 'TUBE2   ';  BAR_SHAPE(19)%Col_2 = 2
 
       NPBAR         = NPBAR  + 1
       PBAR(NPBAR,3) = NPBARL
 
       ! Make JCARD from CARD
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
       NAME = JCARD(1)
       ID   = JCARD(2)
- 
-      ! Code not written for cross-section dimension data spilling over 
+
+      ! Code not written for cross-section dimension data spilling over
       ! to a 2nd cont entry so give error if BAR_SHAPE(i)%Col_2 > 7
       DO I=1,NS
          IF (BAR_SHAPE(I)%Col_2 > 7) THEN
@@ -183,16 +183,16 @@
                WRITE(F06,1145) JCARD(1),PROP_ID
                EXIT
              ENDIF
-         ENDDO   
+         ENDDO
          PBAR(NPBAR,1) = PROP_ID
       ENDIF
- 
+
       CALL I4FLD ( JCARD(3), JF(3), MATL_ID )              ! Read material ID and enter into array PBAR
       IF (IERRFL(3) == 'N') THEN
          IF (MATL_ID <= 0) THEN
             FATAL_ERR = FATAL_ERR + 1
-            WRITE(ERR,1192) JF(3), JCARD(1), JCARD(2), ' > 0 ', MATL_ID 
-            WRITE(F06,1192) JF(3), JCARD(1), JCARD(2), ' > 0 ', MATL_ID 
+            WRITE(ERR,1192) JF(3), JCARD(1), JCARD(2), ' > 0 ', MATL_ID
+            WRITE(F06,1192) JF(3), JCARD(1), JCARD(2), ' > 0 ', MATL_ID
          ELSE
             PBAR(NPBAR,2) = MATL_ID
          ENDIF
@@ -218,7 +218,7 @@
       CALL BD_IMBEDDED_BLANK ( JCARD,2,3,0,5,0,0,0,0 )     ! Make sure that there are no imbedded blanks in fields 2,3,5
       CALL CARD_FLDS_NOT_BLANK ( JCARD,0,0,4,0,6,7,8,9 )   ! Issue warning if fields 4 and 6-9 not blank
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
- 
+
       PBARL_TYPE(1:) = ' '
       PBARL_TYPE(1:) = CS_TYPE(1:)
 
@@ -273,7 +273,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
          WRITE(F06,1136) NAME, ID
 
       ENDIF
-  
+
 
       ! Call routines to calc bar cross-section props, depending on CS_TYPE
       IERR = 0
@@ -347,7 +347,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
          WRITE(F06,1177) NAME, ID, CS_TYPE(1:8), MSG
 
       ENDIF
- 
+
 ! Write PBAR equivalent Bulk Data entries:
 !
 !     IF (ECHO(1:4) /= 'NONE') THEN
@@ -360,9 +360,9 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
 
 ! **********************************************************************************************************************************
  1136 FORMAT(' *ERROR  1136: REQUIRED CONTINUATION FOR ',A,' ID = ',A,' MISSING')
- 
+
  1145 FORMAT(' *ERROR  1145: DUPLICATE ',A,' ENTRY WITH ID = ',I8)
- 
+
  1162 FORMAT(' *ERROR  1162: INVALID NAME = "',A,'" FOR CROSS-SECTION IN FIELD ',I2,' ON ',A,' ENTRY = ',A,                        &
                           '. CHECK USERS MANUAL FOR VALID ENTRIES')
 
@@ -380,9 +380,9 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
 
 
 ! **********************************************************************************************************************************
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE WRITE_PBAR_EQUIV
@@ -449,10 +449,10 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
          WRITE(ICARD(3),FMT0)        ;   CALL LEFT_ADJ_BDFLD ( ICARD(3) )
       ENDIF
       WRITE(ICARD(4),FMT1) I12       ;   CALL LEFT_ADJ_BDFLD ( ICARD(4) )
-      WRITE(ICARD(5),FMT0)      
-      WRITE(ICARD(6),FMT0)      
-      WRITE(ICARD(7),FMT0)      
-      WRITE(ICARD(8),FMT0)      
+      WRITE(ICARD(5),FMT0)
+      WRITE(ICARD(6),FMT0)
+      WRITE(ICARD(7),FMT0)
+      WRITE(ICARD(8),FMT0)
       WRITE(ICARD(9),FMT0)
       IF ((PBARLSHR == 'Y') .OR. (DABS(I12) > 0)) THEN     ! Only write 2nd cont entry if we want K1, K2 included or I12 is /= 0.
          WRITE(F06,302) (ICARD(I),I=2,9)
@@ -596,7 +596,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       REAL(DOUBLE)                    :: TR                ! Thickness of right  web
       REAL(DOUBLE)                    :: TB                ! Thickness of bottom web
       REAL(DOUBLE)                    :: TT                ! Thickness of top    web
-   
+
 ! **********************************************************************************************************************************
       JERR = 0
 
@@ -689,9 +689,9 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
 
       I12  =  ZERO
       JTOR =  ALPHA*THIRD*(H*TW*TW*TW + (B - TW)*TF*TF*TF + (B - TW)*TF*TF*TF)
-      Y(1) =  HALF*H   ;   Z(1) = -ZSHR - HALF*TW + B 
-      Y(2) = -Y(1)     ;   Z(2) =  Z(1) 
-      Y(3) = -Y(1)     ;   Z(3) = -ZSHR - HALF*TW 
+      Y(1) =  HALF*H   ;   Z(1) = -ZSHR - HALF*TW + B
+      Y(2) = -Y(1)     ;   Z(2) =  Z(1)
+      Y(3) = -Y(1)     ;   Z(3) = -ZSHR - HALF*TW
       Y(4) =  Y(1)     ;   Z(4) =  Z(3)
       K1   =  (H - TWO*TF)/H
       K2   =  (B - TW)/B
@@ -740,9 +740,9 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
 
       I12  =  ZERO
       JTOR =  ALPHA*THIRD*(H*TW*TW*TW + (B - TF)*TF*TF*TF)
-      Y(1) =  HALF*H   ;   Z(1) = -ZSHR - HALF*TW + B 
-      Y(2) = -Y(1)     ;   Z(2) =  Z(1) 
-      Y(3) = -Y(1)     ;   Z(3) = -ZSHR - HALF*TW 
+      Y(1) =  HALF*H   ;   Z(1) = -ZSHR - HALF*TW + B
+      Y(2) = -Y(1)     ;   Z(2) =  Z(1)
+      Y(3) = -Y(1)     ;   Z(3) = -ZSHR - HALF*TW
       Y(4) =  Y(1)     ;   Z(4) =  Z(3)
       K1   =  (H - TWO*TF)/H
       K2   =  (B - TW)/B
@@ -791,9 +791,9 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
 
       I12  =  ZERO
       JTOR =  ALPHA*THIRD*(H*TW*TW*TW + (B - TF)*TF*TF*TF)
-      Y(1) =  HALF*H   ;   Z(1) = -ZSHR - HALF*TW + B 
-      Y(2) = -Y(1)     ;   Z(2) =  Z(1) 
-      Y(3) = -Y(1)     ;   Z(3) = -ZSHR - HALF*TW 
+      Y(1) =  HALF*H   ;   Z(1) = -ZSHR - HALF*TW + B
+      Y(2) = -Y(1)     ;   Z(2) =  Z(1)
+      Y(3) = -Y(1)     ;   Z(3) = -ZSHR - HALF*TW
       Y(4) =  Y(1)     ;   Z(4) =  Z(3)
       K1   =  (H - TWO*TF)/H
       K2   =  (B - TW)/B
@@ -843,7 +843,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       Y(1) =  HALF*HV  ;   Z(1) =  ZERO
       Y(2) =  ZERO     ;   Z(2) =  HALF*TV + W0
       Y(3) = -Y(1)     ;   Z(3) =  ZERO
-      Y(4) =  ZERO     ;   Z(4) = -Z(2) 
+      Y(4) =  ZERO     ;   Z(4) = -Z(2)
 
       K1   =  (FIVE/SIX)*AVERT/AREA
       K2   =  (FIVE/SIX)*AHORZ/AREA
@@ -985,7 +985,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       WAVG = HALF*(W0 + W1)
       HT   = HALF*H0
 
-      AREA =  W1*H0 + TWO*WT*HT 
+      AREA =  W1*H0 + TWO*WT*HT
       I1   =  W1*H0*H0*H0/TWELVE + FOUR*( WT*HT*HT*HT/(THREE*TWELVE) + HALF*WT*HT*HT*HT/NINE )
       I2   =  H0*W1*W1*W1/TWELVE + FOUR*( HT*WT*WT*WT/(THREE*TWELVE) + HALF*WT*HT*WT*WT/NINE )
       I12  =  ZERO
@@ -1014,7 +1014,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       INTEGER(LONG), INTENT(OUT)      :: JERR              ! Error indicator
 
       REAL(DOUBLE)                    :: ALPHA = 1.0D0     ! Constant in calc of JTOR for open cross-sections
-!                                                            Pilkey has 1.31 in #10 and has 1.0 in #12 on Table 2.5. MSC uses 1.0 
+!                                                            Pilkey has 1.31 in #10 and has 1.0 in #12 on Table 2.5. MSC uses 1.0
 
       REAL(DOUBLE)                    :: ATOP              ! Area of top flange
       REAL(DOUBLE)                    :: ABOT              ! Area of bottom flange
@@ -1153,10 +1153,10 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       I2   =  I1
       I12  =  ZERO
       JTOR =  I1 + I2
-      Y(1) =  RAD    ;   Z(1) =  ZERO 
-      Y(2) =  ZERO   ;   Z(2) =  RAD 
+      Y(1) =  RAD    ;   Z(1) =  ZERO
+      Y(2) =  ZERO   ;   Z(2) =  RAD
       Y(3) = -RAD    ;   Z(3) =  ZERO
-      Y(4) =  ZERO   ;   Z(4) = -RAD 
+      Y(4) =  ZERO   ;   Z(4) = -RAD
 
       K1   =  SIX/SEVEN
       K2   =  SIX/SEVEN
@@ -1185,7 +1185,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       REAL(DOUBLE)                    :: HW                ! Height of web
       REAL(DOUBLE)                    :: TW                ! Thickness of web
       REAL(DOUBLE)                    :: YCG               ! Dist from bottom of web to C.G.
-      
+
 
 ! **********************************************************************************************************************************
       JERR = 0
@@ -1399,7 +1399,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       I2   =  I1
       I12  =  ZERO
       JTOR =  TWO*I1
-      Y(1) =  RAD1   ;   Z(1) =  ZERO 
+      Y(1) =  RAD1   ;   Z(1) =  ZERO
       Y(2) =  ZERO   ;   Z(2) =  RAD1
       Y(3) = -Y(1)   ;   Z(3) =  ZERO
       Y(4) =  ZERO   ;   Z(4) = -Z(2)
@@ -1446,7 +1446,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       I2   =  I1
       I12  =  ZERO
       JTOR =  TWO*I1
-      Y(1) =  RAD1   ;   Z(1) =  ZERO 
+      Y(1) =  RAD1   ;   Z(1) =  ZERO
       Y(2) =  ZERO   ;   Z(2) =  RAD1
       Y(3) = -Y(1)   ;   Z(3) =  ZERO
       Y(4) =  ZERO   ;   Z(4) = -Z(2)
@@ -1509,7 +1509,7 @@ D_do1:   DO J=2,9                                          ! --- Read cross-sect
       Y(4) =  Y(1)             ;   Z(4) = -Z(2)
       K1   =  AWEB/AREA
       K2   =  (FIVE/SIX)*(ATOP + ABOT)/AREA
-      
+
 
       END SUBROUTINE SECTION_PROPS_Z
 

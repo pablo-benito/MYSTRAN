@@ -1,32 +1,32 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE PENTA ( OPT, INT_ELEM_ID, IORD_IJ, IORD_K, RED_INT_SHEAR, WRITE_WARN )
- 
-! Isoparametric pentahedron solid element (6 or 15 nodes and with full or reduced gaussian integration) 
+
+! Isoparametric pentahedron solid element (6 or 15 nodes and with full or reduced gaussian integration)
 
 ! Subroutine calculates:
 
@@ -35,7 +35,7 @@
 !  3) SEi, STEi = element stress data recovery matrices, if OPT(3) = 'Y'
 !  4) KE        = element linea stiffness matrix       , if OPT(4) = 'Y'
 !  5) KED       = element differen stiff matrix calc   , if OPT(6) = 'Y' = 'Y'
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MAX_ORDER_TRIA, MAX_ORDER_GAUSS, NTSUB
@@ -46,12 +46,12 @@
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE MODEL_STUF, ONLY            :  ALPVEC, BE1, BE2, DT, EID, ELGP, NUM_EMG_FATAL_ERRS, ES, KE, KED, ME, PTE, RHO,           &
                                          SE1, SE2, STE1, STRESS, TREF, TYPE
- 
+
       USE PENTA_USE_IFs
       USE EXPAND_MASS_DOFS_Interface
-      
-      IMPLICIT NONE 
-  
+
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'PENTA'
       CHARACTER( 1*BYTE), INTENT(IN)  :: RED_INT_SHEAR           ! If 'Y', use Gaussian weighted avg of B matrices for shear terms
       CHARACTER( 1*BYTE), INTENT(IN)  :: OPT(6)                  ! 'Y'/'N' flags for whether to calc certain elem matrices
@@ -70,7 +70,7 @@
    !                                                             6 DOF/grid of the final element stiffness matrix
 
       INTEGER(LONG)                   :: STR_PT_NUM              ! Stress point number. 1 is center, 2+ are element nodes 1+.
-  
+
       REAL(DOUBLE)                    :: ALP(6)                  ! First col of ALPVEC
                                                                  ! Strain-displ matrix for this element for all Gauss points
       REAL(DOUBLE)                    :: B(6,3*ELGP,IORD_IJ*IORD_K)
@@ -126,7 +126,7 @@
       REAL(DOUBLE)                    :: VOLUME                  ! 3D element volume
       REAL(DOUBLE)                    :: SSI,SSJ,SSK             ! Isoparametric coordinates of a point.
       REAL(DOUBLE)                    :: M_1DOF(ELGP,ELGP)      ! Consistent mass matrix with 1 DOF per node.
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -150,7 +150,7 @@
             VOLUME = VOLUME + HH_IJ(IJ)*HH_K(K)*DETJ(GAUSS_PT)
          ENDDO
       ENDDO
-          
+
       IF (VOLUME < EPS1) THEN                              ! If VOLUME <= 0, write error and return
          WRITE(ERR,1925) EID, TYPE, 'VOLUME', VOLUME
          WRITE(F06,1925) EID, TYPE, 'VOLUME', VOLUME
@@ -175,13 +175,13 @@
       DO I=1,6
         ALP(I) = ALPVEC(I,1)
       ENDDO
-    
+
       TREF1 = TREF(1)
- 
+
 ! EALP is needed to calculate both PTE and STE2
- 
+
       CALL MATMULT_FFF ( ES, ALP, 6, 6, 1, EALP )
-  
+
 ! Calc TBAR (used for PTE, STEi)
 
       IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y')) THEN
@@ -196,7 +196,7 @@
 
 ! **********************************************************************************************************************************
 ! Generate the mass matrix for this element.
- 
+
       IF (OPT(1) == 'Y') THEN
 
          ! Consistent mass matrix
@@ -353,8 +353,8 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
       ENDIF opt234
 
 ! **********************************************************************************************************************************
-! Calculate element thermal loads. 
-  
+! Calculate element thermal loads.
+
       IF (OPT(2) == 'Y') THEN
 
          DO N=1,NTSUB
@@ -390,13 +390,13 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
                      TEMP = TGAUSS(1,N) - TREF1
                   ELSE                                     ! Use avg element temperature for PTE
                      TEMP = TBAR(N)
-                  ENDIF 
+                  ENDIF
                   DO L=1,3*ELGP
                      DUM1(L) = DUM1(L) + DUM0(L)*TEMP*INTFAC
                   ENDDO
-               ENDDO   
-            ENDDO 
-  
+               ENDDO
+            ENDDO
+
             DO L=1,3*ELGP
                PTE(ID(L),N) = DUM1(L)
             ENDDO
@@ -407,11 +407,11 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
 
 ! **********************************************************************************************************************************
 ! Calculate SE1, SE2 matrices for stress data recovery. All stresses calculated at center of element
- 
+
       IF ((OPT(3) == 'Y') .OR. (OPT(6) == 'Y')) THEN
- 
+
         DO STR_PT_NUM=1,7
- 
+
                                                             ! Isoparametric coordinates of the point
           SELECT CASE (STR_PT_NUM)
             CASE (1)                                       ! Center
@@ -429,7 +429,7 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
             CASE (7)                                       ! Node 6
               SSI =  0; SSJ = +1; SSK = +1
           END SELECT
- 
+
           DO K=1,6
             DO L=1,3*ELGP
                DUM2(K,L) = ZERO
@@ -447,37 +447,37 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
             DO J=1,3*ELGP
                SE1(I,ID(J),STR_PT_NUM) = DUM2(I  ,J)
                SE2(I,ID(J),STR_PT_NUM) = DUM2(I+3,J)
-            ENDDO 
-          ENDDO   
+            ENDDO
+          ENDDO
 
           DO J=1,NTSUB                                     ! STE thermal stress terms
             STE1(1,J,STR_PT_NUM) = EALP(1)*TBAR(J)
             STE1(2,J,STR_PT_NUM) = EALP(2)*TBAR(J)
             STE1(3,J,STR_PT_NUM) = EALP(3)*TBAR(J)
-          ENDDO 
+          ENDDO
 
           DO I=1,3                                         ! Strain-displ matrix
             DO J=1,3*ELGP
                BE1(I,ID(J),STR_PT_NUM) = BI(I  ,J)
                BE2(I,ID(J),STR_PT_NUM) = BI(I+3,J)
-            ENDDO 
-          ENDDO   
+            ENDDO
+          ENDDO
 
         ENDDO
 
-      ENDIF  
-  
+      ENDIF
+
 ! **********************************************************************************************************************************
 ! Calculate element stiffness matrix KE.
- 
+
       IF (OPT(4) == 'Y') THEN
-  
+
          DO I=1,3*ELGP
             DO J=1,3*ELGP
                DUM3(I,J) = ZERO
-            ENDDO 
-         ENDDO   
- 
+            ENDDO
+         ENDDO
+
          IORD_MSG = ' '
          GAUSS_PT = 0
          DO K=1,IORD_K
@@ -494,27 +494,27 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
                DO L=1,3*ELGP
                   DO M=1,3*ELGP
                      DUM3(L,M) = DUM3(L,M) + DUM5(L,M)*INTFAC
-                  ENDDO 
+                  ENDDO
                ENDDO
-            ENDDO 
-         ENDDO   
-  
+            ENDDO
+         ENDDO
+
          DO I=1,3*ELGP
             DO J=1,3*ELGP
                KE(ID(I),ID(J)) = DUM3(I,J)
-            ENDDO   
-         ENDDO 
+            ENDDO
+         ENDDO
 
 ! Set lower triangular portion of KE equal to upper portion
-  
+
          DO I=2,6*ELGP
             DO J=1,I-1
                KE(I,J) = KE(J,I)
-            ENDDO 
-         ENDDO 
-  
+            ENDDO
+         ENDDO
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate linear differential stiffness matrix
 
@@ -567,18 +567,18 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
             ENDDO
           ENDDO
         ENDDO
- 
+
         DO I=1,3*ELGP
           DO J=1,3*ELGP
             KED(ID(I),ID(J)) = DUM3(I,J)
-          ENDDO   
-        ENDDO 
+          ENDDO
+        ENDDO
 
         DO I=2,6*ELGP                                      ! Set lower triangular portion of KE equal to upper portion
           DO J=1,I-1
             KED(I,J) = KED(J,I)
-          ENDDO 
-        ENDDO 
+          ENDDO
+        ENDDO
 
         IF (DEBUG(178) >= 1) THEN
           WRITE(F06,2001) TRIM(SUBR_NAME), OPT(6), LOAD_ISTEP, TYPE, EID
@@ -597,7 +597,7 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
           WRITE(F06,*)
         ENDIF
 
-      ENDIF               
+      ENDIF
 
 
 
@@ -608,10 +608,10 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
 
  1935 FORMAT(' *ERROR  1935: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' ELEMENT ',I8,', TYPE ',A,' HAS MATERIAL COUPLING BETWEEN DIRECT AND SHEAR STRESSES. THIS SUBR IS NOT',&
-                           ' PROGRAMMED FOR THIS')  
+                           ' PROGRAMMED FOR THIS')
 
  1941 FORMAT(' *ERROR  1941: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' ELEMENT ',I8,', TYPE ',A,' HAS AN INVALID NUMBER OF NODES = ',I8)  
+                    ,/,14X,' ELEMENT ',I8,', TYPE ',A,' HAS AN INVALID NUMBER OF NODES = ',I8)
 
  2001 FORMAT(' In ', A, ' with OPT(6) = ', A, ', and LOAD_ISTEP = ', I8, ': KED Differential Stiffness Matrix for ', A,            &
              ' element number ', I8)

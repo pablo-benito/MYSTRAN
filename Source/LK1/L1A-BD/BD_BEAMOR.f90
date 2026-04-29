@@ -1,41 +1,41 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_BEAMOR ( CARD )
- 
+
 ! Processes BEAMOR Bulk Data Cards. Reads and checks the property ID, if present, and the V vector,
 ! if present. The BEAMOR V vector type (BEAMOR_VVEC_TYPE) was determined in subr BEAMOR0
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, LVVEC, NBEAMOR
       USE TIMDAT, ONLY                :  TSEC
       USE PARAMS, ONLY                :  EPSIL
       USE MODEL_STUF, ONLY            :  BEAMOR_VVEC_TYPE, BEAMOR_G0, BEAMOR_VV, BEAMOR_PID
- 
+
       USE BD_BEAMOR_USE_IFs
 
       IMPLICIT NONE
@@ -43,12 +43,12 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_BEAMOR'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
- 
+
       INTEGER(LONG)                   :: J                 ! DO loop index
       INTEGER(LONG)                   :: I4INP             ! A value read from input file that should be an integer value
       INTEGER(LONG)                   :: PGM_ERR   = 0     ! A  count of the number of coding errors
 
- 
+
       REAL(DOUBLE)                    :: EPS1              ! A small value to compare zero to
       REAL(DOUBLE)                    :: R8INP             ! A value read from input file that should be a real value
 
@@ -56,18 +56,18 @@
 
 ! **********************************************************************************************************************************
 ! BEAMOR Bulk Data Card routine
-  
-!   FIELD   ITEM         
-!   -----   ------------ 
-!    3      Property ID  
-!    6-8    V-Vector     
-! 
+
+!   FIELD   ITEM
+!   -----   ------------
+!    3      Property ID
+!    6-8    V-Vector
+!
       EPS1 = EPSIL(1)
 
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Read and check data
 
       IF (JCARD(3)(1:) /= ' ') THEN                        ! Read prop ID
@@ -75,8 +75,8 @@
          IF (IERRFL(3) == 'N') THEN
             IF (I4INP /= BEAMOR_PID) THEN
                PGM_ERR = PGM_ERR + 1                       ! Coding error: This value doesn't agree with that read in LOADB0
-               WRITE(ERR,11851) SUBR_NAME, JF(3), JCARD(1), BEAMOR_PID, I4INP  
-               WRITE(F06,11851) SUBR_NAME, JF(3), JCARD(1), BEAMOR_PID, I4INP 
+               WRITE(ERR,11851) SUBR_NAME, JF(3), JCARD(1), BEAMOR_PID, I4INP
+               WRITE(F06,11851) SUBR_NAME, JF(3), JCARD(1), BEAMOR_PID, I4INP
             ENDIF
             IF (I4INP <= 0) THEN
                FATAL_ERR = FATAL_ERR + 1
@@ -94,19 +94,19 @@
                IF (IERRFL(J+5) == 'N') THEN
                   IF (DABS(R8INP - BEAMOR_VV(J)) > EPS1) THEN
                      PGM_ERR = PGM_ERR + 1                 ! Coding error: This value doesn't agree with that read in LOADB0
-                     WRITE(ERR,11852) SUBR_NAME, JF(J+5), JCARD(1), BEAMOR_VV(J), R8INP  
-                     WRITE(F06,11852) SUBR_NAME, JF(J+5), JCARD(1), BEAMOR_VV(J), R8INP 
+                     WRITE(ERR,11852) SUBR_NAME, JF(J+5), JCARD(1), BEAMOR_VV(J), R8INP
+                     WRITE(F06,11852) SUBR_NAME, JF(J+5), JCARD(1), BEAMOR_VV(J), R8INP
                   ENDIF
                ENDIF
-            ENDIF 
+            ENDIF
          ENDDO
       ELSE IF (BEAMOR_VVEC_TYPE == 'GRID     ') THEN
          CALL I4FLD ( JCARD(6), JF(6), I4INP )
          IF (IERRFL(6) == 'N') THEN
             IF (I4INP /= BEAMOR_G0) THEN
                PGM_ERR = PGM_ERR + 1                       ! Coding error: This value doesn't agree with that read in LOADB0
-               WRITE(ERR,11851) SUBR_NAME, JF(6), JCARD(1), BEAMOR_G0, I4INP  
-               WRITE(F06,11851) SUBR_NAME, JF(6), JCARD(1), BEAMOR_G0, I4INP 
+               WRITE(ERR,11851) SUBR_NAME, JF(6), JCARD(1), BEAMOR_G0, I4INP
+               WRITE(F06,11851) SUBR_NAME, JF(6), JCARD(1), BEAMOR_G0, I4INP
             ENDIF
             IF (I4INP <= 0) THEN
                FATAL_ERR = FATAL_ERR + 1
@@ -119,7 +119,7 @@
          WRITE(ERR,1102)
          WRITE(F06,1102)
       ENDIF
- 
+
       CALL CARD_FLDS_NOT_BLANK ( JCARD,2,0,4,5,0,0,0,9 )   ! Issue warning if fields 2, 4, 5, 9 are not blank
       CALL BD_IMBEDDED_BLANK ( JCARD,0,3,0,0,6,7,8,0 )     ! Make sure that there are no imbedded blanks in fields 3, 6-8
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
@@ -151,5 +151,5 @@
  1192 FORMAT(' *ERROR  1192: ID IN FIELD ',I3,' OF ',A,A,' MUST BE ',A,' BUT IS = ',I8)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_BEAMOR

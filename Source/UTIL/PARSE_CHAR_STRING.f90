@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE PARSE_CHAR_STRING ( CHAR_STRING, STRING_LEN, MAX_WORDS, MWLEN, NUM_WORDS, WORDS, IERR )
- 
+
 ! Parses a character string whose words are separated by blanks and/or commas into a 1-D array, WORDS, of the words in the string.
 ! For example, if CHAR_STRING is the string (without quotes): "  SORT1 ,   REAL,PRINT  ,,  ,  QAZ  VONMISES", then this subr
 ! parses CHAR_STRING into 5 words in the array WORDS:
@@ -40,13 +40,13 @@
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
-      USE DEBUG_PARAMETERS 
+      USE DEBUG_PARAMETERS
 
       USE PARSE_CHAR_STRING_USE_IFs
 
       IMPLICIT NONE
- 
-      INTEGER(LONG), PARAMETER         :: MAX_LEN_BAD_WRD=150!  
+
+      INTEGER(LONG), PARAMETER         :: MAX_LEN_BAD_WRD=150!
 
       INTEGER(LONG), INTENT(IN)        :: MAX_WORDS          ! Dim of WORDS (number of words in CHAR_STRING cannot exceed this)
       INTEGER(LONG), INTENT(IN)        :: MWLEN              ! Maximum length, in characters, of the entries in array WORDS
@@ -64,7 +64,7 @@
       INTEGER(LONG)                    :: I,J                ! DO loop indices
       INTEGER(LONG)                    :: WORD_LEN           ! Length of one of the words in CHAR_STRING (must be <= MWLEN)
 
- 
+
 
 ! **********************************************************************************************************************************
 ! Initialize
@@ -142,7 +142,7 @@ j_do:                   DO J=1,MAX_LEN_BAD_WRD             ! Loop trying to get 
                         ENDDO j_do
                      ELSE
                         EXIT one_wrd
-                     ENDIF   
+                     ENDIF
                   ENDIF
                ENDDO one_wrd
 
@@ -160,14 +160,14 @@ j_do:                   DO J=1,MAX_LEN_BAD_WRD             ! Loop trying to get 
 
          ENDIF
 
-      ENDDO nwrds 
+      ENDDO nwrds
 
       IF (DEBUG(173) >= 1) CALL DEBUG_PARSE_CHR_STRNG ( 4, '173' )
 
       IF (IERR > 0) THEN
          WRITE(F06,9998)
          NUM = MAX_WORDS
-         IF (NUM_WORDS <= MAX_WORDS) NUM = NUM_WORDS 
+         IF (NUM_WORDS <= MAX_WORDS) NUM = NUM_WORDS
          DO I=1,NUM
             WRITE(F06,9999) I, WORDS(I)
          ENDDO
@@ -182,9 +182,9 @@ j_do:                   DO J=1,MAX_LEN_BAD_WRD             ! Loop trying to get 
  9999 FORMAT(I16,2X,'"',A,'"')
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE PARSE_CHAR_STRING_MSG ( OPT, WORD )
@@ -200,7 +200,7 @@ j_do:                   DO J=1,MAX_LEN_BAD_WRD             ! Loop trying to get 
       IF (OPT == 1) THEN
          WRITE(ERR,961) MWLEN, WORD
          WRITE(F06,961) MWLEN, WORD
-      ELSE IF (OPT == 2) THEN 
+      ELSE IF (OPT == 2) THEN
          WRITE(ERR,962) MAX_WORDS
          WRITE(F06,962) MAX_WORDS
       ENDIF
@@ -218,7 +218,7 @@ j_do:                   DO J=1,MAX_LEN_BAD_WRD             ! Loop trying to get 
 
       SUBROUTINE DEBUG_PARSE_CHR_STRNG ( WHAT, DEB_NUM )
 
-      CHARACTER( 3*BYTE)              :: DEB_NUM           ! 
+      CHARACTER( 3*BYTE)              :: DEB_NUM           !
 
       INTEGER(LONG)                   :: WHAT
 

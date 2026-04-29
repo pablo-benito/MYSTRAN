@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE GPWG_USERIN ( IEID )
- 
+
 ! Generates rigid body mass properties for one USERIN element
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, NGRID, SOL_NAME, WARN_ERR
@@ -35,12 +35,12 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  NUM_EMG_FATAL_ERRS, EID, GRID_ID, ME, PLY_NUM, RGRID, USERIN_RBM0
- 
+
 
       USE GPWG_USERIN_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'GPWG_USERIN'
       CHARACTER(1*BYTE)               :: OPT(6)            ! Option flags for what to calculate when subr EMG is called
 
@@ -63,7 +63,7 @@
       REAL(DOUBLE)                    :: XB(3)             ! Basic coord diffs bet c.g. and XREF in X, Y, Z directions
       REAL(DOUBLE)                    :: XD(3)             ! Basic coord diffs bet a mass (at it's c.m.) and XREF in X, Y, Z dirs
       REAL(DOUBLE)                    :: XREF(3)           ! GRDPNT basic coords (or origin of basic sys if GRDPNT doesn't exist)
- 
+
       INTRINSIC                       :: DABS
 
 
@@ -79,7 +79,7 @@
       XREF(3)    = ZERO
 
 ! Get reference point coordinates in basic system for the reference point
- 
+
       IF (GRDPNT /= -1) THEN
          CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, GRDPNT, GRID_ID_ROW_NUM )
          IF (GRID_ID_ROW_NUM /= -1) THEN                   ! GRDPNT is a grid point in the model, so get its basic coords
@@ -97,22 +97,22 @@
             GRDPNT = GRDPNT_DEF
          ENDIF
       ENDIF
- 
+
 ! Generate total mass, first and second moments by summing up mass terms. XD(i) are components of vector from
 ! ref point to a mass point. At this time, mass units are input units without PARAM WTMASS which is what we want for
 ! the grid point weight generator. Later the mass will be converted by multiplying by WTMASS.
- 
+
       M0  = ZERO
       MX    = ZERO
       MY    = ZERO
-      MZ    = ZERO   
+      MZ    = ZERO
 
       XB(1) = ZERO
       XB(2) = ZERO
       XB(3) = ZERO
- 
+
 ! Process this USERIN element mass terms
- 
+
       OPT(1) = 'Y'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'N'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'N'                                         ! OPT(3) is for calc of SEi, STEi
@@ -152,15 +152,15 @@
       ENDIF
 
 ! XB(I) are components of distance from reference point, XREF, to c.g.
- 
+
       IF (DABS(M0) > EPS1) THEN
          XB(1) = MX/M0
          XB(2) = MY/M0
          XB(3) = MZ/M0
       ENDIF
- 
+
 ! Output results so far
- 
+
       IF (GRDPNT >= 0) THEN
          WRITE(F06,1000) EID
          IF (GRDPNT == 0) THEN
@@ -193,15 +193,15 @@
          WRITE(F06,1900)
          DO I=1,3
             WRITE(F06,1101) (USERIN_RBM0(I+3,J+3),J=1,3)
-         ENDDO   
+         ENDDO
          WRITE(F06,1900)
          WRITE(F06,*)
          WRITE(F06,*)
 
       ENDIF
- 
+
 ! Generate moments of inertia about c.g. in basic coord. system
- 
+
       TRANS(1,1) =  M0*(XB(2)*XB(2) + XB(3)*XB(3))
       TRANS(2,2) =  M0*(XB(1)*XB(1) + XB(3)*XB(3))
       TRANS(3,3) =  M0*(XB(1)*XB(1) + XB(2)*XB(2))
@@ -215,47 +215,47 @@
          DO J=1,3
             MOI1(I,J) = USERIN_RBM0(I+3,J+3) - TRANS(I,J)
          ENDDO
-      ENDDO   
- 
+      ENDDO
+
 ! Output MOI's about c.g.
- 
+
       IF (GRDPNT >= 0) THEN
          WRITE(F06,1007)
          WRITE(F06,1900)
          DO I=1,3
             WRITE(F06,1101) (MOI1(I,J),J=1,3)              ! MOI1 now are MOI's about cg in basic
-         ENDDO   
+         ENDDO
          WRITE(F06,1900)
          WRITE(F06,*)
          WRITE(F06,*)
       ENDIF
- 
+
 ! Get principal MOI's and transformation matrix (eigenvectors of MOI1)
- 
+
       CALL GPWG_PMOI ( MOI1, Q, INFO )
- 
+
 ! Write out princ MOI's and coord transf. Otherwise errors were written in subr GPWG_PMOI
 
-      IF ((INFO == 0) .AND. (GRDPNT >= 0)) THEN  
+      IF ((INFO == 0) .AND. (GRDPNT >= 0)) THEN
          WRITE(F06,1008)
          WRITE(F06,1900)
          DO I=1,3
             WRITE(F06,1101) (MOI1(I,J),J=1,3)              ! MOI1 is now principal MOI matrix
-         ENDDO   
+         ENDDO
          WRITE(F06,1900)
          WRITE(F06,*)
          WRITE(F06,*)
- 
+
          WRITE(F06,1009)
          WRITE(F06,1900)
          DO I=1,3
             WRITE(F06,1101) (Q(I,J),J=1,3)
-         ENDDO   
+         ENDDO
          WRITE(F06,1900)
          WRITE(F06,*)
          WRITE(F06,*)
       ENDIF
- 
+
 
 
       RETURN

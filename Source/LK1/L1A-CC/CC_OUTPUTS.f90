@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE CC_OUTPUTS ( CARD, WHAT, SETID )
- 
+
 ! Process the character string in parens for the following Case Control output request entries (e.g. SORT1, PRINT, etc)
 
 !       ACCE()
@@ -38,21 +38,21 @@
 !       STRE()
 !       STRN()
 
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_CMD_DESCRIBERS, LSUB, NCCCD, NSUB 
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_CMD_DESCRIBERS, LSUB, NCCCD, NSUB
       USE TIMDAT, ONLY                :  TSEC
- 
+
       USE CC_OUTPUTS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CC_OUTPUTS'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=*), INTENT(IN)    :: WHAT              ! Which CC type output to process (e.g., DISP, SPCF, etc)
       CHARACTER(LEN=LEN(CARD))        :: CHAR_STRING       ! Character string between parens () if it exists
- 
+
       INTEGER(LONG), INTENT(OUT)      :: SETID             ! Set ID on this Case Control card
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: ICOL1       = 0   ! Location, in CARD, where "(" begins
@@ -61,7 +61,7 @@
       INTEGER(LONG)                   :: NUM_WORDS   = 0   ! Number of words in the string between parens (), if present
       INTEGER(LONG)                   :: STRING_LEN  = 0   ! Length of character string between "()" in the ELDATA card
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -74,13 +74,13 @@
       DO I=1,NCCCD
          CC_CMD_DESCRIBERS(I)(1:) = ' '
       ENDDO
- 
+
 ! Find out if "NONE", "ALL" or SETID
- 
-      CALL GET_ANSID ( CARD, SETID )   
- 
+
+      CALL GET_ANSID ( CARD, SETID )
+
 ! Find out if there is data enclosed between parens (). If so, STRING_LEN will be > 0.
- 
+
       ICOL1 = INDEX(CARD(1:),'(')
       ICOL2 = INDEX(CARD(1:),')')
       STRING_LEN = ICOL2 - ICOL1 - 1
@@ -111,5 +111,5 @@
       RETURN
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE CC_OUTPUTS 
+
+      END SUBROUTINE CC_OUTPUTS

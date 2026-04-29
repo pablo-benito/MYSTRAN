@@ -14,8 +14,8 @@
 
 ! This is a set of LAPACK routines that are used in several other modules but are not BLAS or auxiliary routines
 ! The routines included herein are:
- 
-!     DSTERF: computes all eigenvalues of a symmetric tridiagonal matrix using the Pal-Walker-Kahan variant of the QL or QR alg. 
+
+!     DSTERF: computes all eigenvalues of a symmetric tridiagonal matrix using the Pal-Walker-Kahan variant of the QL or QR alg.
 
 !     DSTEQR: computes all eigenvalues and, optionally, eigenvectors of a sym tridiag matrix using the implicit QL or QR method.
 

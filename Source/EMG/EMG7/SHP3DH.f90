@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE SHP3DH ( IGAUS, JGAUS, KGAUS, NUM_NODES, CALLING_SUBR, IORD_MSG, IORZZZ, SSI, SSJ, SSK, WRT_BUG_THIS_TIME,   &
                           PSH, DPSHG )
 
 ! Generates shape functions for 3D HEXA (8 node and 20 node) elements.
-  
+
 ! The node numbering and axes convention are shown below with XI, ETA, ZI ranging from -1 to +1
- 
+
 !                   In plane ZI = -1
 
 !                         ETA
@@ -46,7 +46,7 @@
 !              .                       .
 !              .                       .
 !              1 . . . . . 9 . . . . . 2
-  
+
 
 
 !                   In plane ZI = 0
@@ -64,7 +64,7 @@
 !              .                       .
 !              .                       .
 !             13 . . . . . . . . . . . 14
-  
+
 
 
 !                   In plane ZI = 1
@@ -81,8 +81,8 @@
 !              .                       .             -----
 !              .                       .
 !              .                       .
-!              5 . . . . .17 . . . . . 6 
-  
+!              5 . . . . .17 . . . . . 6
+
 
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -91,11 +91,11 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE, TWO, FOUR, EIGHT
       USE MODEL_STUF, ONLY            :  EID, TYPE
- 
+
       USE SHP3DH_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SHP3DH'
       CHARACTER(LEN=*)  , INTENT(IN)  :: CALLING_SUBR      ! Subr that called this subr (used for debug output)
       CHARACTER(LEN=*)  , INTENT(IN)  :: IORD_MSG          ! Character name of the integration order (used for debug output)
@@ -112,7 +112,7 @@
       INTEGER(LONG)                   :: NODES_8     = 8   ! Number of nodes for one type of element
       INTEGER(LONG)                   :: NODES_20    = 20  ! Number of nodes for one type of element
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: SSI               ! Gauss point location component 1
       REAL(DOUBLE) , INTENT(IN)       :: SSJ               ! Gauss point location component 2
       REAL(DOUBLE) , INTENT(IN)       :: SSK               ! Gauss point location component 3
@@ -121,7 +121,7 @@
       REAL(DOUBLE)                    :: XI(NUM_NODES)     ! Elem node location in isoparametric coord direction 1
       REAL(DOUBLE)                    :: ET(NUM_NODES)     ! Elem node location in isoparametric coord direction 2
       REAL(DOUBLE)                    :: ZI(NUM_NODES)     ! Elem node location in isoparametric coord direction 3
- 
+
 
 ! **********************************************************************************************************************************
 ! Initialize outputs
@@ -137,9 +137,9 @@
       ENDDO
 
 ! Generate shape functions and derivatives for 3D element with 8 nodes
-  
+
       IF (NUM_NODES == NODES_8) THEN
- 
+
          XI(1) = -ONE                                      ! 1st coord direction
          XI(2) =  ONE
          XI(3) =  ONE
@@ -177,13 +177,13 @@
             DPSHG(1,I) = XI(I)*(ONE + SSJ*ET(I))*(ONE + SSK*ZI(I))/EIGHT
             DPSHG(2,I) = ET(I)*(ONE + SSI*XI(I))*(ONE + SSK*ZI(I))/EIGHT
             DPSHG(3,I) = ZI(I)*(ONE + SSI*XI(I))*(ONE + SSJ*ET(I))/EIGHT
-         ENDDO 
+         ENDDO
 
 ! **********************************************************************************************************************************
 ! Generate shape functions and derivatives for 3D element with 20 nodes
-  
+
       ELSE IF (NUM_NODES == NODES_20) THEN
-  
+
          XI( 1) = -ONE                                      ! 1st coord direction
          XI( 2) =  ONE
          XI( 3) =  ONE
@@ -317,19 +317,19 @@
 
 ! **********************************************************************************************************************************
 ! Error: NUM_NODES is not 8 or 20
-  
+
       ELSE
-  
+
          WRITE(F06,1932) SUBR_NAME, NUM_NODES, EID, TYPE, NODES_8, NODES_20
          WRITE(ERR,1932) SUBR_NAME, NUM_NODES, EID, TYPE, NODES_8, NODES_20
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )                            ! Coding error, so quit
-  
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! ELDATA output:
- 
+
       IF ((WRT_BUG_THIS_TIME == 'Y') .AND. (WRT_BUG(7) > 0)) THEN
 
          NAME(1) = 'Nodes  1 thru  4:'
@@ -361,7 +361,7 @@
          ENDDO
          WRITE(BUG,*)
          WRITE(BUG,*)
- 
+
          J = 0
          WRITE(BUG,1125)
          DO I=1,NUM_NODES,4
@@ -370,7 +370,7 @@
          ENDDO
          WRITE(BUG,*)
          WRITE(BUG,*)
- 
+
          J = 0
          WRITE(BUG,1135)
          DO I=1,NUM_NODES,4
@@ -379,9 +379,9 @@
          ENDDO
          WRITE(BUG,*)
          WRITE(BUG,*)
- 
+
       ENDIF
-  
+
 
 
       RETURN
@@ -414,5 +414,5 @@
  1201 FORMAT(22X,A,1X,4(1ES16.6))
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE SHP3DH

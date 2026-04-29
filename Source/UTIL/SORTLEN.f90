@@ -1,54 +1,54 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SORTLEN ( NLEN, JCT )
- 
+
 ! Calculates shell sort length parameter, JCT
- 
+
       USE PENTIUM_II_KIND, ONLY       :  LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE CONSTANTS_1, ONLY           :  TWO
       USE TIMDAT, ONLY                :  TSEC
- 
+
       USE SORTLEN_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SORTLEN'
 
       INTEGER(LONG), INTENT(IN)       :: NLEN              ! Length of the array that will be sorted in the calling procedure
       INTEGER(LONG), INTENT(OUT)      :: JCT               ! Sort parameter to be used by calling procedure
       INTEGER(LONG)                   :: MAX_JCT           ! Max practical value of JCT to use in sort by the calling procedure.
 !                                                            Values of JCT > MAX_JCT will not cause any error, but will introduce
-!                                                            inefficiency into the sort (a DO loop will run excessively). 
+!                                                            inefficiency into the sort (a DO loop will run excessively).
 
- 
+
       INTRINSIC DLOG
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -62,7 +62,7 @@
       MAX_JCT  = FLOOR(  (DLOG(DBLE(NLEN)+1.D0)) / (DLOG(TWO))  )
 
 ! Calculate shell sort parameter JCT based on array size (NLEN)
- 
+
       IF (NLEN <= 5) THEN
          JCT = 1
       ELSE IF ((NLEN >       5) .AND. (NLEN <=      13)) THEN ! Add      8
@@ -92,21 +92,21 @@
       ELSE IF ((NLEN >   32765) .AND. (NLEN <=   65533)) THEN ! Add  32768
          JCT = 14
       ELSE IF ((NLEN >   65533) .AND. (NLEN <=  131069)) THEN ! Add  65536
-         JCT = 15      
+         JCT = 15
       ELSE IF ((NLEN >  131069) .AND. (NLEN <=  262141)) THEN ! Add 131072
-         JCT = 16      
+         JCT = 16
       ELSE IF ((NLEN >  262141) .AND. (NLEN <=  524285)) THEN ! Add 262144
-         JCT = 17      
+         JCT = 17
       ELSE IF ((NLEN >  524285) .AND. (NLEN <= 1048573)) THEN ! Add 524288
-         JCT = 18      
+         JCT = 18
       ELSE
          JCT = MAX_JCT
       ENDIF
- 
+
 
 
       RETURN
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE SORTLEN

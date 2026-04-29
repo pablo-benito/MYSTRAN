@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MGGC_MASS_MATRIX
- 
+
 ! Forms the mass matrix, MGGC, for concentrated masses by calling subr MGG_CONM2_PROC to process the concentrated masses
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
       USE SCONTR, ONLY                :  NGRID, NTERM_MGGC, BLNK_SUB_NAM
@@ -36,11 +36,11 @@
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  AGRID, GRID_ID, INV_GRID_SEQ
       USE SPARSE_MATRICES, ONLY       :  I_MGGC, J_MGGC, MGGC
- 
+
       USE MGGC_MASS_MATRIX_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MGGC_MASS_MATRIX'
       CHARACTER( 1*BYTE)              :: MGG_CONM2_NONZERO ! 'Y'/'N' indicator if a nonzero MGG_CONM2 6 x 6 matrix was created
@@ -49,7 +49,7 @@
 !                                                            one CONM2 or 1 element (if one exists for this grid)
       INTEGER(LONG)                   :: DELTA_KTERM_MGGC  ! Coumt of nonzero terms in MGGC array for 1 grid
       INTEGER(LONG)                   :: KTERM_MGGC        ! Coumt of nonzero terms in MGGC array
-      INTEGER(LONG)                   :: I,J,K             ! DO loop indices or counters   
+      INTEGER(LONG)                   :: I,J,K             ! DO loop indices or counters
       INTEGER(LONG)                   :: IJ                ! Index
       INTEGER(LONG)                   :: IROW_START        ! Row number in TDOF where data begins for IGRID
       INTEGER(LONG)                   :: NUM_COMPS         ! Number of displ components (1 for SPOINT, 6 for physical grid)
@@ -82,7 +82,7 @@ i_do1:DO I=1,NGRID
          CALL MGG_CONM2_PROC ( I, GRID_NUM, MGG_CONM2, MGG_CONM2_NONZERO )
          CALL GET_GRID_NUM_COMPS ( I, NUM_COMPS, SUBR_NAME )
 
-         IF (MGG_CONM2_NONZERO == 'Y') THEN 
+         IF (MGG_CONM2_NONZERO == 'Y') THEN
             DO J=1,NUM_COMPS
                DELTA_KTERM_MGGC = 0
 
@@ -101,9 +101,9 @@ i_do1:DO I=1,NGRID
                         MGGC(KTERM_MGGC) = MGG_CONM2(J,K)
                   ENDIF
                ENDDO
-!xx            IJ = 6*(I-1) + J 
-               IJ = NUM_COMPS*(I-1) + J 
-               I_MGGC(IJ+1) = I_MGGC(IJ) + DELTA_KTERM_MGGC 
+!xx            IJ = 6*(I-1) + J
+               IJ = NUM_COMPS*(I-1) + J
+               I_MGGC(IJ+1) = I_MGGC(IJ) + DELTA_KTERM_MGGC
             ENDDO
 
          ELSE
@@ -132,9 +132,9 @@ i_do1:DO I=1,NGRID
       CONTAINS
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE MGG_CONM2_PROC ( INT_GRID_ID, GRID_NUM, MGG_CONM2, MGG_CONM2_NONZERO )
- 
+
 ! Generates 6 x 6 mass matrix, MGG_CONM2, for one CONM2 for grid GRID_NUM (if there is any CONM2 connected to this grid)
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -144,16 +144,16 @@ i_do1:DO I=1,NGRID
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  CONM2, RCONM2
       USE PARAMS, ONLY                :  ART_MASS, ART_ROT_MASS, ART_TRAN_MASS
- 
+
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MGG_CONM2_PROC'
       CHARACTER( 1*BYTE), INTENT(OUT) :: MGG_CONM2_NONZERO ! 'Y'/'N' indicator if a nonzero MGG_CONM2 6 x 6 matrix was created
 
       INTEGER(LONG), INTENT(IN)       :: INT_GRID_ID       ! The internal grid number for which we create a 6 x 6 mass matrix for
 !                                                            one CONM2 (if one exists for this grid)
       INTEGER(LONG), INTENT(IN)       :: GRID_NUM          ! The actual grid number for internal grid ID INT_GRID_ID
-      INTEGER(LONG)                   :: I,J,L             ! DO loop indices or counters   
+      INTEGER(LONG)                   :: I,J,L             ! DO loop indices or counters
 
 
       REAL(DOUBLE) , INTENT(OUT)      :: MGG_CONM2(6,6)    ! 6 X 6 mass matrix in global coords for one CONM2
@@ -168,7 +168,7 @@ i_do1:DO I=1,NGRID
       DO I=1,6
          DO J=1,6
             MGG_CONM2(I,J) = ZERO
-         ENDDO 
+         ENDDO
       ENDDO
 
 ! Add artificial mass terms to the grid, if requested
@@ -202,7 +202,7 @@ i_do1:DO I=1,NGRID
             MGG_CONM2(2,2) =  MGG_CONM2(2,2) + RCONM2(L, 1)
             MGG_CONM2(3,3) =  MGG_CONM2(3,3) + RCONM2(L, 1)
 
-            MGG_CONM2(1,5) =  MGG_CONM2(1,5) + RCONM2(L, 1)*RCONM2(L,4)  
+            MGG_CONM2(1,5) =  MGG_CONM2(1,5) + RCONM2(L, 1)*RCONM2(L,4)
             MGG_CONM2(1,6) =  MGG_CONM2(1,6) - RCONM2(L, 1)*RCONM2(L,3)
 
             MGG_CONM2(2,4) =  MGG_CONM2(2,4) - RCONM2(L, 1)*RCONM2(L,4)
@@ -228,7 +228,7 @@ i_do1:DO I=1,NGRID
 
          ENDIF
 
-      ENDDO 
+      ENDDO
 
 
 

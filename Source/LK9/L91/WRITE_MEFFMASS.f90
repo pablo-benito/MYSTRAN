@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE WRITE_MEFFMASS
- 
+
       ! Writes output for modal effective mass
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
@@ -37,11 +37,11 @@
       USE EIGEN_MATRICES_1, ONLY      :  EIGEN_VAL, MEFFMASS
       USE MODEL_STUF, ONLY            :  MEFM_RB_MASS, LABEL, STITLE, TITLE
       USE PARAMS, ONLY                :  EPSIL, GRDPNT, MEFMCORD, MEFMGRID, MEFMLOC, SUPINFO, WTMASS
-  
+
       USE WRITE_MEFFMASS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_MEFFMASS'
       CHARACTER(14*BYTE)              :: CHAR_PCT(6)       ! Character representation of MEFFMASS sum percents of total model mass
       CHARACTER(1*BYTE)               :: IHDR   = 'Y'      ! Indicator of whether to write an output header
@@ -73,12 +73,12 @@
          WRITE(F06,909) TITLE(1)
          WRITE(F06,909) STITLE(1)
          WRITE(F06,909) LABEL(1)
-         WRITE(F06,*) 
+         WRITE(F06,*)
       ENDIF
 
       ! Write modal effective masses
       WRITE(F06,9102) MEFMCORD
-      
+
       IF      (MEFMLOC == 'GRDPNT') THEN
          IF (MEFMGRID == 0) THEN
             WRITE(F06,9103)
@@ -90,7 +90,7 @@
       ELSE IF (MEFMLOC == 'GRID  ') THEN
          WRITE(F06,9106) MEFMGRID
       ENDIF
-      
+
       IF (IS_LOW_PRECISION) THEN
          WRITE(F06,9107)
       ELSE
@@ -99,8 +99,8 @@
 
       DO J=1,6
          MEFM_TOTALS(J) = ZERO
-      ENDDO   
- 
+      ENDDO
+
       DO I=1,NVEC
          CYCLES = DSQRT(DABS(EIGEN_VAL(I)))/(TWO*PI)
 
@@ -112,7 +112,7 @@
 
          DO J=1,6
             MEFM_TOTALS(J) = MEFM_TOTALS(J) + MEFFMASS(I,J)/WTMASS
-         ENDDO   
+         ENDDO
 
       ENDDO
 
@@ -127,10 +127,10 @@
       ELSE
          WRITE(F06,9117) (MEFM_RB_MASS(I,I),I=1,6)
       ENDIF
-      
+
       ! For each of the 6 modal masses, calc % of total mass.
       ! A character variable is used to store the % so that blank percentages can
-      ! be printed if zero modal mass exists for a component (T1 - R3) or 
+      ! be printed if zero modal mass exists for a component (T1 - R3) or
       ! if a denominator in the % expression is zero
       IF (DABS(MEFM_RB_MASS(1,1)) > EPS1) THEN
          MODES_PCT(1) = ONE_HUNDRED*MEFM_TOTALS(1)/MEFM_RB_MASS(1,1)
@@ -286,5 +286,5 @@
                '                                                               -----')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_MEFFMASS

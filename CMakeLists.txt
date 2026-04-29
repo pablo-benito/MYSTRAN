@@ -45,6 +45,9 @@ if(NOT DEFINED CMAKE_SUPPRESS_DEVELOPER_WARNINGS)
   set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE INTERNAL "No dev warnings")
 endif()
 
+# build static libraries throughout this tree
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries" FORCE)
+
 # recommend the appropriate make command
 if(WIN32)
   set(RECOMMENDED_MAKE "mingw32-make")
@@ -76,8 +79,67 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 endif()
 
 set(SUPERLU_DIR "${PROJECT_SOURCE_DIR}/superlu")
+set(SUPERLU_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_patches")
 set(SUPERLU_MT_DIR "${PROJECT_SOURCE_DIR}/superlu_mt")
-set(SUPERLU_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_mt_patches")
+set(SUPERLU_MT_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_mt_patches")
+set(METIS_DIR "${PROJECT_SOURCE_DIR}/metis/METIS")
+set(GKLIB_DIR "${PROJECT_SOURCE_DIR}/metis/GKlib")
+set(METIS_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/metis_patches")
+
+if(NOT DEFINED TPL_ENABLE_METISLIB)
+  set(TPL_ENABLE_METISLIB ON CACHE BOOL "Enable METIS for SuperLU")
+endif()
+if(TPL_ENABLE_METISLIB)
+  if(NOT EXISTS "${GKLIB_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR "The GKlib submodule was not downloaded.")
+  endif()
+  if(NOT EXISTS "${METIS_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR "The METIS submodule was not downloaded.")
+  endif()
+
+  message(STATUS "Applying patches to METIS...")
+  file(GLOB_RECURSE METIS_PATCH_FILES RELATIVE "${METIS_PATCHES_DIR}" "${METIS_PATCHES_DIR}/*")
+
+  foreach(file IN LISTS METIS_PATCH_FILES)
+    set(src "${METIS_PATCHES_DIR}/${file}")
+    set(dst "${METIS_DIR}/${file}")
+
+    get_filename_component(dst_dir "${dst}" DIRECTORY)
+    file(MAKE_DIRECTORY "${dst_dir}")
+
+    message(STATUS "  Patching: ${file}")
+    file(COPY "${src}" DESTINATION "${dst_dir}")
+  endforeach()
+
+  message(STATUS "METIS patched.")
+
+  set(SHARED OFF CACHE BOOL "Build vendored GKlib/METIS as static libraries" FORCE)
+  set(GKLIB_BUILD_APPS OFF CACHE BOOL "Build GKlib applications" FORCE)
+  set(METIS_BUILD_PROGRAMS OFF CACHE BOOL "Build METIS command line programs" FORCE)
+  set(GKLIB_PATH "${GKLIB_DIR}" CACHE PATH "GKlib source directory" FORCE)
+
+  add_subdirectory("${GKLIB_DIR}" "${CMAKE_BINARY_DIR}/metis/GKlib")
+  add_subdirectory("${METIS_DIR}" "${CMAKE_BINARY_DIR}/metis/METIS")
+
+  set(TPL_METIS_LIBRARIES "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libmetis.a;${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libGKlib.a" CACHE STRING "METIS static libraries" FORCE)
+  set(TPL_METIS_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/metis/METIS/include" CACHE PATH "METIS include directory" FORCE)
+
+  message(STATUS "Applying patches to SUPERLU...")
+  file(GLOB_RECURSE SUPERLU_PATCH_FILES RELATIVE "${SUPERLU_PATCHES_DIR}" "${SUPERLU_PATCHES_DIR}/*")
+
+  foreach(file IN LISTS SUPERLU_PATCH_FILES)
+    set(src "${SUPERLU_PATCHES_DIR}/${file}")
+    set(dst "${SUPERLU_DIR}/${file}")
+
+    get_filename_component(dst_dir "${dst}" DIRECTORY)
+    file(MAKE_DIRECTORY "${dst_dir}")
+
+    message(STATUS "  Patching: ${file}")
+    file(COPY "${src}" DESTINATION "${dst_dir}")
+  endforeach()
+
+  message(STATUS "SUPERLU patched for METIS")
+endif()
 
 set(enable_examples OFF FORCE)
 set(enable_tests OFF FORCE)
@@ -87,10 +149,10 @@ if(USE_SUPERLU_MT)
   message(STATUS "Will link against faster SuperLU_MT.")
   set(PLAT "_OPENMP" CACHE STRING "threading flavor _PTHREAD/_OPENMP" FORCE)
   message(STATUS "Applying patches to SuperLU_MT...")
-  file(GLOB_RECURSE PATCH_FILES RELATIVE "${SUPERLU_PATCHES_DIR}" "${SUPERLU_PATCHES_DIR}/*")
+  file(GLOB_RECURSE PATCH_FILES RELATIVE "${SUPERLU_MT_PATCHES_DIR}" "${SUPERLU_MT_PATCHES_DIR}/*")
 
   foreach(file IN LISTS PATCH_FILES)
-    set(src "${SUPERLU_PATCHES_DIR}/${file}")
+    set(src "${SUPERLU_MT_PATCHES_DIR}/${file}")
     set(dst "${SUPERLU_MT_DIR}/${file}")
 
     # ensure the destination directory exists
@@ -150,6 +212,9 @@ else()
 
   include_directories("${SUPERLU_DIR}/SRC")
   add_subdirectory(${SUPERLU_DIR})
+  if(TPL_ENABLE_METISLIB)
+    add_dependencies(superlu metis GKlib)
+  endif()
   set(SLU_DRIVER "${SUPERLU_DIR}/FORTRAN/c_fortran_dgssv.c")
 endif()
 

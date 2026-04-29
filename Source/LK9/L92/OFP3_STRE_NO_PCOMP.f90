@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE OFP3_STRE_NO_PCOMP ( JVEC, FEMAP_SET_ID, ITE, OT4_EROW )
 
 ! Processes element stress output requests for non PCOMP elements for one subcase. Also write Output Transformation Matrices (OTM's)
 ! for stresses for Craig-Bampton models)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELOUT_STRE_BIT, FATAL_ERR, IBIT, INT_SC_NUM,                                &
@@ -51,19 +51,19 @@
       USE OFP3_STRE_NO_PCOMP_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'OFP3_STRE_NO_PCOMP'
       CHARACTER( 1*BYTE), PARAMETER   :: IHDR      = 'Y'   ! An input to subr WRITE_GRID_OUTPUTS, called herein
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option indicators for subr EMG, called herein
       CHARACTER(31*BYTE)              :: OT4_DESCRIPTOR    ! Descriptor for rows of OT4 file
       CHARACTER(30*BYTE)              :: REQUEST           ! Text for error message
       CHARACTER(20*BYTE)              :: STRESS_ITEM(20)   ! Char description of element stresses
- 
+
       INTEGER(LONG), INTENT(IN)       :: FEMAP_SET_ID      ! Set ID for FEMAP output
-      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors 
+      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Solution vector number
       INTEGER(LONG), INTENT(INOUT)    :: OT4_EROW          ! Row number in OT4 file for elem related OTM descriptors
-      INTEGER(LONG)                   :: ELOUT_STRE        ! If > 0, there are STRESS   requests for some elems                
+      INTEGER(LONG)                   :: ELOUT_STRE        ! If > 0, there are STRESS   requests for some elems
       INTEGER(LONG)                   :: I,J,K,L,M         ! DO loop indices
       INTEGER(LONG)                   :: IERROR    = 0     ! Local error count
 !xx   INTEGER(LONG)                   :: IROW_MAT          ! Row number in OTM's
@@ -83,7 +83,7 @@
       INTEGER(LONG)                   :: STRESS_OUT_ERR_INDEX(MAX_STRESS_POINTS)
 
 
- 
+
                                                            ! Array of %errs from subr POLYNOM_FIT_STRE_STRN (only NUM_PTS vals used)
       REAL(DOUBLE)                    :: STRESS_OUT_PCT_ERR(MAX_STRESS_POINTS)
 
@@ -109,27 +109,27 @@
 
 ! **********************************************************************************************************************************
 ! Process element stress output (STRESS) requests for all elems except composite shells
- 
+
       OPT(1) = 'N'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'N'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'Y'                                         ! OPT(3) is for calc of SEi, STEi
       OPT(4) = 'N'                                         ! OPT(4) is for calc of KE-linear
       OPT(5) = 'N'                                         ! OPT(5) is for calc of PPE
       OPT(6) = 'N'                                         ! OPT(6) is for calc of KE-diff stiff
- 
- 
+
+
 ! Find out how many output requests were made for each element type.
 
       DO I=1,METYPE                                        ! Initialize the array containing the no. requests/elem.
          NELREQ(I) = 0
-      ENDDO 
- 
+      ENDDO
+
       DO I=1,METYPE
          DO J=1,NELE
             CALL IS_ELEM_PCOMP_PROPS ( J )
             IF (PCOMP_PROPS == 'N') THEN
                IF (ETYPE(J) == ELMTYP(I)) THEN
-                  IF ((STRE_LOC == 'CORNER  ') .OR.                                                                                & 
+                  IF ((STRE_LOC == 'CORNER  ') .OR.                                                                                &
                       (STRE_LOC == 'GAUSS   ') .OR.                                                                                &
                       (ETYPE(J)(1:4) == 'HEXA') .OR.                                                                               &
                       (ETYPE(J)(1:5) == 'PENTA') .OR.                                                                              &
@@ -146,14 +146,14 @@
                ENDIF
             ENDIF
          ENDDO
-      ENDDO 
- 
+      ENDDO
+
       DO I=1,MAXREQ
          DO J=1,MOGEL
             OGEL(I,J) = ZERO
-         ENDDO 
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
 ! 101  FORMAT("*DEBUG:      ",A,"; ELEMENT_TYPE_INT=",I8,"; TABLE_NAME=",A)
 !xx   IROW_MAT = 0
 !xx   IROW_TXT = 0
@@ -162,7 +162,7 @@ reqs5:DO I=1,METYPE
          IF (NELREQ(I) == 0) CYCLE reqs5
          NUM_OGEL_ROWS = 0
          NUM_OGEL      = 0
- 
+
 elems_5: DO J = 1,NELE
 
             EID   = EDAT(EPNT(J))
@@ -183,12 +183,12 @@ elems_5: DO J = 1,NELE
 
                   DO M=1,NUM_PTS(I)
                      CALL ELEM_STRE_STRN_ARRAYS ( M )
-                     STRESS_RAW(:,M) = STRESS(:) 
+                     STRESS_RAW(:,M) = STRESS(:)
                   ENDDO
-                  
+
                   STRESS_OUT(:,1) = STRESS(:)            ! Set STRESS_OUT for NUM_PTS(I) = 1
 
-                  IF ((STRE_LOC == 'CORNER  ') .OR.                                                                                & 
+                  IF ((STRE_LOC == 'CORNER  ') .OR.                                                                                &
                       (STRE_LOC == 'GAUSS   ') .OR.                                                                                &
                       (TYPE(1:4) == 'HEXA') .OR.                                                                                   &
                       (TYPE(1:5) == 'PENTA') .OR.                                                                                  &
@@ -198,12 +198,12 @@ elems_5: DO J = 1,NELE
                      IF (TYPE(1:5) == 'QUAD4') THEN
                         CALL POLYNOM_FIT_STRE_STRN ( STRESS_RAW, 9, NUM_PTS(I), STRESS_OUT, STRESS_OUT_PCT_ERR,                    &
                                                      STRESS_OUT_ERR_INDEX, PCT_ERR_MAX )
-                    
+
                      ELSE IF (TYPE(1:5) == 'QUAD8') THEN
                         CALL POLYNOM_FIT_STRE_STRN ( STRESS_RAW, 9, NUM_PTS(I), STRESS_OUT, STRESS_OUT_PCT_ERR,                    &
                                                      STRESS_OUT_ERR_INDEX, PCT_ERR_MAX )
 
-                                                           ! Transform stress from the cartesian local coordinate system to 
+                                                           ! Transform stress from the cartesian local coordinate system to
                                                            ! the element coordinate system
                         DO M=2,NUM_PTS(I)
                            CALL PLANE_COORD_TRANS_21( SHELL_STR_ANGLE( M ), TEL, '')
@@ -212,14 +212,14 @@ elems_5: DO J = 1,NELE
                                                            ! Center stress is the average of corner stress in element coordinates.
                                                            ! This is how MSC does it.
                         STRESS_OUT(:,1) = (STRESS_OUT(:,2) + STRESS_OUT(:,3) + STRESS_OUT(:,4) + STRESS_OUT(:,5)) / FOUR
-                     
+
                      ELSE IF ((TYPE(1:4) == 'HEXA') .OR.                                                                           &
                               (TYPE(1:5) == 'PENTA') .OR.                                                                          &
                               (TYPE(1:5) == 'TETRA')) THEN
 ! Stresses are directly evaluated at the corner grid points. If they are going to be evaluated at Gauss points
 ! then extrapolated to grid points, that should be done here, in POLYNOM_FIT_STRE_STRN, or in an equivalent subroutine.
                         STRESS_OUT(:,:) = STRESS_RAW(:,:)
-                        
+
                      ENDIF
 
                   ENDIF
@@ -271,7 +271,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                               ENDIF
                            ENDDO
                         ENDIF
-                     ENDIF   
+                     ENDIF
 
                      IF ((SOL_NAME(1:12) == 'GEN CB MODEL') .AND. (JVEC == 1) .AND. (OT4_EROW >= 1)) THEN
                         DO K=1,OTMSKIP                        ! Write OTMSKIP blank separator lines
@@ -292,7 +292,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                      DO K=1,ELGP
                         GID_OUT_ARRAY(NUM_OGEL_ROWS,K+1) = AGRID(K)
                      ENDDO
- 
+
                   ENDDO do_stress_pts
 
                   IF (ETYPE(J)(1:5) /='USER1') THEN
@@ -310,9 +310,9 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                ENDIF
 
             ENDIF
- 
+
          ENDDO elems_5
- 
+
       ENDDO reqs5
 
       IF ((TABLE_NAME .NE. "OES ERR ") .AND. (ITABLE < 0)) THEN
@@ -344,7 +344,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCBUSH, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
@@ -375,7 +375,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCELAS1, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
@@ -438,7 +438,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCELAS3, NDUM, NUM_FROWS, 'N', 'Y' )
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'ELAS3   ', 'N', NUM_FROWS, FEMAP_SET_ID )
@@ -469,7 +469,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCELAS4, NDUM, NUM_FROWS, 'N', 'Y' )
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'ELAS4   ', 'N', NUM_FROWS, FEMAP_SET_ID )
@@ -499,14 +499,14 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCROD, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'ROD     ', 'N', NUM_FROWS, FEMAP_SET_ID )
          ENDIF
          CALL DEALLOCATE_FEMAP_DATA
-                     
+
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out BAR stresses
          CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NCBAR, 12, SUBR_NAME )
@@ -531,13 +531,13 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCBAR, NDUM, NUM_FROWS, 'N', 'Y' )
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'BAR     ', 'N', NUM_FROWS, FEMAP_SET_ID )
          ENDIF
          CALL DEALLOCATE_FEMAP_DATA
-                     
+
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out TRIA3K stresses
          CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NCTRIA3K, 22, SUBR_NAME )
@@ -561,18 +561,18 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCTRIA3K, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'TRIA3K  ', 'N', NUM_FROWS, FEMAP_SET_ID )
          ENDIF
          CALL DEALLOCATE_FEMAP_DATA
-                     
+
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out TRIA3 stresses
          CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NCTRIA3, 22, SUBR_NAME )
-         DO J=1,NELE 
+         DO J=1,NELE
             CALL IS_ELEM_PCOMP_PROPS ( J )
             IF (PCOMP_PROPS == 'N') THEN
                EID   = EDAT(EPNT(J))
@@ -592,14 +592,14 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCTRIA3, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'TRIA3   ', 'N', NUM_FROWS, FEMAP_SET_ID )
          ENDIF
          CALL DEALLOCATE_FEMAP_DATA
-                     
+
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out QUAD4K stresses
          CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NCQUAD4K, 22, SUBR_NAME )
@@ -624,13 +624,13 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCQUAD4K, NDUM, NUM_FROWS, 'N', 'Y' )
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'QUAD4K  ', 'N', NUM_FROWS, FEMAP_SET_ID )
          ENDIF
          CALL DEALLOCATE_FEMAP_DATA
-                     
+
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out QUAD4 stresses
          CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NCQUAD4, 22, SUBR_NAME )
@@ -654,14 +654,14 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCQUAD4, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'QUAD4   ', 'N', NUM_FROWS, FEMAP_SET_ID )
          ENDIF
          CALL DEALLOCATE_FEMAP_DATA
-                     
+
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out HEXA8 stresses
          CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NCHEXA8, 12, SUBR_NAME )
@@ -685,14 +685,14 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCHEXA8, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'HEXA8   ', 'N', NUM_FROWS, FEMAP_SET_ID )
          ENDIF
          CALL DEALLOCATE_FEMAP_DATA
-                     
+
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out HEXA20 stresses
          CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NCHEXA20, 12, SUBR_NAME )
@@ -717,7 +717,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCHEXA20, NDUM, NUM_FROWS, 'N', 'Y' )
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'HEXA20  ', 'N', NUM_FROWS, FEMAP_SET_ID )
@@ -748,7 +748,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCPENTA6, NDUM, NUM_FROWS, 'N', 'Y' )
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_STRE_VECS ( 'PENTA6  ', 'N', NUM_FROWS, FEMAP_SET_ID )
@@ -778,7 +778,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCPENTA15, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
@@ -809,7 +809,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCTETRA4, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
@@ -840,7 +840,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCTETRA10, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
@@ -871,7 +871,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
                   CALL ELMDIS
                   CALL ELEM_STRE_STRN_ARRAYS ( 1 )
                   CALL CALC_ELEM_STRESSES ( NCSHEAR, NDUM, NUM_FROWS, 'N', 'Y' )
-               ENDIF            
+               ENDIF
             ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
@@ -958,7 +958,7 @@ do_stress_pts:    DO M=1,NUM_PTS(I)
          ELSE IF (STRE_OPT(1:4) == 'MAXS'    ) THEN
             STRESS_ITEM( 8) = 'Max Shear XY at -Z1 '  ;  STRESS_ITEM(18) = 'Max Shear XY at +Z1 '
          ELSE
-            STRESS_ITEM( 8) = '**** undefined **** '  ;  STRESS_ITEM(18) = '**** undefined **** '          
+            STRESS_ITEM( 8) = '**** undefined **** '  ;  STRESS_ITEM(18) = '**** undefined **** '
          ENDIF
          STRESS_ITEM( 9) = 'Shear XZ Stress avg '  ;  STRESS_ITEM(19) = 'Shear XZ Stress avg '
          STRESS_ITEM(10) = 'Shear YZ Stress avg '  ;  STRESS_ITEM(20) = 'Shear XZ Stress avg '

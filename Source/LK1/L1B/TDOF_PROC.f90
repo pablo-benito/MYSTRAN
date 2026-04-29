@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE TDOF_PROC ( TDOF_MSG )
- 
+
 ! TDOF table generation. TDOF is a table that has the DOF number for every DOF. The table has NDOFG rows and MTDOF columns where:
 
 !   NDOFG = the total number of degrees of freedom in the model (6 times the number of grids plus the number of SPOINT's)
@@ -34,8 +34,8 @@
 
 ! The TDOF table is sorted in grid numerical order. It's sister table, TDOFI, is TDOF sorted in internal G-set order.
 ! Cols 5 thru MTDOF of these tables give the degree of freedom (DOF) number for each of the 16 different displ sets/user's sets.
-! An example of a TDOF table written out to an F06 file is shown below: 
- 
+! An example of a TDOF table written out to an F06 file is shown below:
+
 !                                              DEGREE OF FREEDOM TABLE SORTED ON GRID NUMBER (TDOF)
 
 ! EXTERNAL  INTERNAL                                     DOF NUMBER FOR DISPLACEMENT SET:
@@ -71,7 +71,7 @@
       USE DOF_TABLES, ONLY            :  TSET, TDOF, TDOFI, TDOF_ROW_START, USET
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE MODEL_STUF, ONLY            :  EIG_N2, GRID, GRID_ID, GRID_SEQ, INV_GRID_SEQ
- 
+
       USE TDOF_PROC_USE_IFs
 
       IMPLICIT NONE
@@ -81,7 +81,7 @@
       CHARACTER(LEN=*), INTENT(IN)    :: TDOF_MSG          ! Message to be printed out regarding at what point in the run the TDOF,I
 !                                                            tables are printed out
       CHARACTER(  5*BYTE)             :: SET_NAME          ! A data set name for output purposes
- 
+
       INTEGER(LONG)                   ::  A_SET_COL        ! Col no. in array TDOF where the  A-set is (from subr TDOF_COL_NUM)
       INTEGER(LONG)                   ::  F_SET_COL        ! Col no. in array TDOF where the  F-set is (from subr TDOF_COL_NUM)
       INTEGER(LONG)                   ::  G_SET_COL        ! Col no. in array TDOF where the  G-set is (from subr TDOF_COL_NUM)
@@ -105,12 +105,12 @@
       INTEGER(LONG)                   :: IROW              ! Row number in array TDOF or TDOFI
       INTEGER(LONG)                   :: NUM_COMPS         ! Number of displ components (1 for SPOINT, 6 for physical grid)
 
- 
+
 
 
 ! **********************************************************************************************************************************
       WRITE(SC1, * ) '     TDOF PROC'
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
 ! Call routine to calc what row in TDOF each grid's data begins
 
@@ -156,7 +156,7 @@
       ENDDO
 
 ! Calc TDOF for G-set (col 5 in TDOF). We can do this at this point since all components go in G-set.
- 
+
       NDOFG = 0
       CALL COUNTER_INIT('       Process G -set         ', NGRID)
 
@@ -182,7 +182,7 @@
       ENDIF
 
 ! Put M-set DOF numbers into TDOF (at M_SET_COL)
- 
+
       IF (NDOFM > 0) THEN
          NDOFM = 0
          CALL COUNTER_INIT('       Process M -set         ', NGRID)
@@ -220,7 +220,7 @@
       ENDIF
 
 ! Put SB-set DOF numbers into TDOF (at SB_SET_COL)
- 
+
       IF (NDOFSB > 0) THEN
          NDOFSB = 0
          CALL COUNTER_INIT('       Process SB-set         ', NGRID)
@@ -239,7 +239,7 @@
       ENDIF
 
 ! Put SG-set DOF numbers into TDOF (at SG_SET_COL)
- 
+
       IF (NDOFSG > 0) THEN
          NDOFSG = 0
          CALL COUNTER_INIT('       Process SG-set         ', NGRID)
@@ -258,7 +258,7 @@
       ENDIF
 
 ! Put SE-set DOF numbers into TDOF (at SE_SET_COL)
- 
+
       IF (NDOFSE > 0) THEN
          NDOFSE = 0
          CALL COUNTER_INIT('       Process SE-set         ', NGRID)
@@ -277,7 +277,7 @@
       ENDIF
 
 ! Put O-set DOF numbers into TDOF (at O_SET_COL)
- 
+
       IF (NDOFO > 0) THEN
          NDOFO = 0
          CALL COUNTER_INIT('       Process O -set         ', NGRID)
@@ -296,7 +296,7 @@
       ENDIF
 
 ! Put R-set DOF numbers into TDOF (at R_SET_COL)
- 
+
       IF (NDOFR > 0) THEN
          NDOFR = 0
          CALL COUNTER_INIT('       Process R -set         ', NGRID)
@@ -313,9 +313,9 @@
             CALL COUNTER_PROGRESS(I)
          ENDDO
       ENDIF
- 
+
 ! Calc TDOF for N-set based on G-set minus M-set = S-set + O-set + R-set + L-set
- 
+
       NDOFN = 0
       CALL COUNTER_INIT('       Process N -set         ', NGRID)
       DO I=1,NGRID
@@ -334,7 +334,7 @@
       ENDDO
 
 ! Calc DOF'S in SZ-set (all zero SPC's) based on SA + SB + SG
- 
+
       IF ((NDOFSA > 0) .OR. (NDOFSB > 0) .OR. (NDOFSG > 0)) THEN
          NDOFSZ = 0
          CALL COUNTER_INIT('       Process SZ-set         ', NGRID)
@@ -355,7 +355,7 @@
       ENDIF
 
 ! Calc DOF'S in S-set based on SZ + SE
- 
+
       IF ((NDOFSZ > 0) .OR. (NDOFSE > 0)) THEN
          NDOFS = 0
          CALL COUNTER_INIT('       Process S -set         ', NGRID)
@@ -376,7 +376,7 @@
       ENDIF
 
 ! Calc TDOF for F-set based on N-set minus S-set
- 
+
       NDOFF = 0
       CALL COUNTER_INIT('       Process F -set         ', NGRID)
       DO I=1,NGRID
@@ -395,7 +395,7 @@
       ENDDO
 
 ! Calc TDOF for A-set based on F-set minus O-set
- 
+
       NDOFA = 0
       CALL COUNTER_INIT('       Process A -set         ', NGRID)
       DO I=1,NGRID
@@ -414,7 +414,7 @@
       ENDDO
 
 ! Calc TDOF for L-set based on A-set minus R-set
- 
+
       NDOFL = 0
       CALL COUNTER_INIT('       Process L -set         ', NGRID)
       DO I=1,NGRID
@@ -433,7 +433,7 @@
       ENDDO
 
 ! Calc TDOF for USET U1-set and put DOF numbers into TDOF at U1_SET_COL
- 
+
       IF (NUM_USET_U1 > 0) THEN
          I_USET_U1 = 0
          CALL COUNTER_INIT('       Process U1-set         ', NGRID)
@@ -452,7 +452,7 @@
       ENDIF
 
 ! Calc TDOF for USET U2-set and put DOF numbers into TDOF at U2_SET_COL
- 
+
       IF (NUM_USET_U2 > 0) THEN
          I_USET_U2 = 0
          CALL COUNTER_INIT('       Process U2-set         ', NGRID)
@@ -477,14 +477,14 @@
       DO I=1,NDOFG
          DO J=1,MTDOF
             TDOFI(I,J) = TDOF(I,J)
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
       WRITE(SC1,12345,ADVANCE='NO') '       Sort TDOF to get TDOFI ', CR13
       CALL SORT_TDOF ( SUBR_NAME, 'TDOF', NDOFG, TDOFI, G_SET_COL )
 
 ! Table TDOF is printed in the F06 file if B.D. PARAM PRTDOF = 1 or 3
- 
+
       IF (PRTDOF > 0) THEN
          CALL WRITE_TDOF ( TDOF_MSG )
       ENDIF
@@ -499,7 +499,7 @@
             FATAL_ERR = FATAL_ERR + 1
             CALL OUTA_HERE ( 'Y' )
          ENDIF
-      ENDIF         
+      ENDIF
 
 ! Make sure that if the R set exists it has at least 6 DOF's defined
 
@@ -524,7 +524,7 @@
          ENDIF
       ENDIF
 
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       WRITE(SC1,*) CR13
 
 

@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE PROCESS_INCLUDE_FILES ( NUM_INCL_FILES )
 
@@ -43,7 +43,7 @@
       CHARACTER(LEN=EC_ENTRY_LEN)     :: CARD              ! Exec Control deck card
       CHARACTER(LEN=EC_ENTRY_LEN)     :: CARD1             ! CARD shifted to begin in col 1
 
-      INTEGER(LONG), INTENT(OUT)      :: NUM_INCL_FILES    ! Number of INCLUDE files in the Bulk Data file 
+      INTEGER(LONG), INTENT(OUT)      :: NUM_INCL_FILES    ! Number of INCLUDE files in the Bulk Data file
       INTEGER(LONG)                   :: CHAR_COL          ! Column number on CARD where character CHAR is found
       INTEGER(LONG)                   :: IERR      = 0     ! Error indicator.
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when reading a Case Control card from unit IN1
@@ -54,7 +54,7 @@
 ! **********************************************************************************************************************************
 ! Initialize
 
-		NUM_INCL_FILES = 0
+      NUM_INCL_FILES = 0
 
 main: DO
 
@@ -65,8 +65,8 @@ main: DO
          ENDIF
 
          IF (IOCHK > 0) THEN                               ! Check if error occurs during read
-				WRITE(ERR,1010)
-				WRITE(F06,1010)
+            WRITE(ERR,1010)
+            WRITE(F06,1010)
             WRITE(F06,'(A)') CARD
             FATAL_ERR = FATAL_ERR + 1
             CYCLE main
@@ -83,7 +83,7 @@ main: DO
             IF (IERR == 0) THEN
                CALL RW_INCLUDE_FILES ( INC, IN0 )
             ENDIF
-         ENDIF     
+         ENDIF
 
       ENDDO main
 

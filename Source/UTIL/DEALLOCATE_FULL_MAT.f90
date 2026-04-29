@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE DEALLOCATE_FULL_MAT ( NAME )
- 
+
 ! Deallocates 2D full arrays (see comments in module FULL_MATRICES)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC         
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC
       USE TIMDAT, ONLY                :  TSEC
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE CONSTANTS_1, ONLY           :  ZERO
@@ -39,19 +39,19 @@
                                          KAA_FULL, KAO_FULL, KOO_FULL, MAA_FULL, MAO_FULL, MOO_FULL, PA_FULL, PO_FULL,             &
                                          PFYS_FULL, QSYS_FULL, KFSe_FULL,                                                          &
                                          RMM_FULL, GMN_FULL, GMNt_FULL, GOA_FULL, GOAt_FULL,HMN_FULL, PHIZG_FULL,                  &
-                                         DUM1, DUM2, DUM3  
+                                         DUM1, DUM2, DUM3
 
       USE DEALLOCATE_FULL_MAT_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'DEALLOCATE_FULL_MAT'
       CHARACTER(LEN=*), INTENT(IN)    :: NAME              ! Array name (used for output error message)
- 
+
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
 
- 
+
       REAL(DOUBLE)                    :: CUR_MB_ALLOCATED  ! MB of memory that is currently allocated to ARRAY_NAME when subr
 !                                                            ALLOCATED_MEMORY is called (before entering MB_ALLOCATED into array
 !                                                            ALLOCATED_ARRAY_MEM
@@ -73,7 +73,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KNM_FULL') THEN                    ! Deallocate array KNM_FULL
 
          IF (ALLOCATED(KNM_FULL)) THEN
@@ -84,7 +84,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KMM_FULL') THEN                    ! Deallocate array KMM_FULL
 
          IF (ALLOCATED(KMM_FULL)) THEN
@@ -95,7 +95,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MNN_FULL') THEN                    ! Deallocate array MNN_FULL
 
          IF (ALLOCATED(MNN_FULL)) THEN
@@ -106,7 +106,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MNM_FULL') THEN                    ! Deallocate array MNM_FULL
 
          IF (ALLOCATED(MNM_FULL)) THEN
@@ -117,7 +117,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MMM_FULL') THEN                    ! Deallocate array MMM_FULL
 
          IF (ALLOCATED(MMM_FULL)) THEN
@@ -128,7 +128,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'PN_FULL') THEN                     ! Deallocate array PN_FULL
 
          IF (ALLOCATED(PN_FULL)) THEN
@@ -139,7 +139,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'PM_FULL') THEN                     ! Deallocate array PM_FULL
 
          IF (ALLOCATED(PM_FULL)) THEN
@@ -150,7 +150,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KFF_FULL') THEN                    ! Deallocate array KFF_FULL
 
          IF (ALLOCATED(KFF_FULL)) THEN
@@ -161,7 +161,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KFS_FULL') THEN                    ! Deallocate array KFS_FULL
 
          IF (ALLOCATED(KFS_FULL)) THEN
@@ -172,7 +172,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KFSe_FULL') THEN                   ! Deallocate array KFSe_FULL
 
          IF (ALLOCATED(KFSe_FULL)) THEN
@@ -183,7 +183,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KSS_FULL') THEN                    ! Deallocate array KSS_FULL
 
          IF (ALLOCATED(KSS_FULL)) THEN
@@ -194,7 +194,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MFF_FULL') THEN                    ! Deallocate array MFF_FULL
 
          IF (ALLOCATED(MFF_FULL)) THEN
@@ -205,7 +205,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MFS_FULL') THEN                    ! Deallocate array MFS_FULL
 
          IF (ALLOCATED(MFS_FULL)) THEN
@@ -216,7 +216,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MSS_FULL') THEN                    ! Deallocate array MSS_FULL
 
          IF (ALLOCATED(MSS_FULL)) THEN
@@ -227,7 +227,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'PF_FULL') THEN                     ! Deallocate array PF_FULL
 
          IF (ALLOCATED(PF_FULL)) THEN
@@ -238,7 +238,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'PS_FULL') THEN                     ! Deallocate array PS_FULL
 
          IF (ALLOCATED(PS_FULL)) THEN
@@ -249,7 +249,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KAA_FULL') THEN                    ! Deallocate array KAA_FULL
 
          IF (ALLOCATED(KAA_FULL)) THEN
@@ -260,7 +260,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KAO_FULL') THEN                    ! Deallocate array KAO_FULL
 
          IF (ALLOCATED(KAO_FULL)) THEN
@@ -271,7 +271,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'KOO_FULL') THEN                    ! Deallocate array KOO_FULL
 
          IF (ALLOCATED(KOO_FULL)) THEN
@@ -282,7 +282,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MAA_FULL') THEN                    ! Deallocate array MAA_FULL
 
          IF (ALLOCATED(MAA_FULL)) THEN
@@ -293,7 +293,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MAO_FULL') THEN                    ! Deallocate array MAO_FULL
 
          IF (ALLOCATED(MAO_FULL)) THEN
@@ -304,7 +304,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'MOO_FULL') THEN                    ! Deallocate array MOO_FULL
 
          IF (ALLOCATED(MOO_FULL)) THEN
@@ -315,7 +315,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'PA_FULL') THEN                     ! Deallocate array PA_FULL
 
          IF (ALLOCATED(PA_FULL)) THEN
@@ -326,7 +326,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'PO_FULL') THEN                     ! Deallocate array PO_FULL
 
          IF (ALLOCATED(PO_FULL)) THEN
@@ -337,7 +337,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'PFYS_FULL') THEN                   ! Deallocate array PFYS_FULL
 
          IF (ALLOCATED(PFYS_FULL)) THEN
@@ -348,7 +348,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'QSYS_FULL') THEN                   ! Deallocate array QSYS_FULL
 
          IF (ALLOCATED(QSYS_FULL)) THEN
@@ -359,7 +359,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'RMM_FULL') THEN                    ! Deallocate array RMM_FULL
 
          IF (ALLOCATED(RMM_FULL)) THEN
@@ -447,7 +447,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'DUM2') THEN                        ! Deallocate array DUM2
 
          IF (ALLOCATED(DUM2)) THEN
@@ -458,7 +458,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE IF (NAME == 'DUM3') THEN                        ! Deallocate array DUM3
 
          IF (ALLOCATED(DUM3)) THEN
@@ -469,7 +469,7 @@
                JERR = JERR + 1
             ENDIF
          ENDIF
- 
+
       ELSE                                                 ! NAME not recognized, so prog error
 
          WRITE(ERR,915) SUBR_NAME, 'DEALLOCATED', NAME
@@ -478,7 +478,7 @@
          JERR = JERR + 1
 
       ENDIF
- 
+
 ! Quit if there were errors
 
       IF (JERR /= 0) THEN
@@ -499,5 +499,5 @@
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE DEALLOCATE_FULL_MAT

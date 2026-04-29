@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE STOKEN ( CALLING_SUBR, TOKSTR, TOKEN_BEG, STRNG_END, NTOKEN, IERROR, TOKTYP, TOKEN, ERRTOK, THRU, EXCEPT )
 
@@ -47,8 +47,8 @@
       IMPLICIT NONE
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)) :: SUBR_NAME = 'STOKEN'
-      CHARACTER(LEN=*)          , INTENT(IN)   :: CALLING_SUBR! Character string to tokenize 
-      CHARACTER(LEN=*)          , INTENT(IN)   :: TOKSTR      ! Character string to tokenize 
+      CHARACTER(LEN=*)          , INTENT(IN)   :: CALLING_SUBR! Character string to tokenize
+      CHARACTER(LEN=*)          , INTENT(IN)   :: TOKSTR      ! Character string to tokenize
       CHARACTER( 3*BYTE)        , INTENT(INOUT):: EXCEPT      ! Flag indicating whether EXCEPT is "ON " or "OFF"
       CHARACTER( 3*BYTE)        , INTENT(INOUT):: THRU        ! Flag indicating whether THRU   is "ON " or "OFF"
       CHARACTER(LEN=LEN(TOKSTR)), INTENT(OUT)  :: ERRTOK      ! Char string with data for an error to be printed by calling subr
@@ -133,7 +133,7 @@ i_loop1: DO I = TOKEN_BEG,STRNG_END
             CALL DEB_STOKEN ( PRINT_ITEM )
          ENDIF
 
-         IF (TOKEN(NTOKEN) == 'EXCEPT  ') THEN             ! Set EXCEPT flag if TOKEN = 'EXCEPT  ', but only if 
+         IF (TOKEN(NTOKEN) == 'EXCEPT  ') THEN             ! Set EXCEPT flag if TOKEN = 'EXCEPT  ', but only if
 !                                                            THRU is 'ON ' & EXCEPT is not already 'ON '.
             IF ((THRU == 'ON ') .AND. (EXCEPT == 'OFF')) THEN
                EXCEPT = 'ON '
@@ -233,19 +233,19 @@ i_loop2:    DO I = TOKEN_END+1,STRNG_END                   ! just in case we are
 
          ENDIF
 
-      ENDDO outer 
- 
+      ENDDO outer
+
       IF (DEBUG(19) == 1) THEN                             ! Print debug data following loop
          PRINT_ITEM = 6
          CALL DEB_STOKEN ( PRINT_ITEM )
       ENDIF
- 
+
 
 
       RETURN
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
 
 ! ##################################################################################################################################
@@ -269,7 +269,7 @@ i_loop2:    DO I = TOKEN_END+1,STRNG_END                   ! just in case we are
 
       IF      (PRINT_ITEM == 0) THEN
          WRITE(F06,*)
-         WRITE(F06,99000) CALLING_SUBR, '"', TOKSTR(1:STRNG_END), '"' 
+         WRITE(F06,99000) CALLING_SUBR, '"', TOKSTR(1:STRNG_END), '"'
       ELSE IF (PRINT_ITEM == 1) THEN
          WRITE(F06,99001) TOKEN_BEG     ,THRU,EXCEPT,NUM_TOK_EXP,NTOKEN,(TOKTYP(I),I=1,3),(TOKEN(I),I=1,3),IERROR
       ELSE IF (PRINT_ITEM == 2) THEN

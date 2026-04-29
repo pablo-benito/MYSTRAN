@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE PRT_MATS_ON_RESTART
 
 ! Upon user request (via Bulk Data PARAM PRTijk entries) writes matrices to F06 on a restart
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
 
       USE IOUNT1, ONLY                :  ERR, F06, SC1
@@ -72,32 +72,32 @@
                                          I_QSYS, J_QSYS, QSYS,I_RMG , J_RMG , RMG
 
 
- 
+
       USE PRT_MATS_ON_RESTART_USE_IFs
 
       IMPLICIT NONE
- 
+
       LOGICAL                         :: FILE_EXIST        ! Result from INQUIRE is true if a file exists
 
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME  = 'PRT_MATS_ON_RESTART'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT   = 'Y'  ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
-      CHARACTER(  1*BYTE)             :: NTERM_RD   = 'Y'  ! 'Y' or 'N' Input to subr READ_MATRIX_1 
-      CHARACTER(  1*BYTE)             :: OPND       = 'N'  ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not 
- 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT   = 'Y'  ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
+      CHARACTER(  1*BYTE)             :: NTERM_RD   = 'Y'  ! 'Y' or 'N' Input to subr READ_MATRIX_1
+      CHARACTER(  1*BYTE)             :: OPND       = 'N'  ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not
+
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: IERROR            ! Error count
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening/reading a file
       INTEGER(LONG)                   :: NTERM_KSF         ! Number of nonzeros in sparse matrix KSF (= NTERM_KFS)
       INTEGER(LONG)                   :: NUM_SOLNS         ! NSUB for statics, NVEC for eigenvalues, etc
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG)                   :: REC_NO            ! Record number when reading a file
 
 
       REAL(DOUBLE)                    :: KAA_DIAG(NDOFA)   ! Diagonal of KAA
       REAL(DOUBLE)                    :: KGG_DIAG(NDOFG)   ! Diagonal of KGG
-      REAL(DOUBLE)                    :: KLL_DIAG(NDOFL)   ! Diagonal of KLL 
-      REAL(DOUBLE)                    :: KRR_DIAG(NDOFR)   ! Diagonal of KRR 
+      REAL(DOUBLE)                    :: KLL_DIAG(NDOFL)   ! Diagonal of KLL
+      REAL(DOUBLE)                    :: KRR_DIAG(NDOFR)   ! Diagonal of KRR
 
       REAL(DOUBLE)                    :: KAA_MAX_DIAG      ! Max diag term from KAA
       REAL(DOUBLE)                    :: KGG_MAX_DIAG      ! Max diag term from KGG
@@ -120,7 +120,7 @@
       OUNT(2) = F06
 
 !xx   WRITE(SC1, * ) '    ALLOCATE/DEALLOCATE SOME ARRAYS'
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
 ! Write PG load matrix
@@ -189,7 +189,7 @@
       ENDIF
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
-! Write RMG 
+! Write RMG
 
       IF (PRTRMG > 0) THEN
          INQUIRE ( FILE=LINK1J, EXIST=FILE_EXIST )
@@ -259,7 +259,7 @@
       ENDIF
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
-! Write GMN 
+! Write GMN
 
       IF (PRTGMN > 0) THEN
          INQUIRE ( FILE=LINK2A, EXIST=FILE_EXIST )
@@ -348,7 +348,7 @@
       ENDIF
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
-! Write GOA 
+! Write GOA
 
       IF (PRTGOA > 0) THEN
          INQUIRE ( FILE=LINK2E, EXIST=FILE_EXIST )
@@ -474,7 +474,7 @@
             CALL WRITE_SPARSE_CRS ( L2I_MSG, 'L ', 'L ', NTERM_MLL, NDOFL, I_MLL, J_MLL, MLL )
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MLL ', CR13
             CALL DEALLOCATE_SPARSE_MAT ( 'MLL' )
-         
+
             WARN_ERR = WARN_ERR + 1
             WRITE(ERR,101) L2I_MSG, LINK2I
             IF (SUPWARN == 'N') THEN
@@ -484,7 +484,7 @@
       ENDIF
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
-! Write HMN 
+! Write HMN
 
       IF (PRTHMN > 0) THEN
          INQUIRE ( FILE=LINK2J, EXIST=FILE_EXIST )

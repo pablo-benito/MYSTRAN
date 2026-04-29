@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE READ_INPUT_FILE_NAME ( INI_EXIST )
 
@@ -50,8 +50,8 @@
 
       CHARACTER( 1*BYTE), INTENT(IN)  :: INI_EXIST         ! 'Y' if file MYSTRAN.INI exists or 'N' otherwise
       CHARACTER( 1*BYTE)              :: CEXT              ! = 'Y' if there is an extension following a decimal point in FILNAM
-      CHARACTER(LEN=LEN(INFILE))      :: FILNAM            ! File name 
-      CHARACTER(LEN=LEN(INFILE))      :: DUMFIL            ! File name 
+      CHARACTER(LEN=LEN(INFILE))      :: FILNAM            ! File name
+      CHARACTER(LEN=LEN(INFILE))      :: DUMFIL            ! File name
       CHARACTER( 1*BYTE)              :: POINT             ! = 'Y' if we find a decimal point in INFILE (FILNAM)
 
       INTEGER(LONG)                   :: LEXT              ! Length (chars) of input file extension
@@ -89,7 +89,7 @@
          ENDIF
          NC_TOT = NC_DIR                                   ! This is length of DEFDIR including '\' (if needed)
 
-      ENDIF   
+      ENDIF
 
       NC_FILNAM = 0
       FILNAM(1:) = ' '
@@ -116,23 +116,23 @@ outer:DO                                                   ! Loop which sets fil
          ENDIF
          INFILE(NC_TOT+1:) = FILNAM(1:)
          NC_TOT = NC_TOT + NC_FILNAM
-  
+
          CEXT  = 'N'                                       ! If a file extension was not included, add '.DAT'
          POINT = 'N'
 inner_1: DO I=NC_TOT,1,-1
             IF (INFILE(I:I) == ' ') THEN
                CYCLE inner_1
-            ELSE IF (INFILE(I:I) == '.') THEN              ! '.' indicates there is an extension if non white space after it      
+            ELSE IF (INFILE(I:I) == '.') THEN              ! '.' indicates there is an extension if non white space after it
                POINT = 'Y'
                IF (INFILE(I+1:I+1) == ' ') THEN            ! Check if whote space or not after '.'
                   CEXT  = 'N'                              ! All white space after '.', so no file ext. is in INFILE at this point
                ELSE
-                  CEXT = 'Y'                               ! Non-white space after '.', so file extension is in INFILE 
+                  CEXT = 'Y'                               ! Non-white space after '.', so file extension is in INFILE
                   EXIT inner_1
                ENDIF
             ENDIF
          ENDDO inner_1
-         
+
          IF (CEXT == 'N') THEN                             ! If there was no file name extension, add default extension 'DAT'
             IF ((NC_TOT+4) > FILE_NAM_MAXLEN) THEN
                WRITE(SC1,1002) FILE_NAM_MAXLEN
@@ -145,7 +145,7 @@ inner_1: DO I=NC_TOT,1,-1
                ELSE IF (POINT == 'N') THEN
                   INFILE(NC_TOT+1:) = '.' // 'DAT'
                   NC_TOT = NC_TOT + 4
-               ENDIF 
+               ENDIF
             ENDIF
          ENDIF
 
@@ -178,7 +178,7 @@ inner_2: DO
                      EXIT outer
                   ENDIF
 
-               ENDIF 
+               ENDIF
                WRITE(SC1,1004)
                CALL WRITE_FILNAM ( INFILE, SC1, 1 )
                WRITE(SC1,1005)
@@ -191,7 +191,7 @@ inner_2: DO
 
       ENDDO outer
 
-! Count length of extension of INFILE (after '.'). File name must have an extension length of at least 1 character. 
+! Count length of extension of INFILE (after '.'). File name must have an extension length of at least 1 character.
 
       LEXT = 0
       DO I=NC_TOT,1,-1

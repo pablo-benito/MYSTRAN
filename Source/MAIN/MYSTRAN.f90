@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
 ! MYSTRAN stands for "MY STRuctural ANalysis and is a general purpose finite element analysis program
 !                     -- ---        --
@@ -31,7 +31,7 @@
 ! This is the main program. The major functions are to call the primary subroutines that comprise MYTRAN. The primary subroutines
 ! are LINK0, LINK1, LINK2, LINK3, LINK4, LINK5, LINK6, LINK9:
 
-!  LINK 0: 
+!  LINK 0:
 !     Read input data deck and check for errors and possible restart
 !     Process grid and coordinate system input data
 !     Process Case Control output requests
@@ -40,40 +40,40 @@
 !     Calculates rigid body mass properties (Grid Point Weight Generator)
 !     Process temperature and pressure load input data intp arrays needed for element load calculations
 
-!  LINK 1: 
+!  LINK 1:
 !     Process MPC's and rigid elements into sparse array RMG
 !     Process all applied forces (grid forces and moments, gravity, pressure, thermal, centrifugal, scalar) into sparse array PG)
 !     Formulate the G-set sparse stiffness and mass arrays KGG and MGG
 !     Formulate the G-set sparse differential stiffness array KGGD
 
-!  LINK 2: 
+!  LINK 2:
 !     Reduce the G-set stiffness, mass, load and constraint matrices to the L-set
 
-!  LINK 3 (for statics problems only): 
+!  LINK 3 (for statics problems only):
 !     Solve for the L-set displacements
 
-!  LINK 4 (for eigenvalue problems only): 
+!  LINK 4 (for eigenvalue problems only):
 !     Solve for the L-set eigenvalues and eigenvectors
 
-!  LINK 5: 
+!  LINK 5:
 !     Build the A-set displacements back up to the G-set through use of the constraint matrices
 
-!  LINK 6 (for Craig-Bampton substructure model generation only): 
+!  LINK 6 (for Craig-Bampton substructure model generation only):
 !     Builds a Craig-Bampton model from the input physical model. It is a normal eigenvalue run with SUPORT Bulk Data that defines
 !     a boundary where the model will connect with other models. All of the matrices needed to couple this model to ones connected
-!     at its boundary are calculated along with many output transformation matrices used by Craig-Bampton analysts. 
+!     at its boundary are calculated along with many output transformation matrices used by Craig-Bampton analysts.
 
-!  LINK 9: 
+!  LINK 9:
 !     Use the G-set displacements from LINK5 to solve for the outputs requested in Case Control.
- 
+
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
 
-      USE IOUNT1, ONLY                :  BUG, ERR, F06, IN0, IN1, L1A, NEU, SC1 
+      USE IOUNT1, ONLY                :  BUG, ERR, F06, IN0, IN1, L1A, NEU, SC1
 
-      USE IOUNT1, ONLY                :  F06FIL, IN0FIL, INFILE, NEUFIL 
+      USE IOUNT1, ONLY                :  F06FIL, IN0FIL, INFILE, NEUFIL
 
-      USE IOUNT1, ONLY                :  IN0_MSG, IN1_MSG, L1A_MSG 
+      USE IOUNT1, ONLY                :  IN0_MSG, IN1_MSG, L1A_MSG
 
       USE IOUNT1, ONLY                :  BUGSTAT, BUGSTAT_OLD, ERRSTAT, ERRSTAT_OLD, PCHSTAT, OP2STAT
 
@@ -83,7 +83,7 @@
                                          PROG_NAME, RESTART, SETLEN, SOL_NAME, WARN_ERR
 
       USE TIMDAT, ONLY                :  HOUR, MINUTE, SEC, SFRAC, YEAR, MONTH, DAY, STIME,                                        &
-                                         START_HOUR, START_MINUTE, START_SEC, START_SFRAC, START_YEAR, START_MONTH, START_DAY   
+                                         START_HOUR, START_MINUTE, START_SEC, START_SFRAC, START_YEAR, START_MONTH, START_DAY
 
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP, NL_ITER_NUM, NL_MAXITER, NL_NORM, NL_NUM_LOAD_STEPS
 
@@ -105,11 +105,11 @@
 
 
       INTEGER(LONG)                   :: I,J                ! DO loop indices
-      INTEGER(LONG)                   :: I1                 ! Length of file name of LINK1A without the extension 
-      INTEGER(LONG)                   :: ITER_MAX           ! Naximum iterations before quiting 
+      INTEGER(LONG)                   :: I1                 ! Length of file name of LINK1A without the extension
+      INTEGER(LONG)                   :: ITER_MAX           ! Naximum iterations before quiting
       INTEGER(LONG)                   :: NUM_INCL_FILES     ! Number of INCLUDE statements found in the Bulk data file
       INTEGER(LONG)                   :: NUM_LOAD_STEPS     ! Number of steps to divide the load into (1 unless SOL is nonlinear)
-      INTEGER(LONG)                   :: OUNT(2)            ! File units to write messages to 
+      INTEGER(LONG)                   :: OUNT(2)            ! File units to write messages to
 
       REAL(DOUBLE)                    :: CPU_SECS           ! CPU time for job
       REAL(DOUBLE)                    :: EPS1               ! Small number with which to compare to 0
@@ -230,12 +230,12 @@
       ENDIF
 
       IF (RESTART == 'N') THEN
-      
+
          IF ((SOL_NAME(1:8) == 'DIFFEREN') .OR. (SOL_NAME(1:8) == 'NLSTATIC')) THEN
             NUM_LOAD_STEPS = NL_NUM_LOAD_STEPS
             ITER_MAX       = NL_MAXITER
          ELSE IF ( SOL_NAME(1:8) == 'BUCKLING') THEN
-            NUM_LOAD_STEPS = 2                             ! 1st "load" step is linear statics, 2nd is buckling eigens 
+            NUM_LOAD_STEPS = 2                             ! 1st "load" step is linear statics, 2nd is buckling eigens
             ITER_MAX       = 0
          ELSE
             NUM_LOAD_STEPS = 1
@@ -404,7 +404,7 @@ iters:      DO
 
       CALL CLOSE_LIJFILES ( 'FILE_STAT' )
 
-! Write MYSTRAN END and output file name to screen   
+! Write MYSTRAN END and output file name to screen
 
       WRITE(SC1,151) MONTH,DAY,YEAR,HOUR,MINUTE,SEC,SFRAC
       CALL WRITE_FILNAM ( F06FIL, SC1, 4 )
@@ -461,9 +461,9 @@ iters:      DO
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE CALC_CONVERGENCE
@@ -487,7 +487,7 @@ iters:      DO
 !zzzz          PERCENT_CHANGE(LOAD_ISTEP,NL_ITER_NUM) = ONE_HUNDRED                ! Indeterminant but set it to a large number
 !zzzz       ELSE
 !zzzz          PERCENT_CHANGE(LOAD_ISTEP,NL_ITER_NUM) = ZERO
-!zzzz       ENDIF   
+!zzzz       ENDIF
 !zzzz    ENDIF
       ENDIF
 

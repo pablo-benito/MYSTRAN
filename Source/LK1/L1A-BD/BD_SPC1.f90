@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE BD_SPC1 ( CARD, LARGE_FLD_INP, CC_SPC_FND )
 
 ! Processes SPC Bulk Data Cards. Reads and checks data and then write a record to file LINK1O for later processing.
 ! Each record in file LINK1O has:
 
-!          SETID, COMPJ, GRIDJ, RSPCJ = 0., DOFSET 
+!          SETID, COMPJ, GRIDJ, RSPCJ = 0., DOFSET
 
 ! Note that RSPCJ is written to be compatible with the data written for Bulk Data card SPC
 
@@ -75,25 +75,25 @@
 
 ! **********************************************************************************************************************************
 !  SPC1 Bulk Data Card routine
- 
+
 !    FIELD   ITEM           ARRAY ELEMENT
 !    -----   ------------   -------------
 ! Format #1:
-!     2      Set ID         
-!     3      Comp. numbers  
-!     4-9    Grid ID's      
+!     2      Set ID
+!     3      Comp. numbers
+!     4-9    Grid ID's
 ! Optional continuation cards
-!     2-9    Grid ID's 
+!     2-9    Grid ID's
 
 ! Format #2:
-!     2      Set ID 
+!     2      Set ID
 !     3      Component numbers
 !     4      Grid ID number 1
 !     5      "THRU"
 !     6      Grid ID number 2
 
 
-! All SPC1 are SB set 
+! All SPC1 are SB set
 
       DOFSET = 'SB'
 
@@ -128,7 +128,7 @@
       CALL IP6CHK ( JCARD(3), JCARDO, IP6TYP, IDUM )       ! Read field 3: components
       IF (IERRFL(3) == 'N') THEN
          IF ((IP6TYP == 'COMP NOS') .OR. (IP6TYP == 'ZERO    ') .OR. (IP6TYP == 'BLANK   ')) THEN
-            CALL I4FLD ( JCARDO, JF(3), COMPJ )          
+            CALL I4FLD ( JCARDO, JF(3), COMPJ )
          ELSE
             JERR      = JERR + 1
             FATAL_ERR = FATAL_ERR + 1
@@ -147,37 +147,37 @@
 ! **********************************************************************************************************************************
 ! Format # 2
 
-      IF (TOKTYP == 'THRU    ') THEN                      
- 
+      IF (TOKTYP == 'THRU    ') THEN
+
          JERR = 0
 
          IF (JCARD(4)(1:) /= ' ') THEN                     ! Get 1st Grid ID, GRIDJ1
             CALL I4FLD ( JCARD(4), JF(4), GRIDJ1 )
-         ELSE            
+         ELSE
             JERR      = JERR + 1
             FATAL_ERR = FATAL_ERR + 1
             WRITE(ERR,1125) 'GRID POINT', JF(4), JCARD(1)
             WRITE(F06,1125) 'GRID POINT', JF(4), JCARD(1)
          ENDIF
- 
+
          IF (JCARD(6)(1:) /= ' ') THEN                     ! Get 2nd Grid ID, GRIDJ2
             CALL I4FLD ( JCARD(6), JF(6), GRIDJ2 )
-         ELSE            
+         ELSE
             JERR      = JERR + 1
             FATAL_ERR = FATAL_ERR + 1
             WRITE(ERR,1125) 'GRID POINT', JF(6), JCARD(1)
             WRITE(F06,1125) 'GRID POINT', JF(6), JCARD(1)
          ENDIF
- 
+
          IF ((IERRFL(4)=='N') .AND. (IERRFL(6)=='N')) THEN ! Check GRIDJ2 > GRIDJ1 if there were no errors reading them
             IF (GRIDJ2 < GRIDJ1) THEN
                JERR      = JERR + 1
                FATAL_ERR = FATAL_ERR + 1
-               WRITE(ERR,1128) JCARD(1), JCARD(2) 
-               WRITE(F06,1128) JCARD(1), JCARD(2) 
+               WRITE(ERR,1128) JCARD(1), JCARD(2)
+               WRITE(F06,1128) JCARD(1), JCARD(2)
             ENDIF
-         ENDIF            
- 
+         ENDIF
+
          CALL BD_IMBEDDED_BLANK ( JCARD,2,0,4,5,6,0,0,0 )  ! Make sure that there are no imbedded blanks in fields 2,4,5,6
          CALL CARD_FLDS_NOT_BLANK ( JCARD,0,0,0,0,0,7,8,9 )! Issue warning if fields 7,8,9 not blank
          CALL CRDERR ( CARD )                              ! CRDERR prints errors found when reading fields
@@ -190,8 +190,8 @@
 ! **********************************************************************************************************************************
 ! Format # 1
 
-      ELSE IF ((TOKTYP == 'INTEGER ') .OR. (TOKTYP == 'BLANK   ')) THEN 
- 
+      ELSE IF ((TOKTYP == 'INTEGER ') .OR. (TOKTYP == 'BLANK   ')) THEN
+
 ! Read and check data on parent card
 
          DO J=4,9                                          ! Read fields 4-9: Grid ID's.
@@ -199,14 +199,14 @@
                CYCLE
             ELSE
                CALL I4FLD ( JCARD(J), JF(J), GRIDJ1 )      ! Read another grid ID
-               IF ((JERR == 0) .AND. (IERRFL(J) == 'N')) THEN 
+               IF ((JERR == 0) .AND. (IERRFL(J) == 'N')) THEN
                   NUM_SPC1_RECORDS = NUM_SPC1_RECORDS + 1  ! Incr count of number of entries written to file LINK1O
                   WRITE(L1O) SETID,COMPJ,GRIDJ1,GRIDJ1,RSPCJ,DOFSET
                ELSE
                   JERR = JERR + 1
                ENDIF
             ENDIF
-         ENDDO   
+         ENDDO
 
          CALL BD_IMBEDDED_BLANK ( JCARD,2,0,4,5,6,7,8,9 )  ! Make sure there are no imbeded blanks fields 2-9, except 3 (components)
          CALL CRDERR ( CARD )                              ! CRDERR prints errors found when reading fields
@@ -254,8 +254,8 @@
             WRITE(F06,1100) JCARD(1)
          ENDIF
 
-      ELSE                                                 ! Error - Field 5 did not have "THRU", or an integer, or was blank 
- 
+      ELSE                                                 ! Error - Field 5 did not have "THRU", or an integer, or was blank
+
          FATAL_ERR = FATAL_ERR+1
          WRITE(ERR,1127) JF(5), JCARD(1)
          WRITE(F06,1127) JF(5), JCARD(1)

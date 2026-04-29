@@ -1,42 +1,42 @@
 ! #################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
       SUBROUTINE MITC4_COVARIANT_STRAIN_DIRECT_INTERPOLATION ( R, S, T, X_R, X_S, X_D, MEMBRANE, BENDING, ROW_FROM, ROW_TO, B )
- 
+
 ! Reference [1]:
 ! "A new MITC4+ shell element" by Ko, Lee, Bathe, 2016
 !
 ! Reference [2]:
-!  MITC4 paper "A continuum mechanics based four-node shell element for general nonlinear analysis" 
+!  MITC4 paper "A continuum mechanics based four-node shell element for general nonlinear analysis"
 !     by Dvorkin and Bathe
 
- 
+
 ! Covariant strain-displacement components at point (R,S,T) directly evaluated from the displacement and rotation interpolations.
 ! Only for in-layer strains.
 !
-!        Grid point 1        Grid point 2      ...  
+!        Grid point 1        Grid point 2      ...
 !      ux uy uz rx ry rz   ux uy uz rx ry rz
 ! 11 [ #  #  #  #  #  #  | #  #  #  #  #  #  |     ]
 ! 22 [ #  #  #  #  #  #  | #  #  #  #  #  #  |     ]
@@ -56,7 +56,7 @@
       USE OUTA_HERE_Interface
       USE CROSS_Interface
 
-      IMPLICIT NONE 
+      IMPLICIT NONE
 
       INTEGER(LONG), INTENT(IN)       :: ROW_FROM          ! First row of B to generate. Strain component index 1-4.
       INTEGER(LONG), INTENT(IN)       :: ROW_TO            ! Last row of B to generate. Strain component index 1-4.
@@ -82,17 +82,17 @@
       LOGICAL      , INTENT(IN)       :: BENDING           ! If true, generate bending parts of B
 
 ! **********************************************************************************************************************************
-      
+
                                                            ! Shape function derivatives at R,S
       CALL MITC_SHAPE_FUNCTIONS(R, S, PSH, DPSHG)
-      
+
                                                            ! Initialize B
       B(ROW_FROM:ROW_TO,:) = ZERO
-                                                           
+
                                                            ! Eqn (9) of ref [1].
       DXMDRS(:,1) = X_R + S * X_D                          ! ∂x_m/∂r
       DXMDRS(:,2) = X_S + R * X_D                          ! ∂x_m/∂s
-      
+
 
       IF(BENDING) THEN
 
@@ -105,7 +105,7 @@
             DXBDRS(:,2) = DXBDRS(:,2) + HALF * DIR_THICKNESS(GP) * DIRECTOR(:,GP) * DPSHG(2,GP)
          ENDDO
 
-                                                           ! Find a V1 and V2 for each node which form an 
+                                                           ! Find a V1 and V2 for each node which form an
                                                            ! orthogonal right-handed coordinate system V1, V2, Vn
                                                            ! where Vn is the director vector.
          DO GP=1,ELGP
@@ -117,7 +117,7 @@
                                                            ! Calculate V2
             CALL CROSS(DIRECTOR(:,GP), V1(:,GP), V2(:,GP))
          ENDDO
-         
+
       ENDIF
 
       DO ROW=ROW_FROM,ROW_TO
@@ -137,7 +137,7 @@
          IF(MEMBRANE) THEN
                                                            ! Membrane e^m_xx, e^m_yy, e^m_xy terms of eqn (7a)
                                                            ! described in eqn (7b) in ref [1]
-                                                           
+
                                                            !              1  / ∂x_m     ∂u_m \
                                                            ! B(ROW,:) +=  - (  ---- dot ----  )
                                                            !              2  \ ∂r_i     ∂r_j /
@@ -146,7 +146,7 @@
                                                            ! B(ROW,:) +=  - (  ---- dot ----  )
                                                            !              2  \ ∂r_j     ∂r_i /
             CALL ADD_TERM_M(ROW, DXMDRS(:,J), I, ONE)
-        
+
 
          ENDIF
 
@@ -186,7 +186,7 @@
             CALL ADD_TERM_B(ROW, DXBDRS(:,J), I, T*T)
 
          ENDIF
-         
+
       ENDDO
 
 
@@ -224,12 +224,12 @@
 
       REAL(DOUBLE) , INTENT(IN)       :: LEFT(3)           ! The vector on the left of the dot product
       REAL(DOUBLE) , INTENT(IN)       :: COEFFICIENT       ! Scalar to multiply each term by. Coefficient in eqn (7a) of ref [1]
-      REAL(DOUBLE)                    :: DUMDRS(3)         ! One grid point's term in the sum for the coefficients of the partial 
+      REAL(DOUBLE)                    :: DUMDRS(3)         ! One grid point's term in the sum for the coefficients of the partial
                                                            ! derivatives of u_m with respect to R or S.
 
       INTEGER(LONG), INTENT(IN)       :: ROW               ! Row of B to add the result to. 1, 2, or 4.
       INTEGER(LONG), INTENT(IN)       :: IU                ! Index of dr in the u derivative. 1 or 2.
-          
+
       DO GP=1,ELGP
          K = (GP-1) * 6
                                                            ! Eqn (9) of ref [1]. This node's term of:
@@ -243,7 +243,7 @@
          B(ROW, K+2) = B(ROW, K+2) + COEFFICIENT / TWO * LEFT(2) * DUMDRS(2)
          B(ROW, K+3) = B(ROW, K+3) + COEFFICIENT / TWO * LEFT(3) * DUMDRS(3)
       ENDDO
-               
+
       END SUBROUTINE ADD_TERM_M
 
 ! **********************************************************************************************************************************
@@ -261,7 +261,7 @@
 
       INTEGER(LONG), INTENT(IN)       :: ROW               ! Row of B to add the result to. 1, 2, or 4.
       INTEGER(LONG), INTENT(IN)       :: IU                ! Index of dr in the u derivative. 1 or 2.
-          
+
       DO GP=1,ELGP
          K = (GP-1) * 6
 
@@ -274,10 +274,10 @@
          B(ROW, K+5) = B(ROW, K+5) + COEFFICIENT / TWO * DOT_PRODUCT(LEFT, DUMb)
 
       ENDDO
-               
+
       END SUBROUTINE ADD_TERM_B
 
 ! **********************************************************************************************************************************
 
-  
+
       END SUBROUTINE MITC4_COVARIANT_STRAIN_DIRECT_INTERPOLATION

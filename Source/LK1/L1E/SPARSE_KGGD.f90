@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SPARSE_KGGD
- 
+
 ! Converts the system KGGD differential stiff matrix from a sparse linked list format to a sparse row, col, val format. It sorts
 ! each row to be in G-set DOF numerical order.
 
@@ -41,14 +41,14 @@
       USE DOF_TABLES, ONLY            :  TDOF, TDOF_ROW_START, TDOFI, TSET
       USE STF_ARRAYS, ONLY            :  STFKEY, STF3
       USE SPARSE_MATRICES, ONLY       :  I_KGGD, J_KGGD, KGGD
- 
+
       USE SPARSE_KGGD_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SPARSE_KGGD'
- 
+
       INTEGER(LONG)                   :: G_SET_COL          ! Col in TDOF where G-set DOF's are
       INTEGER(LONG)                   :: I,J,K,L,N          ! DO loop indices
       INTEGER(LONG)                   :: IGRID              ! Internal grid ID
@@ -64,7 +64,7 @@
       INTEGER(LONG)                   :: ROW_NUM_START      ! DOF number where TDOF data begins for a grid
       INTEGER(LONG)                   :: RJ(NDOFG)          ! Column numbers corresponding to the terms in RSTF(I).
 
- 
+
       REAL(DOUBLE)                    :: EPS1               ! A small number to compare real zero
       REAL(DOUBLE)                    :: KGGD_II(6,6)       ! 6 x 6 diagonal stiffness matrices for 1 grid
       REAL(DOUBLE)                    :: RSTF(NDOFG)        ! 1D array of terms from STF(I) pertaining to one row of the G-set
@@ -72,7 +72,7 @@
 !                                                             DOF order. RSTF is sorted so that the cols are in incr DOF order.
 
       INTRINSIC                       :: DABS
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -100,7 +100,7 @@
          ENDDO
          IF (NUM_NONZERO_IN_ROW > NUM_MAX) THEN
             NUM_MAX = NUM_NONZERO_IN_ROW
-         ENDIF   
+         ENDIF
          IF (IS /= 0) THEN
             WRITE(ERR,1625) SUBR_NAME,I
             WRITE(F06,1625) SUBR_NAME,I
@@ -108,7 +108,7 @@
             CALL OUTA_HERE ( 'Y' )                          ! Coding error, so quit
          ENDIF
 
-      ENDDO    
+      ENDDO
 
 
       NTERM_KGGD = NTERM_KGGD - NZERO
@@ -144,7 +144,7 @@ i_do: DO I = 1,NGRID
             DO L=1,6
                KGGD_II = ZERO
             ENDDO
-         ENDDO 
+         ENDDO
 
 !xx      CALL CALC_TDOF_ROW_NUM ( GRID_ID(INV_GRID_SEQ(I)), IROW_START, 'N' )
          CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, GRID_ID(INV_GRID_SEQ(I)), IGRID )
@@ -176,17 +176,17 @@ j_do1:      DO J=1,NDOFG
 
             IF (NUM_NONZERO_IN_ROW > NUM_MAX) THEN
                NUM_MAX = NUM_NONZERO_IN_ROW
-            ENDIF   
+            ENDIF
             IF (IS /= 0) THEN
                WRITE(ERR,1625) SUBR_NAME,I
                WRITE(F06,1625) SUBR_NAME,I
                FATAL_ERR = FATAL_ERR + 1
                CALL OUTA_HERE ( 'Y' )                       ! Coding error, so quit
             ENDIF
- 
+
             IF (NUM_NONZERO_IN_ROW /= 1) THEN               ! Sort row by the shell method so that RJ is in numerical order
                CALL SORT_INT1_REAL1 ( SUBR_NAME, 'RJ, RSTF', NUM_NONZERO_IN_ROW, RJ, RSTF )
-            ENDIF   
+            ENDIF
 
 
 n_do:       DO N=1,NUM_NONZERO_IN_ROW                      ! Formulate the K-th row of KGGD_II
@@ -195,7 +195,7 @@ n_do:       DO N=1,NUM_NONZERO_IN_ROW                      ! Formulate the K-th 
                   KGGD_II(K,KGGD_II_COL_NUM) = RSTF(N)
                ENDIF
             ENDDO n_do
-            
+
 j_do3:      DO J=1,NUM_NONZERO_IN_ROW
                KTERM_KGGD = KTERM_KGGD + 1                    ! KTERM_KGGD is a count on the no. records written
                J_KGGD(KTERM_KGGD) = RJ(J)
@@ -210,7 +210,7 @@ j_do3:      DO J=1,NUM_NONZERO_IN_ROW
             DO J=1,K-1
                KGGD_II(K,J) = KGGD_II(J,K)
             ENDDO
-         ENDDO 
+         ENDDO
 
          CALL COUNTER_PROGRESS(I)
       ENDDO i_do

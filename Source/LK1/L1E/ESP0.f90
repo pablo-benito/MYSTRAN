@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ESP0
- 
+
 ! Provides an estimate of the size that is required for array KGG or KGGD. The estimate is needed so that the G-set stiffness
 ! matrix can be allocated. There are 4 possible means of providing the estimate of this size, and they all use Bulk Data
 ! PARAM SETLKTK. The variable used here to estimate the size of either the KGG or KGGD stiffness matrix is LTERM. After all
@@ -97,7 +97,7 @@
          LTERM = USR_LTERM_KGG
 
       ENDIF
- 
+
 ! Now use LTERM to be the estimate for the appropriate G-set stiffness:
 
       IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
@@ -111,15 +111,15 @@
       RETURN
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
- 
+
       SUBROUTINE ESP0_0 ( LTERM )
- 
+
 ! Estimates LTERM based on full elem stiffness matrices in an unassembled state (not connected)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, NELE, SOL_NAME
@@ -128,26 +128,26 @@
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE MODEL_STUF, ONLY            :  EDAT, EPNT, ETYPE, ELGP, TYPE
       use model_stuf, only            :  eid
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ESP0_0'
 
       INTEGER(LONG), INTENT(OUT)      :: LTERM             ! Count of number of estimated terms in KGG or KGGD
       INTEGER(LONG)                   :: DELTA_LTERM       ! Increment of LTERM for one element
       INTEGER(LONG)                   :: I                 ! DO loop index
 
- 
- 
+
+
 
 
 ! **********************************************************************************************************************************
 ! Process the elements: Asume each is has a stiffness matrix that is completely full
- 
+
 
       LTERM = 0
       DO I = 1,NELE
- 
+
          CALL GET_ELGP ( I )
 
          IF (SPARSTOR == 'SYM   ') THEN
@@ -158,9 +158,9 @@
             LTERM = LTERM + DELTA_LTERM        ! NONSYM can have full matrix
          ENDIF
 
-    
-      ENDDO   
- 
+
+      ENDDO
+
       IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
          WRITE(ERR,4321) LTERM, SETLKTK
          IF (SUPINFO == 'N') THEN
@@ -185,33 +185,33 @@
                            ' BASED ON PARAM SETLKTK = ',I3)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ESP0_0
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE ESP0_1 ( LTERM )
- 
+
 ! Estimates LTERM based on number of rows in the stiff matrix times the stiffness matrix bandwidth from BANDIT.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  F06
       USE SCONTR, ONLY                :  KMAT_BW, KMAT_DEN, NDOFG, BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ESP0_1'
 
       INTEGER(LONG), INTENT(OUT)      :: LTERM             ! Count of number of estimated terms in KGG or KGGD
 
- 
- 
+
+
 
 
 ! **********************************************************************************************************************************
 ! Estimate number of nonzero terms as the number of rows in the stiff matrix times the stiff matrix bandwidth:
- 
+
       LTERM = NDOFG*KMAT_BW
 
       IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
@@ -240,35 +240,35 @@
                    ,/,100X,' NDOFG         = ',I12,/,100X,' BANDIT BW     = ',I12)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ESP0_1
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE ESP0_2 ( LTERM )
- 
+
 ! Estimates LTERM based on the full size of the stiffness matrix times the density returned from subr BANDIT
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, KMAT_BW, KMAT_DEN, NDOFG, SOL_NAME
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ONE_HUNDRED
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ESP0_2'
 
       INTEGER(LONG), INTENT(OUT)      :: LTERM             ! Count of number of estimated terms in KGG or KGGD
 
- 
- 
+
+
 
 
 ! **********************************************************************************************************************************
 ! Estimate number of nonzero terms as the number of rows in the stiff matrix times the stiff matrix bandwidth:
- 
+
       LTERM = NINT((KMAT_DEN/ONE_HUNDRED)*NDOFG*NDOFG)  ! KMAT_DEN is in %
 
       IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
@@ -297,15 +297,15 @@
                    ,/,100X,' NDOFG         = ',I12,/,100X,' MATRIX DENSITY= ',1ES11.3,'%')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ESP0_2
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE ESP0_3 ( LTERM )
- 
+
 ! Estimates LTERM based on actual element stiffness matrices unconnected.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, MELDOF, NELE, NSUB, SOL_NAME
@@ -314,12 +314,12 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  ELDOF, NUM_EMG_FATAL_ERRS, PLY_NUM, KE, TYPE
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ESP0_3'
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option flags for subr EMG (to tell it what to calc)
- 
+
       INTEGER(LONG), INTENT(OUT)      :: LTERM             ! Count of number of estimated terms in KGG or KGGD
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: IERROR            ! Local error indicator
@@ -328,13 +328,13 @@
 
       REAL(DOUBLE)                    :: DQE(MELDOF,NSUB)  ! Dummy array in call to ELEM_TRANSFORM_LBG
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
- 
+
       INTRINSIC                       :: DABS
 
 
 
 ! **********************************************************************************************************************************
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
       EPS1 = EPSIL(1)
 
@@ -347,12 +347,12 @@
       ENDDO
 
 ! Set up the option flags for EMG:
- 
+
       OPT(1) = 'N'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'N'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'N'                                         ! OPT(3) is for calc of SEi, STEi
       OPT(5) = 'N'                                         ! OPT(5) is for calc of PPE
- 
+
       IF      ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
          OPT(4) = 'N'                                      ! OPT(4) is for calc of KE-linear
          OPT(6) = 'Y'                                      ! OPT(6) is for calc of KE-nonlinear
@@ -365,7 +365,7 @@
       ENDIF
 
 ! Process the elements:
- 
+
       IERROR = 0
       LTERM  = 0
       CALL COUNTER_INIT('Estimate size of KGG: process elem  ', NELE)
@@ -377,13 +377,13 @@ elems:DO I=1,NELE
          IF (NUM_EMG_FATAL_ERRS /=0) THEN
             IERROR = IERROR + NUM_EMG_FATAL_ERRS
             CYCLE elems
-         ENDIF 
+         ENDIF
 
 ! Transform KE from local at the elem ends to basic at elem ends to global at elem ends to global at grids.
                                                            ! Transform PTE from local-basic-global
          IF ((TYPE(1:4) /= 'ELAS') .AND. (TYPE /= 'USERIN  '))THEN
             CALL ELEM_TRANSFORM_LBG ( 'KE', KE, DQE )
-         ENDIF 
+         ENDIF
 
 ! Count nonzero terms in transformed KE
 
@@ -439,7 +439,7 @@ kgg_cols:   DO K=KSTART,ELDOF
  9876 FORMAT(/,' PROCESSING ABORTED DUE TO ABOVE ',I8,' ELEMENT GENERATION ERRORS')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ESP0_3
 
 ! ##################################################################################################################################
@@ -458,8 +458,8 @@ kgg_cols:   DO K=KSTART,ELDOF
 
       INTEGER(LONG)    , INTENT(IN)   :: J                 ! Row number of elem stiff matrix term, KE(J,K)
       INTEGER(LONG)    , INTENT(IN)   :: K                 ! Col number of elem stiff matrix term, KE(J,K)
-      INTEGER(LONG)    , INTENT(IN)   :: KGG_COL           ! Row number of KGG matrix where KE(J,K) goes 
-      INTEGER(LONG)    , INTENT(IN)   :: KGG_ROW           ! Col number of KGG matrix where KE(J,K) goes 
+      INTEGER(LONG)    , INTENT(IN)   :: KGG_COL           ! Row number of KGG matrix where KE(J,K) goes
+      INTEGER(LONG)    , INTENT(IN)   :: KGG_ROW           ! Col number of KGG matrix where KE(J,K) goes
 
 ! **********************************************************************************************************************************
       IF      (WHAT == '0') THEN
@@ -475,7 +475,7 @@ kgg_cols:   DO K=KSTART,ELDOF
       RETURN
 
 ! **********************************************************************************************************************************
- 8910 FORMAT(1X,'     ELEM        J        K  KGG_ROW  KGG_COL') 
+ 8910 FORMAT(1X,'     ELEM        J        K  KGG_ROW  KGG_COL')
 
  8930 FORMAT(1X,'A',I8,I8,I8,I8,I8)
 

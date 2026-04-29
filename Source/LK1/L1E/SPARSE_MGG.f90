@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SPARSE_MGG
- 
+
 ! Add sparse arrays for concentrated masses (array MGGC), scalar masses (array MGGS) and element mass (array EMS) to get the final
 ! sparse G-set mass matrix, MGG. Rows are sorted to be in numerical G-set DOF order and the final MGG is written to file LINK1R
 
@@ -42,17 +42,17 @@
       USE EMS_ARRAYS, ONLY            :  EMS, EMSCOL, EMSKEY, EMSPNT
       USE SPARSE_MATRICES, ONLY       :  I2_MGG, I_MGG, J_MGG, MGG, I_MGGC, J_MGGC, MGGC, I_MGGE, J_MGGE, MGGE,                    &
                                          I_MGGS, J_MGGS, MGGS,  SYM_MGGC, SYM_MGGE, SYM_MGGS
-      USE SCRATCH_MATRICES, ONLY      :  I_CRS1, J_CRS1, CRS1 
- 
+      USE SCRATCH_MATRICES, ONLY      :  I_CRS1, J_CRS1, CRS1
+
       USE SPARSE_MGG_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SPARSE_MGG'
       CHARACTER(  1*BYTE)             :: FOUND             ! 'Y' if there is a mass matrix for this grid and 'N' otherwise
       CHARACTER(LEN=LEN(SYM_MGGE))    :: SYM_CRS1          ! 'Y'/'N' Symmetry indicator for scratch matrix CRS1
- 
+
       INTEGER(LONG)                   :: GRID_NUM          ! An actual grid ID
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: IERR              ! Local error count
@@ -66,20 +66,20 @@
       INTEGER(LONG)                   :: NUM_IN_ROW_I      ! Number of nonzero terms in a row of MGG
       INTEGER(LONG)                   :: NUM_COMPS         ! Number of displ components (1 for SPOINT, 6 for physical grid)
       INTEGER(LONG)                   :: NZERO   = 0       ! Count on zero terms in array EMS
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG)                   :: RJ(NDOFG)         ! Column numbers corresponding to the terms in REMS(I).
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
 
- 
+
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
       REAL(DOUBLE)                    :: GRID_MGG(6,6)     ! 6 x 6 mass matrix for a grid
       REAL(DOUBLE)                    :: REMS(NDOFG)       ! 1D array of the terms from EMS(I) pertaining to one row of the G-set
 !                                                            mass matrix. Initially, the cols are not in increasing global DOF
 !                                                            order. REMS is sorted, prior to writing the G-set mass matrix
 !                                                            to file LINK1R, so that the cols are in increasing DOF order.
- 
+
       INTRINSIC                       :: DABS
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -124,7 +124,7 @@ j_do0:   DO J = 1,NDOFG
 ! Pass # 2: Reformulate rows and write to file LINK1R
 
 ! Open L1R to write mass.
-  
+
       OUNT(1) = ERR
       OUNT(2) = F06
       CALL FILE_OPEN ( L1R, LINK1R, OUNT, 'REPLACE', L1R_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
@@ -165,7 +165,7 @@ j_do1:      DO J=1,NDOFG
             ENDDO j_do1
 
             I_MGGE(IK+1) = I_MGGE(IK) + NUM
- 
+
             IF (IS /= 0) THEN
                WRITE(ERR,1626) SUBR_NAME,I
                WRITE(F06,1626) SUBR_NAME,I
@@ -175,7 +175,7 @@ j_do1:      DO J=1,NDOFG
 
             IF (NUM /= 1) THEN                             ! Sort row by the shell method so that RJ is in numerical order
                CALL SORT_INT1_REAL1 ( SUBR_NAME, 'RJ, REMS', NUM, RJ, REMS )
-            ENDIF   
+            ENDIF
 
 j_do3:      DO J = 1,NUM
                KTERM_MGGE = KTERM_MGGE + 1                 ! KTERM_MGGE is a count on the number of records
@@ -205,7 +205,7 @@ j_do3:      DO J = 1,NUM
          CALL MGGS_MASS_MATRIX
       ENDIF
 
-! Add MGGC, MGGE and MGGS to get MGG. This is done in 2 steps: add MGGC and MGGE to get temporary CRS1 then add CRS1 to MGGS 
+! Add MGGC, MGGE and MGGS to get MGG. This is done in 2 steps: add MGGC and MGGE to get temporary CRS1 then add CRS1 to MGGS
 
 !  (1) add MGGC and MGGE to get CRS1 (do not mult by WTMASS here)
 !  --------------------------------------------------------------
@@ -246,7 +246,7 @@ j_do3:      DO J = 1,NUM
             J_MGG(I) = J_CRS1(I)
               MGG(I) = WTMASS*CRS1(I)
          ENDDO
-         
+
 
       ENDIF
 
@@ -298,7 +298,7 @@ j_do3:      DO J = 1,NUM
                MAX_NUM_IN_ROW = IK
             ENDIF
          ENDDO
-         
+
          WRITE(ERR,147) NTERM_MGG
          WRITE(ERR,101) MAX_NUM_IN_ROW
          IF (SUPINFO == 'N') THEN
@@ -308,7 +308,7 @@ j_do3:      DO J = 1,NUM
 
       ENDIF
 
-! Debug output (print grid 6x6 mass for every grid) 
+! Debug output (print grid 6x6 mass for every grid)
 
       IERR = 0
       IF (DEBUG(36) > 0) THEN

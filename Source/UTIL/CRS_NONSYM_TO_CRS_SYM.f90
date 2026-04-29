@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE CRS_NONSYM_TO_CRS_SYM ( NAME_A, NROW_A, NTERM_A, I_A, J_A, A, NAME_B, NTERM_B, I_B, J_B, B )
 
 ! Transforms a square symmetric input matrix, A, that is stored in non-symmetric sparse CRS form (i.e. all nonzero terms stored)
@@ -56,15 +56,15 @@
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
- 
+
       USE CRS_NONSYM_TO_CRS_SYM_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CRS_NONSYM_TO_CRS_SYM'
       CHARACTER(LEN=*), INTENT(IN)    :: NAME_A            ! Name of input matrix
       CHARACTER(LEN=*), INTENT(IN)    :: NAME_B            ! Name of output matrix
- 
+
       INTEGER(LONG), INTENT(IN)       :: NROW_A            ! Number of rows in input matrix, A
       INTEGER(LONG), INTENT(IN)       :: NTERM_A           ! Number of nonzero terms in input  matrix, A
       INTEGER(LONG), INTENT(IN)       :: NTERM_B           ! Number of nonzero terms in output matrix, B
@@ -106,19 +106,19 @@
          DO K=KBEG_A,KEND_A
             IF (J_A(K) >= I) THEN                          ! This is a term from A that is on, or above, the diagonal
                KTERM_B = KTERM_B + 1                       ! Increment the counter for the total number of terms in output matrix B
-               IF (KTERM_B > NTERM_B) CALL ARRAY_SIZE_ERROR_1( SUBR_NAME, NTERM_B, NAME_B ) 
+               IF (KTERM_B > NTERM_B) CALL ARRAY_SIZE_ERROR_1( SUBR_NAME, NTERM_B, NAME_B )
                I_B(I+1) = I_B(I+1) + 1                       ! Increment I_B(I+1) for the number of terms in row I of B
                J_B(KTERM_B) = J_A(K)                       ! Set column number for the term to go into B
                  B(KTERM_B) =   A(K)                       ! Set value for the term to go into B
             ENDIF
          ENDDO
          KBEG_A = KEND_A + 1
-      ENDDO 
-         
+      ENDDO
+
 
 
       RETURN
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE CRS_NONSYM_TO_CRS_SYM

@@ -16,7 +16,7 @@
       CHARACTER(44*BYTE), PRIVATE       :: MODNAM              ! Name to write to screen to describe module being run.
 
 ! This is a set of LAPACK routines for factorization and solution of linear eqns for general band matrices
- 
+
 !     DGBTRF: Driver to compute a LU factorization of a real m-by-n band matrix A using partial pivoting with row interchanges.
 
 !     DGBTRS: to solve a system of linear equations

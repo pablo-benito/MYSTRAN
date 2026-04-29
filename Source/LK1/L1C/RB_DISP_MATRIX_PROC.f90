@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE RB_DISP_MATRIX_PROC ( REF_PT_TXT, REF_PT )
 
@@ -34,7 +34,7 @@
 !         d) an arbitrary grid (REF_PT_TXT = 'GRID' and REF_PT = the grid ID)
 !    2) transform to global coords at the grid
 !    3) assemble the 6 x 6 rigid body displ matrices, in global coords, for all grids
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
@@ -42,14 +42,14 @@
       USE TIMDAT, ONLY                :  TSEC
       USE DOF_TABLES, ONLY            :  TDOF, TDOFI, TDOF_ROW_START
       USE PARAMS, ONLY                :  EQCHK_REF_GRID, SUPWARN
-      USE MODEL_STUF, ONLY            :  CORD, GRID, RGRID, GRID_ID, INV_GRID_SEQ, MODEL_XCG, MODEL_YCG, MODEL_ZCG 
+      USE MODEL_STUF, ONLY            :  CORD, GRID, RGRID, GRID_ID, INV_GRID_SEQ, MODEL_XCG, MODEL_YCG, MODEL_ZCG
       USE RIGID_BODY_DISP_MATS, ONLY  :  RBGLOBAL_GSET
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE RB_DISP_MATRIX_PROC_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'RB_DISP_MATRIX_PROC'
       CHARACTER(LEN=*), INTENT(IN)    :: REF_PT_TXT        ! Reference point used in calculating the 6 rigid body displ vectors
       CHARACTER( 2*BYTE)              :: COMP(6)           ! Text reference to the 6 components of displ (T1, T2, etc)
@@ -72,7 +72,7 @@
       INTEGER(LONG)                   :: NUM_COMPS         ! 6 if GRID_NUM is an physical grid, 1 if an SPOINT
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
 
- 
+
       REAL(DOUBLE)                    :: DUM1(6,6)         ! Intermediate result in obtaining RB_GRID_GLOBL
       REAL(DOUBLE)                    :: DX0               ! X coord difference between grid I and ref grid
       REAL(DOUBLE)                    :: DY0               ! Y coord difference between grid I and ref grid
@@ -90,7 +90,7 @@
       REAL(DOUBLE)                    :: X0_K              ! Basic X coord of AGRID_I
       REAL(DOUBLE)                    :: Y0_K              ! Basic Y coord of AGRID_I
       REAL(DOUBLE)                    :: Z0_K              ! Basic Z coord of AGRID_I
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -142,7 +142,7 @@
                         ICORD_R = I
                         EXIT
                      ENDIF
-                  ENDDO   
+                  ENDDO
                   CALL GEN_T0L ( GRID_ID_ROW_NUM_R, ICORD_R, THETAD, PHID, T0G_R )
                   DO I=1,3
                      DO J=1,3
@@ -153,7 +153,7 @@
                ELSE
                   DO I=1,6
                      TTR_R(I,I) = ONE
-                  ENDDO   
+                  ENDDO
                ENDIF
             ELSE
                WARN_ERR = WARN_ERR + 1
@@ -179,17 +179,17 @@
 
          DO I=1,6
             TTR_R(I,I) = ONE
-         ENDDO   
+         ENDDO
 
       ELSE IF (REF_PT_TXT == 'CG') THEN
-      
+
          X0_R = MODEL_XCG
          Y0_R = MODEL_YCG
          Z0_R = MODEL_ZCG
 
          DO I=1,6
             TTR_R(I,I) = ONE
-         ENDDO   
+         ENDDO
 
       ELSE
 
@@ -221,10 +221,10 @@
             Y0_K = RGRID(GRID_ID_ROW_NUM_K,2)
             Z0_K = RGRID(GRID_ID_ROW_NUM_K,3)
 
-            DX0  = X0_K - X0_R         
-            DY0  = Y0_K - Y0_R         
-            DZ0  = Z0_K - Z0_R 
-            
+            DX0  = X0_K - X0_R
+            DY0  = Y0_K - Y0_R
+            DZ0  = Z0_K - Z0_R
+
             DO I=1,6
                DO J=1,6
                   RB_GRID_BASIC(I,J) = ZERO
@@ -246,7 +246,7 @@
                      ICORD_K = I
                      EXIT
                   ENDIF
-               ENDDO   
+               ENDDO
                CALL GEN_T0L ( GRID_ID_ROW_NUM_K, ICORD_K, THETAD, PHID, T0G_K )
                DO I=1,3
                   DO J=1,3
@@ -257,7 +257,7 @@
             ELSE
                DO I=1,6
                   TTR_K(I,I) = ONE
-               ENDDO   
+               ENDDO
             ENDIF
 
             IF (ECORD_R == 0) THEN
@@ -345,7 +345,7 @@
       RETURN
 
 ! **********************************************************************************************************************************
-  111 FORMAT(' RIGID BODY DISPL MATRIX IN GLOBAL COORDS FOR GRID ',I8) 
+  111 FORMAT(' RIGID BODY DISPL MATRIX IN GLOBAL COORDS FOR GRID ',I8)
 
   112 FORMAT(1X,6(1ES15.6))
 
@@ -376,6 +376,6 @@
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE RB_DISP_MATRIX_PROC
 

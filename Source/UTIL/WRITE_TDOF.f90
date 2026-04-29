@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE WRITE_TDOF ( TDOF_MSG )
 
@@ -82,7 +82,7 @@
                   ENDIF
                ENDIF
             ENDDO
-            WRITE(F06,*) 
+            WRITE(F06,*)
          ENDDO
          IF ((NUM_USET_U1 > 0) .OR. (NUM_USET_U2 > 0)) THEN
             WRITE(F06,402) NDOFG, NDOFM, NDOFN, NDOFSA, NDOFSB, NDOFSG, NDOFSZ, NDOFSE, NDOFS, NDOFF, NDOFO, NDOFA, NDOFR, NDOFL,  &
@@ -94,7 +94,7 @@
       ENDIF
 
 ! Table TDOFI is printed in the F06 file if B.D. PARAM PRTDOF = 2 or 3
- 
+
       IF ((PRTDOF == 2) .OR. (PRTDOF == 3)) THEN
          NAME1 = 'DOF NUMBER'
          NAME2 = '(TDOFI)'
@@ -122,7 +122,7 @@
                   ENDIF
                ENDIF
             ENDDO
-            WRITE(F06,*) 
+            WRITE(F06,*)
          ENDDO
          IF ((NUM_USET_U1 > 0) .OR. (NUM_USET_U2 > 0)) THEN
             WRITE(F06,402) NDOFG, NDOFM, NDOFN, NDOFSA, NDOFSB, NDOFSG, NDOFSZ, NDOFSE, NDOFS, NDOFF, NDOFO, NDOFA, NDOFR, NDOFL,  &
@@ -132,7 +132,7 @@
          ENDIF
          WRITE(F06,'(//)')
       ENDIF
- 
+
 
 
       RETURN
