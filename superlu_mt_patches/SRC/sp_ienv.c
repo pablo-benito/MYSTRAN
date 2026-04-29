@@ -12,9 +12,9 @@ at the top-level directory.
 #include "slu_mt_ddefs.h"
 
 /* these can be set from Fortran, allowing MYSTRAN to control them at runtime */
-int_t param_spienv6 = 100;
-int_t param_spienv7 = 100;
-int_t param_spienv8 = 50;
+int_t param_spienv6 = 50;
+int_t param_spienv7 = 50;
+int_t param_spienv8 = 30;
 
 /* this subroutine can be called from Fortran!
  * if the passed growth factor is non-zero, we set it.

@@ -113,7 +113,12 @@ void c_fortran_pdgssv_(int *iopt, int *n, int_t *nnz, int *nrhs, int *nprocs,
      *   permc_spec = 2: minimum degree on structure of A'+A
      *   permc_spec = 3: approximate minimum degree for unsymmetric matrices (COLAMD)
      */
+#if (HAVE_METIS)
+    printf("USING METIS ORDERING\r\n");
+    permc_spec = 6; /* METIS_AT_PLUS_A in MT SuperLU enum */
+#else
     permc_spec = COLAMD;
+#endif
     get_perm_c(permc_spec, &A, perm_c);
 
     /* Initialize the option structure and apply column permutation */
@@ -210,7 +215,6 @@ void c_fortran_pdgssv_(int *iopt, int *n, int_t *nnz, int *nrhs, int *nprocs,
 
 int c_side_slu_nthr = 0;
 
-
 #if (MACH == OPENMP)
 #include <omp.h>
 int sys_nproc() { return omp_get_max_threads(); }
@@ -219,20 +223,21 @@ int sys_nproc() { return omp_get_max_threads(); }
 int sys_nproc() { return 1; }
 #endif
 
-
 /* this can also be called from Fortran, to set the number of threads via
  * the SLU_NTHR PARAM.
  */
-void slu_set_nthr_(int *nthr) {
-  if (*nthr > 0) {
+void slu_set_nthr_(int *nthr)
+{
+  if (*nthr > 0)
+  {
     c_side_slu_nthr = *nthr;
-  } else {
+  }
+  else
+  {
     c_side_slu_nthr = sys_nproc();
   }
   printf("    SuperLU_MT will use %d threads.\n", c_side_slu_nthr);
 }
-
-
 
 /* follows the signature we're used to from the single-threaded driver. */
 void c_fortran_dgssv_(int *iopt, int *n, int_t *nnz, int *nrhs,
@@ -242,7 +247,8 @@ void c_fortran_dgssv_(int *iopt, int *n, int_t *nnz, int *nrhs,
                                           pointing to the factored matrices */
                       int_t *info)
 {
-  if (c_side_slu_nthr < 1) {
+  if (c_side_slu_nthr < 1)
+  {
     c_side_slu_nthr = 0;
     slu_set_nthr_(&c_side_slu_nthr);
   }

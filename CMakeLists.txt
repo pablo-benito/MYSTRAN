@@ -89,10 +89,12 @@ set(METIS_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/metis_patches")
 if(NOT DEFINED TPL_ENABLE_METISLIB)
   set(TPL_ENABLE_METISLIB ON CACHE BOOL "Enable METIS for SuperLU")
 endif()
+
 if(TPL_ENABLE_METISLIB)
   if(NOT EXISTS "${GKLIB_DIR}/CMakeLists.txt")
     message(FATAL_ERROR "The GKlib submodule was not downloaded.")
   endif()
+
   if(NOT EXISTS "${METIS_DIR}/CMakeLists.txt")
     message(FATAL_ERROR "The METIS submodule was not downloaded.")
   endif()
@@ -199,6 +201,15 @@ if(USE_SUPERLU_MT)
 
   include_directories("${SUPERLU_MT_DIR}/SRC")
   add_subdirectory(${SUPERLU_MT_DIR})
+
+  if(TPL_ENABLE_METISLIB)
+    if(PLAT STREQUAL "_PTHREAD")
+      add_dependencies(superlu_mt_PTHREAD metis GKlib)
+    elseif(PLAT STREQUAL "_OPENMP")
+      add_dependencies(superlu_mt_OPENMP metis GKlib)
+    endif()
+  endif()
+
   set(SLU_DRIVER "${SUPERLU_MT_DIR}/SRC/c_fortran_pdgssv.c")
 else()
   message(STATUS "Will link against regular SuperLU.")
@@ -212,9 +223,11 @@ else()
 
   include_directories("${SUPERLU_DIR}/SRC")
   add_subdirectory(${SUPERLU_DIR})
+
   if(TPL_ENABLE_METISLIB)
     add_dependencies(superlu metis GKlib)
   endif()
+
   set(SLU_DRIVER "${SUPERLU_DIR}/FORTRAN/c_fortran_dgssv.c")
 endif()
 
@@ -384,6 +397,10 @@ if(USE_SUPERLU_MT)
   endif()
 
   target_compile_definitions(mystran PRIVATE USE_SUPERLU_MT)
+
+  if(TPL_ENABLE_METISLIB)
+    target_compile_definitions(mystran PRIVATE HAVE_METIS)
+  endif()
 else()
   target_link_libraries(mystran superlu f2c)
 endif()
