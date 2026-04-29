@@ -44,7 +44,7 @@ SUBROUTINE PRINT_BUILD_INFO (PRINT_LICENSES)
       CALL PRINT_BUILD_CONSTANTS(SC1)
       WRITE(SC1,'(A)') ' '
       CALL PRINT_STATIC_LIB_LIST(SC1)
-      WRITE(SC1,'(A)') ' To see licenses for the static libraries, use --licenses.'
+      WRITE(SC1,'(A)') ' To see licenses for MYSTRAN and embedded libraries use --licenses.'
       WRITE(SC1,'(A)') ' '
    ELSE
       CALL PRINT_ALL_LICENSES(SC1)
