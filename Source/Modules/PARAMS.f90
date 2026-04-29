@@ -504,9 +504,9 @@
       INTEGER(LONG)            :: F06_COL_START  =     0     ! 1st col in F06 file for output data to begin. If it is not > 2, then
 !                                                              output will be written with each main header centered on one another
 
-      INTEGER(LONG)            :: SPIENV6        =   100     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(6)
-      INTEGER(LONG)            :: SPIENV7        =   100     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(7)
-      INTEGER(LONG)            :: SPIENV8        =    50     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(8)
+      INTEGER(LONG)            :: SPIENV6        =   50     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(6)
+      INTEGER(LONG)            :: SPIENV7        =   50     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(7)
+      INTEGER(LONG)            :: SPIENV8        =   30     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(8)
 
       INTEGER(LONG)            :: SLU_NTHR        =    0     ! Number of threads for SuperLU_MT.
                                                              ! Using 0 will use as many threads as the system has.
