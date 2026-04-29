@@ -40,6 +40,10 @@ set(CMAKE_CONFIGURATION_TYPES
   CACHE STRING "" FORCE
 )
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
 # suppress cmake warnings for superlu
 if(NOT DEFINED CMAKE_SUPPRESS_DEVELOPER_WARNINGS)
   set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE INTERNAL "No dev warnings")
@@ -85,6 +89,7 @@ set(SUPERLU_MT_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_mt_patches")
 set(METIS_DIR "${PROJECT_SOURCE_DIR}/metis/METIS")
 set(GKLIB_DIR "${PROJECT_SOURCE_DIR}/metis/GKlib")
 set(METIS_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/metis_patches")
+set(GKLIB_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/gklib_patches")
 
 if(NOT DEFINED TPL_ENABLE_METISLIB)
   set(TPL_ENABLE_METISLIB ON CACHE BOOL "Enable METIS for SuperLU")
@@ -98,6 +103,22 @@ if(TPL_ENABLE_METISLIB)
   if(NOT EXISTS "${METIS_DIR}/CMakeLists.txt")
     message(FATAL_ERROR "The METIS submodule was not downloaded.")
   endif()
+
+  message(STATUS "Applying patches to GKlib...")
+  file(GLOB_RECURSE GKLIB_PATCH_FILES RELATIVE "${GKLIB_PATCHES_DIR}" "${GKLIB_PATCHES_DIR}/*")
+
+  foreach(file IN LISTS GKLIB_PATCH_FILES)
+    set(src "${GKLIB_PATCHES_DIR}/${file}")
+    set(dst "${GKLIB_DIR}/${file}")
+
+    get_filename_component(dst_dir "${dst}" DIRECTORY)
+    file(MAKE_DIRECTORY "${dst_dir}")
+
+    message(STATUS "  Patching: ${file}")
+    file(COPY "${src}" DESTINATION "${dst_dir}")
+  endforeach()
+
+  message(STATUS "GKlib patched.")
 
   message(STATUS "Applying patches to METIS...")
   file(GLOB_RECURSE METIS_PATCH_FILES RELATIVE "${METIS_PATCHES_DIR}" "${METIS_PATCHES_DIR}/*")
@@ -440,6 +461,15 @@ list(APPEND _MYSTRAN_STATIC_NAMES libf2c.a)
 if(USE_SUPERLU_MT)
   list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_SUPERLU_MT)
 
+  if(WIN32)
+    list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_WINPTHREAD)
+    list(APPEND _MYSTRAN_STATIC_NAMES libwinpthread.a)
+  else()
+    list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_PTHREAD)
+
+    # no name because it's part of glibc
+  endif()
+
   if(PLAT STREQUAL "_OPENMP")
     list(APPEND _MYSTRAN_STATIC_NAMES libsuperlu_mt_OPENMP.a)
 
@@ -461,6 +491,13 @@ if(TPL_ENABLE_METISLIB)
   list(APPEND _MYSTRAN_STATIC_NAMES libmetis.a)
   list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_GKLIB)
   list(APPEND _MYSTRAN_STATIC_NAMES libGKlib.a)
+
+  if(NOT WIN32)
+    list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_REGEX)
+
+    # only on linux because on windows we build embedded gkegex.
+    # no name because it's part of glibc.
+  endif()
 endif()
 
 # Local BLAS functions are compiled directly into the binary when the
@@ -489,7 +526,7 @@ message(STATUS "Static libraries linked in: ${_STATIC_NAMES_STR}")
 
 # force some libraries
 list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_LAPACK)
-list(APPEND _MYSTRAN_STATIC_NAMES "<lapack>")
+list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_ARPACK)
 
 # -----------------------------------------------------------------------
 # License file associations
@@ -506,13 +543,17 @@ set(_MYSTRAN_LICENSE_MAP
   "F2C:f2c/Notice:libf2c:Fortran-to-C runtime support library"
   "SUPERLU:superlu/License.txt:SuperLU:sparse solver"
   "SUPERLU_MT:superlu_mt/License.txt:SuperLU_MT:multi-threaded sparse solver"
-  "METIS:metis/METIS/LICENSE:METIS:METIS graph partitioner"
-  "GKLIB:metis/GKlib/LICENSE.txt:GKlib:GKlib utility library for METIS"
+  "METIS:metis/METIS/LICENSE:METIS:graph partitioner for SuperLU"
+  "GKLIB:metis/GKlib/LICENSE.txt:GKlib:utility library for METIS"
   "BLAS:extra_licenses/blas-lapack.txt:BLAS:embedded subset of reference BLAS"
   "LAPACK:extra_licenses/blas-lapack.txt:LAPACK:linear algebra library"
+  "ARPACK:extra_licenses/arpack.txt:ARPACK:Lanczos eigensolver implementation"
   "GOMP:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgomp:GNU OpenMP runtime"
   "GFORTRAN:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgfortran:GNU Fortran runtime"
   "GCC:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgcc:GNU C runtime"
+  "WINPTHREAD:extra_licenses/libwinpthread.txt:libwinpthread:Windows POSIX threads, used by SuperLU_MT"
+  "PTHREAD:extra_licenses/lgpl-2.1.txt:libpthread:POSIX threads, used by SuperLU_MT"
+  "REGEX:extra_licenses/lgpl-2.1.txt:libpthread:POSIX regexes, used by GKlib"
 )
 
 # Generate STATIC_LICENSES_GENERATED.F90 in the build directory
@@ -755,7 +796,7 @@ string(APPEND _GEN_BLD_CONTENT
   "  WRITE(IUNIT,'(A)') ' '\n"
   "  WRITE(IUNIT,'(A)') '  C compiler          : ${_CC_DISPLAY}'\n"
   "  WRITE(IUNIT,'(A)') '  C compiler path     : ${_CC_PATH}'\n"
-  "  WRITE(IUNIT,'(A)') '  C flags            : ${_CC_FLAGS}'\n"
+  "  WRITE(IUNIT,'(A)') '  C flags             : ${_CC_FLAGS}'\n"
   "  WRITE(IUNIT,'(A)') ' '\n"
   "  WRITE(IUNIT,'(A)') '  Sparse solver       : ${_SLU_VARIANT}'\n"
   "  WRITE(IUNIT,'(A)') '  BLAS                : ${_BLAS_INFO}'\n"
