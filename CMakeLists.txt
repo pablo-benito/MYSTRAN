@@ -553,7 +553,7 @@ set(_MYSTRAN_LICENSE_MAP
   "GCC:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgcc:GNU C runtime"
   "WINPTHREAD:extra_licenses/libwinpthread.txt:libwinpthread:Windows POSIX threads, used by SuperLU_MT"
   "PTHREAD:extra_licenses/lgpl-2.1.txt:libpthread:POSIX threads, used by SuperLU_MT"
-  "REGEX:extra_licenses/lgpl-2.1.txt:libpthread:POSIX regexes, used by GKlib"
+  "REGEX:extra_licenses/lgpl-2.1.txt:libregex:POSIX regexes, used by GKlib"
 )
 
 # Generate STATIC_LICENSES_GENERATED.F90 in the build directory
