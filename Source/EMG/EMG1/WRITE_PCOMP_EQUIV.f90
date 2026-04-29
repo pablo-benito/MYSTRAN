@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE WRITE_PCOMP_EQUIV ( PCOMP_TM, PCOMP_IB, PCOMP_TS )
 
@@ -125,10 +125,10 @@
 
       PCOMP_IBP  = TWELVE*PCOMP_IB/(PCOMP_TM*PCOMP_TM*PCOMP_TM)
       PCOMP_TSTM = PCOMP_TS/PCOMP_TM
-      WRITE(F06,9901) PCOMP(INTL_PID,1), PCOMP_TM, PCOMP_IBP, PCOMP_TSTM 
+      WRITE(F06,9901) PCOMP(INTL_PID,1), PCOMP_TM, PCOMP_IBP, PCOMP_TSTM
       IF (SUPINFO == 'N') THEN
          WRITE(F06,9901) PCOMP(INTL_PID,1), PCOMP_TM, PCOMP_IBP, PCOMP_TSTM
-      ENDIF 
+      ENDIF
 
       DO I=1,3
          DO J =1,3
@@ -201,7 +201,7 @@
 
          WRITE(F06,*)
 
-      ENDIF                     
+      ENDIF
 
       CALL GET_CHAR8_OUTPUTS ( C8FLD_GIJ, C8FLD_ALP, C8FLD_RHO, C8FLD_TREF, C8FLD_TM, C8FLD_ZS )
 
@@ -297,7 +297,7 @@
              '+++++++++++++++++++++++++++++++++++++++++++++++++')
 
  9901 FORMAT(' *INFORMATION: Equivalent PSHELL amd MAT2 entries for PCOMP ',I8,' with:'                                            &
-                    ,/,14X,' membrane thickness TM = ',1ES13.6,',   12*IB/(TM^3) = ',1ES13.6,',   TS/TM = ',1ES13.6,':',/) 
+                    ,/,14X,' membrane thickness TM = ',1ES13.6,',   12*IB/(TM^3) = ',1ES13.6,',   TS/TM = ',1ES13.6,':',/)
 
  9902 FORMAT('        Type         MATL ID       G11            G12            G13            G22            G23            G33',  &
              '             A1             A2             A3',/                                                                     &
@@ -317,9 +317,9 @@
  9913 FORMAT('PSHELL   ,',I9,',',I9,',',A9,',',I9,',      1.0,',I9,',','      1.0,         , +',I7,/,' +',I7,2(',',A9),/)
 
  9922 FORMAT('MAT2     ,',I9,7(',',A9),', +',I7,/,' +',I7,3(',',A9),',',A9,/)
- 
+
  9923 FORMAT('MAT2     ,',I9,7(',',A9),', +',I7,/,' +',I7,3(',',8X),',',A9,/)
- 
+
  9932 FORMAT('MAT2     ,',I9,7(',',A9),', +',I7,/,' +',I7,2(',',A9),',',9X,',',A9,/)
 
  9933 FORMAT('MAT2     ,',I9,7(',',A9),', +',I7,/,' +',I7,2(',',8X),',',9X,',',A9,/)
@@ -329,7 +329,7 @@
                            ' flexibility')
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
 
 ! ##################################################################################################################################
@@ -370,18 +370,18 @@
       CALL REAL_DATA_TO_C8FLD ( PCOMP_MEM_MAT2(2,2) ,C8FLD_GIJ(2,2,1) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_MEM_MAT2(2,3) ,C8FLD_GIJ(2,3,1) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_MEM_MAT2(3,3) ,C8FLD_GIJ(3,3,1) )
-                                                             
+
       CALL REAL_DATA_TO_C8FLD ( PCOMP_BEN_MAT2(1,1) ,C8FLD_GIJ(1,1,2) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_BEN_MAT2(1,2) ,C8FLD_GIJ(1,2,2) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_BEN_MAT2(1,3) ,C8FLD_GIJ(1,3,2) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_BEN_MAT2(2,2) ,C8FLD_GIJ(2,2,2) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_BEN_MAT2(2,3) ,C8FLD_GIJ(2,3,2) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_BEN_MAT2(3,3) ,C8FLD_GIJ(3,3,2) )
-                                                             
+
       CALL REAL_DATA_TO_C8FLD ( PCOMP_TSH_MAT2(1,1) ,C8FLD_GIJ(1,1,3) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_TSH_MAT2(1,2) ,C8FLD_GIJ(1,2,3) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_TSH_MAT2(2,2) ,C8FLD_GIJ(2,2,3) )
-                                                             
+
       CALL REAL_DATA_TO_C8FLD ( PCOMP_MBC_MAT2(1,1) ,C8FLD_GIJ(1,1,4) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_MBC_MAT2(1,2) ,C8FLD_GIJ(1,2,4) )
       CALL REAL_DATA_TO_C8FLD ( PCOMP_MBC_MAT2(1,3) ,C8FLD_GIJ(1,3,4) )

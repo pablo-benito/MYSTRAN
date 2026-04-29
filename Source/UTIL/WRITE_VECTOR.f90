@@ -1,42 +1,42 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE WRITE_VECTOR ( VEC_NAME, WHAT, NUM, UX )
- 
-! Writes a vector in full format to the F06 file 
+
+! Writes a vector in full format to the F06 file
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
- 
+
       USE WRITE_VECTOR_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_VECTOR'
       CHARACTER(LEN=*), INTENT(IN)    :: VEC_NAME          ! Name of vector being output
       CHARACTER(LEN=*), INTENT(IN)    :: WHAT              ! Title over output vector (e.g. DISPL, FORCE, etc.)
@@ -52,7 +52,7 @@
 
 
       REAL(DOUBLE) , INTENT(IN)       :: UX(NUM)           ! Vector to write out
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -70,14 +70,14 @@
       ENDDO
 
       LINE_OUT(1:) = ' '                                   ! Center VEC_NAME (w/0 trailing blanks) in LINE_OUT
-      INDEX = (LEN(LINE_OUT) - VEC_NAME_LEN)/2 
+      INDEX = (LEN(LINE_OUT) - VEC_NAME_LEN)/2
       LINE_OUT(INDEX:) = VEC_NAME(1:VEC_NAME_LEN)
 
       WRITE(F06,2101) LINE_OUT, WHAT
- 
+
       DO I=1,NUM
          WRITE(F06,2102) I, UX(I)
-      ENDDO 
+      ENDDO
       WRITE(F06,*)
 
 
@@ -86,10 +86,10 @@
 
 ! **********************************************************************************************************************************
  2101 FORMAT(A,//,54X,'I            ',A,/,51X,'(DOF)')
-                                                     
+
 
  2102 FORMAT(43X,I12,8X,1ES13.6)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_VECTOR

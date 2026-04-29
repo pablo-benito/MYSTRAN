@@ -1,32 +1,32 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ELEPRO ( INCR_NELE, JCARD, NFIELD, NMORE,                                                                         &
                           CHK_FLD2, CHK_FLD3, CHK_FLD4, CHK_FLD5, CHK_FLD6, CHK_FLD7, CHK_FLD8, CHK_FLD9 )
- 
+
 ! Element connection data processor.
 
 !  1) Increments count on number of elements and checks that the number does not exceed with the total count made by subr LOADB0
@@ -39,17 +39,17 @@
 
 !  3) Reads element connection data into EDAT
 !  4) Resets pointer array, EPNT.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  IERRFL, FATAL_ERR, JF, LEDAT, LELE, NEDAT, NELE, BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  EDAT, EPNT
- 
+
       USE ELEPRO_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ELEPRO'
       CHARACTER(LEN=*), INTENT(IN)    :: CHK_FLD2          ! If 'N', then if field 2 is blank it will not be checked for > 0
       CHARACTER(LEN=*), INTENT(IN)    :: CHK_FLD3          ! If 'N', then if field 3 is blank it will not be checked for > 0
@@ -63,8 +63,8 @@
       CHARACTER(LEN=*), INTENT(IN)    :: JCARD(10)         ! The 10 fields of a Bulk Data card
       CHARACTER( 9*BYTE)              :: NAME = '         '! Name for output error purposes
       CHARACTER(LEN=LEN(CHK_FLD2))    :: CHK_FLD_ARRAY(2:9)! Array containing CHK_FLDi's
- 
-      INTEGER(LONG), INTENT(IN)       :: NFIELD            ! Number of card fields to read from JCARD (start w/ field 2) 
+
+      INTEGER(LONG), INTENT(IN)       :: NFIELD            ! Number of card fields to read from JCARD (start w/ field 2)
       INTEGER(LONG), INTENT(IN)       :: NMORE             ! Number of terms that have to be written to EDAT for this element
 !                                                            in total (not just here). There may be multiple calls to this subr for
 !                                                            one element in which case NMORE is the additional amount of data to be
@@ -75,7 +75,7 @@
       INTEGER(LONG)                   :: I4INP             ! A value read from input file that should be an integer value
       INTEGER(LONG)                   :: I,J               ! DO loop indices
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -113,25 +113,25 @@
          WRITE(F06,1000) SUBR_NAME, LELE
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )                            ! Coding error (too many elems), so quit
-      ENDIF 
- 
+      ENDIF
+
       IF ((NEDAT + NMORE) > LEDAT) THEN
          WRITE(ERR,1001) SUBR_NAME, LEDAT
          WRITE(F06,1001) SUBR_NAME, LEDAT
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )                            ! Coding error (too much EDAT data), so quit
       ENDIF
- 
+
       IF (INCR_NELE == 'Y') THEN
          EPNT(NELE) = NEDAT+1                              ! Set element pointer EPNT to start for new element
       ENDIF
 
 jdo:  DO J=1,NFIELD                                        ! Load element data into array EDAT
 
-! Testing for (1:6) == 'CBUSH ' or 'CBUSH*' instead of just (1:5) == 'CBUSH' may help protect against 
+! Testing for (1:6) == 'CBUSH ' or 'CBUSH*' instead of just (1:5) == 'CBUSH' may help protect against
 ! matching keywords such as CBUSH1D and CBUSH2D that could be added in the future. It's also
 ! used in BD_CQUAD, BD_CTRIA, BD_PLOAD2, and LOADB_RESTART.
- 
+
          IF ((J == 3) .AND. ((JCARD(1)(1:6) == 'CBUSH ') .OR. (JCARD(1)(1:6) == 'CBUSH*'))) THEN
             NEDAT = NEDAT + 1
             IF (JCARD(5)(1:) == ' ') THEN                  ! CBUSH has G2 blank so BUSH elem has only G1 grid. Other end is grounded
@@ -176,5 +176,5 @@ jdo:  DO J=1,NFIELD                                        ! Load element data i
  1021 FORMAT(' *ERROR  1021: ',A,A,' HAS INTEGER = ',I8,' IN FIELD ',I3,'. MUST BE > 0')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ELEPRO

@@ -1,37 +1,37 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE OFP3_ELFN ( JVEC, FEMAP_SET_ID, ITE, OT4_EROW )
 
 ! Processes element node force output requests for one subcase, all element types
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_FIJ, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELOUT_ELFN_BIT, ELDT_BUG_U_P_BIT, ELDT_F25_U_P_BIT, FATAL_ERR,NELE, IBIT,   &
-                                         INT_SC_NUM, MBUG, MOGEL, SOL_NAME                                           
+                                         INT_SC_NUM, MBUG, MOGEL, SOL_NAME
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  ELFORCEN, OTMSKIP
@@ -39,23 +39,23 @@
                                          PEB, PEG, PEL, PLY_NUM, TYPE, SCNUM, BGRID
       USE LINK9_STUFF, ONLY           :  GID_OUT_ARRAY, EID_OUT_ARRAY, MAXREQ, OGEL
       USE OUTPUT4_MATRICES, ONLY      :  OTM_ELFN, TXT_ELFN
-  
+
       USE OFP3_ELFN_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'OFP3_ELFN'
       CHARACTER( 1*BYTE), PARAMETER   :: IHDR      = 'Y'   ! An input to subr WRITE_GRID_OUTPUTS, called herein
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option indicators for subr EMG, called herein
       CHARACTER(31*BYTE)              :: OT4_DESCRIPTOR    ! Descriptor for rows of OT4 file
       CHARACTER(30*BYTE)              :: REQUEST           ! Text for error message
- 
+
       INTEGER(LONG), INTENT(IN)       :: FEMAP_SET_ID      ! Set ID for FEMAP output
-      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors 
+      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Solution vector number
       INTEGER(LONG), INTENT(INOUT)    :: OT4_EROW          ! Row number in OT4 file for elem related OTM descriptors
       INTEGER(LONG)                   :: DUM_BUG(0:MBUG-1) ! Values from WRT_BUG sent to subr ELMOUT in a particular call
-      INTEGER(LONG)                   :: ELOUT_ELFN        ! If > 0, there are ELFORCE(NODE) requests for some elems                
+      INTEGER(LONG)                   :: ELOUT_ELFN        ! If > 0, there are ELFORCE(NODE) requests for some elems
       INTEGER(LONG)                   :: I,J,K,L           ! DO loop indices
       INTEGER(LONG)                   :: IERROR      = 0   ! Local error count
 !xx   INTEGER(LONG)                   :: IROW_MAT          ! Row number in OTM's
@@ -71,29 +71,29 @@
 !                                                            for ELFORCE(NODE) - elem nodal forces)
                                                            ! Indicator for output of elem data to BUG file
 
- 
+
       INTRINSIC IAND
-  
+
 
 
 ! **********************************************************************************************************************************
 ! Process element node force requests for all elements
- 
+
       OPT(1) = 'N'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'Y'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'N'                                         ! OPT(3) is for calc of SEi, STEi
       OPT(4) = 'Y'                                         ! OPT(4) is for calc of KE-linear
       OPT(5) = 'N'                                         ! OPT(5) is for calc of PPE
       OPT(6) = 'N'                                         ! OPT(6) is for calc of KE-diff stiff
- 
+
 ! Find out how many output requests were made for each element type.
- 
+
       DO I=1,METYPE                                        ! Initialize the array containing no. requests/elem.
          NELREQ(I) = 0
          NBUG(I)   = 0
          NDISK(I)  = 0
-      ENDDO 
- 
+      ENDDO
+
       DO I=1,METYPE
          DO J=1,NELE
             IF (ETYPE(J) == ELMTYP(I)) THEN
@@ -110,9 +110,9 @@
                   NDISK(I)  = NDISK(I)  + 1
                ENDIF
             ENDIF
-         ENDDO 
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
 !xx   IROW_MAT = 0
 !xx   IROW_TXT = 0
       OT4_DESCRIPTOR = 'Element nodal force'
@@ -125,7 +125,7 @@ reqs1:DO I=1,METYPE
          IF ((NELREQ(I) + NBUG(I) + NDISK(I)) == 0) CYCLE reqs1
          NUM_ELEM = 0
          NUM_OGEL = 0
- 
+
 elems_1: DO J = 1,NELE
             EID   = EDAT(EPNT(J))
             TYPE  = ETYPE(J)
@@ -157,8 +157,8 @@ elems_1: DO J = 1,NELE
                      EID_OUT_ARRAY(NUM_ELEM,1) = EID
                      DO K=1,ELGP
                         GID_OUT_ARRAY(NUM_ELEM,K) = AGRID(K)
-                     ENDDO   
- 
+                     ENDDO
+
                      I2 = 0
                      DO K=1,ELGP
                         NUM_OGEL = NUM_OGEL + 1
@@ -167,7 +167,7 @@ elems_1: DO J = 1,NELE
                            WRITE(F06,9200) SUBR_NAME, MAXREQ
                            FATAL_ERR = FATAL_ERR + 1
                            CALL OUTA_HERE ( 'Y' )          ! Coding error (dim of array OGEL too small), so quit
-                        ENDIF   
+                        ENDIF
                         DO L=1,6
                            OGEL(NUM_OGEL,L) = ZERO
                         ENDDO
@@ -188,9 +188,9 @@ elems_1: DO J = 1,NELE
                                  WRITE(TXT_ELFN(OT4_EROW), 9191) OT4_EROW, OT4_DESCRIPTOR, TYPE, EID, AGRID(K), L
                               ENDIF
                            ENDIF
-                        ENDDO 
-                     ENDDO   
- 
+                        ENDDO
+                     ENDDO
+
                      IF (NUM_ELEM == NELREQ(I)) THEN
                         CALL CHK_OGEL_ZEROS ( NUM_OGEL )
                         CALL WRITE_ELEM_NODE_FORCE ( JVEC, ELGP, NUM_ELEM, IHDR )
@@ -200,7 +200,7 @@ elems_1: DO J = 1,NELE
                   IF (WRT_FIJ(5) > 0) THEN
                      CALL WRITE_FIJFIL ( 5, JVEC )
                   ENDIF
- 
+
                   IF ((SOL_NAME(1:12) == 'GEN CB MODEL') .AND. (JVEC == 1) .AND. (OT4_EROW >= 1)) THEN
                      DO K=1,OTMSKIP                        ! Write OTMSKIP blank separator lines
                         OT4_EROW = OT4_EROW + 1
@@ -209,11 +209,11 @@ elems_1: DO J = 1,NELE
                   ENDIF
 
                ENDIF
- 
+
             ENDIF
- 
+
          ENDDO elems_1
- 
+
       ENDDO reqs1
 
       IF (IERROR > 0) THEN
@@ -233,7 +233,7 @@ elems_1: DO J = 1,NELE
 
  9200 FORMAT(' *ERROR  9200: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' ARRAY OGEL WAS ALLOCATED TO HAVE ',I12,' ROWS. ATTEMPT TO WRITE TO OGEL BEYOND THIS')
- 
+
  9201 FORMAT(' *ERROR  9201: DUE TO ABOVE LISTED ERRORS, CANNOT CALCULATE ',A,' REQUESTS FOR ',A,' ELEMENT ID = ',I8)
 
 ! **********************************************************************************************************************************

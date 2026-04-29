@@ -48,7 +48,7 @@
                (ETYPE == 'BUSH    ') .OR. (ETYPE == 'ROD     ') .OR.                                                               &
                (ETYPE == 'TRIA3   ') .OR. (ETYPE == 'QUAD4   ') .OR. (ETYPE == 'SHEAR   ') .OR.                                    &
                (ETYPE == 'HEXA8   ') .OR. (ETYPE == 'PENTA6  ') .OR. (ETYPE == 'TETRA4  ') .OR.                                    &
-               (ETYPE == 'HEXA20  ') .OR. (ETYPE == 'PENTA15 ') .OR. (ETYPE == 'TETRA10 ')) THEN                                     
+               (ETYPE == 'HEXA20  ') .OR. (ETYPE == 'PENTA15 ') .OR. (ETYPE == 'TETRA10 ')) THEN
         TABLE_NAME_NEW= TABLE_NAME_SHELL_SOLID !"OES1X1  "
         WRITE(ERR,3) "OES1X1 found",ETYPE
         RETURN_FLAG = .FALSE.
@@ -81,7 +81,7 @@
           ITABLE = -1
           WRITE(ERR,2) "will create stress table",TABLE_NAME,ITABLE
         ENDIF
-        
+
         ! if we started/restarted, we need to write the TABLE_NAME
         IF (ITABLE == -1) THEN
           WRITE(ERR,2) "creating stress table",TABLE_NAME,ITABLE
@@ -142,7 +142,7 @@
       INTEGER(LONG), INTENT(IN) :: ISUBCASE                ! the subcase ID
       INTEGER(LONG), INTENT(IN) :: DEVICE_CODE             ! PLOT, PRINT, PUNCH flag
       INTEGER(LONG), INTENT(IN) :: ELEM_TYPE               ! the element type ID
-      INTEGER(LONG), INTENT(IN) :: NUM_WIDE                ! the number of words per element 
+      INTEGER(LONG), INTENT(IN) :: NUM_WIDE                ! the number of words per element
       INTEGER(LONG), INTENT(IN) :: STRESS_CODE             ! flag for von_mises/max_shear/octehedral and fiber_distance/strain_curvature
       CHARACTER(LEN=128), INTENT(IN) :: TITLE              ! the model TITLE
       CHARACTER(LEN=128), INTENT(IN) :: SUBTITLE           ! the subcase SUBTITLE
@@ -152,7 +152,7 @@
       INTEGER(LONG)                  :: FORMAT_CODE, ANALYSIS_CODE
 !      we assumed static
       ANALYSIS_CODE = 1
-      
+
       ! LSDVMN
       !FIELD5 = 0
 
@@ -180,7 +180,7 @@
       INTEGER(LONG), INTENT(IN) :: DEVICE_CODE             ! PLOT, PRINT, PUNCH flag
       INTEGER(LONG), INTENT(IN) :: ELEM_TYPE               ! the element type ID
       INTEGER(LONG), INTENT(IN) :: FORMAT_CODE
-      INTEGER(LONG), INTENT(IN) :: NUM_WIDE                ! the number of words per element 
+      INTEGER(LONG), INTENT(IN) :: NUM_WIDE                ! the number of words per element
       INTEGER(LONG), INTENT(IN) :: STRESS_CODE             ! flag for von_mises/max_shear/octehedral and fiber_distance/strain_curvature
 
       CHARACTER(LEN=128), INTENT(IN) :: TITLE              ! the model TITLE
@@ -215,13 +215,13 @@
       WRITE(OP2) 146
       ! stress/strain only
       TABLE_CODE = 5
-      
+
       ! ???
       LOAD_SET = 1
-      
+
       ! we're not doing acoustic
       ACOUSTIC_FLAG = 0
-      
+
       ! not always 0 for stress, but for now
       THERMAL = 0
 

@@ -23,7 +23,7 @@
 
         ! if there are GRIDs
         NVALUES = NUM_WIDE * NGRID_ACTUAL
-        
+
         DO J=1,NGRID_ACTUAL
           ! nid, cp, x, y, z, cd, ps, seid
           I = GRID_INDEX(J)
@@ -51,7 +51,7 @@
                     (GRID_ID(GRID_INDEX(J)),         GRID(GRID_INDEX(J),2),                                         &
                     REAL(RGRID(GRID_INDEX(J),1),4), REAL(RGRID(GRID_INDEX(J),2),4), REAL(RGRID(GRID_INDEX(J),3),4), &
                     GRID(GRID_INDEX(J),3), GRID(GRID_INDEX(J),4), SEID, J=1,NGRID_ACTUAL)
-        
+
         CALL WRITE_OP2_SUBTABLE_INCREMENT(ITABLE)
       ENDIF
       END SUBROUTINE WRITE_OP2_GEOM1_GRID
@@ -88,23 +88,23 @@
       !
       ! Each row of RCORD has:
       !   After Bulk Data has been read:
-      !     Col.  1: X coord of Pt A in RID coord system 
-      !     Col.  2: Y coord of Pt A in RID coord system  
-      !     Col.  3: Z coord of Pt A in RID coord system  
-      !     Col.  4: X coord of Pt B in RID coord system  
-      !     Col.  5: Y coord of Pt B in RID coord system  
-      !     Col.  6: Z coord of Pt B in RID coord system  
-      !     Col.  7: X coord of Pt C in RID coord system  
-      !     Col.  8: Y coord of Pt C in RID coord system  
-      !     Col.  9: Z coord of Pt C in RID coord system  
+      !     Col.  1: X coord of Pt A in RID coord system
+      !     Col.  2: Y coord of Pt A in RID coord system
+      !     Col.  3: Z coord of Pt A in RID coord system
+      !     Col.  4: X coord of Pt B in RID coord system
+      !     Col.  5: Y coord of Pt B in RID coord system
+      !     Col.  6: Z coord of Pt B in RID coord system
+      !     Col.  7: X coord of Pt C in RID coord system
+      !     Col.  8: Y coord of Pt C in RID coord system
+      !     Col.  9: Z coord of Pt C in RID coord system
       !     Col. 10: 0.
       !     Col. 11: 0.
       !     Col. 12: 0.
-      !   
+      !
       !   After subr CORD_PROC has run:
       !     Col.  1: Location of CID origin in basic coord sys X dir
-      !     Col.  2: Location of CID origin in basic coord sys Y dir 
-      !     Col.  3: Location of CID origin in basic coord sys Z dir 
+      !     Col.  2: Location of CID origin in basic coord sys Y dir
+      !     Col.  3: Location of CID origin in basic coord sys Z dir
       !     Col.  4: TN(1,1,M) for M = row no. in RCORD (internal coord. sys. ID = M)  ]
       !     Col.  5: TN(1,2,M) for M = row no. in RCORD (internal coord. sys. ID = M)  |- 1st row of TN in cols  4- 6 of RCORD
       !     Col.  6: TN(1,3,M) for M = row no. in RCORD (internal coord. sys. ID = M)  ]
@@ -134,7 +134,7 @@
       !    Col. 2: CID = Coord system ID
       !    Col. 3: RID = Reference coord system ID for this CORD2R,C,S
       !        ! identify the GRIDs vs. the SPOINTs
-      
+
       DO I=1,NCORD
         IF (CORD(I,1) == 11) THEN
           NCORD1R = NCORD1R + 1
@@ -151,7 +151,7 @@
           CORD2R_INDEX(NCORD2R) = I
         ELSE IF (CORD(I,1) == 22) THEN
           NCORD2C = NCORD2C + 1
-          CORD2C_INDEX(NCORD2C) = I 
+          CORD2C_INDEX(NCORD2C) = I
         ELSE IF (CORD(I,1) == 23) THEN
           NCORD2S = NCORD2S + 1
           CORD2S_INDEX(NCORD2S) = I
@@ -251,16 +251,16 @@
       !
       ! Col. 2: CID = Coord system ID
       ! Col. 3: RID = Reference coord system ID for this CORD2R,C,S
-      ! Col.  1: X coord of Pt A in RID coord system 
-      ! Col.  2: Y coord of Pt A in RID coord system  
-      ! Col.  3: Z coord of Pt A in RID coord system  
-      ! Col.  4: X coord of Pt B in RID coord system  
-      ! Col.  5: Y coord of Pt B in RID coord system  
-      ! Col.  6: Z coord of Pt B in RID coord system  
-      ! Col.  7: X coord of Pt C in RID coord system  
-      ! Col.  8: Y coord of Pt C in RID coord system  
+      ! Col.  1: X coord of Pt A in RID coord system
+      ! Col.  2: Y coord of Pt A in RID coord system
+      ! Col.  3: Z coord of Pt A in RID coord system
+      ! Col.  4: X coord of Pt B in RID coord system
+      ! Col.  5: Y coord of Pt B in RID coord system
+      ! Col.  6: Z coord of Pt B in RID coord system
+      ! Col.  7: X coord of Pt C in RID coord system
+      ! Col.  8: Y coord of Pt C in RID coord system
       ! Col.  9: Z coord of Pt C in RID coord system
-      
+
       !! TODO: we want this to be written before CORD_MAP or whatever is called...
       WRITE(OP2) CODEA, CODEB, CODEC,                                                                                &
                   (CORD(CORD2_INDEX(I),2), RCS_INT, COORD_INT, CORD(CORD2_INDEX(I),3),                               &

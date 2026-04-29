@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
 ! The above copyright notice and this permission notice shall be included in all copies or substantial
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE OFP3_ELFE_1D ( JVEC, FEMAP_SET_ID, ITE, OT4_EROW )
 
 ! Processes element engr force output requests for 1D (ELAS, BUSH, ROD, BAR) elements for one subcase. Results go into array OGEL
 ! for later output in LINK9
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELOUT_ELFE_BIT, FATAL_ERR, IBIT, INT_SC_NUM, MBUG, MOGEL,&
@@ -42,23 +42,23 @@
                                          PE_GA_GB, PEL, PLY_NUM, STRESS, TE, TE_GA_GB, TYPE, XEL
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, MAXREQ, OGEL
       USE OUTPUT4_MATRICES, ONLY      :  OTM_ELFE, TXT_ELFE
-  
+
       USE OFP3_ELFE_1D_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'OFP3_ELFE_1D'
       CHARACTER( 1*BYTE), PARAMETER   :: IHDR      = 'Y'   ! An input to subr WRITE_GRID_OUTPUTS, called herein
       CHARACTER(20*BYTE)              :: FORCE_ITEM(8)     ! Char description of element engineering forces
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option indicators for subr EMG, called herein
       CHARACTER(31*BYTE)              :: OT4_DESCRIPTOR    ! Descriptor for rows of OT4 file
       CHARACTER(30*BYTE)              :: REQUEST           ! Text for error message
- 
+
       INTEGER(LONG), INTENT(IN)       :: FEMAP_SET_ID      ! Set ID for FEMAP output
-      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors 
+      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Solution vector number
       INTEGER(LONG), INTENT(INOUT)    :: OT4_EROW          ! Row number in OT4 file for elem related OTM descriptors
-      INTEGER(LONG)                   :: ELOUT_ELFE        ! If > 0, there are ELFORCE(ENGR) requests for some elems                
+      INTEGER(LONG)                   :: ELOUT_ELFE        ! If > 0, there are ELFORCE(ENGR) requests for some elems
       INTEGER(LONG)                   :: I,J,K,L           ! DO loop indices
       INTEGER(LONG)                   :: IERROR       = 0  ! Local error count
 !xx   INTEGER(LONG)                   :: IROW_MAT          ! Row number in OTM's
@@ -72,7 +72,7 @@
 !                                                            for ELFORCE(NODE) - elem nodal forces)
                                                            ! Indicator for output of elem data to BUG file
 
- 
+
       REAL(DOUBLE)                    :: DUM0(6,12)        ! Intermediate matrix in a calc
       REAL(DOUBLE)                    :: DUM1(6)           ! Intermediate matrix in a calc
       REAL(DOUBLE)                    :: DUM21(3)          ! Intermediate matrix in a calc
@@ -91,9 +91,9 @@
       REAL(DOUBLE)                    :: TET(3,3)          ! Transpose of TE
       REAL(DOUBLE)                    :: TET_GA_GB(3,3)    ! Transpose of TE_GA_GB
       LOGICAL                         :: WRITE_NEU
- 
+
       INTRINSIC IAND
-  
+
 ! **********************************************************************************************************************************
 !     Initialize
       TABLE_NAME = "OEF ERR "
@@ -105,7 +105,7 @@
 ! **********************************************************************************************************************************
 ! Process element engineering force requests for BAR, BUSH, ELAS, ROD. Use subr CALC_ELEM_NODE_FORCES and then convert the node
 ! forces to engineering forces (see equations below after subr CALC_ELEM_NODE_FORCES is called)
- 
+
       OPT(1) = 'N'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'Y'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'Y'                                         ! OPT(3) is for calc of SEi, STEi
@@ -118,7 +118,7 @@
       FORCE_ITEM(3) = 'M2a: Mom Plane1 EndB'
       FORCE_ITEM(4) = 'M2b: Mom Plane2 EndB'
       FORCE_ITEM(5) = 'V1 : Shear Plane1   '
-      FORCE_ITEM(6) = 'V2 : Shear Plane2   ' 
+      FORCE_ITEM(6) = 'V2 : Shear Plane2   '
       FORCE_ITEM(7) = 'FX : Axial force    '
       FORCE_ITEM(8) = 'T  : Torque         '
 
@@ -126,8 +126,8 @@
 
       DO I=1,METYPE                                        ! Initialize the array containing the no. requests/elem.
          NELREQ(I) = 0
-      ENDDO 
- 
+      ENDDO
+
       DO I=1,METYPE
          DO J=1,NELE
             IF ((ETYPE(J)(1:3) == 'BAR') .OR. (ETYPE(J)(1:4) == 'BUSH') .OR. (ETYPE(J)(1:4) == 'ELAS') .OR.                        &
@@ -139,15 +139,15 @@
                    ENDIF
                ENDIF
             ENDIF
-         ENDDO 
-      ENDDO   
+         ENDDO
+      ENDDO
 
       DO I=1,MAXREQ
          DO J=1,MOGEL
             OGEL(I,J) = ZERO
-         ENDDO 
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
 !xx   IROW_MAT = 0
 !xx   IROW_TXT = 0
       OT4_DESCRIPTOR = 'Element engineering force, ELFO'
@@ -178,14 +178,14 @@ elems_2: DO J = 1,NELE
                      CALL ELMDIS
 
                      CALL CALC_ELEM_NODE_FORCES            ! Use NODE to get engr forces (SE matrices don't have torque)
- 
+
                      NUM_OGEL = NUM_OGEL + 1
                      IF (NUM_OGEL > MAXREQ) THEN
                         WRITE(ERR,9200) SUBR_NAME, MAXREQ
                         WRITE(F06,9200) SUBR_NAME, MAXREQ
                         FATAL_ERR = FATAL_ERR + 1
                         CALL OUTA_HERE ( 'Y' )             ! Coding error (dim of array OGEL too small), so quit
-                     ENDIF   
+                     ENDIF
 
 !                    ---------------------------------------------------------------------------------------------------------------
                      IF (ETYPE(J)(1:4) == 'ELAS') THEN     ! Set engr forces based on the node force values
@@ -228,7 +228,7 @@ elems_2: DO J = 1,NELE
                                     TET_GA_GB(K,L) = TE_GA_GB(L,K)
                                  ENDDO
                               ENDDO
-                           
+
                               DO K=1,3
                               DUM22(K) = ZERO
                               DUM32(K) = ZERO
@@ -240,10 +240,10 @@ elems_2: DO J = 1,NELE
                                  EEF(K)   = DUM22(K)
                                  EEF(K+3) = DUM32(K)
                               ENDDO
-                           ENDIF 
+                           ENDIF
                                                            ! Transform elem forces from basic to local
                            IF ((BUSH_CID > 0) .OR. (BUSH_VVEC /= 0)) THEN
-   
+
                               DO K=1,3
                                  DO L=1,3
                                     TET(K,L) = TE(L,K)
@@ -257,7 +257,7 @@ elems_2: DO J = 1,NELE
                                  EEF(K+3) = DUM31(K)
                               ENDDO
 
-                           ENDIF 
+                           ENDIF
 
                         ELSE                               ! Element has GA, GB coincident so element loads are in PEL
 
@@ -343,7 +343,7 @@ elems_2: DO J = 1,NELE
                         ENDIF
 
                      ENDIF
- 
+
                      IF ((SOL_NAME(1:12) == 'GEN CB MODEL') .AND. (JVEC == 1) .AND. (OT4_EROW >= 1)) THEN
                         DO K=1,OTMSKIP                     ! Write OTMSKIP blank separator lines
                            OT4_EROW = OT4_EROW + 1
@@ -363,15 +363,15 @@ elems_2: DO J = 1,NELE
                         CALL WRITE_ELEM_ENGR_FORCE ( JVEC, NUM_ELEM, IHDR, 1, ITABLE )
                         EXIT
                      ENDIF
- 
+
                   ENDIF
- 
+
                ENDIF
 
             ENDIF
- 
+
          ENDDO elems_2
- 
+
       ENDDO reqs2
  10   FORMAT("*DEBUG:      OEF_END 1D:    TABLE_NAME",A)
       WRITE(ERR,10) TABLE_NAME
@@ -410,7 +410,7 @@ elems_2: DO J = 1,NELE
                FEMAP_EL_VECS(NUM_FROWS,6) = -PEL(3)                 ! V2  (plane 2 shear for BAR)
                FEMAP_EL_VECS(NUM_FROWS,7) = -PEL(1)                 ! Fx  (axial force for BAR or ROD)
                FEMAP_EL_VECS(NUM_FROWS,8) = -PEL(4)                 ! T   (torque for BAR or ROD)
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'BAR     ', NUM_FROWS, FEMAP_SET_ID )
@@ -550,7 +550,7 @@ elems_2: DO J = 1,NELE
                CALL CALC_ELEM_NODE_FORCES
                FEMAP_EL_VECS(NUM_FROWS,7) = -PEL(1)                 ! Fx  (axial force for BAR or ROD)
                FEMAP_EL_VECS(NUM_FROWS,8) = -PEL(4)                 ! T   (torque for BAR or ROD)
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'ROD     ', NUM_FROWS, FEMAP_SET_ID )
@@ -584,9 +584,9 @@ elems_2: DO J = 1,NELE
                IF (FCONV(1) > 0.D0) THEN
                   FEMAP_EL_VECS(NUM_FROWS,1) = STRESS(1)/FCONV(1)
                ELSE
-                  
+
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'ELAS1   ', NUM_FROWS, FEMAP_SET_ID )
@@ -618,9 +618,9 @@ elems_2: DO J = 1,NELE
                IF (FCONV(1) > 0.D0) THEN
                   FEMAP_EL_VECS(NUM_FROWS,1) = STRESS(1)/FCONV(1)
                ELSE
-                  
+
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'ELAS2   ', NUM_FROWS, FEMAP_SET_ID )
@@ -652,9 +652,9 @@ elems_2: DO J = 1,NELE
                IF (FCONV(1) > 0.D0) THEN
                   FEMAP_EL_VECS(NUM_FROWS,1) = STRESS(1)/FCONV(1)
                ELSE
-                  
+
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'ELAS3   ', NUM_FROWS, FEMAP_SET_ID )
@@ -686,9 +686,9 @@ elems_2: DO J = 1,NELE
                IF (FCONV(1) > 0.D0) THEN
                   FEMAP_EL_VECS(NUM_FROWS,1) = STRESS(1)/FCONV(1)
                ELSE
-                  
+
                ENDIF
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'ELAS4   ', NUM_FROWS, FEMAP_SET_ID )
@@ -717,7 +717,7 @@ elems_2: DO J = 1,NELE
 
  9200 FORMAT(' *ERROR  9200: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' ARRAY OGEL WAS ALLOCATED TO HAVE ',I12,' ROWS. ATTEMPT TO WRITE TO OGEL BEYOND THIS')
- 
+
  9201 FORMAT(' *ERROR  9201: DUE TO ABOVE LISTED ERRORS, CANNOT CALCULATE ',A,' REQUESTS FOR ',A,' ELEMENT ID = ',I8)
 
 ! **********************************************************************************************************************************

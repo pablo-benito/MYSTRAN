@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SOLVE_UO0
 
-! Solves KOO*UO0 = PO for matrix UO0 
- 
+! Solves KOO*UO0 = PO for matrix UO0
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, L2F, LINK2F, L2F_MSG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FACTORED_MATRIX, FATAL_ERR, KOO_SDIA, NDOFO, NSUB, NTERM_KOO, NTERM_PO
@@ -37,21 +37,21 @@
       USE SPARSE_MATRICES, ONLY       :  I_PO, J_PO, PO, I_KOO, J_KOO, KOO
       USE COL_VECS, ONLY              :  UO0_COL
       USE LAPACK_LIN_EQN_DPB
- 
+
 ! Interface module not needed for subr DPBTRS. This is "CONTAIN'ed" in module LAPACK_LIN_EQN_DPB, which is "USE'd" above
 
       USE SOLVE_UO0_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SOLVE_UO0'
-      CHARACTER( 1*BYTE)              :: NULL_COL          ! 'Y' if a col of KAO(transpose) is null 
+      CHARACTER( 1*BYTE)              :: NULL_COL          ! 'Y' if a col of KAO(transpose) is null
       CHARACTER(22*BYTE)              :: MODNAM1           ! Name to write to screen to describe module being run
- 
+
       INTEGER(LONG)                   :: I,J               ! DO loop indices or counters
       INTEGER(LONG)                   :: INFO              ! Info on success of SuperLU solve
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
 
 
       REAL(DOUBLE)                    :: NULL_SCALE_FACS(NDOFO)
@@ -62,10 +62,10 @@
 
 ! **********************************************************************************************************************************
 ! Make units for writing errors the screen and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! For SOLLIB = BANDED, Subr REDUCE_KFF_TO_KAA should have done the decomp of KOO, so here we run FBS over the columns of PO to get
 ! UO0. First make sure that ABAND (KOO triangular factor) was successfully generated when SOLVE_GOA was run.
 
@@ -84,7 +84,7 @@
 
 ! **********************************************************************************************************************************
 ! Solve for UO0 by looping on columns of PO ("loads") to get columns of UO0 ("displs")
- 
+
 !xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
       CALL ALLOCATE_COL_VEC ( 'UO0_COL', NDOFO, SUBR_NAME )
@@ -93,7 +93,7 @@
          DO I=1,NDOFO
             INOUT_COL(I)       = ZERO                      ! Initialize INOUT_COL since GET_SPARSE_CRS_COL won't
             NULL_SCALE_FACS(I) = ZERO                      ! Initialize these (not used here snce KOO not equilibrated
-         ENDDO  
+         ENDDO
          NULL_COL = 'Y'
          CALL GET_SPARSE_CRS_COL ( 'PO',J, NTERM_PO, NDOFO, NSUB, I_PO, J_PO, PO, ONE, INOUT_COL, NULL_COL )
 
@@ -141,7 +141,7 @@
 
             DO I=1,NDOFO
                UO0_COL(I) = ZERO
-            ENDDO 
+            ENDDO
 
          ENDIF
 
@@ -149,7 +149,7 @@
 
          DO I=1,NDOFO
             WRITE(L2F) UO0_COL(I)
-         ENDDO          
+         ENDDO
 
          IF (PRTUO0 > 0) THEN
             WRITE(F06,201) J
@@ -157,7 +157,7 @@
          ENDIF
 
       ENDDO
- 
+
       WRITE(SC1,*) CR13
 
       CALL DEALLOCATE_COL_VEC ( 'UO0_COL' )
@@ -181,5 +181,5 @@
 12345 FORMAT(3X,A,I8,' of ',I8,A)
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE SOLVE_UO0        
+
+      END SUBROUTINE SOLVE_UO0

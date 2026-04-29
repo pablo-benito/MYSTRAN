@@ -1,46 +1,46 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_MFF_TO_MAA ( PART_VEC_F_AO )
- 
+
 ! Call routines to reduce the MFF mass matrix from the F-set to the A, O-sets. See Appendix B to the MYSTRAN User's Reference Manual
 ! for the derivation of the reduction equations.
- 
+
 ! NOTE: This subr has code for sparse matrices as well as full matrices, (i.e. Bulk Data PARAM MATSPARS = 'Y' for sparse and 'N'
 ! for full). The code for full matrices was put in originally in order that the sparse code could be thoroughly checked. That task
 ! is complete and the remaining full matrix code has not been maintained since around 2005. In addition, new capability added to
 ! MYSTRAN since that approx time does not have full matrix code.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, NDOFF, NDOFA, NDOFO, NTERM_MFF, NTERM_MAA, NTERM_MAO, NTERM_MOO, &
                                          NTERM_GOA
       USE PARAMS, ONLY                :  EPSIL, MATSPARS, SPARSTOR
       USE TIMDAT, ONLY                :  TSEC
-      USE CONSTANTS_1, ONLY           :  ONE 
+      USE CONSTANTS_1, ONLY           :  ONE
       USE SPARSE_MATRICES, ONLY       :  I_MFF, J_MFF, MFF, I_MAA, J_MAA, MAA, I_MAO, J_MAO, MAO, I_MOO, J_MOO, MOO,               &
                                          I_GOA, J_GOA, GOA,  I_GOAt, J_GOAt, GOAt
       USE SPARSE_MATRICES, ONLY       :  SYM_GOA, SYM_MFF, SYM_MAA, SYM_MAO, SYM_MOO
@@ -57,8 +57,8 @@
 !                                                              'N' for nonsymmetric storage)
       CHARACTER(  1*BYTE)             :: SYM_CRS3            ! Storage format for matrix CRS3 (either 'Y' for sym storage or
 !                                                              'N' for nonsymmetric storage)
- 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_F_AO(NDOFF)! Partitioning vector (F set into A and O sets) 
+
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_F_AO(NDOFF)! Partitioning vector (F set into A and O sets)
       INTEGER(LONG)                   :: AROW_MAX_TERMS      ! Output from MATMULT_SFS_NTERM and input to MATMULT_SFS
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
 !                                                              the ones on and above the diagonal (controlled by param SPARSTOR)
@@ -66,10 +66,10 @@
       INTEGER(LONG)                   :: MAA_ROW_MAX_TERMS   ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
       INTEGER(LONG)                   :: MAO_ROW_MAX_TERMS   ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
       INTEGER(LONG)                   :: MOO_ROW_MAX_TERMS   ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
-      INTEGER(LONG)                   :: NTERM_CCS1          ! Number of terms in matrix CCS1  
-      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1  
-      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2  
-      INTEGER(LONG)                   :: NTERM_CRS3          ! Number of terms in matrix CRS3  
+      INTEGER(LONG)                   :: NTERM_CCS1          ! Number of terms in matrix CCS1
+      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1
+      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2
+      INTEGER(LONG)                   :: NTERM_CRS3          ! Number of terms in matrix CRS3
       INTEGER(LONG), PARAMETER        :: NUM1        = 1     ! Used in subr's that partition matrices
       INTEGER(LONG), PARAMETER        :: NUM2        = 2     ! Used in subr's that partition matrices
 
@@ -77,7 +77,7 @@
       REAL(DOUBLE)                    :: ALPHA = ONE         ! Scalar multiplier for matrix
       REAL(DOUBLE)                    :: BETA  = ONE         ! Scalar multiplier for matrix
       REAL(DOUBLE)                    :: SMALL             ! A number used in filtering out small numbers from a full matrix
- 
+
       INTRINSIC                       :: DABS
 
 
@@ -88,11 +88,11 @@
       IF (NDOFA > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'MFF', NTERM_MFF, NDOFF, NDOFF, SYM_MFF, I_MFF, J_MFF,      PART_VEC_F_AO, PART_VEC_F_AO,       &
-                                    NUM1, NUM1, MAA_ROW_MAX_TERMS, 'MAA', NTERM_MAA, SYM_MAA ) 
+                                    NUM1, NUM1, MAA_ROW_MAX_TERMS, 'MAA', NTERM_MAA, SYM_MAA )
 
          CALL ALLOCATE_SPARSE_MAT ( 'MAA', NDOFA, NTERM_MAA, SUBR_NAME )
 
-         IF (NTERM_MAA > 0) THEN      
+         IF (NTERM_MAA > 0) THEN
             CALL PARTITION_SS ( 'MFF', NTERM_MFF, NDOFF, NDOFF, SYM_MFF, I_MFF, J_MFF, MFF, PART_VEC_F_AO, PART_VEC_F_AO,          &
                                  NUM1, NUM1, MAA_ROW_MAX_TERMS, 'MAA', NTERM_MAA, NDOFA, SYM_MAA, I_MAA, J_MAA, MAA )
          ENDIF
@@ -104,7 +104,7 @@
       IF ((NDOFA > 0) .AND. (NDOFO > 0)) THEN
 
          CALL PARTITION_SS_NTERM ( 'MFF', NTERM_MFF, NDOFF, NDOFF, SYM_MFF, I_MFF, J_MFF,      PART_VEC_F_AO, PART_VEC_F_AO,       &
-                                    NUM1, NUM2, MAO_ROW_MAX_TERMS, 'MAO', NTERM_MAO, SYM_MAO ) 
+                                    NUM1, NUM2, MAO_ROW_MAX_TERMS, 'MAO', NTERM_MAO, SYM_MAO )
 
          CALL ALLOCATE_SPARSE_MAT ( 'MAO', NDOFA, NTERM_MAO, SUBR_NAME )
 
@@ -120,7 +120,7 @@
       IF (NDOFO > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'MFF', NTERM_MFF, NDOFF, NDOFF, SYM_MFF, I_MFF, J_MFF,      PART_VEC_F_AO, PART_VEC_F_AO,       &
-                                    NUM2, NUM2, MOO_ROW_MAX_TERMS, 'MOO', NTERM_MOO, SYM_MOO ) 
+                                    NUM2, NUM2, MOO_ROW_MAX_TERMS, 'MOO', NTERM_MOO, SYM_MOO )
 
          CALL ALLOCATE_SPARSE_MAT ( 'MOO', NDOFO, NTERM_MOO, SUBR_NAME )
 
@@ -174,7 +174,7 @@
             CALL DEALLOCATE_SCR_MAT ( 'CRS2' )
 
                                                            ! I-6 , CRS3 = (MAO*GOA) + (MAO*GOA)t has all nonzero terms in it.
-            IF      (SPARSTOR == 'SYM   ') THEN            !      If SPARSTOR == 'SYM   ', rewrite CRS3 as sym in CRS1     
+            IF      (SPARSTOR == 'SYM   ') THEN            !      If SPARSTOR == 'SYM   ', rewrite CRS3 as sym in CRS1
 
                CALL SPARSE_CRS_TERM_COUNT ( NDOFA, NTERM_CRS3, '(MAO*GOA) + (MAO*GOA)t all nonzeros', I_CRS3, J_CRS3, NTERM_CRS1 )
                CALL ALLOCATE_SCR_CRS_MAT ( 'CRS1', NDOFA, NTERM_CRS1, SUBR_NAME )
@@ -217,7 +217,7 @@
 
             NTERM_MAA = NTERM_CRS3                         ! I-10, reallocate MAA to be size of CRS1
             WRITE(SC1, * ) '    Reallocate MAA'
-      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages         
+      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MAA', CR13
             CALL DEALLOCATE_SPARSE_MAT ( 'MAA' )
             WRITE(SC1,12345,ADVANCE='NO') '       Allocate   MAA', CR13
@@ -229,7 +229,7 @@
             DO J=1,NTERM_MAA
                J_MAA(J) = J_CRS3(J)
                  MAA(J) =   CRS3(J)
-            ENDDO 
+            ENDDO
 
             CALL DEALLOCATE_SCR_MAT ( 'CRS3' )             ! I-12, deallocate CRS3
 
@@ -270,7 +270,7 @@
             CALL DEALLOCATE_SCR_MAT ( 'CCS1' )             ! II-6 , deallocate CCS1
 
                                                            ! II-7 , CRS1 = GOAt*MOO*GOA has all nonzero terms in it.
-            IF      (SPARSTOR == 'SYM   ') THEN            !      If SPARSTOR == 'SYM   ', rewrite CRS1 as sym in CRS3     
+            IF      (SPARSTOR == 'SYM   ') THEN            !      If SPARSTOR == 'SYM   ', rewrite CRS1 as sym in CRS3
 
                CALL SPARSE_CRS_TERM_COUNT ( NDOFA, NTERM_CRS1, 'GOAt*MOO*GOA all nonzeros', I_CRS1, J_CRS1, NTERM_CRS3 )
                CALL ALLOCATE_SCR_CRS_MAT ( 'CRS3', NDOFA, NTERM_CRS3, SUBR_NAME )
@@ -313,7 +313,7 @@
 
             NTERM_MAA = NTERM_CRS2                         ! II-11, reallocate MAA to be size of CRS2
             WRITE(SC1, * ) '    Reallocate MAA'
-      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages         
+      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MAA', CR13
              CALL DEALLOCATE_SPARSE_MAT ( 'MAA' )
             WRITE(SC1,12345,ADVANCE='NO') '       Allocate   MAA', CR13
@@ -443,5 +443,5 @@
 12345 FORMAT(A,10X,A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE REDUCE_MFF_TO_MAA

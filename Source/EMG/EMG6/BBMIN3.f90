@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BBMIN3 ( A, B, AREA, MESSAG, WRT_BUG_THIS_TIME, BB )
- 
+
 ! Calculate BB bending strain/displacement matrix for MIN3 triangle. Called by subr TPLT2
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  BUG, WRT_BUG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELDT_BUG_BMAT_BIT, ELDT_BUG_BCHK_BIT, MIN4T_QUAD4_TRIA_NO
@@ -35,11 +35,11 @@
       USE CONSTANTS_1, ONLY           :  ZERO, TWO
       USE MODEL_STUF, ONLY            :  EID, TYPE, XTB, XTL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE BBMIN3_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BBMIN3'
       CHARACTER(LEN=*), INTENT(IN)    :: MESSAG            ! Message to print out if BCHECK is run
       CHARACTER( 1*BYTE), INTENT(IN)  :: WRT_BUG_THIS_TIME ! If 'Y' then write to BUG file if WRT_BUG array says to
@@ -50,14 +50,14 @@
       INTEGER(LONG), PARAMETER        :: NR        = 3     ! An input to subr BCHECK, called herein if
       INTEGER(LONG), PARAMETER        :: NC        = 9     ! An input to subr BCHECK, called herein if
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: A(3)              ! Diffs in x coords of elem
       REAL(DOUBLE) , INTENT(IN)       :: B(3)              ! Diffs in y coords of elem
       REAL(DOUBLE) , INTENT(IN)       :: AREA              ! Elem area
       REAL(DOUBLE) , INTENT(OUT)      :: BB(3,9)           ! Output strain-displ matrix for this elem
       REAL(DOUBLE)                    :: BW(3,14)          ! Output from subr BCHECK (matrix of 3 elem strains for 14 various elem
 !                                                            rigid body motions/constant strain distortions)
-  
+
 ! **********************************************************************************************************************************
 ! Initialize outputs
 
@@ -75,16 +75,16 @@
          BB(1,J) = ZERO
          BB(2,J) = -A(JJ)/(TWO*AREA)
          BB(3,J) = -B(JJ)/(TWO*AREA)
-      ENDDO 
-  
+      ENDDO
+
       JJ = 0
       DO J=7,9
          JJ = JJ + 1
          BB(1,J) = B(JJ)/(TWO*AREA)
          BB(2,J) = ZERO
          BB(3,J) = A(JJ)/(TWO*AREA)
-      ENDDO 
-  
+      ENDDO
+
       IF ((WRT_BUG_THIS_TIME == 'Y') .AND. (WRT_BUG(8) > 0)) THEN
 
          WRITE(BUG,1101) ELDT_BUG_BMAT_BIT, TYPE, EID, MIN4T_QUAD4_TRIA_NO
@@ -92,7 +92,7 @@
          DO I=1,3
             WRITE(BUG,8902) I,(BB(I,J),J=1,9)
             WRITE(BUG,*)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
       ENDIF
@@ -112,7 +112,7 @@
          ID(7) =  5
          ID(8) = 11
          ID(9) = 17
-  
+
          WRITE(BUG,1101) ELDT_BUG_BCHK_BIT, TYPE, EID, MIN4T_QUAD4_TRIA_NO
          WRITE(BUG,9100)
          WRITE(BUG,9101) MESSAG
@@ -148,5 +148,5 @@
  9104 FORMAT(7X,'---------------------------------------')
 
 ! **********************************************************************************************************************************
-                                                     
+
       END SUBROUTINE BBMIN3

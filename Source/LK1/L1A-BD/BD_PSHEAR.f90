@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_PSHEAR ( CARD )
- 
+
 ! Processes PSHEAR Bulk Data Cards
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -33,11 +33,11 @@
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, MPSHEAR, MRPSHEAR, NPSHEAR
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  PSHEAR, RPSHEAR
- 
+
       USE BD_PSHEAR_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_PSHEAR'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
@@ -62,30 +62,30 @@
 !     5      NSM            RPSHEAR(npshear,2)
 !     6      F1             RPSHEAR(npshear,3)
 !     7      F2             RPSHEAR(npshear,4)
- 
+
 !  Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Check for overflow
 
       NPSHEAR = NPSHEAR+1
- 
+
 ! Read and check data on parent card
 
       CALL I4FLD ( JCARD(2), JF(2), PROPERTY_ID )          ! Read PSHEAR ID
       IF (IERRFL(2) == 'N') THEN
          DO J=1,NPSHEAR-1
             IF (PROPERTY_ID == PSHEAR(J,1)) THEN
-               FATAL_ERR = FATAL_ERR + 1 
+               FATAL_ERR = FATAL_ERR + 1
                WRITE(ERR,1145) JCARD(1),PROPERTY_ID
                WRITE(F06,1145) JCARD(1),PROPERTY_ID
                EXIT
             ENDIF
-         ENDDO   
+         ENDDO
          PSHEAR(NPSHEAR,1) = PROPERTY_ID
       ENDIF
- 
+
 ! Read material ID from field 3
 
       CALL I4FLD ( JCARD(3), JF(3), MATERIAL_ID )
@@ -123,5 +123,5 @@
  1193 FORMAT(' *ERROR  1193: MATERIAL ID IN FIELD ',I3,' OF ',A,' MUST BE > 0 OR BLANK BUT IS = ',I8)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_PSHEAR

@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE LINK0
-  
+
 ! LINK0:
 
 !  - reads in the data deck
@@ -37,7 +37,7 @@
 !  - processes concentrated masses
 !  - calcs rigid body mass props (GPWG)
 !  - process temperature and pressure load input data to get arrays needed for element load calcs
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, SHORT, LONG, SINGLE, DOUBLE, QUAD
 
       USE IOUNT1, ONLY                :  MOU4, SC1, WRT_BUG
@@ -76,13 +76,13 @@
                                          GRID_ID, SNORM, RSNORM, GRID_SNORM
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE BANDIT_MODULE
-      USE RIGID_BODY_DISP_MATS, ONLY  :  RBGLOBAL_GSET, TR6_CG, TR6_MEFM, TR6_0            
+      USE RIGID_BODY_DISP_MATS, ONLY  :  RBGLOBAL_GSET, TR6_CG, TR6_MEFM, TR6_0
       USE SPARSE_MATRICES, ONLY       :  SYM_KGG, I_KGG, J_KGG, KGG
       USE OUTPUT4_MATRICES, ONLY      :  NUM_OU4_REQUESTS, OU4_FILE_UNITS
-  
+
       USE LINK0_USE_IFs
       USE LINK_MESSAGE_Interface
-                       
+
       IMPLICIT NONE
 
       LOGICAL                         :: FILE_OPND         ! = .TRUE. if a file is opened
@@ -98,7 +98,7 @@
       CHARACTER( 1*BYTE)              :: RBG_GSET_ALLOCATED! 'Y' or 'N' depending on whether array RBGLOBAL has been allocated
       CHARACTER(132*BYTE)             :: TDOF_MSG          ! Message to be printed out regarding at what point in the run the TDOF,I
 !                                                            tables are printed out
-     
+
       INTEGER(LONG)                   :: BANDIT_BW         ! Matrix bandwidth returned from subr BANDIT
 
                                                            ! Array used to tell subr ELDT_PROC_FOR_RESTART which ELDT to calc
@@ -107,7 +107,7 @@
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: I1,I2             ! Intermediate integer variable
       INTEGER(LONG)                   :: JERROR    = 0     ! Local error count
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG)                   :: PRINTIT   = 0     ! 'Y'/'N' depending on whether to tell subr GET_MATRIX_DIAG_STATS to
 !                                                            print output
       INTEGER(LONG)                   :: R_SET_COL         ! Col number in TDOF where the R-set exists
@@ -123,7 +123,7 @@
       !LOGICAL                        :: WRITE_OP2  ! flag
 
       INTRINSIC                       :: IAND
-   
+
 ! **********************************************************************************************************************************
       LINKNO = 0
       POST = -1
@@ -158,7 +158,7 @@
       ! Read input data to count sizes of arrays (no. GRID's, elems, etc.)
       CALL LINK_MESSAGE('DETERMINE ARRAY SIZES - CASE CONTROL        ')
       CALL LOADC0
-  
+
 ! Initial pass on Bulk Data when this is not a restart
 
 res11:IF (RESTART == 'N') THEN
@@ -167,9 +167,9 @@ res11:IF (RESTART == 'N') THEN
       ENDIF res11
 
       ! Start back at beginnng of input file to read
-      ! Exec, Case Control and Bulk Data decks 
+      ! Exec, Case Control and Bulk Data decks
       REWIND (IN1)
-  
+
       ! Processes the EXEC CONTROL DECK
       CALL LINK_MESSAGE('READ EXEC CONTROL DECK                      ')
       WRITE(F06,*)
@@ -267,22 +267,22 @@ res12:IF (RESTART == 'Y') THEN
          ENDIF
 
       ENDIF res12
- 
+
 res13:IF (RESTART == 'N') THEN
 
 ! Open files needed for writing Bulk Data in LOADB.
 ! L1F: Rigid element data
-! L1I: FORCE, MOMENT for loads requested in Case Control 
+! L1I: FORCE, MOMENT for loads requested in Case Control
 ! L1K: Temperature data for temp loads requested in Case Control
 ! L1M: Eigen extraction data for METHOD requested in Case Control
 ! L1N: ASET, OMIT data
 ! L1O: SPC data for SPC's requested in Case Control
 ! L1P: GRAV data for loads requested in Case Control
 ! L1Q: Element pressure load data for loads requested in Case Control
-! L1S: Data from B.D. MPC cards 
-! L1T: 
+! L1S: Data from B.D. MPC cards
+! L1T:
 ! L1U: Data from B.D. RFORCE cards
-! L1W: Data from B.D. SLOAD  cards 
+! L1W: Data from B.D. SLOAD  cards
 
          CALL FILE_OPEN ( L1F, LINK1F, OUNT, 'REPLACE', L1F_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
          CALL FILE_OPEN ( L1I, LINK1I, OUNT, 'REPLACE', L1I_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
@@ -300,7 +300,7 @@ res13:IF (RESTART == 'N') THEN
 !xx      IF ((SOL_NAME(1:5) == 'MODES') .OR. (SOL_NAME(1:12) == 'GEN CB MODEL')) THEN
 !xx         CALL FILE_OPEN ( L1M, LINK1M, OUNT, 'REPLACE', L1M_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
 !xx      ENDIF
-  
+
          ! Get machine parameters and set EPSIL(1).
          ! This may change later if user inputs a value on a PARAM EPSIL entry.
          CALL GET_MACHINE_PARAMS
@@ -407,7 +407,7 @@ res13:IF (RESTART == 'N') THEN
          ENDIF
 
          ! Close files opened for writing Bulk data info to
-         IF (NRIGEL > 0) THEN 
+         IF (NRIGEL > 0) THEN
             CALL FILE_CLOSE ( L1F, LINK1F, 'KEEP' )
          ELSE
             CALL FILE_CLOSE ( L1F, LINK1F, 'DELETE' )
@@ -436,19 +436,19 @@ res13:IF (RESTART == 'N') THEN
          ELSE
             CALL FILE_CLOSE ( L1O, LINK1O, 'DELETE' )
          ENDIF
-  
+
          IF (NGRAV > 0) THEN
             CALL FILE_CLOSE ( L1P, LINK1P, 'KEEP' )
          ELSE
             CALL FILE_CLOSE ( L1P, LINK1P, 'DELETE' )
          ENDIF
-  
+
          IF (NPCARD > 0) THEN
             CALL FILE_CLOSE ( L1Q, LINK1O, 'KEEP' )
          ELSE
             CALL FILE_CLOSE ( L1Q, LINK1O, 'DELETE' )
          ENDIF
-  
+
          IF (NMPC > 0) THEN
             CALL FILE_CLOSE ( L1S, LINK1S, 'KEEP' )
          ELSE
@@ -466,13 +466,13 @@ res13:IF (RESTART == 'N') THEN
          ELSE
             CALL FILE_CLOSE ( L1U, LINK1U, 'DELETE' )
          ENDIF
-  
+
          IF (NSLOAD > 0) THEN
             CALL FILE_CLOSE ( L1W, LINK1W, 'KEEP' )
          ELSE
             CALL FILE_CLOSE ( L1W, LINK1W, 'DELETE' )
          ENDIF
-  
+
          IF (NUM_PARTVEC_RECORDS > 0) THEN
             CALL FILE_CLOSE ( L1V, LINK1V, 'KEEP' )
          ELSE
@@ -484,19 +484,19 @@ res13:IF (RESTART == 'N') THEN
          ELSE
             CALL FILE_CLOSE ( L1X, LINK1X, 'DELETE' )
          ENDIF
- 
+
          CALL SET_SPARSE_MAT_SYM                           ! Set sparse matrix sym
 
       ENDIF res13
 
 ! Check error flag; if > 0 quit.
-  
+
       IF (FATAL_ERR > 0)  THEN
           WRITE(ERR,9998) FATAL_ERR
           WRITE(F06,9998) FATAL_ERR
           CALL OUTA_HERE ( 'Y' )                           ! Finished processing data deck and there are input errors
       ENDIF
-  
+
 res14:IF (RESTART == 'N') THEN
 
 !         CALL LINK_MESSAGE('ALLOCATE MEMORY FOR SOME MODEL DATA ARRAYS  ')
@@ -507,19 +507,19 @@ res14:IF (RESTART == 'N') THEN
          CALL LINK_MESSAGE('SORT AND CHECK ELEMENTS                     ')
          CALL ELESORT
          CALL DEALLOCATE_MODEL_STUF ( 'RIGID_ELEM_IDS' )
-  
+
          ! Open L1B, OP2 for writing grid and coord data to.
          CALL FILE_OPEN ( L1B, LINK1B, OUNT, 'REPLACE', L1B_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
 
          CALL FILE_OPEN ( OP2, OP2FIL, OUNT, 'REPLACE', OP2_MSG, 'NEITHER', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
          OP2STAT = 'KEEP    '
          CALL WRITE_OP2_HEADER(POST)
-         
+
 
          ! Element processing to convert external PID's to internal.
          CALL LINK_MESSAGE('ELEM PROCESSOR                              ')
          CALL ELEM_PROP_MATL_IIDS
-  
+
          ! Grid and coordinate system processing
 !         CALL LINK_MESSAGE('ALLOCATE MEMORY FOR SOME MODEL DATA ARRAYS  ')
          CALL ALLOCATE_MODEL_STUF ( 'SINGLE ELEMENT ARRAYS', SUBR_NAME )
@@ -537,7 +537,7 @@ res14:IF (RESTART == 'N') THEN
 
          IF (CHKGRDS == 'Y') THEN
             CALL LINK_MESSAGE('CHECK THAT ALL GRIDS FOR ELEMS EXIST        ')
-            
+
             CALL COUNTER_INIT('       Process element', NELE)
             DO I=1,NELE
                CALL GET_ELEM_AGRID_BGRID ( I, 'Y' )
@@ -606,7 +606,7 @@ res14:IF (RESTART == 'N') THEN
             GRID_SNORM(BGRID,:) = RSNORM(I,:) / DSQRT(DOT_PRODUCT(RSNORM(I,:), RSNORM(I,:)))
          ENDDO
          CALL DEALLOCATE_MODEL_STUF ( 'SNORM, RSNORM' )
-  
+
 
       ENDIF res14
 
@@ -629,7 +629,7 @@ res14:IF (RESTART == 'N') THEN
       IF ( IAND(OELDT,IBIT(ELDT_F22_ME_BIT)  ) > 0) THEN
          CALL FILE_OPEN ( F22, F22FIL, OUNT, 'REPLACE', F22_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
       ENDIF
-         
+
       IF ( IAND(OELDT,IBIT(ELDT_F23_KE_BIT)  ) > 0) THEN
          CALL FILE_OPEN ( F23, F23FIL, OUNT, 'REPLACE', F23_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
       ENDIF
@@ -762,11 +762,11 @@ res16:IF (RESTART == 'N') THEN
 !   Open L1N for reading ASET, ASET1, OMIT, OMIT1 data if NAOCARD > 0
 !   Open L1C for writing DOF tables to
 !   Open L1H for writing enforced displ SPC's. Keep L1H for later processing in YS_ARRAY if SOL = STATICS
-  
+
          IF (NRIGEL > 0) THEN
             CALL FILE_OPEN ( L1F, LINK1F, OUNT, 'OLD', L1F_MSG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
          ENDIF
-  
+
          IF (NMPC > 0) THEN
             CALL FILE_OPEN ( L1S, LINK1S, OUNT, 'OLD', L1S_MSG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
          ENDIF
@@ -786,7 +786,7 @@ res16:IF (RESTART == 'N') THEN
          CALL FILE_OPEN ( L1C, LINK1C, OUNT, 'REPLACE', L1C_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
 
          CALL FILE_OPEN ( L1H, LINK1H, OUNT, 'REPLACE', L1H_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
-  
+
 !         CALL LINK_MESSAGE('ALLOCATE MEMORY FOR SOME MODEL DATA ARRAYS  ')
          CALL ALLOCATE_DOF_TABLES ( 'TSET', SUBR_NAME )
          CALL ALLOCATE_DOF_TABLES ( 'TDOF', SUBR_NAME )
@@ -834,7 +834,7 @@ res16:IF (RESTART == 'N') THEN
          CALL LINK_MESSAGE('CONM2 PROCESSOR #1                          ')
          CALL CONM2_PROC_1
          CALL FILE_CLOSE ( L1Y, LINK1Y, L1YSTAT )
-  
+
          ! Grid point weight generator (model weight, c.g., etc.)
          CALL LINK_MESSAGE('ALLOCATE MEMORY FOR RBGLOBAL ARRAY          ')
          CALL ALLOCATE_RBGLOBAL ( 'G ', SUBR_NAME )
@@ -908,7 +908,7 @@ res18:IF (RESTART == 'N') THEN
          ! CONM2 processing to get CONM2 data in global coords at the grid
          CALL LINK_MESSAGE('CONM2 PROCESSOR #2                          ')
          CALL CONM2_PROC_2
-  
+
          ! Temperature data processing
          IF ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC') .OR.                                                  &
             ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1))) THEN
@@ -933,7 +933,7 @@ res18:IF (RESTART == 'N') THEN
          CALL DEALLOCATE_MODEL_STUF ( 'ETEMP' )
          CALL DEALLOCATE_MODEL_STUF ( 'CGTEMP' )
          CALL DEALLOCATE_MODEL_STUF ( 'CETEMP' )
-  
+
          ! Element pressure data processing.
          ! Open L1Q which contains element pressure Bulk Data
          IF ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC') .OR.                                                  &
@@ -943,17 +943,17 @@ res18:IF (RESTART == 'N') THEN
             CALL ALLOCATE_MODEL_STUF ( 'PLOAD4_3D_DATA', SUBR_NAME )
 
             IF (NPCARD > 0) THEN
-  
+
                CALL FILE_OPEN ( L1Q, LINK1Q, OUNT, 'OLD', L1Q_MSG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
-  
+
                CALL LINK_MESSAGE('ELEMENT PRESSURE DATA PROCESSOR             ')
                CALL PRESSURE_DATA_PROC
-  
+
                CALL FILE_CLOSE ( L1Q, LINK1Q, 'KEEP' )
             ENDIF
          ENDIF
          CALL DEALLOCATE_MODEL_STUF ( 'PRESS_SIDS' )
-  
+
 ! Generate TR6_CG rigid body displ matrix for the R-set if this run has R-set DOF's. TR6_CG not needed until LINK6 but, by calc'ing
 ! it here we can avoid keeping CORD, RCORD, GRID, RGRID arrays from having to be allocated until then
 
@@ -1132,7 +1132,7 @@ res20:IF (RESTART == 'N') THEN
                '                                    LONG  INTEGER                                   = ',I4,' BYTES',/ &
                '                                    SINGLE PREC REAL                                = ',I4,' BYTES',/ &
                '                                    DOUBLE PREC REAL                                = ',I4,' BYTES',/ &
-               '                                    QUAD   PREC REAL                                = ',I4,' BYTES')  
+               '                                    QUAD   PREC REAL                                = ',I4,' BYTES')
 
   144 FORMAT(' *INFORMATION: NUMBER OF GRID POINTS                                                  = ',I12)
 
@@ -1175,9 +1175,9 @@ res20:IF (RESTART == 'N') THEN
 12345 FORMAT(A, ', I = ', I8, ' of ', I8, A)
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE ELDT_PROC_FOR_RESTART ( CHK_ELDT_BIT )
@@ -1339,17 +1339,17 @@ res20:IF (RESTART == 'N') THEN
 
       IF (NCBAR     > 0) THEN
          TOTAL = TOTAL + NCBAR
-         WRITE(F06,7777) 'BAR    ', NCBAR 
+         WRITE(F06,7777) 'BAR    ', NCBAR
       ENDIF
 
       IF (NCBEAM    > 0) THEN
          TOTAL = TOTAL + NCBEAM
-         WRITE(F06,7777) 'BEAM   ', NCBEAM 
+         WRITE(F06,7777) 'BEAM   ', NCBEAM
       ENDIF
 
       IF (NCELAS1   > 0) THEN
          TOTAL = TOTAL + NCELAS1
-         WRITE(F06,7777) 'CELAS1 ', NCELAS1 
+         WRITE(F06,7777) 'CELAS1 ', NCELAS1
       ENDIF
 
       IF (NCELAS2   > 0) THEN
@@ -1359,42 +1359,42 @@ res20:IF (RESTART == 'N') THEN
 
       IF (NCELAS3   > 0) THEN
          TOTAL = TOTAL + NCELAS3
-         WRITE(F06,7777) 'CELAS3 ', NCELAS3 
+         WRITE(F06,7777) 'CELAS3 ', NCELAS3
       ENDIF
 
       IF (NCELAS4   > 0) THEN
          TOTAL = TOTAL + NCELAS4
-         WRITE(F06,7777) 'CELAS4 ', NCELAS4 
+         WRITE(F06,7777) 'CELAS4 ', NCELAS4
       ENDIF
 
       IF (NCHEXA8   > 0) THEN
          TOTAL = TOTAL + NCHEXA8
-         WRITE(F06,7777) 'HEXA8  ', NCHEXA8 
+         WRITE(F06,7777) 'HEXA8  ', NCHEXA8
       ENDIF
 
       IF (NCHEXA20  > 0) THEN
          TOTAL = TOTAL + NCHEXA20
-         WRITE(F06,7777) 'HEXA20 ', NCHEXA20 
+         WRITE(F06,7777) 'HEXA20 ', NCHEXA20
       ENDIF
 
       IF (NCPENTA6  > 0) THEN
          TOTAL = TOTAL + NCPENTA6
-         WRITE(F06,7777) 'PENTA6 ', NCPENTA6 
+         WRITE(F06,7777) 'PENTA6 ', NCPENTA6
       ENDIF
 
       IF (NCPENTA15 > 0) THEN
          TOTAL = TOTAL + NCPENTA15
-         WRITE(F06,7777) 'PENTA15', NCPENTA15 
+         WRITE(F06,7777) 'PENTA15', NCPENTA15
       ENDIF
 
       IF (NCQUAD4   > 0) THEN
          TOTAL = TOTAL + NCQUAD4
-         WRITE(F06,7777) 'QUAD4  ', NCQUAD4 
+         WRITE(F06,7777) 'QUAD4  ', NCQUAD4
       ENDIF
 
       IF (NCQUAD4K  > 0) THEN
          TOTAL = TOTAL + NCQUAD4K
-         WRITE(F06,7777) 'QUAD4K ', NCQUAD4K 
+         WRITE(F06,7777) 'QUAD4K ', NCQUAD4K
       ENDIF
 
       IF (NCQUAD8   > 0) THEN
@@ -1404,37 +1404,37 @@ res20:IF (RESTART == 'N') THEN
 
       IF (NCROD     > 0) THEN
          TOTAL = TOTAL + NCROD
-         WRITE(F06,7777) 'ROD    ', NCROD 
+         WRITE(F06,7777) 'ROD    ', NCROD
       ENDIF
 
       IF (NCTETRA4  > 0) THEN
          TOTAL = TOTAL + NCTETRA4
-         WRITE(F06,7777) 'TETRA4 ', NCTETRA4 
+         WRITE(F06,7777) 'TETRA4 ', NCTETRA4
       ENDIF
 
       IF (NCTETRA10 > 0) THEN
          TOTAL = TOTAL + NCTETRA10
-         WRITE(F06,7777) 'TETRA10', NCTETRA10 
+         WRITE(F06,7777) 'TETRA10', NCTETRA10
       ENDIF
 
       IF (NCTRIA3   > 0) THEN
          TOTAL = TOTAL + NCTRIA3
-         WRITE(F06,7777) 'TRIA3  ', NCTRIA3 
+         WRITE(F06,7777) 'TRIA3  ', NCTRIA3
       ENDIF
 
       IF (NCTRIA3K  > 0) THEN
          TOTAL = TOTAL + NCTRIA3K
-         WRITE(F06,7777) 'TRIA3K ', NCTRIA3K 
+         WRITE(F06,7777) 'TRIA3K ', NCTRIA3K
       ENDIF
 
       IF (NCUSER1   > 0) THEN
          TOTAL = TOTAL + NCUSER1
-         WRITE(F06,7777) 'USER1  ', NCUSER1 
+         WRITE(F06,7777) 'USER1  ', NCUSER1
       ENDIF
 
       IF (NCUSERIN  > 0) THEN
          TOTAL = TOTAL + NCUSERIN
-         WRITE(F06,7777) 'USERIN ', NCUSERIN 
+         WRITE(F06,7777) 'USERIN ', NCUSERIN
       ENDIF
 
       IF (TOTAL /= NELE) THEN

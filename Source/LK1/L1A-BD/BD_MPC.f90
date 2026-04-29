@@ -1,51 +1,51 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_MPC ( CARD, LARGE_FLD_INP, CC_MPC_FND )
-  
+
 ! Processes MPC Bulk Data Cards. Writes MPC card data to file L1S
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1S
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, LMPC, LSUB, MMPC, NMPC
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  MPCSET, MPC_SIDS
- 
+
       USE BD_MPC_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_MPC'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD              ! A Bulk Data card
       CHARACTER( 1*BYTE),INTENT(INOUT):: CC_MPC_FND        ! ='Y' if this MPC is a set requested in Case Control
       CHARACTER(LEN=*), INTENT(IN)    :: LARGE_FLD_INP     ! If 'Y', CARD is large field format
       CHARACTER(LEN(CARD))            :: CHILD             ! "Child" card read in subr NEXTC, called herein
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
- 
+
       INTEGER(LONG)                   :: MPC_COMP(MMPC)    ! Array of GRID displ comp values (1-6) found on this logical MPC card
       INTEGER(LONG)                   :: MPC_GRID(MMPC)    ! Array of GRID ID's found on this logical MPC card
       INTEGER(LONG)                   :: I4INP     = 0     ! A value read from input file that should be an integer value
@@ -57,50 +57,50 @@
       INTEGER(LONG)                   :: JERR      = 0     ! A local error count
       INTEGER(LONG)                   :: SETID             ! Set ID for this LOAD Bulk Data card
 
- 
+
       REAL(DOUBLE)                    :: MPC_COEFF(MMPC)   ! Array of MPC coeff values found on this MPC logical card
 
 
 
 ! **********************************************************************************************************************************
 ! MPC Bulk Data Card:
- 
-!   FIELD   ITEM            EXPLANATION 
+
+!   FIELD   ITEM            EXPLANATION
 !   -----   ------------    -------------
 !    2      SID             MPC set ID
 !    3      DEP_GRD         Dependent grid
-!    4      DCOMP           Component for dependent grid 
-!    5      DVAL            Coeff (value) for dep grid/comp 
+!    4      DCOMP           Component for dependent grid
+!    5      DVAL            Coeff (value) for dep grid/comp
 !    6      IND_GRD         1st independent grid
-!    7      ICOMP           Component for 1st indep grid 
+!    7      ICOMP           Component for 1st indep grid
 !    8      IVAL            Coeff (value) for 1st indep grid/comp
- 
+
 ! 1st continuation card:
-! 
+!
 !   FIELD   ITEM            EXPLANATION
 !   -----   ------------    -------------
 !    3      IND_GRD         2nd independent grid
-!    4      ICOMP           Component for 2nd indep grid 
+!    4      ICOMP           Component for 2nd indep grid
 !    5      IVAL            Coeff (value) for 2nd indep grid/comp
 !    6      IND_GRD         3rd independent grid
-!    7      ICOMP           Component for 3rd indep grid 
+!    7      ICOMP           Component for 3rd indep grid
 !    8      IVAL            Coeff (value) for 3rd indep grid/comp
- 
+
 ! Subsequent con't cards follow the same patterm as the 1st
- 
- 
+
+
 ! Initialize arrays
 
       DO J=1,MMPC
          MPC_GRID(J)  = 0
          MPC_COMP(J)  = 0
          MPC_COEFF(J) = ZERO
-      ENDDO 
+      ENDDO
 
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Check for overflow
 
       NMPC = NMPC+1
@@ -110,7 +110,7 @@
 !xx      WRITE(F06,1163) SUBR_NAME,JCARD(1),LMPC
 !xx      CALL OUTA_HERE ( 'Y' )                            ! Coding error, so quit
 !xx   ENDIF
- 
+
 ! Read MPC set ID in field 2
 
       CALL I4FLD ( JCARD(2), JF(2), SETID )
@@ -122,7 +122,7 @@
       ELSE
          JERR = JERR + 1
       ENDIF
- 
+
 ! Read and check dependent grid/comp/coeff in fields 3, 4, 5 on parent card. If fields 3, 4 or 5 are blank then dep
 ! grid, comp, or coeff was not input which is an error (must have dependent grid/comp/coeff)
 
@@ -139,7 +139,7 @@
             WRITE(F06,1120) SUBR_NAME,JCARD(1),LMPC
             CALL OUTA_HERE ( 'Y' )
          ENDIF
-           
+
          CALL I4FLD (JCARD(3),JF(3),MPC_GRID(NUM_TRIPLES)) ! Read parent card field 3: dependent grid
          IF (IERRFL(3) == 'Y') THEN
             JERR = JERR + 1
@@ -149,7 +149,7 @@
          IF ( IERRFL(4) == 'N' ) THEN
             IF ((I4INP >= 0) .AND. (I4INP <= 6)) THEN
                MPC_COMP(NUM_TRIPLES) = I4INP
-            ELSE 
+            ELSE
                JERR      = JERR + 1
                FATAL_ERR = FATAL_ERR + 1
                WRITE(ERR,1124) JF(4),JCARD(1),JCARD(2),JF(4),JCARD(4)
@@ -177,7 +177,7 @@
             WRITE(F06,1120) SUBR_NAME,JCARD(1),LMPC
             CALL OUTA_HERE ( 'Y' )
          ENDIF
-           
+
          CALL I4FLD (JCARD(6),JF(6),MPC_GRID (NUM_TRIPLES))! Read parent card field 6: independent grid
          IF (IERRFL(6) == 'Y') THEN
             JERR = JERR + 1
@@ -187,7 +187,7 @@
          IF ( IERRFL(7) == 'N' ) THEN
             IF ((I4INP >= 0) .AND. (I4INP <= 6)) THEN
                MPC_COMP(NUM_TRIPLES) = I4INP
-            ELSE 
+            ELSE
                JERR      = JERR + 1
                FATAL_ERR = FATAL_ERR + 1
                WRITE(ERR,1124) JF(7),JCARD(1),JCARD(2),JF(7),JCARD(7)
@@ -221,7 +221,7 @@
          IF (ICONT == 1) THEN
 
             DO J=1,2
- 
+
                IF ((JCARD(3*J)(1:) == ' ') .AND. (JCARD(3*J+1)(1:) == ' ') .AND. (JCARD(3*J+2)(1:) == ' ')) THEN
                   CONTINUE
                ELSE                                        ! Increment NUM_TRIPLES and check for overflow
@@ -231,7 +231,7 @@
                      WRITE(F06,1120) SUBR_NAME,JCARD(1),LMPC
                      CALL OUTA_HERE ( 'Y' )
                   ENDIF
-           
+
                   CALL I4FLD (JCARD(3*J),JF(3*J),MPC_GRID (NUM_TRIPLES))! Read independent grid
                   IF (IERRFL(3*J) == 'Y') THEN
                      JERR = JERR + 1
@@ -241,7 +241,7 @@
                   IF ( IERRFL(3*J+1) == 'N' ) THEN
                      IF ((I4INP >= 0) .AND. (I4INP <= 6)) THEN
                         MPC_COMP(NUM_TRIPLES) = I4INP
-                     ELSE 
+                     ELSE
                         JERR      = JERR + 1
                         FATAL_ERR = FATAL_ERR + 1
                         WRITE(ERR,1124) JF(3*J+1),JCARD(1),JCARD(2),JF(3*J+1),JCARD(3*J+1)
@@ -258,7 +258,7 @@
 
                ENDIF
 
-            ENDDO 
+            ENDDO
 
             CALL BD_IMBEDDED_BLANK ( JCARD,2,3,0,5,6,0,8,0)! Make sure there are no imbedded blanks (except 4,7: comps & 9: blank)
             CALL CARD_FLDS_NOT_BLANK(JCARD,0,0,0,0,0,0,0,9)! Issue warning if field 9 not blank
@@ -269,8 +269,8 @@
             EXIT
          ENDIF
 
-      ENDDO 
-  
+      ENDDO
+
 ! Write data to file L1S
 
       IF (JERR == 0) THEN
@@ -300,5 +300,5 @@
                     ,/,14X,' TOO MANY ',A,' ENTRIES; LIMIT = ',I12)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_MPC

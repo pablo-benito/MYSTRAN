@@ -1,31 +1,31 @@
 ! #################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE QDEL1 ( OPT, INT_ELEM_ID, WRITE_WARN )
- 
+
 ! Calculates, or calls subr's to calculate, quadrilateral element matrices:
 
 !  1) ME        = element mass matrix                  , if OPT(1) = 'Y'
@@ -34,7 +34,7 @@
 !  4) KE        = element linea stiffness matrix       , if OPT(4) = 'Y'
 !  5) PPE       = element pressure load matrix         , if OPT(5) = 'Y'
 !  6) KED       = element differen stiff matrix calc   , if OPT(6) = 'Y' = 'Y'
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  BUG, ERR, F06, WRT_BUG, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MAX_ORDER_GAUSS, MEFE
@@ -45,11 +45,11 @@
       USE MODEL_STUF, ONLY            :  EID, ELDOF, EMG_IFE, EMG_RFE, EMAT, ERR_SUB_NAM, EB, INTL_MID, KE,                        &
                                          MASS_PER_UNIT_AREA, NUM_EMG_FATAL_ERRS, ME, PCOMP_LAM, PCOMP_PROPS, SHELL_B, TYPE, XEL
       USE MODEL_STUF, ONLY            :  BENSUM, SHRSUM, PHI_SQ, PSI_HAT
- 
+
       USE QDEL1_USE_IFs
- 
-      IMPLICIT NONE 
-  
+
+      IMPLICIT NONE
+
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'QDEL1'
       CHARACTER(1*BYTE), INTENT(IN)   :: OPT(6)               ! 'Y'/'N' flags for whether to calc certain elem matrices
@@ -60,14 +60,14 @@
       INTEGER(LONG)                   :: GAUSS_PT             ! Gauss point number (used for DEBUG output in subr SHP2DQ
       INTEGER(LONG)                   :: I,J,K,L              ! DO loop indices
       INTEGER(LONG)                   :: IORD                 ! Gaussian integration order for QMEM1 portion of element
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! Do not change IORD_PCOMP. It must be such that it squared = number of nodes for the QUAD4 (MIN4T)
 
       INTEGER(LONG), PARAMETER        :: IORD_PCOMP = 2       ! Int order for nonsym layup PCOMP must be 2 (checked in subr
 !                                                               SHELL_ABD_MATRICES)
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  
+
       REAL(DOUBLE)                    :: AREA                 ! Elem area
       REAL(DOUBLE)                    :: AR                   ! Elem aspect ratio
 
@@ -99,12 +99,12 @@
       REAL(DOUBLE)                    :: YSD(4)               ! Diffs in y coords of quad sides in local coords
 
       INTRINSIC DSQRT
-  
+
 
 
 ! **********************************************************************************************************************************
       EPS1 = EPSIL(1)
- 
+
 ! Initialize
 
       BENSUM  = ZERO
@@ -113,17 +113,17 @@
       PHI_SQ  = ZERO
 
 ! Calculate side diffs
-  
+
       XSD(1) = XEL(1,1) - XEL(2,1)                         ! x coord diffs (in local elem coords)
       XSD(2) = XEL(2,1) - XEL(3,1)
       XSD(3) = XEL(3,1) - XEL(4,1)
       XSD(4) = XEL(4,1) - XEL(1,1)
-  
+
       YSD(1) = XEL(1,2) - XEL(2,2)                         ! y coord diffs (in local elem coords)
       YSD(2) = XEL(2,2) - XEL(3,2)
       YSD(3) = XEL(3,2) - XEL(4,2)
       YSD(4) = XEL(4,2) - XEL(1,2)
-  
+
       IF ((DEBUG(6) > 0) .AND. (WRT_BUG(0) > 0)) THEN
          WRITE(BUG,*) ' Element side differences in x, y coords:'
          WRITE(BUG,*) ' ---------------------------------------'
@@ -132,21 +132,21 @@
          WRITE(BUG,98763) XSD(3), YSD(3)
          WRITE(BUG,98764) XSD(4), YSD(4)
          WRITE(BUG,*)
-      ENDIF 
+      ENDIF
 
 ! Calculate area by Gaussian integration
-  
+
       AREA = ZERO
       CALL ORDER_GAUSS ( 2, SSS, HHH )
       DO I=1,2
          DO J=1,2
             CALL JAC2D ( SSS(I), SSS(J), XSD, YSD, 'N', JAC, JACI, DETJ )
             AREA = AREA + HHH(I)*HHH(J)*DETJ
-         ENDDO   
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
 ! If AREA <= 0, set error and return
-          
+
       IF (AREA < EPS1) THEN
          NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
          FATAL_ERR = FATAL_ERR + 1
@@ -162,23 +162,23 @@
          ENDIF
          RETURN
       ENDIF
-  
+
 ! Calculate aspect ratio. Note that D1M and D2M have been checked to be > 0 in subr ELMGM2
 
       DO I=1,2
          D1(I) = XEL(3,I) - XEL(1,I)
          D2(I) = XEL(4,I) - XEL(2,I)
-      ENDDO 
+      ENDDO
       D1M = DSQRT(D1(1)*D1(1) + D1(2)*D1(2))
       D2M = DSQRT(D2(1)*D2(1) + D2(2)*D2(2))
       AR = D1M/D2M
       IF (AR < ONE) THEN
          AR = ONE/AR
-      ENDIF        
-      
+      ENDIF
+
 ! **********************************************************************************************************************************
 ! Generate the mass matrix for this element. For the pure bending element the mass is based only on the non-structural mass.
- 
+
       IF (OPT(1) == 'Y') THEN
 
          M0 = MASS_PER_UNIT_AREA*AREA/FOUR
@@ -198,8 +198,8 @@
       ENDIF
 
 ! **********************************************************************************************************************************
-      IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(5) == 'Y') .OR. (OPT(6) == 'Y')) THEN 
- 
+      IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(5) == 'Y') .OR. (OPT(6) == 'Y')) THEN
+
          IF (TYPE == 'SHEAR   ') THEN
             IORD = IORQ1S
             RED_INT_SHEAR = 'N'
@@ -217,7 +217,7 @@
                CALL QMEM1 ( OPT, INT_ELEM_ID, IORD, RED_INT_SHEAR, AREA, XSD, YSD, BIG_BM )
             ENDIF
          ENDIF
-  
+
          IF (TYPE(1:6) == 'QUAD4K') THEN
 
             IF (INTL_MID(2) /= 0) THEN
@@ -261,9 +261,9 @@
             ENDIF
 
          ENDIF
- 
-      ENDIF        
-  
+
+      ENDIF
+
 ! **********************************************************************************************************************************
 ! Calc BM'*SHELL_B*BB (and its transpose) and add to KE. Only do this if this is a composite element with nonsym layup
 
@@ -310,12 +310,12 @@
                      DO K=1,ELDOF
                         DO L=1,ELDOF
                            KE(K,L) = KE(K,L) + INTFAC*(DUM2(K,L) + DUM2(L,K))
-                        ENDDO   
-                     ENDDO 
+                        ENDDO
+                     ENDDO
 
-                  ENDDO   
+                  ENDDO
 
-               ENDDO 
+               ENDDO
 
             ELSE IF (TYPE(1:5) == 'TRIA3') THEN
 
@@ -345,8 +345,8 @@
                DO K=1,ELDOF
                   DO L=1,ELDOF
                      KE(K,L) = KE(K,L) + (DUM2(K,L) + DUM2(L,K))
-                  ENDDO   
-               ENDDO 
+                  ENDDO
+               ENDDO
 
             ENDIF
 
@@ -376,5 +376,5 @@
 98764 FORMAT('   X4-X1 = ',1ES14.6,'   Y4-Y1 = ',1ES14.6)
 
 ! **********************************************************************************************************************************
-  
+
       END SUBROUTINE QDEL1

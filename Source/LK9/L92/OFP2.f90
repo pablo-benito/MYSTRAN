@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE OFP2 ( JVEC, WHAT, SC_OUT_REQ, ZERO_GEN_STIFF, FEMAP_SET_ID, ITG, OT4_GROW, ITABLE, NEW_RESULT )
 
@@ -76,11 +76,11 @@
 !                                                            constr forces in subr WRITE_GRD_PRT_OUTPUTS for grids w no constr force
 
       INTEGER(LONG), INTENT(IN)       :: FEMAP_SET_ID      ! Set ID for FEMAP output
-      INTEGER(LONG), INTENT(IN)       :: ITG               ! Unit number for text files for OTM row descriptors 
+      INTEGER(LONG), INTENT(IN)       :: ITG               ! Unit number for text files for OTM row descriptors
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Solution vector number
       INTEGER(LONG), INTENT(IN)       :: SC_OUT_REQ        ! If > 0, then req1uests for WHAT are to be output
       INTEGER(LONG), INTENT(INOUT)    :: OT4_GROW          ! Row number in OT4 file for grid related OTM descriptors
-      INTEGER(LONG), INTENT(INOUT)    :: ITABLE            ! 
+      INTEGER(LONG), INTENT(INOUT)    :: ITABLE            !
       LOGICAL, INTENT(INOUT)          :: NEW_RESULT        ! is this the first result of a table
       INTEGER(LONG)                   :: AGRID             ! An actual grid number
       INTEGER(LONG)                   :: G_SET_COL         ! Col number in TDOF where the G-set DOF's exist
@@ -96,7 +96,7 @@
       INTEGER(LONG)                   :: IGRID             ! Internal grid ID
       INTEGER(LONG)                   :: IROW_FILE         ! Row number in text file
       INTEGER(LONG)                   :: IROW_MAT          ! Row number in OTM's
-      INTEGER(LONG)                   :: K                 ! Counter              
+      INTEGER(LONG)                   :: K                 ! Counter
       INTEGER(LONG)                   :: NREQ              ! Number of user requested outputs of displ/force
       INTEGER(LONG)                   :: NUM               ! Count of the number of rows added to array OGEL
       INTEGER(LONG)                   :: NUM_COMPS         ! Either 6 or 1 depending on whether grid is a physical grid or a SPOINT
@@ -130,8 +130,8 @@
       DO I=1,MAXREQ
          DO J=1,MOGEL
             OGEL(I,J) = ZERO
-         ENDDO 
-      ENDDO   
+         ENDDO
+      ENDDO
 
       ! Initialize WRITE_OGEL
       DO I=1,NGRID
@@ -177,20 +177,20 @@
          QSM_COL = ZERO
 
          IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
-            IF (NTERM_KFSD > 0) THEN                          ! Calc QSK = KSFD*UF 
+            IF (NTERM_KFSD > 0) THEN                          ! Calc QSK = KSFD*UF
                CALL MATMULT_SFF ( 'KSFD', NDOFS, NDOFF, NTERM_KFSD, SYM_KFSD, I_KSFD, J_KSFD, KSFD, 'UF', NDOFF, 1, UF_COL, 'Y',   &
                                   'QSK', ONE, QSK_COL )
             ENDIF
          ELSE
-            IF (NTERM_KFS  > 0) THEN                          ! Calc QSK = KSF*UF 
+            IF (NTERM_KFS  > 0) THEN                          ! Calc QSK = KSF*UF
                CALL MATMULT_SFF ( 'KSF ', NDOFS, NDOFF, NTERM_KFS , SYM_KFS , I_KSF , J_KSF , KSF , 'UF', NDOFF, 1, UF_COL, 'Y',   &
                                   'QSK', ONE, QSK_COL )
             ENDIF
          ENDIF
-                                                           ! Don't do the following for CB soln (vecs are CB vecs, NOT eigen vecs, 
+                                                           ! Don't do the following for CB soln (vecs are CB vecs, NOT eigen vecs,
 !                                                            so no inertia effect is to be added for SPC forces due to CB vecs)
          IF (SOL_NAME(1:5) == 'MODES') THEN
-            IF (NTERM_MFS > 0) THEN                        ! Calc QSM = -EIGEN_VAL*MSF*UF 
+            IF (NTERM_MFS > 0) THEN                        ! Calc QSM = -EIGEN_VAL*MSF*UF
                CALL MATMULT_SFF ( 'MSF', NDOFS, NDOFF, NTERM_MFS, SYM_MFS, I_MSF, J_MSF, MSF, 'UF', NDOFF, 1, UF_COL, 'Y',         &
                                   'QSM', -EIGEN_VAL(JVEC), QSM_COL )
             ENDIF
@@ -203,7 +203,7 @@
             ELSE
                QS_COL(I) = QSK_COL(I) + QSM_COL(I) + QSYS_COL(I) - PS_COL(I)
             ENDIF
-         ENDDO   
+         ENDDO
 
          SPCF_ALL_SAME_CID = 'Y'                           ! Check if all grids, for which there will be output, have same coord sys
          DO I=1,NGRID-1                                    ! If not, then we won't write SPC output totals
@@ -222,7 +222,7 @@
             IF (IB1 > 0) THEN
                NREQ = NREQ + 1
             ENDIF
-         ENDDO   
+         ENDDO
 
          NUM  = 0                                          ! Put QS into 2-d output array OGEL for this subcase (NDOFS x 6).
          DO I=1,NGRID
@@ -249,9 +249,9 @@
 !xx                  WRITE_OGEL(NUM) = 'Y'
 !xx                  EXIT doj1
 !xx               ENDIF
-!xx            ENDDO doj1 
+!xx            ENDDO doj1
 
-               DO J=1,NUM_COMPS                            ! Calc SPC forces for all grids in requested output set (not only ones 
+               DO J=1,NUM_COMPS                            ! Calc SPC forces for all grids in requested output set (not only ones
                   CALL TDOF_COL_NUM ( 'S ', S_SET_COL )    ! that have a component in S-set)
                   CALL TDOF_COL_NUM ( 'G ', G_SET_COL )
                   TDOF_ROW = ROW_NUM_START + J - 1
@@ -318,7 +318,7 @@
                ENDIF
 
             ENDIF
-  
+
          ENDDO
 
 ! Calc modal effective masses and/or modal participation factors for current eigenector, if requested (but only if not CB soln)
@@ -358,7 +358,7 @@
 ! Calc largest and sum of QS forces for AUTOSPC DOF's. Write SPC forces on the SA DOF's if PARAM AUTOSPC_SPCF = 'Y'
 
          IF (NDOFSA > 0) THEN
-         
+
             WRITE(F06,*)
             IF (AUTOSPC_SPCF == 'Y') THEN
                WRITE(F06,1101)
@@ -474,7 +474,7 @@
                                   'QMK', ONE, QMK_COL )
          ENDIF
 
-         ! Don't do the following for CB soln (vecs are CB vecs, NOT eigen vecs, 
+         ! Don't do the following for CB soln (vecs are CB vecs, NOT eigen vecs,
          ! so no inertia effect is to be added for MPC forces due to CB vecs)
          ! Get 1st portion of QM: LMN*UN
          IF (NTERM_LMN > 0) THEN
@@ -534,7 +534,7 @@
             IF (IB1 > 0) THEN
                NREQ = NREQ + 1
             ENDIF
-         ENDDO   
+         ENDDO
 
          ! Put QGm into 2-d output array OGEL for this subcase (NDOFS x 6).
          NUM = 0
@@ -567,7 +567,7 @@
 !                 ELSE
 !                    OGEL(NUM,J) = ZERO
 !                 ENDIF
-               ENDDO   
+               ENDDO
                WRITE_OGEL(NUM) = 'N'
                DO J=1,NUM_COMPS
                   IF (OGEL(NUM,J) /= ZERO) THEN
@@ -620,8 +620,8 @@
 
       ELSE
 
-         WRITE(ERR,9100) WHAT   
-         WRITE(ERR,9100) WHAT   
+         WRITE(ERR,9100) WHAT
+         WRITE(ERR,9100) WHAT
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )
 

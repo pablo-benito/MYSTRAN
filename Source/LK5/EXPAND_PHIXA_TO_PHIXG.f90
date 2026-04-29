@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE EXPAND_PHIXA_TO_PHIXG
 
@@ -38,7 +38,7 @@
       USE COL_VECS, ONLY              :  UA_COL, UG_COL
       USE PARAMS, ONLY                :  EPSIL, TINY
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
-      USE SPARSE_MATRICES, ONLY       :  I_PHIXA, J_PHIXA, PHIXA, I_PHIXG, J_PHIXG, PHIXG  
+      USE SPARSE_MATRICES, ONLY       :  I_PHIXA, J_PHIXA, PHIXA, I_PHIXG, J_PHIXG, PHIXG
       USE EXPAND_PHIXA_TO_PHIXG_USE_IFs
 
       USE LINK_MESSAGE_Interface
@@ -72,7 +72,7 @@
          CALL BUILD_F_AO
          CALL DEALLOCATE_COL_VEC ( 'UA_COL' )
          CALL DEALLOCATE_COL_VEC ( 'UO_COL' )
-                                                           ! Build N-set from F and S-set 
+                                                           ! Build N-set from F and S-set
          CALL ALLOCATE_COL_VEC ( 'UN_COL', NDOFN, SUBR_NAME)
          CALL ALLOCATE_COL_VEC ( 'US_COL', NDOFS, SUBR_NAME )
          CALL LINK_MESSAGE_I('BUILD UN DISPLS FROM UF, US:                      "',J)
@@ -120,13 +120,13 @@
   102 FORMAT(' *INFORMATION: TERMS WHOSE ABS VALUE ARE < PARAM TINY =',1ES10.3,' ARE NOT INCLUDED IN MATRIX ',A,' IN SUBR ',A      &
                     ,/,14X,' AS THIS FULL MATRIX IS BEING CONVERTED TO A SPARSE MATRIX')
 
-99885 FORMAT(82X,'MATRIX PHIXG',/,82X,'------------')                                                                             
+99885 FORMAT(82X,'MATRIX PHIXG',/,82X,'------------')
 
-99886 FORMAT(5X,32676(I14))                                                                                                       
+99886 FORMAT(5X,32676(I14))
 
-99887 FORMAT(I8,'-',I1,32767(1ES14.6))                                                                                            
+99887 FORMAT(I8,'-',I1,32767(1ES14.6))
 
-99888 FORMAT(8X,'-',I1,32767(1ES14.6))                                                                                            
+99888 FORMAT(8X,'-',I1,32767(1ES14.6))
 
 ! **********************************************************************************************************************************
 

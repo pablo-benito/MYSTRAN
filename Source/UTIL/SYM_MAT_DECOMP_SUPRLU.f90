@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SYM_MAT_DECOMP_SUPRLU ( CALLING_SUBR, MATIN_NAME, MATIN_SET, NROWS, NTERMS, I_MATIN, J_MATIN, MATIN, INFO )
 
 ! Decomposes a symmetric band matrix into triangular factors. The input matrix, MATIN, is stored in CRS sparse format
@@ -31,16 +31,16 @@
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SC1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
-      USE TIMDAT, ONLY                :  TSEC       
+      USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  CRS_CCS, SPARSTOR, BAILOUT
       USE SCRATCH_MATRICES, ONLY      :  I_CCS1, J_CCS1, CCS1
       USE SuperLU_STUF, ONLY          :  SLU_FACTORS
 
       USE SYM_MAT_DECOMP_SUPRLU_USE_IFs
-                      
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SYM_MAT_DECOMP_SUPRLU'
 
       CHARACTER(LEN=*), INTENT(IN)    :: CALLING_SUBR      ! The subr that called this subr (used for output error purposes)
@@ -101,7 +101,7 @@
          ENDIF
 
 
-      ELSE                                              ! Error - incorrect CRS_CCS 
+      ELSE                                              ! Error - incorrect CRS_CCS
 
          WRITE(ERR,932) SUBR_NAME, 'SPARSTOR'
          WRITE(F06,932) SUBR_NAME, 'SPARSTOR'
@@ -113,7 +113,7 @@
 
       IF (INFO == 0) THEN
 
-         WRITE (SC1,9902) MATIN_NAME, SUBR_NAME 
+         WRITE (SC1,9902) MATIN_NAME, SUBR_NAME
          WRITE (F06,9902) MATIN_NAME, SUBR_NAME
 
       ELSE IF (INFO < 0) THEN                              ! Illegal value of an argument to SuperLU
@@ -131,21 +131,21 @@
         WRITE(ERR,981) MATIN_NAME, INFO
         WRITE(F06,981) MATIN_NAME, INFO
         IF ((GRIDV > 0) .AND. (COMPV > 0)) THEN
-          WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR 
+          WRITE(ERR,9811) GRIDV, COMPV, CALLING_SUBR
           WRITE(F06,9811) GRIDV, COMPV, CALLING_SUBR
-        ELSE 
-          WRITE(ERR,9812) INFO, CALLING_SUBR 
+        ELSE
+          WRITE(ERR,9812) INFO, CALLING_SUBR
           WRITE(F06,9812) INFO, CALLING_SUBR
         ENDIF
-         
+
       ENDIF
 
-      ! This should also use BAILOUT_CHECK like SYM_MAT_DECOMP_LAPACK does, however we need to 
-      ! build an array of the diagonal values of the U factor. SLU_FACTORS is a pointer to the 
+      ! This should also use BAILOUT_CHECK like SYM_MAT_DECOMP_LAPACK does, however we need to
+      ! build an array of the diagonal values of the U factor. SLU_FACTORS is a pointer to the
       ! structure containing L, U, perm_c, perm_r. See superlu/FORTRAN/c_fortran_dgssv.c. We
       ! may need to look up the permutations to find the corresponding rows of U.
       !
-      ! It still respects the BAILOUT parameter when SuperLU reports an error while processing 
+      ! It still respects the BAILOUT parameter when SuperLU reports an error while processing
       ! the matrix which seems to work in a similar way.
 
       IF ((INFO > 0)) THEN

@@ -1,44 +1,44 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_RBE3 ( CARD, LARGE_FLD_INP )
-  
+
 ! Processes RBE3 Bulk Data Cards. Writes RBE3 card data to file L1F
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1F
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, LRIGEL, MRBE3, NRECARD, NRIGEL
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  RIGID_ELEM_IDS
- 
+
       USE BD_RBE3_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_RBE3'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD              ! A Bulk Data card
       CHARACTER(LEN=*), INTENT(IN)    :: LARGE_FLD_INP     ! If 'Y', CARD is large field format
@@ -53,7 +53,7 @@
       CHARACTER( 8*BYTE), PARAMETER   :: RTYPE = 'RBE3    '! Rigid element type
       CHARACTER( 8*BYTE)              :: TOKEN             ! The 1st 8 characters from a JCARD
       CHARACTER( 8*BYTE)              :: TOKTYP            ! Type of TOKEN returned from subr TOKCHK
- 
+
       INTEGER(LONG)                   :: CHK(2:9)          ! Array to tell which fields to check for imbedded blankS
       INTEGER(LONG)                   :: COMP(MRBE3)       ! Array of indep displ comp values (1-6) found on this logical RBE3 card
       INTEGER(LONG)                   :: GRID(MRBE3)       ! Array of indep GRID ID's found on this logical RBE3 card
@@ -71,7 +71,7 @@
       INTEGER(LONG)                   :: REFGRID   = 0     ! REFGRID value in field 4 of parent entry
       INTEGER(LONG)                   :: RELID     = 0     ! This elements' ID
 
- 
+
       REAL(DOUBLE)                    :: R8INP             ! A real value read from a field on this RBE3 entry
       REAL(DOUBLE)                    :: WGT               ! A weight read from a field on this RBE3 entry
       REAL(DOUBLE)                    :: WTi(MRBE3)        ! Array of RBE3 weight values
@@ -81,15 +81,15 @@
 
 ! **********************************************************************************************************************************
 ! RBE3 Bulk Data Card:
- 
-!   FIELD   ITEM            EXPLANATION 
+
+!   FIELD   ITEM            EXPLANATION
 !   -----   ------------    -------------
 !    2      ELID            RBE3 elem ID
 !    3      blank
 !    4      REFGRID         Ref grid point ID (this grid will go into M-set)
-!    5      REFC            Ref component number (1-6) (comp of REFGRID) 
+!    5      REFC            Ref component number (1-6) (comp of REFGRID)
 !    6      WT1             Weighting factor for 1st component of displ
-!    7      C1              Comp number for associated with WT1 
+!    7      C1              Comp number for associated with WT1
 !    8      G1,1            Grid associated with WT1
 !    9      G1,2 or next WTi or blank
 
@@ -99,7 +99,7 @@
 
 ! Subsequent entries have the same format where a WTi is specified followed by a displ component Ci followed by a list of grids that
 ! have the WTi for that component
- 
+
       JERR = 0
 
 ! Initialize arrays
@@ -109,22 +109,22 @@
          COMP(J) = 0
          WTi(J)  = ZERO
       ENDDO
-      WT_TOT = ZERO 
+      WT_TOT = ZERO
 
       TOKTYP(1:) = ' '
 
       IRBE3 = 0
 
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Up the elem count
 
       NRIGEL = NRIGEL+1
- 
+
 ! Read and check data on parent entry
- 
+
       CHAR_ELID = JCARD(2)
       CALL I4FLD ( JCARD(2), JF(2), I4INP )                ! Field 2: Elem ID
       IF (IERRFL(2) == 'N') THEN
@@ -180,7 +180,7 @@
       ENDIF
 
       NEXT_MUST_BE_GRID = 'Y'
-      GRID1 = 0                                            ! Field 8: 1st grid                
+      GRID1 = 0                                            ! Field 8: 1st grid
       CALL I4FLD ( JCARD(8), JF(8), I4INP )
       IF (IERRFL(8) == 'N') THEN
          GRID1 = I4INP
@@ -319,7 +319,7 @@ do_j:       DO J=2,9
                      JERR = JERR + 1
                   ENDIF
                ENDIF
-            ENDDO do_j  
+            ENDDO do_j
             CALL BD_IMBEDDED_BLANK ( JCARD, CHK(2), CHK(3), CHK(4), CHK(5), CHK(6), CHK(7), CHK(8), CHK(9)  )
             CALL CRDERR ( CARD )
 

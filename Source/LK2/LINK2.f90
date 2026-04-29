@@ -1,43 +1,43 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE LINK2
-  
+
 ! Reduces G-set matrices to L-set. Performs the following major functions:
- 
+
 !   1) Calls routines to reduce KGG, MGG, PG to N-set (needs to solve for GMN = RMM(-1)*RMN first)
 !   2) Calls routines to reduce KNN, MNN, PN to F-set
 !   3) Calls routines to reduce KFF, MFF, PF to A-set
 !   4) Calls routines to reduce KAA, MAA, PA to L-set
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
 
       USE IOUNT1, ONLY                :  WRT_BUG, ERR, F06, L1A, ERRSTAT, SC1
       USE IOUNT1, ONLY                :  L2G,     L2H    , L2I   ,  L2O    , L2P   ,  L2Q
-      USE IOUNT1, ONLY                :  LINK2G,  LINK2H , LINK2I , LINK2O , LINK2P , LINK2Q 
+      USE IOUNT1, ONLY                :  LINK2G,  LINK2H , LINK2I , LINK2O , LINK2P , LINK2Q
       USE IOUNT1, ONLY                :  L2G_MSG, L2H_MSG, L2I_MSG, L2O_MSG, L2P_MSG, L2Q_MSG
 
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, COMM, FATAL_ERR, LINKNO, MBUG,                                              &
@@ -72,16 +72,16 @@
 
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LINK2'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
       CHARACTER( 8*BYTE)              :: CLOSE_STAT        ! What to do with file when it is closed
 
       INTEGER(LONG)                   :: NROWS             ! Value of DOF size to pass to subr WRITE_USERIN_BD_CARDS
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG), PARAMETER        :: P_LINKNO  = 1     ! Prior LINK no's that should have run before this LINK can execute
-      
+
       REAL(DOUBLE)                    :: KGG_DIAG(NDOFG)   ! Diagonal of KGG
       REAL(DOUBLE)                    :: KGG_MAX_DIAG      ! Max diag term from KGG
       REAL(DOUBLE)                    :: KGGD_DIAG(NDOFG)  ! Diagonal of KGGD
@@ -107,12 +107,12 @@
       WRITE(SC1,152) LINKNO
 
 ! Write info to text files
-  
+
       WRITE(F06,150) LINKNO
       WRITE(ERR,150) LINKNO
 
 ! Read LINK1A file
- 
+
       CALL READ_L1A ( 'KEEP' )
 ! Check COMM for successful completion of prior LINKs
 
@@ -185,7 +185,7 @@
          WRITE(F06,2002) NDOFN
       ENDIF
 
-! Reduce N-set to F and S-sets.   
+! Reduce N-set to F and S-sets.
 
       IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
          NTERM_KFFD = 0
@@ -206,8 +206,8 @@
          WRITE(F06,2013) NDOFSA
          WRITE(F06,2004) NDOFF
       ENDIF
-    
-! Reduce F-set to A and O-sets   
+
+! Reduce F-set to A and O-sets
 
       IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
          NTERM_KAAD = 0
@@ -234,21 +234,21 @@
          CALL LINK_MESSAGE('WRITE KAA STIFFNESS ARRAYS TO FILE')
          IF (NTERM_KAA > 0) THEN
             CALL WRITE_MATRIX_1 ( LINK2O, L2O, 'Y', 'KEEP', L2O_MSG, 'KAA', NTERM_KAA, NDOFA, I_KAA, J_KAA, KAA )
-         ENDIF 
+         ENDIF
 
          CALL LINK_MESSAGE('WRITE MAA MASS ARRAYS TO FILE')
          IF (NTERM_MAA > 0) THEN
             CALL WRITE_MATRIX_1 ( LINK2P, L2P, 'Y', 'KEEP', L2P_MSG, 'MAA', NTERM_MAA, NDOFA, I_MAA, J_MAA, MAA )
-         ENDIF 
+         ENDIF
 
          CALL LINK_MESSAGE('WRITE PA  LOAD ARRAYS TO FILE')
          IF (NTERM_PA > 0) THEN
-            CALL WRITE_MATRIX_1 ( LINK2Q, L2Q, 'Y', 'KEEP', L2Q_MSG, 'PA' , NTERM_PA , NDOFA, I_PA , J_PA , PA  ) 
-         ENDIF 
+            CALL WRITE_MATRIX_1 ( LINK2Q, L2Q, 'Y', 'KEEP', L2Q_MSG, 'PA' , NTERM_PA , NDOFA, I_PA , J_PA , PA  )
+         ENDIF
 
       ENDIF
 
-! Reduce A-set to L and R-sets   
+! Reduce A-set to L and R-sets
 
       IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
          NTERM_KLLD = 0
@@ -283,18 +283,18 @@
          IF (NTERM_KLL > 0) THEN
             CLOSE_IT   = 'Y'
             CALL WRITE_MATRIX_1 ( LINK2G, L2G, CLOSE_IT, 'KEEP', L2G_MSG, 'KLL', NTERM_KLL, NDOFL, I_KLL, J_KLL, KLL )
-         ENDIF 
+         ENDIF
 
          IF (NTERM_MLL > 0) THEN
             CLOSE_IT   = 'Y'
             CALL WRITE_MATRIX_1 ( LINK2I, L2I, CLOSE_IT, 'KEEP', L2I_MSG, 'MLL', NTERM_MLL, NDOFL, I_MLL, J_MLL, MLL )
-         ENDIF 
+         ENDIF
 
          IF (NTERM_PL > 0) THEN
             CLOSE_IT   = 'Y'
             CLOSE_STAT = 'KEEP'
-            CALL WRITE_MATRIX_1 ( LINK2H, L2H, CLOSE_IT, 'KEEP', L2H_MSG, 'PL ', NTERM_PL , NDOFL, I_PL , J_PL , PL  ) 
-         ENDIF 
+            CALL WRITE_MATRIX_1 ( LINK2H, L2H, CLOSE_IT, 'KEEP', L2H_MSG, 'PL ', NTERM_PL , NDOFL, I_PL , J_PL , PL  )
+         ENDIF
 
          WRITE(ERR,146) 'KLL STIFFNESS MATRIX IS ', NTERM_KLL
          WRITE(ERR,146) 'MLL MASS MATRIX IS      ', NTERM_MLL
@@ -312,7 +312,7 @@
             CALL OUTPUT4_PROC ( SUBR_NAME )
 
 !xx         WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
-      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages         
+      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages
 !xx         WRITE(SC1,12345,ADVANCE='NO') '       Deallocating KGG', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'KGG' )
 !xx         WRITE(SC1,12345,ADVANCE='NO') '       Deallocating MGG', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'MGG' )
 !xx         WRITE(SC1,12345,ADVANCE='NO') '       Deallocating PG ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'PG'  )
@@ -371,7 +371,7 @@
 ! Write data to L1A
 
       CALL WRITE_L1A ( 'KEEP', 'Y' )
-  
+
 ! Check allocation status of allocatable arrays, if requested
 
       IF (DEBUG(100) > 0) THEN
@@ -387,14 +387,14 @@
       WRITE(F06,151) LINKNO
 
 ! Close files
-  
+
       IF (( DEBUG(193) == 2) .OR. (DEBUG(193) == 999)) THEN
          CALL FILE_INQUIRE ( 'near end of LINK2' )
       ENDIF
       ERRSTAT = 'KEEP'
 
 ! Write LINK2 end to screen
-      WRITE(SC1,153) LINKNO 
+      WRITE(SC1,153) LINKNO
 
 ! **********************************************************************************************************************************
   146 FORMAT(' *INFORMATION: NUMBER OF NONZERO TERMS IN THE ',A,'                = ',I12,/)
@@ -433,9 +433,9 @@
 12345 FORMAT(A,10X,A)
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE DEALLOCATE_LINK2_ARRAYS ( WHICH )

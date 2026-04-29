@@ -1,47 +1,47 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE CC_ELDA ( CARD )
- 
+
 ! Processes Case Control ELDATA cards
 
 ! NOTE: The coding assumes that ELDATA(i,BOTH) is only valid for i >= IOUTMIN_FIJ (which is 1) and i <= IOUTMAX_FIJ (which is 5)
 ! ----
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  FATAL_ERR, WARN_ERR, BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE PARAMS, ONLY                :  SUPWARN
       USE MODEL_STUF, ONLY            :  CCELDT
- 
+
       USE CC_ELDA_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME   = 'CC_ELDA'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=LEN(CARD))        :: ERRTOK            ! Character string that holds part of an error message from subr STOKEN
@@ -49,9 +49,9 @@
       CHARACTER( 1*BYTE)              :: FIJFIL_WARN = 'N' ! Set to 'Y' if warning message written for FIJFIL option
       CHARACTER( 3*BYTE)              :: THRU              ! An input/output for subr STOKEN
       CHARACTER( 8*BYTE)              :: TOKEN(3)          ! Char string output from subr STOKEN, called herein
-      CHARACTER(LEN=LEN(CARD))        :: TOKSTR            ! Character string to tokenize 
+      CHARACTER(LEN=LEN(CARD))        :: TOKSTR            ! Character string to tokenize
       CHARACTER( 8*BYTE)              :: TOKTYP(3)         ! Type of the char TOKEN's output from subr STOKEN, called herein
- 
+
       INTEGER(LONG)                   :: ICOL1       = 0   ! Location, in CARD, where "(" begins
       INTEGER(LONG)                   :: ICOL2       = 0   ! Location, in CARD, where ")" begins
       INTEGER(LONG)                   :: IERROR            ! An output from subr STOKEN, called herein
@@ -67,20 +67,20 @@
       INTEGER(LONG)                   :: STRNG_LEN   = 0   ! Length of character string between "()" in the ELDATA card
       INTEGER(LONG)                   :: TOKEN_BEG   = 0   ! An input to subr STOKEN, called herein
 
- 
+
       INTRINSIC INDEX
- 
+
 
 
 ! **********************************************************************************************************************************
 ! Process ELDATA cards.
- 
+
 ! Processes element debug output or disk file output. Card format is:
 
 !           ELDATA(i,PRINT or FIJFIL or BOTH) = NONE or ALL or SETID
 
 ! where i is 0,1,2,3,4 or 5 and either PRINT or FIJFIL or BOTH must be selected. i determines kind of elem output.
- 
+
 ! First get i,PRINT, FIJFIL between (). CCELDT(j) array will be set equal to:
 
 !       1)  -1   if "ALL" is requested,
@@ -108,11 +108,11 @@
 ! requested by setting bit j-1 in array ELDAT to 1 if CCELDT(j) is nonzero
 
 ! Find out if "NONE", "ALL" or SETID
- 
-      CALL GET_ANSID ( CARD, SETID )   
- 
+
+      CALL GET_ANSID ( CARD, SETID )
+
 ! Get data in between ()
- 
+
       ICOL1  = INDEX(CARD(1:),'(')
       ICOL2  = INDEX(CARD(1:),')')
       STRNG_LEN = ICOL2 - ICOL1 - 1
@@ -121,19 +121,19 @@
          WRITE(ERR,1201)
          WRITE(F06,1201)
          RETURN
-      ELSE IF (STRNG_LEN < 1) THEN 
+      ELSE IF (STRNG_LEN < 1) THEN
          FATAL_ERR = FATAL_ERR + 1
          WRITE(ERR,1202)
          WRITE(F06,1202)
          RETURN
       ELSE
- 
+
 ! Read 1st token after opening paren: "(". Need to make sure that the token is:
 
 !  1) An integer                               : TOKTYP(1) /= 'INTEGER ',
 !  2) Integer has <= 8 digits                  : IERROR /= 0, and
-!  3) Integer starts before closing paren, ")" : 
- 
+!  3) Integer starts before closing paren, ")" :
+
          TOKSTR(1:STRNG_LEN) = CARD(ICOL1+1:ICOL2-1)
          TOKEN_BEG = 1
          THRU   = 'OFF'
@@ -151,7 +151,7 @@
                WRITE(ERR,1264)
                WRITE(F06,1264)
             ENDIF
-            IF (TOKEN_BEG <= STRNG_LEN) THEN 
+            IF (TOKEN_BEG <= STRNG_LEN) THEN
                THRU   = 'OFF'
                EXCEPT = 'OFF'
 
@@ -204,10 +204,10 @@
                IF (FIJFIL_WARN == 'N') THEN
                   WARN_ERR = WARN_ERR + 1
                ENDIF
-            ENDIF 
+            ENDIF
          ENDIF
       ENDIF
- 
+
 ! xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ! As of 03/07/2020 there is some error in the calculation of the check on strain displ matrices for RB and constant strain modes
 ! of displacement. Therefore, this check is temporarily suspended
@@ -255,5 +255,5 @@
                    'until an error in the calculation is fixed. This can be overridden with DEBUG(202) > 0')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE CC_ELDA

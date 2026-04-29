@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE JAC3D ( SSI, SSJ, SSK, DPSHG, WRT_BUG_THIS_TIME, JAC, JACI, DETJ )
-  
+
 ! Computes Jacobian for 3D elements.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_ERR, BUG, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
@@ -36,17 +36,17 @@
       USE PARAMS, ONLY                :  EPSIL
       USE MODEL_STUF, ONLY            :  EID, ELGP, NUM_EMG_FATAL_ERRS, TYPE, XEL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
-  
+
       USE JAC3D_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'JAC3D'
       CHARACTER( 1*BYTE), INTENT(IN)  :: WRT_BUG_THIS_TIME ! If 'Y' then write to BUG file if WRT_BUG array says to
 
       INTEGER(LONG)                   :: I,J               ! DO loop indices
 
- 
+
       REAL(DOUBLE) , INTENT(IN)       :: SSI               ! A Gauss point coord.
       REAL(DOUBLE) , INTENT(IN)       :: SSJ               ! A Gauss point coord.
       REAL(DOUBLE) , INTENT(IN)       :: SSK               ! A Gauss point coord.
@@ -59,7 +59,7 @@
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
       REAL(DOUBLE)                    :: XL(ELGP,3)        ! Array of local element coords for the element (note: cannot use XEL
 !                                                            directly since it is dimensioned MELGP x 3, not ELGP x 3)
-  
+
 
 ! **********************************************************************************************************************************
 ! Initialize outputs
@@ -74,7 +74,7 @@
       ENDDO
 
       EPS1 = EPSIL(1)
-  
+
       DO I=1,ELGP                                          ! Use XL array since XEL is dimensioned MELGP x 3, not ELGP x 3
          DO J=1,3
             XL(I,J) = XEL(I,J)
@@ -98,13 +98,13 @@
       DETJ = JAC(1,1)*(JAC(2,2)*JAC(3,3)  - JAC(2,3)*JAC(3,2))                                                                     &
            - JAC(1,2)*(JAC(2,1)*JAC(3,3)  - JAC(2,3)*JAC(3,1))                                                                     &
            + JAC(1,3)*(JAC(2,1)*JAC(3,2)  - JAC(2,2)*JAC(3,1))
- 
+
       IF ((WRT_BUG_THIS_TIME == 'Y') .AND. (WRT_BUG(7) > 0)) THEN
          WRITE(BUG,1101) SSI, SSJ, SSK
          WRITE(BUG,1102)
          DO I=1,3
             WRITE(BUG,1103) (JAC(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
          WRITE(BUG,*)
          WRITE(BUG,1104) DETJ
@@ -113,9 +113,9 @@
       ENDIF
 
 ! If DETJ is not zero, continue. Else, write error and return:
- 
+
       IF (DETJ > EPS1) THEN
-  
+
          JACI(1,1) =  B(1,1)/DETJ
          JACI(1,2) = -B(2,1)/DETJ
          JACI(1,3) =  B(3,1)/DETJ
@@ -127,12 +127,12 @@
          JACI(3,1) =  B(1,3)/DETJ
          JACI(3,2) = -B(2,3)/DETJ
          JACI(3,3) =  B(3,3)/DETJ
-  
+
          IF ((WRT_BUG_THIS_TIME == 'Y') .AND. (WRT_BUG(7) > 0)) THEN
             WRITE(BUG,1105)
             DO I=1,3
                WRITE(BUG,1103) (JACI(I,J),J=1,3)
-            ENDDO 
+            ENDDO
             WRITE(BUG,*)
             WRITE(BUG,*)
             WRITE(BUG,1106)
@@ -147,7 +147,7 @@
          RETURN
 
       ENDIF
-  
+
 
 
       RETURN
@@ -178,5 +178,5 @@
 
 
 ! **********************************************************************************************************************************
-  
+
       END SUBROUTINE JAC3D

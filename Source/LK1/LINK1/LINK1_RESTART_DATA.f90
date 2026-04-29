@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE LINK1_RESTART_DATA
 
@@ -59,16 +59,16 @@
 
       IMPLICIT NONE
 
-      CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LINK1_RESTART_DATA' 
+      CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LINK1_RESTART_DATA'
       CHARACTER(FILE_NAM_MAXLEN*BYTE) :: FILNAM            ! Name of a file that is to be opened for reading
       CHARACTER(132*BYTE)             :: MESSAG            ! Char message for file name
       CHARACTER(LEN=DATA_NAM_LEN)     :: NAME_Is           ! Name of data actually read from file
       CHARACTER(LEN=DATA_NAM_LEN)     :: NAME_ShouldBe     ! Name of data that should be read from file
 
       INTEGER(LONG)                   :: I,J               ! DO loop indices
-      INTEGER(LONG)                   :: INT2              ! An integer value read from a file from a file 
+      INTEGER(LONG)                   :: INT2              ! An integer value read from a file from a file
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening or reading a file
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG)                   :: PCOMP_PLIES       ! Number of plies in 1 PCOMP entry incl sym plies not explicitly defined
       INTEGER(LONG)                   :: REC_NO            ! Record number of a record read from a file
       INTEGER(LONG)                   :: UNT               ! Unit number of a file to be read
@@ -107,12 +107,12 @@
          DO J=1,MGRID
             READ(UNT,IOSTAT=IOCHK) GRID(I,J)                                   ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRGRID
             READ(UNT,IOSTAT=IOCHK) RGRID(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
       DO I=1,NGRID
          GRID_ID(I) = GRID(I,1)
       ENDDO
@@ -134,33 +134,33 @@
          DO J=1,MCORD
             READ(UNT,IOSTAT=IOCHK) CORD(I,J)                                   ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRCORD
             READ(UNT,IOSTAT=IOCHK) RCORD(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
 ! Read GRID_SEQ, INV_GRID_SEQ data
-   
+
       NAME_ShouldBe = 'GRID_SEQ, INV_GRID_SEQ'
       REC_NO = 0
-   
+
       READ(UNT,IOSTAT=IOCHK) NAME_Is                                           ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
       IF (NAME_Is /= NAME_ShouldBe)     CALL DATA_SET_NAME_ERROR ( NAME_ShouldBe, FILNAM, NAME_Is )
-   
+
       READ(UNT,IOSTAT=IOCHK) INT2                                              ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
       IF (INT2 /= NGRID)     CALL DATA_SET_SIZE_ERROR ( FILNAM, NAME_Is, 'NGRID', NGRID, INT2 )
-   
+
       DO I=1,NGRID
          READ(UNT,IOSTAT=IOCHK) GRID_SEQ(I), INV_GRID_SEQ(I)                   ; REC_NO = REC_NO + 1
          CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-      ENDDO 
-   
+      ENDDO
+
       CALL FILE_CLOSE ( L1B, LINK1B, L1BSTAT )
-   
+
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Open L1G
 
@@ -216,10 +216,10 @@
       DO I = 1,NEDAT
          READ(UNT,IOSTAT=IOCHK) EDAT(I)                                        ; REC_NO = REC_NO + 1
          CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-      ENDDO 
+      ENDDO
 
 ! Read element PARAMETERS
-  
+
       NAME_ShouldBe = 'ELEM PARAMETERS'
       REC_NO = 0
 
@@ -227,25 +227,25 @@
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
       IF (NAME_Is /= NAME_ShouldBe) CALL DATA_SET_NAME_ERROR ( NAME_ShouldBe, LINK1G, NAME_Is )
 
-      READ(UNT,IOSTAT=IOCHK) IORQ1M                                            ; REC_NO = REC_NO + 1       
+      READ(UNT,IOSTAT=IOCHK) IORQ1M                                            ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
 
-      READ(UNT,IOSTAT=IOCHK) IORQ1S                                            ; REC_NO = REC_NO + 1       
+      READ(UNT,IOSTAT=IOCHK) IORQ1S                                            ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
 
-      READ(UNT,IOSTAT=IOCHK) IORQ1B                                            ; REC_NO = REC_NO + 1       
+      READ(UNT,IOSTAT=IOCHK) IORQ1B                                            ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
 
-      READ(UNT,IOSTAT=IOCHK) IORQ2B                                            ; REC_NO = REC_NO + 1       
+      READ(UNT,IOSTAT=IOCHK) IORQ2B                                            ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
 
-      READ(UNT,IOSTAT=IOCHK) IORQ2T                                            ; REC_NO = REC_NO + 1       
+      READ(UNT,IOSTAT=IOCHK) IORQ2T                                            ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
 
-      READ(UNT,IOSTAT=IOCHK) CBMIN3                                            ; REC_NO = REC_NO + 1       
+      READ(UNT,IOSTAT=IOCHK) CBMIN3                                            ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
 
-      READ(UNT,IOSTAT=IOCHK) CBMIN4                                            ; REC_NO = REC_NO + 1       
+      READ(UNT,IOSTAT=IOCHK) CBMIN4                                            ; REC_NO = REC_NO + 1
       CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
 
 ! Read BAR, BEAM v vectors
@@ -263,10 +263,10 @@
       DO I=1,NVVEC
          READ(UNT,IOSTAT=IOCHK) (VVEC(I,J),J=1,3)                              ; REC_NO = REC_NO + 1
          CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-      ENDDO 
- 
+      ENDDO
+
 ! Read BAR, BEAM offsets
- 
+
       NAME_ShouldBe = 'BAR, BEAM OFFSETS'
       REC_NO = 0
 
@@ -282,10 +282,10 @@
             READ(UNT,IOSTAT=IOCHK) BAROFF(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
           ENDDO
-      ENDDO 
- 
+      ENDDO
+
 ! Read plate offsets
- 
+
       NAME_ShouldBe = 'PLATE OFFSETS'
       REC_NO = 0
 
@@ -299,10 +299,10 @@
       DO I = 1,NPLATEOFF
          READ(UNT,IOSTAT=IOCHK) PLATEOFF(I)                                    ; REC_NO = REC_NO + 1
          CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-      ENDDO 
- 
+      ENDDO
+
 ! Read plate thicknesses from connection entries
- 
+
       NAME_ShouldBe = 'PLATE THICKNESSES FROM CONNECTION ENTRIES'
       REC_NO = 0
 
@@ -316,8 +316,8 @@
       DO I = 1,NPLATETHICK
          READ(UNT,IOSTAT=IOCHK) PLATETHICK(I)                                  ; REC_NO = REC_NO + 1
          CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-      ENDDO 
- 
+      ENDDO
+
 ! Read PBAR, RPBAR
 
       NAME_ShouldBe = 'PBAR, RPBAR'
@@ -343,13 +343,13 @@
          DO J=1,MPBAR
             READ(UNT,IOSTAT=IOCHK) PBAR(I,J)                                   ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRPBAR
             READ(UNT,IOSTAT=IOCHK) RPBAR(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PBEAM, RPBEAM
 
       NAME_ShouldBe = 'PBEAM, RPBEAM'
@@ -375,13 +375,13 @@
          DO J=1,MPBEAM
             READ(UNT,IOSTAT=IOCHK) PBEAM(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRPBEAM
             READ(UNT,IOSTAT=IOCHK) RPBEAM(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PBUSH, RPBUSH
 
       NAME_ShouldBe = 'PBUSH, RPBUSH'
@@ -407,13 +407,13 @@
          DO J=1,MPBUSH
             READ(UNT,IOSTAT=IOCHK) PBUSH(I,J)                                   ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRPBUSH
             READ(UNT,IOSTAT=IOCHK) RPBUSH(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PROD, RPROD
 
       NAME_ShouldBe = 'PROD, RPROD'
@@ -439,13 +439,13 @@
          DO J=1,MPROD
             READ(UNT,IOSTAT=IOCHK) PROD(I,J)                                   ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRPROD
             READ(UNT,IOSTAT=IOCHK) RPROD(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PELAS, RPELAS
 
       NAME_ShouldBe = 'PELAS, RPELAS'
@@ -471,13 +471,13 @@
          DO J=1,MPELAS
             READ(UNT,IOSTAT=IOCHK) PELAS(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRPELAS
             READ(UNT,IOSTAT=IOCHK) RPELAS(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PSHEAR, RPSHEAR
 
       NAME_ShouldBe = 'PSHEAR, RPSHEAR'
@@ -503,13 +503,13 @@
          DO J=1,MPSHEAR
             READ(UNT,IOSTAT=IOCHK) PSHEAR(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRPSHEAR
             READ(UNT,IOSTAT=IOCHK) RPSHEAR(I,J)                                ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PSHEL, RPSHEL
 
       NAME_ShouldBe = 'PSHEL, RPSHEL'
@@ -535,13 +535,13 @@
          DO J=1,MPSHEL
             READ(UNT,IOSTAT=IOCHK) PSHEL(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRPSHEL
             READ(UNT,IOSTAT=IOCHK) RPSHEL(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PCOMP, RPCOMP
 
       NAME_ShouldBe = 'PCOMP, RPCOMP'
@@ -580,15 +580,15 @@
          DO J=1,MPCOMP0+MPCOMP_PLIES*PCOMP_PLIES
             READ(UNT,IOSTAT=IOCHK) PCOMP(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
 
          DO J=1,MRPCOMP0+MRPCOMP_PLIES*PCOMP_PLIES
             READ(UNT,IOSTAT=IOCHK) RPCOMP(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
 
-      ENDDO 
- 
+      ENDDO
+
 ! Read PSOLID
 
       NAME_ShouldBe = 'PSOLID'
@@ -610,9 +610,9 @@
          DO J=1,MPSOLID
             READ(UNT,IOSTAT=IOCHK) PSOLID(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PUSER1, RPUSER1
 
       NAME_ShouldBe = 'PUSER1, RPUSER1'
@@ -638,13 +638,13 @@
          DO J=1,MPUSER1
             READ(UNT,IOSTAT=IOCHK) PUSER1(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRPUSER1
             READ(UNT,IOSTAT=IOCHK) RPUSER1(I,J)                                ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read PUSERIN
 
       NAME_ShouldBe = 'PUSERIN'
@@ -666,9 +666,9 @@
          DO J=1,MPUSERIN
             READ(UNT,IOSTAT=IOCHK) PUSERIN(I,J)                                ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read USERIN_MAT_NAMES
 
       NAME_ShouldBe = 'USERIN_MAT_NAMES'
@@ -690,11 +690,11 @@
          DO J=1,MUSERIN_MAT_NAMES
             READ(UNT,IOSTAT=IOCHK) USERIN_MAT_NAMES(I,J)                       ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
 ! Read material data from L1G
- 
+
       NAME_ShouldBe = 'MATL, RMATL'
       REC_NO = 0
 
@@ -722,11 +722,11 @@
          DO J=1,MRMATLC
             READ(UNT,IOSTAT=IOCHK) RMATL(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
 ! Read material property angles
- 
+
       NAME_ShouldBe = 'MATERIAL PROPERTY ANGLES'
       REC_NO = 0
 
@@ -740,21 +740,21 @@
       DO I = 1,NMATANGLE
          READ(UNT,IOSTAT=IOCHK) MATANGLE(I)                                    ; REC_NO = REC_NO + 1
          CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-      ENDDO 
- 
+      ENDDO
+
       CALL FILE_CLOSE ( L1G, LINK1G, L1GSTAT )
- 
+
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Open L1K and read data
- 
+
       FILNAM = LINK1K
       UNT    = L1K
       MESSAG = L1K_MSG
 
       IF (NTCARD > 0) THEN
- 
+
          CALL FILE_OPEN ( UNT, FILNAM, OUNT, 'OLD', MESSAG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
- 
+
 ! Read TPNT
 
          NAME_ShouldBe = 'TPNT'
@@ -776,8 +776,8 @@
             DO J=1,NTSUB
                READ(UNT,IOSTAT=IOCHK) TPNT(I,J)                                ; REC_NO = REC_NO + 1
                CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
 
 ! Read TDATA
 
@@ -795,7 +795,7 @@
          DO I=1,NTDAT
             READ(UNT,IOSTAT=IOCHK) TDATA(I)                                    ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
 
 ! Read GTEMP
 
@@ -818,8 +818,8 @@
             DO J=1,NTSUB
                READ(UNT,IOSTAT=IOCHK) GTEMP(I,J)                               ; REC_NO = REC_NO + 1
                CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
 
          CALL FILE_CLOSE ( L1K, LINK1K, L1KSTAT )
 
@@ -827,15 +827,15 @@
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Open L1Q and read data
- 
+
       FILNAM = LINK1Q
       UNT    = L1Q
       MESSAG = L1Q_MSG
 
       IF (NTCARD > 0) THEN
- 
+
          CALL FILE_OPEN ( UNT, FILNAM, OUNT, 'OLD', MESSAG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
- 
+
 ! Read PPNT
 
          NAME_ShouldBe = 'PPNT'
@@ -857,8 +857,8 @@
             DO J=1,NSUB
                READ(UNT,IOSTAT=IOCHK) PPNT(I,J)                                ; REC_NO = REC_NO + 1
                CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
 
 ! Read PDATA
 
@@ -876,7 +876,7 @@
          DO I=1,NPDAT
             READ(UNT,IOSTAT=IOCHK) PDATA(I)                                    ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
 
 ! Read PTYPE
 
@@ -894,7 +894,7 @@
          DO I=1,NELE
             READ(UNT,IOSTAT=IOCHK) PTYPE(I)                                    ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
 
       ENDIF
 
@@ -914,7 +914,7 @@
          DO I=1,NPLOAD4_3D
             READ(UNT,IOSTAT=IOCHK) (PLOAD4_3D_DATA(I,J),J=1,MPLOAD4_3D_DATA)   ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Open L1Y and read data
@@ -942,17 +942,17 @@
          DO J=1,MCONM2
             READ(UNT,IOSTAT=IOCHK) CONM2(I,J)                                  ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
+         ENDDO
          DO J=1,MRCONM2
             READ(UNT,IOSTAT=IOCHK) RCONM2(I,J)                                 ; REC_NO = REC_NO + 1
             CALL READ_CHK ( IOCHK, FILNAM, NAME_ShouldBe, REC_NO, OUNT )
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
 
 
       RETURN
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE LINK1_RESTART_DATA

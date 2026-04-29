@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SOLVE_DLR
 
 ! Solves KLL*DLR = -KLR for matrix DLR. However, we will use rows of KRL instead of cols of KLR in the solution.
- 
+
 ! For a description of Craig-Bamptom analyses, see Appendix D to the MYSTRAN User's Referance Manual
 
 
@@ -39,8 +39,8 @@
       USE TIMDAT, ONLY                :  HOUR, MINUTE, SEC, SFRAC, TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE SPARSE_MATRICES, ONLY       :  I2_DLR, I_DLR, J_DLR, DLR, I_DLRt, I2_DLRt, J_DLRt, DLRt, I_KRL, J_KRL, KRL,              &
-                                         I_KLL, I2_KLL, J_KLL, KLL 
-                                         
+                                         I_KLL, I2_KLL, J_KLL, KLL
+
       USE LAPACK_LIN_EQN_DPB
 
       USE SOLVE_DLR_USE_IFs
@@ -49,22 +49,22 @@
 
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SOLVE_DLR'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
       CHARACTER(  8*BYTE)             :: CLOSE_STAT        ! What to do with file when it is closed
-      CHARACTER(  1*BYTE)             :: EQUED             ! 'Y' if KLL stiff matrix was equilibrated in subr EQUILIBRATE    
-      CHARACTER( 24*BYTE)             :: MESSAG            ! File description. Input to subr UNFORMATTED_OPEN 
+      CHARACTER(  1*BYTE)             :: EQUED             ! 'Y' if KLL stiff matrix was equilibrated in subr EQUILIBRATE
+      CHARACTER( 24*BYTE)             :: MESSAG            ! File description. Input to subr UNFORMATTED_OPEN
       CHARACTER( 22*BYTE)             :: MODNAM1           ! Name to write to screen to describe module being run
-      CHARACTER(  1*BYTE)             :: READ_NTERM        ! 'Y' or 'N' Input to subr READ_MATRIX_1 
-      CHARACTER(  1*BYTE)             :: NULL_COL          ! 'Y' if a col of KLR(transpose) is null 
-      CHARACTER(  1*BYTE)             :: OPND              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not 
+      CHARACTER(  1*BYTE)             :: READ_NTERM        ! 'Y' or 'N' Input to subr READ_MATRIX_1
+      CHARACTER(  1*BYTE)             :: NULL_COL          ! 'Y' if a col of KLR(transpose) is null
+      CHARACTER(  1*BYTE)             :: OPND              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not
       CHARACTER(FILE_NAM_MAXLEN*BYTE) :: SCRFIL            ! File name
- 
+
       INTEGER(LONG)                   :: DEB_PRT(2)        ! Debug numbers to say whether to write ABAND and/or its decomp to output
 !                                                            file in called subr SYM_MAT_DECOMP_LAPACK
       INTEGER(LONG)                   :: I,J               ! DO loop indices or counters
       INTEGER(LONG)                   :: INFO        = 0   ! Info on success of factorization or solve
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening a file
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN   
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
 
 
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
@@ -76,7 +76,7 @@
       REAL(DOUBLE)                    :: INOUT_COL(NDOFL)  ! Temp variable for subr FBS
       REAL(DOUBLE)                    :: K_INORM           ! Inf norm of KLL matrix (det in  subr COND_NUM)
       REAL(DOUBLE)                    :: RCOND             ! Recrip of cond no. of the KLL. Det in  subr COND_NUM
- 
+
       INTRINSIC                       :: DABS
 
 
@@ -126,7 +126,7 @@
          CALL OUTA_HERE ( 'Y' )
 
       ENDIF
-   
+
       DO I=1,NDOFL                                         ! Make sure that scale factors are one. We don't want any equil scaling
          EQUIL_SCALE_FACS(I) = ONE                         ! of KLL in this subr. FBS below has EQUIL_SCALE_FACS as an input but
       ENDDO                                                ! they shouldn't be used as EQUED = 'N' is also input there (1st arg)
@@ -149,9 +149,9 @@
          CALL FILE_CLOSE ( SCR(1), SCRFIL, 'DELETE' )
          CALL OUTA_HERE ( 'Y' )                            ! Can't open scratch file, so quit
       ENDIF
- 
+
 ! Loop on columns of KLR using rows of KRL
- 
+
 !xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
       NTERM_DLR = 0
@@ -165,7 +165,7 @@
          DO I=1,NDOFL
             INOUT_COL(I) = ZERO
             DLR_COL(I)   = ZERO
-         ENDDO 
+         ENDDO
          CALL GET_SPARSE_CRS_ROW ( 'KRL', J,  NTERM_KRL, NDOFR, NDOFL, I_KRL, J_KRL, KRL, -ONE, INOUT_COL, NULL_COL )
 
 ! Calculate DLR_COL via forward/backward substitution.
@@ -210,11 +210,11 @@
                   NTERM_DLR = NTERM_DLR + 1
                   WRITE(SCR(1)) I, J, DLR_COL(I)
                ENDIF
-            ENDDO 
+            ENDDO
          ENDIF
          CALL COUNTER_PROGRESS(J)
       ENDDO
-  
+
 ! The DLR data in SCRATCH-991 is written one col at a time for DLR. Therefore it is rows of DLRt
 
       REWIND (SCR(1))
@@ -265,7 +265,7 @@
  9991 FORMAT(' *ERROR  9991: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,A, ' = ',A,' NOT PROGRAMMED ',A)
 
-12345 FORMAT(3X,A,I8,' of ',I8,A) 
+12345 FORMAT(3X,A,I8,' of ',I8,A)
 
 
 
@@ -273,5 +273,5 @@
 
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE SOLVE_DLR        
+
+      END SUBROUTINE SOLVE_DLR

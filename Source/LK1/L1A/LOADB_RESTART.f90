@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE LOADB_RESTART
 
       ! LOADB_RESTART reads in some entries in the Bulk Data deck
@@ -34,11 +34,11 @@
       USE TIMDAT, ONLY                :  TSEC
       USE PARAMS, ONLY                :  SUPWARN
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE LOADB_RESTART_USE_IFs
 
       IMPLICIT NONE
- 
+
       INTEGER(LONG), PARAMETER        :: NUM_PARMS = 25      ! Number of PARAM entries allowed in RESTART
       INTEGER(LONG), PARAMETER        :: NUM_DEB   = 28      ! Number of DEBUG entries allowed in RESTART
 
@@ -54,16 +54,16 @@
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)           ! The 10 fields of 8 characters making up CARD
       CHARACTER( 1*BYTE)              :: LARGE_FLD_INP       ! If 'Y', card is in large field format
       CHARACTER( 8*BYTE)              :: PARM_NAME(NUM_PARMS)! Names of PARAM entries allowed in RESTART
- 
+
       INTEGER(LONG)                   :: COMMENT_COL         ! Col on CARD where a comment begins (if one exists)
       INTEGER(LONG)                   :: DEB_NUM(NUM_DEB)    ! Allowable DEBUG indices in restart
       INTEGER(LONG)                   :: I                   ! DO loop index
       INTEGER(LONG)                   :: INDEX               ! Index
       INTEGER(LONG)                   :: INT_VAL             ! Integer value read fron a card field
       INTEGER(LONG)                   :: IERR                ! Error indicator from subr FFIELD
-      INTEGER(LONG)                   :: IOCHK               ! IOSTAT error number when reading Bulk Data cards from unit IN1 
+      INTEGER(LONG)                   :: IOCHK               ! IOSTAT error number when reading Bulk Data cards from unit IN1
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -71,16 +71,16 @@
          PARM_NAME(I) = '        '
       ENDDO
 
-      PARM_NAME( 1) = 'AUTOSPC '        
-      PARM_NAME( 2) = 'ELFORCEN'        
-      PARM_NAME( 3) = 'EQCHECK '        
-      PARM_NAME( 4) = 'GRDPNT  '        
-      PARM_NAME( 5) = 'POST    '        
-      PARM_NAME( 6) = 'PRTBASIC'        
-      PARM_NAME( 7) = 'PRTCORD '        
-      PARM_NAME( 8) = 'PRTDISP'        
-      PARM_NAME( 9) = 'PRTDOF  '        
-      PARM_NAME(10) = 'PRTFOR  '        
+      PARM_NAME( 1) = 'AUTOSPC '
+      PARM_NAME( 2) = 'ELFORCEN'
+      PARM_NAME( 3) = 'EQCHECK '
+      PARM_NAME( 4) = 'GRDPNT  '
+      PARM_NAME( 5) = 'POST    '
+      PARM_NAME( 6) = 'PRTBASIC'
+      PARM_NAME( 7) = 'PRTCORD '
+      PARM_NAME( 8) = 'PRTDISP'
+      PARM_NAME( 9) = 'PRTDOF  '
+      PARM_NAME(10) = 'PRTFOR  '
       PARM_NAME(11) = 'PRTGMN  '
       PARM_NAME(12) = 'PRTGOA  '
       PARM_NAME(13) = 'PRTjMN  '
@@ -94,8 +94,8 @@
       PARM_NAME(21) = 'PRTUO0  '
       PARM_NAME(22) = 'PRTYS   '
       PARM_NAME(23) = 'RELINK3 '
-      PARM_NAME(24) = 'SORT_MAX'        
-      PARM_NAME(25) = 'TINY    '        
+      PARM_NAME(24) = 'SORT_MAX'
+      PARM_NAME(25) = 'TINY    '
 
       DEB_NUM( 1) =   1
       DEB_NUM( 2) =   2
@@ -150,7 +150,7 @@
             FATAL_ERR = FATAL_ERR + 1
             CYCLE
          ENDIF
- 
+
          ! Remove any comments within the CARD1 by deleting everything
          ! from $ on (after col 1)
          COMMENT_COL = 1
@@ -192,7 +192,7 @@
                   FATAL_ERR = FATAL_ERR + 1
                   CALL OUTA_HERE ( 'Y' )
                ENDIF
- 
+
                IF (IOCHK > 0) THEN
                   WRITE(ERR,1010) DECK_NAME
                   WRITE(F06,1010) DECK_NAME
@@ -200,11 +200,11 @@
                   FATAL_ERR = FATAL_ERR + 1
                   CYCLE
                ENDIF
- 
+
                IF (ECHO /= 'NONE  ') THEN
                   WRITE(F06,101) CARD2
                ENDIF
- 
+
                COMMENT_COL = 1
                DO I=2,BD_ENTRY_LEN
                   IF (CARD2(I:I) == '$') THEN
@@ -230,7 +230,7 @@
                ENDIF
                WRITE(F06,1003)
                CYCLE
-            ENDIF 
+            ENDIF
 
          ENDIF
 
@@ -269,10 +269,10 @@
                ENDIF
             ENDDO
 
-         ELSE IF (CARD(1:8) == 'ENDDATA ')  THEN 
+         ELSE IF (CARD(1:8) == 'ENDDATA ')  THEN
             WRITE(F06,101) CARD
             EXIT
- 
+
          ELSE IF ((CARD(1:1) == '$') .OR. (CARD(1:BD_ENTRY_LEN) == ' ')) THEN
             CYCLE
 
@@ -286,7 +286,7 @@
             ENDIF
 
          ENDIF
- 
+
       ENDDO
 
 
@@ -317,5 +317,5 @@
  9993 FORMAT(' *WARNING    : PRIOR ENTRY NOT PROCESSED BY ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE LOADB_RESTART

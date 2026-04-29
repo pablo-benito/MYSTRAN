@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE TREL1 ( OPT, WRITE_WARN )
-  
+
 ! Calculates, or calls subr's to calculate, triangular element matrices:
 
 !  1) ME        = element mass matrix                  , if OPT(1) = 'Y'
@@ -44,11 +44,11 @@
       USE MODEL_STUF, ONLY            :  EID, ELDOF, EMG_IWE, EMG_RWE, INTL_MID, KE, MASS_PER_UNIT_AREA, ME,                       &
                                          NUM_EMG_FATAL_ERRS, PCOMP_LAM, PCOMP_PROPS, SHELL_B, TYPE, XEB, XEL
       USE MODEL_STUF, ONLY            :  BENSUM, SHRSUM, PHI_SQ, PSI_HAT, XTB, XTL
- 
+
       USE TREL1_USE_IFs
 
-      IMPLICIT NONE 
-  
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'TREL1'
       CHARACTER(1*BYTE), INTENT(IN)   :: OPT(6)            ! 'Y'/'N' flags for whether to calc certain elem matrices
       CHARACTER(LEN=*), INTENT(IN)    :: WRITE_WARN        ! If 'Y" write warning messages, otherwise do not
@@ -82,7 +82,7 @@
       REAL(DOUBLE)                    :: X2E               ! x coord of elem node 2
       REAL(DOUBLE)                    :: X3E               ! x coord of elem node 3
       REAL(DOUBLE)                    :: Y3E               ! y coord of elem node 3
-  
+
 ! The following 3 args are needed when subr TPLT2 is called when that triangular shell element is used in a MIN4T QUAD4 which is
 ! made up of 4 non-overlapping TPLT2 elements. Since TPLT2 can also be a stand-alone element, we need these args when that occurs.
 ! The only time TPLT2 is called from this subr is when it is a stand-alone element.
@@ -105,12 +105,12 @@
       PHI_SQ  = ZERO
 
 ! Calculate element geometry parameters from data block XEL
- 
+
       X2E  = XEL(2,1)
       X3E  = XEL(3,1)
       Y3E  = XEL(3,2)
       AREA = X2E*Y3E/TWO
- 
+
 ! XTB, XTL may be needed when TPLT2 calls BBMIN3, BSMIN3. Since TPLT2 is also called from QPLT3, which is made up of 4 TPLT2's,
 ! we cannot use XEB and XEL since, in that case, they are the values for the MIN4T QUAD4 element geometry, not for the 4 triangles
 ! making up that quad eleent
@@ -123,7 +123,7 @@
       ENDDO
 
 ! Calculate and check element aspect ratio, AR. Print warning if AR > 2.0 for TMEM1
- 
+
       AR = X2E/Y3E
       IF(AR < ONE) THEN
          AR = ONE/AR
@@ -143,11 +143,11 @@
             ENDIF
          ENDIF
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Generate the mass matrix for this element. For the pure bending element the mass is based only on the non-structural mass.
 ! The mass matrix was initialized in subr EMG
- 
+
       IF (OPT(1) == 'Y') THEN
          M0 = MASS_PER_UNIT_AREA*AREA/THREE
          ME( 1 ,1) = M0
@@ -167,26 +167,26 @@
 
       IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(5) == 'Y') .OR. (OPT(6) == 'Y')) THEN
 
-         IF (TYPE(1:5) == 'TRIA3') THEN 
+         IF (TYPE(1:5) == 'TRIA3') THEN
             IF (INTL_MID(1) /= 0) THEN
                CALL TMEM1 ( OPT, AREA, X2E, X3E, Y3E, 'Y', BIG_BM )
             ENDIF
          ENDIF
- 
+
          IF (TYPE == 'TRIA3K  ') THEN
             IF (INTL_MID(2) /= 0) THEN
                CALL TPLT1 ( OPT, AREA, X2E, X3E, Y3E )
             ENDIF
          ENDIF
-  
+
          IF (TYPE == 'TRIA3   ') THEN
             IF (INTL_MID(2) /= 0) THEN
                CALL TPLT2 (OPT, AREA, X2E, X3E, Y3E, 'Y', IERROR, KV, PTV, PPV, B2V, B3V, S2V, S3V, BIG_BB, MN4T_QD, TRIA_NUM, PSI)
             ENDIF
          ENDIF
- 
-      ENDIF        
- 
+
+      ENDIF
+
 ! **********************************************************************************************************************************
 ! Calc BM'*SHELL_B*BB (and its transpose) and add to KE. Only do this if this is a composite element with nonsym layup
 
@@ -222,8 +222,8 @@
                DO K=1,ELDOF
                   DO L=1,ELDOF
                      KE(K,L) = KE(K,L) + (DUM2(K,L) + DUM2(L,K))
-                  ENDDO   
-               ENDDO 
+                  ENDDO
+               ENDDO
 
             ENDIF
 
@@ -237,7 +237,7 @@
 
 ! **********************************************************************************************************************************
  1924 FORMAT(' *WARNING    : ASPECT RATIO OF ',A,' ELEMENT ',I8,' IS:',F7.1,'. IT SHOULD BE < ',F3.0)
-  
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE TREL1

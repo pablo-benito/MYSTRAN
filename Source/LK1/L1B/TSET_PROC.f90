@@ -1,38 +1,38 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE TSET_PROC
- 
+
 ! Generate TSET table. The displ set definitions are:
 
 !   G---------->N + M (M = DOF's identified as dependent on MPC's or rigid elements)
-!               |           
-!               |           
-!               |           
-!               |           
+!               |
+!               |
+!               |
+!               |
 !               |---------->F + S (S is SZ (SPC'd to 0 displ) or SE (enforced displ))
 !                           |           SZ can be either: SB (defined on SPC/SPC1 cards) or
 !                           |                             SG (defined on GRID cards) or
@@ -40,8 +40,8 @@
 !                           |
 !                           |---------->A + O (O = DOF's omitted via Guyan reduction)
 !                                       |
-!                                       |           
-!                                       |           
+!                                       |
+!                                       |
 !                                       |---------->L + R (R = DOF on SUPORT B.D. entries))
 
 ! Every DOF is in either: M (MPC'd via MPC eqns or rigid elements), or
@@ -53,17 +53,17 @@
 ! TSET is a table that defines which displ set each grid/component pair belongs to. It has: R, A, O, (SG, SB, SE) or M for each DOF.
 ! The table has NGRID rows and 6 columns (1 col for each of the 6 components of displ at a grid). An example of a TSET table written
 ! to the F06 file is shown below:
- 
+
 !                                      DEGREE OF FREEDOM SET TABLE (TSET)
 
 !             GRID   GRID_SEQ   INV_GRID_SEQ*      T1       T2       T3       R1       R2       R3
 
 !             101           4              7       L        L        L        SG       SG       SG
-!             102           5              5       M        M        M        L        L        L 
-!             103           3              3       L        L        L        L        L        L 
-!             104           6              1       L        L        L        L        L        L 
-!             105           2              2       L        L        L        L        L        L 
-!             106           7              4       L        L        L        O        O        O 
+!             102           5              5       M        M        M        L        L        L
+!             103           3              3       L        L        L        L        L        L
+!             104           6              1       L        L        L        L        L        L
+!             105           2              2       L        L        L        L        L        L
+!             106           7              4       L        L        L        O        O        O
 !             107           1              6       SE       SG       SG       SG       SG       SG
 
 !              * INV_GRID_SEQ = J meams that the J-th entry under GRID is sequenced GRID_SEQ(J)
@@ -77,23 +77,23 @@
       USE TIMDAT, ONLY                :  TSEC
       USE DOF_TABLES, ONLY            :  TSET
       USE MODEL_STUF, ONLY            :  GRID
- 
+
       USE TSET_PROC_USE_IFs
 
       IMPLICIT NONE
 
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'TSET_PROC'
- 
+
       INTEGER(LONG)                   :: I,K               ! DO loop indices
       INTEGER(LONG)                   :: IERRT     = 0     ! Sum of all grid and DOF errors
       INTEGER(LONG)                   :: NUM_COMPS         ! Number of displ components (1 for SPOINT, 6 for physical grid)
 
- 
+
 
 
 ! **********************************************************************************************************************************
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
 ! TSET for cols 2-6 are not defined for SPOINT's, so set = '--'
@@ -127,7 +127,7 @@
       WRITE(SC1,12345,ADVANCE='NO') '       Process SPCs           ', CR13
       CALL TSET_PROC_FOR_SPCS ( IERRT )                    ! Process SPC data from file L1O
       NDOFSZ = NDOFSA + NDOFSB + NDOFSG
-      NDOFS  = NDOFSZ + NDOFSE 
+      NDOFS  = NDOFSZ + NDOFSE
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
 ! Process O-set (OMIT's/ASET's)
@@ -138,7 +138,7 @@
             CALL GET_GRID_NUM_COMPS ( I, NUM_COMPS, SUBR_NAME )
             DO K = 1,NUM_COMPS
                IF (TSET(I,K) == '  ') THEN
-                  TSET(I,K) = 'A '   
+                  TSET(I,K) = 'A '
                ENDIF
             ENDDO
          ENDDO
@@ -158,8 +158,8 @@
                FATAL_ERR = FATAL_ERR + 1
                CALL OUTA_HERE ( 'Y' )
             ENDIF
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
 ! Process R-set (SUPORT's)
@@ -178,7 +178,7 @@
          DO K = 1,6
             IF (TSET(I,K) == 'A ') THEN
                TSET(I,K) = 'L '
-               NDOFL = NDOFL + 1   
+               NDOFL = NDOFL + 1
             ENDIF
          ENDDO
       ENDDO
@@ -189,9 +189,9 @@
       IF (PRTTSET == 1) THEN
          CALL WRITE_TSET
       ENDIF
- 
+
 ! ----------------------------------------------------------------------------------------------------------------------------------
-      WRITE(SC1,*) CR13 
+      WRITE(SC1,*) CR13
 
 ! Quit if there were errors
 
@@ -199,7 +199,7 @@
          WRITE(ERR,9996) SUBR_NAME,IERRT
          WRITE(F06,9996) SUBR_NAME,IERRT
          CALL OUTA_HERE ( 'Y' )
-      ENDIF         
+      ENDIF
 
 
 

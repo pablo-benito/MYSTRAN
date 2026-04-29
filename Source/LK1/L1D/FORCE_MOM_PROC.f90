@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE FORCE_MOM_PROC
- 
+
 ! Force/moment processor
- 
+
 ! Transforms the input B.D. force and moment data to system force data in the SYS_LOAD array for dof's in the G set.
 ! File LINK1I was written when FORCE or MOMENT B.D entries were read, with one record for each such card.
 ! There are NFORCE total no. records written to file LINK1I with each record containing:
@@ -41,7 +41,7 @@
 ! The process in creating array SYS_LOAD from this information is as follows:
 
 !  (1) For each record (1 to NFORCE) in file LINK1I:
- 
+
 !      (a) Read a record: (SETID, AGRID, ACID_L, FORMON(1-3) and NAME)
 
 !      (b) Transform coords from local to basic
@@ -63,7 +63,7 @@
 !          ( ii) If the load set requested in Case Control is not a set ID from a LOAD Bulk data card then the
 !                load must be on a separate FORCE/MOMENT in which case LSID(1) and RSID(1) are all that is needed
 !                to define the load set contribution due to the FORCE/MOMENT cards for this subcase.
- 
+
 !          (iii) If the load set requested in Case Control is a set ID from a LOAD Bulk data card then the ramainder
 !                (K = 2,LLOADC) of entries into LSID and RSID will be the pairs of load set ID's/scale factors from
 !                that LOAD Bulk Data card (with RSID also multiplied by the overall scale factor on the LOAD Bulk data
@@ -72,18 +72,18 @@
 !                Note, there may not be as many as LLOADC pairs of set ID's/scale factors on a given LOAD Bulk Data
 !                card since LLOADC is the max, from all LOAD Bulk Data cards, of pairs.
 !                Thus, the entries in LSID from the last entry (for a given LOAD card) to LLOADC will be zero (LSID
-!                was initialized to zero). This fact is used in a DO loop to EXIT when LSID(K) = 0 
+!                was initialized to zero). This fact is used in a DO loop to EXIT when LSID(K) = 0
 
 !      (b) For each record in SCRATCH-991 (1 to NFORCE)
 
 !          (  i) Read a record from file: (SETID, AGRID, ACID_G, FORMON(i) (in coord sys ACID_ G), NAME)
- 
+
 !          ( ii) Scan LSID and RSID to get the scale factor for the FORMON components in SETID, if this
-!                FORCE/MOMENT's set ID is in LSID                
+!                FORCE/MOMENT's set ID is in LSID
 
 !          (iii) Load these force/moment values into the system load array, SYS_LOAD
- 
- 
+
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  FILE_NAM_MAXLEN, WRT_ERR, ERR, F06, SCR, L1I, LINK1I, L1I_MSG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, LLOADC, NCORD, NFORCE, NGRID, NLOAD, NSUB, WARN_ERR
@@ -92,26 +92,26 @@
       USE PARAMS, ONLY                :  EPSIL, SUPWARN
       USE DOF_TABLES, ONLY            :  TDOF, TDOF_ROW_START
       USE MODEL_STUF, ONLY            :  LOAD_SIDS, LOAD_FACS, SYS_LOAD, SUBLOD, GRID, GRID_ID, CORD
- 
+
       USE FORCE_MOM_PROC_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'FORCE_MOM_PROC'
       CHARACTER( 1*BYTE)              :: FOUND             ! Indicator on whether we found something we were looking for
       CHARACTER( 1*BYTE)              :: CORD_FND          ! = 'Y' if coord sys ID on FORCE/MOMENT defined, 'N' otherwise
       CHARACTER( 1*BYTE)              :: GRID_FND          ! = 'Y' if grid ID on FORCE/MOMENT defined, 'N' otherwise
-      CHARACTER(24*BYTE)              :: MESSAG            ! File description.  
+      CHARACTER(24*BYTE)              :: MESSAG            ! File description.
       CHARACTER( 8*BYTE)              :: NAME              ! Name to indicate whether we are processing a FORCE or a MOMENT
       CHARACTER(FILE_NAM_MAXLEN*BYTE) :: SCRFIL            ! File name
- 
+
       INTEGER(LONG)                   :: ACID_L            ! Actual local  coord sys ID on FORCE or MOMENT card
       INTEGER(LONG)                   :: ACID_G            ! Actual global coord sys ID for AGRID
-      INTEGER(LONG)                   :: AGRID             ! Actual grid number from FORCE or MOMENT card  
+      INTEGER(LONG)                   :: AGRID             ! Actual grid number from FORCE or MOMENT card
       INTEGER(LONG)                   :: COMP1, COMP2      ! DOF components (1-6)
       INTEGER(LONG)                   :: GDOF              ! G-set DOF no. for actual grid AGRID
       INTEGER(LONG)                   :: GRID_ID_ROW_NUM   ! Row number in array GRID_ID where AGRID is found
-      INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept 
+      INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: ICID              ! Internal coordinate system ID for ACID_L or ACID_G
       INTEGER(LONG)                   :: IERROR    = 0     ! Local error count
@@ -119,12 +119,12 @@
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening a file
       INTEGER(LONG)                   :: K1                ! Counter
       INTEGER(LONG)                   :: SETID             ! Load set ID read from record in file LINK1I
-      INTEGER(LONG)                   :: LSID(LLOADC+1)     ! Array of load SID's, from a LOAD Bulk Data card, for one S/C 
-      INTEGER(LONG)                   :: NSID              ! Count on no. of pairs of entries on a LOAD B.D. card (<= LLOADC) 
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.   
+      INTEGER(LONG)                   :: LSID(LLOADC+1)     ! Array of load SID's, from a LOAD Bulk Data card, for one S/C
+      INTEGER(LONG)                   :: NSID              ! Count on no. of pairs of entries on a LOAD B.D. card (<= LLOADC)
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.
       INTEGER(LONG)                   :: READ_ERR  = 0     ! Count of errors reading records from FORCE/MOMENT file
       INTEGER(LONG)                   :: REC_NO            ! Record number when reading a file
-      INTEGER(LONG)                   :: ROW_NUM           ! Row no. in array TDOF corresponding to GDOF 
+      INTEGER(LONG)                   :: ROW_NUM           ! Row no. in array TDOF corresponding to GDOF
       INTEGER(LONG)                   :: ROW_NUM_START     ! Row no. in array TDOF where data begins for AGRID
 
 
@@ -147,13 +147,13 @@
       NAME = '        '                                    ! will be read as FORCE or MOMENT from file L1I
 
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! Open a scratch file that will be used to rewrite data from L1I after the coords have been transformed to
 ! global. This file is only needed in this subr and is closed and deleted herein.
-  
+
       SCRFIL(1:)  = ' '
       SCRFIL(1:9) = 'SCRATCH-991'
       OPEN (SCR(1),STATUS='SCRATCH',POSITION='REWIND',FORM='UNFORMATTED',ACTION='READWRITE',IOSTAT=IOCHK)
@@ -163,7 +163,7 @@
          CALL OUTA_HERE ( 'Y' )                                    ! Error opening scratch file, so quit
       ENDIF
       REWIND (SCR(1))
- 
+
 ! **********************************************************************************************************************************
 ! Successively read records from LINK1I and transform coords:
 
@@ -183,23 +183,23 @@ i_do1:DO I=1,NFORCE
             READ_ERR = READ_ERR + 1
             CYCLE i_do1
          ENDIF
- 
+
          DO J=1,3
             F1(J) = FORMON(J)
-         ENDDO 
+         ENDDO
 
 ! From actual grid pt number (AGRID) on the FORCE/MOMENT card, get row number in array GRID_ID where AGRID exists
 
          GRID_FND = 'Y'
          CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, AGRID, GRID_ID_ROW_NUM )
          IF (GRID_ID_ROW_NUM == -1) THEN
-            GRID_FND = 'N'                                 ! Grid ID on FORCE/MOMENT undefined 
+            GRID_FND = 'N'                                 ! Grid ID on FORCE/MOMENT undefined
             IERROR = IERROR + 1
             FATAL_ERR = FATAL_ERR + 1
             WRITE(ERR,1822) 'GRID ', AGRID, NAME, SETID
             WRITE(F06,1822) 'GRID ', AGRID, NAME, SETID
          ENDIF
- 
+
          CORD_FND = 'N'
          ICID      = -1
          IF (ACID_L /= 0) THEN                             ! Get local coord sys for this FORCE/MOMENT card
@@ -229,7 +229,7 @@ j_do12:     DO J=1,NCORD
          ELSE                                              ! Local coord system is basic, so equate F2, F1
             DO J=1,3
                F2(J) = F1(J)
-            ENDDO 
+            ENDDO
          ENDIF
 
                                                            ! (1-c) Transform from basic to global. Note that F2 are forces in basic
@@ -250,34 +250,34 @@ j_do14:        DO J=1,NCORD
                CALL MATMULT_FFF_T (T12, F2, 3, 3, 1, F1)   ! Transform coords from basic to global for F2
                DO J=1,3
                   F2(J) = F1(J)                            ! F2 has the force/moment values in global coords
-               ENDDO 
+               ENDDO
             ENDIF
- 
+
             DO J=1,3                                       ! Reset FORMON to F2, which now has forces in global coords
                FORMON(J) = F2(J)
-            ENDDO 
-                                                           ! (1-d) Write results to scratch file. FORMON comps arein global coords 
-            WRITE(SCR(1)) SETID,AGRID,ACID_G,(FORMON(J),J=1,3),NAME 
+            ENDDO
+                                                           ! (1-d) Write results to scratch file. FORMON comps arein global coords
+            WRITE(SCR(1)) SETID,AGRID,ACID_G,(FORMON(J),J=1,3),NAME
 
          ENDIF
- 
+
       ENDDO i_do1
- 
+
       IF (READ_ERR > 0) THEN
          WRITE(ERR,9998) READ_ERR,LINK1I
-         WRITE(ERR,9998) READ_ERR,LINK1I 
+         WRITE(ERR,9998) READ_ERR,LINK1I
          CALL OUTA_HERE ( 'Y' )                            ! Quit due to errors reading FORCE/MOMENT file
       ENDIF
- 
+
       IF (IERROR > 0) THEN
          WRITE(ERR,9996) SUBR_NAME,IERROR
          WRITE(ERR,9996) SUBR_NAME,IERROR
          CALL OUTA_HERE ( 'Y' )                            ! Quit due to undefined grid and coord sys ID's
       ENDIF
- 
+
 ! **********************************************************************************************************************************
 ! Now process forces in global coords into SYS_LOAD for each subcase.
- 
+
       DO I=1,LLOADC                                         ! Initialize LSID, RSID arrays
          LSID(I) = 0
          RSID(I) = ZERO
@@ -285,9 +285,9 @@ j_do14:        DO J=1,NCORD
 
       REWIND (SCR(1))
       MESSAG = 'SCRATCH: FORCE_MOM_PROC '
- 
+
 i_do2:DO I=1,NSUB                                          ! Loop through the S/C's
- 
+
          IF (SUBLOD(I,1) == 0) THEN                        ! If no load for this S/C, CYCLE
             CYCLE i_do2
          ENDIF
@@ -299,15 +299,15 @@ i_do2:DO I=1,NSUB                                          ! Loop through the S/
             IF (SUBLOD(I,1) == LOAD_SIDS(J,1)) THEN
 k_do21:        DO K = 2,LLOADC
                   IF (LOAD_SIDS(J,K) == 0) THEN
-                     EXIT k_do21  
+                     EXIT k_do21
                   ELSE
                      NSID = K                              ! Note: NSID will not get larger than LLOADC
                      RSID(K) = LOAD_FACS(J,1)*LOAD_FACS(J,K)
                      LSID(K) = LOAD_SIDS(J,K)
                    ENDIF
-                ENDDO k_do21   
+                ENDDO k_do21
             ENDIF
-         ENDDO         
+         ENDDO
 
 j_do22:  DO J=1,NFORCE                                     ! Process FORCE / MOMENT card info
                                                            ! (2-b-  i) Read a record from scratch - forces are in global coords
@@ -318,21 +318,21 @@ j_do22:  DO J=1,NFORCE                                     ! Process FORCE / MOM
                CALL FILE_CLOSE ( SCR(1), SCRFIL, 'DELETE' )
                CALL OUTA_HERE ( 'Y' )                              ! Error reading scratch file, so quit
             ENDIF
- 
+
             FOUND = 'N'                                    ! (2-b- ii). Scan through LSID to find set that matches SETID read.
 k_do221:    DO K = 1,NSID                                  ! There is a match; we made sure all requested loads were in B.D. deck
                IF (SETID == LSID(K)) THEN                  ! We start with K = 1 to cover the case of no LOAD B.D cards
                   SCALE = RSID(K)
                   FOUND = 'Y'
-                  EXIT k_do221 
+                  EXIT k_do221
                ENDIF
-            ENDDO k_do221  
+            ENDDO k_do221
 
-            IF (FOUND == 'N') THEN                         ! Cycle back on J loop and read another force/moment card   
-               CYCLE j_do22  
+            IF (FOUND == 'N') THEN                         ! Cycle back on J loop and read another force/moment card
+               CYCLE j_do22
             ENDIF
 
-            IF      (NAME == 'FORCE   ') THEN              ! Set component range (for loop below) based on card type 
+            IF      (NAME == 'FORCE   ') THEN              ! Set component range (for loop below) based on card type
                COMP1 = 1
                COMP2 = 3
             ELSE IF (NAME == 'MOMENT  ') THEN
@@ -347,7 +347,7 @@ k_do221:    DO K = 1,NSID                                  ! There is a match; w
             ENDIF
                                                            ! Get GRID_ID_ROW_NUM, we checked it's existence earlier
             CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, AGRID, GRID_ID_ROW_NUM )
- 
+
             IF ((DABS(FORMON(1)) < EPS1) .AND. (DABS(FORMON(2)) < EPS1) .AND. (DABS(FORMON(3)) < EPS1)) THEN
                WARN_ERR = WARN_ERR + 1
                WRITE(ERR,1513) NAME,SETID
@@ -355,7 +355,7 @@ k_do221:    DO K = 1,NSID                                  ! There is a match; w
                   WRITE(F06,1513) NAME,SETID
                ENDIF
             ENDIF
- 
+
 !xx         CALL CALC_TDOF_ROW_NUM ( AGRID, ROW_NUM_START, 'N' )
             CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, AGRID, IGRID )
             ROW_NUM_START = TDOF_ROW_START(IGRID)
@@ -371,7 +371,7 @@ k_do222:    DO K = COMP1,COMP2
                ELSE
                   FORCEI = SCALE*FORMON(K1)
                   IF (DABS(FORCEI) < EPS1) THEN
-                     CYCLE k_do222 
+                     CYCLE k_do222
                   ELSE
                      CALL TDOF_COL_NUM ( 'G ', G_SET_COL_NUM )
                      ROW_NUM = ROW_NUM_START + K -1
@@ -379,16 +379,16 @@ k_do222:    DO K = COMP1,COMP2
                      SYS_LOAD(GDOF,I) = SYS_LOAD(GDOF,I) + FORCEI
                   ENDIF
                ENDIF
-            ENDDO k_do222 
- 
+            ENDDO k_do222
+
          ENDDO j_do22
- 
+
          REWIND (SCR(1))                                   ! Need to read all of the FORCE/MOMENT records again for the next S/C
- 
+
       ENDDO i_do2
- 
+
       CALL FILE_CLOSE ( SCR(1), SCRFIL, 'DELETE' )
- 
+
 
 
       RETURN
@@ -411,9 +411,9 @@ k_do222:    DO K = COMP1,COMP2
                     ,/,14X,' VARIABLE "NAME" SHOULD BE "FORCE" OR "MOMENT" BUT IS: ',A8)
 
  9998 FORMAT(/,' PROCESSING TERMINATED DUE TO ABOVE ',I8,' ERRORS READING FILE:',/,A)
- 
+
  9996 FORMAT(/,' PROCESSING ABORTED IN SUBROUTINE ',A,' DUE TO ABOVE ',I8,' ERRORS')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE FORCE_MOM_PROC

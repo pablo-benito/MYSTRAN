@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE OU4_PARTVEC_PROC ( INDEX, OU4_MAT_NAME, NROWS_F, NCOLS_F, ROW_SET, COL_SET, CAN_PARTN, NROWS_P, NCOLS_P,          &
                                     VAL_ROWS, VAL_COLS )
- 
-! Calculates partitioning vectors OU4_PARTVEC_ROW and OU4_PARTVEC_COL used to partition OUTPUT4 matrices. 
+
+! Calculates partitioning vectors OU4_PARTVEC_ROW and OU4_PARTVEC_COL used to partition OUTPUT4 matrices.
 
 ! The Exec Control may have requests for OUTPUT4 matrices and there may be PARTN requests there to partition particular OUTPUT4
 ! matrices to output a subset of the rows and/or cols of that matrix.
@@ -35,7 +35,7 @@
 ! The PARTN requests in Exec Control have partitioning vector names with the specific grid/component partitioning data defined on
 ! Bulk Data PARVEC and/or PARVEC1 entries.
 
-! The partitioning vector data from the Bulk Data PARVEC,1 entries is written to file LINK1V. 
+! The partitioning vector data from the Bulk Data PARVEC,1 entries is written to file LINK1V.
 
 ! This subr puts the data from file LINK1V into a table (PSET) for each OUTPUT4 matrix to be partitioned. This PSET table has
 ! 6 cols (1 for each of the 6 components of motion: T1, T2, T3, R1, R2, R3) and as many rows as there are grids in the model.
@@ -57,7 +57,7 @@
 
       USE MODEL_STUF, ONLY            :  GRID, GRID_ID, INV_GRID_SEQ
       USE PARAMS, ONLY                :  PRTPSET, SUPINFO
- 
+
       USE OU4_PARTVEC_PROC_USE_IFs
 
       IMPLICIT NONE
@@ -90,7 +90,7 @@
 
       CHARACTER(LEN(ACT_OU4_MYSTRAN_NAMES))            :: PART_VEC_NAME(2)
                                                             ! The name of the col and row  partitioning vectors
- 
+
       CHARACTER(LEN(TSET_CHR_LEN)), PARAMETER          :: PSET_CHAR(2)  = (/'CP', 'RP'/)
                                                             ! Char to enter into PSET table for either col or row
 
@@ -132,22 +132,22 @@
       INTEGER(LONG)                   :: NDIM_F(2)          ! Array of NCOLS_F, NROWS_F
       INTEGER(LONG)                   :: NUM_PSET_ENTRIES   ! Number of entries made into the PSET table
       INTEGER(LONG)                   :: NUM_COMPS          ! Number of displ components (1 for SPOINT, 6 for physical grid)
-      INTEGER(LONG)                   :: OUNT(2)            ! File units to write messages to.   
+      INTEGER(LONG)                   :: OUNT(2)            ! File units to write messages to.
       INTEGER(LONG)                   :: PSET_ERR   = 0     ! Count of errors that result from setting displ sets in PSET
       INTEGER(LONG)                   :: REC_NO     = 0     ! Record number when reading a file
       INTEGER(LONG)                   :: TDOF_COL(2)        ! Col number in TDOF/TDOFI where CHAR_SET set data exists
       INTEGER(LONG), INTENT(OUT)      :: VAL_COLS           ! Number to enter into PARTVEC_COL for a col that is to be partitioned
       INTEGER(LONG), INTENT(OUT)      :: VAL_ROWS           ! Number to enter into PARTVEC_ROW for a row that is to be partitioned
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! ----------------------------------------------------------------------------------------------------------------------------------
 ! Initialize
 
@@ -251,7 +251,7 @@ i_do1:DO I=1,2                                             ! J=1 is for the col 
 
          CALL FILE_OPEN ( L1V, LINK1V, OUNT, 'OLD', L1V_MSG, 'READ_STIME', 'UNFORMATTED', 'READ', 'REWIND', 'Y', 'N' )
 j_do1:   DO J=1,NUM_PARTVEC_RECORDS
- 
+
             READ(L1V,IOSTAT=IOCHK) VNAME, ICOMP, GRID1, GRID2
             REC_NO = REC_NO + 1
             IF (IOCHK /= 0) THEN
@@ -280,7 +280,7 @@ j_do1:   DO J=1,NUM_PARTVEC_RECORDS
                      WRITE(ERR,1822) 'GRID ', GRID1, 'PARTVEC OR PARTVEC1', VNAME
                      WRITE(F06,1822) 'GRID ', GRID1, 'PARTVEC OR PARTVEC1', VNAME
                   ENDIF
-               ENDIF 
+               ENDIF
 
                IF (GID_ERR == 0) THEN                      ! Put CDOF data in PSET for GRID1 thru GRID2
                   DO GRID_NUM=GRID1,GRID2                  ! GRID2 >= GRID1 was checked in subr BD_SPC1
@@ -301,7 +301,7 @@ j_do1:   DO J=1,NUM_PARTVEC_RECORDS
                            ENDIF
                         ENDDO
                      ENDIF
-                  ENDDO 
+                  ENDDO
 
                ELSE
 
@@ -431,7 +431,7 @@ j_do1:   DO J=1,NUM_PARTVEC_RECORDS
                            ' HOWEVER THIS GRID/COMPONENT IS ALREADY IN THE "',A2,'" PSET')
 
  1335 FORMAT(' *ERROR  1335: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' FOR "INDEX" =',I3,' THE NAME OF THE OU4 MATRIX TO BE PARTITIONED SHOULD BE "',A,'" BUT IS "',A,'"') 
+                    ,/,14X,' FOR "INDEX" =',I3,' THE NAME OF THE OU4 MATRIX TO BE PARTITIONED SHOULD BE "',A,'" BUT IS "',A,'"')
 
  1336 FORMAT(' *ERROR  1336: ERROR ALLOCATING MEMORY TO PARTITION VECTOR "',A,'" IN SUBR ',A)
 
@@ -446,7 +446,7 @@ j_do1:   DO J=1,NUM_PARTVEC_RECORDS
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
 
 ! ##################################################################################################################################
@@ -536,9 +536,9 @@ j_do1:   DO J=1,NUM_PARTVEC_RECORDS
       END SUBROUTINE DEALLOCATE_PART_VECS
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE GET_OU4_PART_GRD_COMP
- 
+
 ! Calcs the grid and comp numbers that represent the rows and cols of the partitioned matrix. This will be used when the partitioned
 ! matrix is written in subrs WRITE_OU4_FULL_MAT, WRITE_OU4_SPARSE_MAT as info for the user.
 
@@ -546,9 +546,9 @@ j_do1:   DO J=1,NUM_PARTVEC_RECORDS
       USE DOF_TABLES, ONLY            :  TDOFI
 
       IMPLICIT NONE
- 
+
       INTEGER(LONG)                   :: II,KK,LL
- 
+
 
 ! **********************************************************************************************************************************
 
@@ -570,7 +570,7 @@ j_do1:   DO J=1,NUM_PARTVEC_RECORDS
             ENDIF
          ENDDO
                                                            ! Alloc and null array (but won't be used)
-         
+
 
       ELSE
 
@@ -609,16 +609,16 @@ j_do1:   DO J=1,NUM_PARTVEC_RECORDS
       END SUBROUTINE GET_OU4_PART_GRD_COMP
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE CHECK_PART_VECS ( IIERRT )
- 
-! Checks the partitioning vectors generated in calling subr for sensibility 
+
+! Checks the partitioning vectors generated in calling subr for sensibility
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
 
       IMPLICIT NONE
- 
-      INTEGER(LONG)                   :: II                ! DO loop index    
+
+      INTEGER(LONG)                   :: II                ! DO loop index
       INTEGER(LONG)                   :: IICNT             ! Counter
       INTEGER(LONG)                   :: IIERR             ! Local error count
       INTEGER(LONG)                   :: IIERRT            ! Total error count

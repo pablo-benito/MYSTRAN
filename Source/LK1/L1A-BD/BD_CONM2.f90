@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_CONM2 ( CARD, LARGE_FLD_INP )
- 
+
 ! Processes CONM2 Bulk Data Cards
 !  1) Reads CONM2 ID, grid ID and coord system ID and puts them into array CONM2
-!  2) Reads mass, offsets, and moments of inertia and puts them into array RCONM2 
- 
+!  2) Reads mass, offsets, and moments of inertia and puts them into array RCONM2
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ECHO, FATAL_ERR, IERRFL, JCARD_LEN, JF, LCONM2, NCONM2, WARN_ERR
@@ -37,7 +37,7 @@
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  SUPWARN
       USE MODEL_STUF, ONLY            :  CONM2, RCONM2
- 
+
       USE BD_CONM2_USE_IFs
 
       IMPLICIT NONE
@@ -48,20 +48,20 @@
       CHARACTER(LEN=LEN(CARD))        :: CARDP             ! Parent card
       CHARACTER(LEN(CARD))            :: CHILD             ! "Child" card read in subr NEXTC, called herein
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
-      CHARACTER(LEN(JCARD))           :: JCARD_ID          ! The COMN2 ID 
+      CHARACTER(LEN(JCARD))           :: JCARD_ID          ! The COMN2 ID
       CHARACTER(16*BYTE)              :: NAME              ! Name for output error purposes
- 
+
       INTEGER(LONG)                   :: CONM2_ID  = 0     ! The ID for this CONM2 (field 2)
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: ICONT     = 0     ! Indicator of whether a cont card exists. Output from subr NEXTC
       INTEGER(LONG)                   :: IERR      = 0     ! Error indicator returned from subr NEXTC called herein
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! CONM2 Bulk Data Card routine
- 
+
 !   FIELD   ITEM           ARRAY ELEMENT
 !   -----   ------------   -------------
 !    2      Element ID     CONM2(nconm2,1)
@@ -78,13 +78,13 @@
 !    5      I31 moi-31     RCONM2(nconm2,8)
 !    6      I32 moi-32     RCONM2(nconm2,9)
 !    7      I33 moi-33     RCONM2(nconm2,10)
- 
+
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
       CARDP = CARD
       JCARD_ID = JCARD(2)
- 
+
 ! Check for overflow
 
       NCONM2 = NCONM2+1
@@ -100,7 +100,7 @@
                WRITE(F06,1145) JCARD(1),CONM2_ID
                EXIT
             ENDIF
-         ENDDO 
+         ENDDO
          CONM2(NCONM2,1) = CONM2_ID
       ENDIF
 
@@ -116,7 +116,7 @@
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
 
 ! Optional Second Card:
- 
+
       IF (LARGE_FLD_INP == 'N') THEN
          CALL NEXTC  ( CARD, ICONT, IERR )
       ELSE
@@ -150,11 +150,11 @@
          ENDIF
 
       ENDIF
- 
+
 ! Check for negative mass/MOI's
- 
+
       IF((RCONM2(NCONM2, 1) < ZERO) .OR. (RCONM2(NCONM2, 1) < ZERO) .OR.                                                           &
-         (RCONM2(NCONM2, 1) < ZERO) .OR. (RCONM2(NCONM2, 1) < ZERO)) THEN 
+         (RCONM2(NCONM2, 1) < ZERO) .OR. (RCONM2(NCONM2, 1) < ZERO)) THEN
          WRITE(ERR,101) CARDP
          IF (ECHO == 'NONE  ') THEN
             IF (SUPWARN == 'N') THEN
@@ -167,38 +167,38 @@
       IF (RCONM2(NCONM2, 1) < ZERO) THEN
          WARN_ERR = WARN_ERR + 1
          NAME  = 'MASS            '
-         WRITE(ERR,1134) JCARD_ID,NAME,RCONM2(NCONM2, 1) 
+         WRITE(ERR,1134) JCARD_ID,NAME,RCONM2(NCONM2, 1)
          IF (SUPWARN == 'N') THEN
             WRITE(F06,1134) JCARD_ID,NAME,RCONM2(NCONM2, 1)
          ENDIF
-      ENDIF 
+      ENDIF
 
       IF (RCONM2(NCONM2, 5) < ZERO) THEN
          WARN_ERR = WARN_ERR + 1
          NAME = 'PRINCIPAL MOI-11'
-         WRITE(ERR,1134) JCARD_ID,NAME,RCONM2(NCONM2, 5) 
+         WRITE(ERR,1134) JCARD_ID,NAME,RCONM2(NCONM2, 5)
          IF (SUPWARN == 'N') THEN
             WRITE(F06,1134) JCARD_ID,NAME,RCONM2(NCONM2, 5)
          ENDIF
-      ENDIF 
+      ENDIF
 
       IF (RCONM2(NCONM2, 7) < ZERO) THEN
          WARN_ERR = WARN_ERR + 1
          NAME = 'PRINCIPAL MOI-22'
-         WRITE(ERR,1134) JCARD_ID,NAME,RCONM2(NCONM2, 7) 
+         WRITE(ERR,1134) JCARD_ID,NAME,RCONM2(NCONM2, 7)
          IF (SUPWARN == 'N') THEN
             WRITE(F06,1134) JCARD_ID,NAME,RCONM2(NCONM2, 7)
          ENDIF
-      ENDIF 
+      ENDIF
 
       IF (RCONM2(NCONM2,10) < ZERO) THEN
          WARN_ERR = WARN_ERR + 1
          NAME = 'PRINCIPAL MOI-33'
-         WRITE(ERR,1134) JCARD_ID, NAME, RCONM2(NCONM2,10) 
+         WRITE(ERR,1134) JCARD_ID, NAME, RCONM2(NCONM2,10)
          IF (SUPWARN == 'N') THEN
             WRITE(F06,1134) JCARD_ID, NAME, RCONM2(NCONM2,10)
          ENDIF
-      ENDIF 
+      ENDIF
 
 
 
@@ -207,13 +207,13 @@
 ! **********************************************************************************************************************************
   101 FORMAT(A)
 
- 1134 FORMAT(' *WARNING    : NEGATIVE MASS OR PRINCIPAL MOI VALUE ON CONM2 ',A,': ',A16,' = ',ES14.6) 
- 
+ 1134 FORMAT(' *WARNING    : NEGATIVE MASS OR PRINCIPAL MOI VALUE ON CONM2 ',A,': ',A16,' = ',ES14.6)
+
  1145 FORMAT(' *ERROR  1145: DUPLICATE ',A,' ENTRY WITH ID = ',I8)
 
  1163 FORMAT(' *ERROR  1163: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' TOO MANY ',A,' ENTRIES; LIMIT = ',I12)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_CONM2

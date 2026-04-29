@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 	
+
+! End MIT license text.
+
       SUBROUTINE QPLT3 ( OPT, AREA_QUAD, XSD, YSD, BIG_BB )
- 
+
 ! MIN4T quadrilateral thick (Mindlin) plate bending plate element. This is made of 4 non-overlapping MIN3 trianglau elements with
 ! the central point reduced out using either Kirchoff restraints or static condensation (user controlled via PARAM MIN4TRED).
 ! This element is based on the following work:
@@ -65,7 +65,7 @@
 !  3) KE        = element linea stiffness matrix       , if OPT(4) = 'Y'
 !  4) PPE       = element pressure load matrix         , if OPT(5) = 'Y'
 !  5) KED       = element differen stiff matrix calc   , if OPT(6) = 'Y' = 'Y'
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MEFE, MIN4T_QUAD4_TRIA_NO, NSUB, NTSUB
@@ -76,11 +76,11 @@
       USE MODEL_STUF, ONLY            :  BE2, BE3, DT, EID, ELDOF, EMG_IFE, ERR_SUB_NAM,NUM_EMG_FATAL_ERRS,                        &
                                          FCONV, KE, PHI_SQ, PPE, PTE, SE2, SE3, TE, XEB, XEL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE QPLT3_USE_IFs
 
-      IMPLICIT NONE 
-  
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'QPLT3'
       CHARACTER(1*BYTE), INTENT(IN)   :: OPT(6)            ! 'Y'/'N' flags for whether to calc certain elem matrices.
       CHARACTER(1*BYTE)               :: OPT_MIN4T(6)      ! Values of OPT to use in this subr. We need OPT(4) = 'Y' if the
@@ -98,7 +98,7 @@
                                                       6, & ! IDV( 8) =  6 means tria elem virgin DOF 8 is MYSTRAN elem DOF  6
                                                       9 /) ! IDV( 9) =  9 means tria elem virgin DOF 9 is MYSTRAN elem DOF  9
 
-      INTEGER(LONG)                   :: IDI(4,9)  
+      INTEGER(LONG)                   :: IDI(4,9)
 
       INTEGER(LONG), PARAMETER        :: IDM(12) = (/ 3, & ! IDM( 1) =  3 means quad elem DOF  1 is MYSTRAN elem DOF  3
                                                       4, & ! IDM( 2) =  4 means quad elem DOF  2 is MYSTRAN elem DOF  4
@@ -123,7 +123,7 @@
       INTEGER(LONG)                   :: PROG_ERR  = 0     ! Local error indicator
       INTEGER(LONG)                   :: TRIA_NUM          ! 1, 2, 3, or 4 designator of a subtriangle of the quad
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: AREA_QUAD         ! Element area
       REAL(DOUBLE) , INTENT(IN)       :: XSD(4)            ! Diffs in x coords of quad sides in local coords
       REAL(DOUBLE) , INTENT(IN)       :: YSD(4)            ! Diffs in y coords of quad sides in local coords
@@ -197,7 +197,7 @@
 !                                                            MYSTRAN DOF order: w1, th-x1, th-y1, w2, th-x2, th-y2, w3, th-x3, th-y3
       REAL(DOUBLE)                    :: PPM_TQ(9,NSUB)    ! PPM_TT for a triangle transformed to the local elem system for the quad
       REAL(DOUBLE)                    :: PPM_QQ(4,15,NSUB) ! PPM_TQ for a tria expanded to 15xNSUB size for the 5 nodes of the quad
-      REAL(DOUBLE)                    :: PPM_QQ_5(15,NSUB) ! Sum all PPM_QQi. Press loads for the 5 node quad in local quad coords 
+      REAL(DOUBLE)                    :: PPM_QQ_5(15,NSUB) ! Sum all PPM_QQi. Press loads for the 5 node quad in local quad coords
       REAL(DOUBLE)                    :: PPM_QQ_4(12,NSUB) ! PPM_QQ_5 reduced to 4 nodes
 
       REAL(DOUBLE)                    :: PTV_TT(9,NSUB)    ! 9xNTSUB virgin thermal load matrix for one MIN3 in tria local coords
@@ -207,7 +207,7 @@
       REAL(DOUBLE)                    :: PTM_TQ(9,NTSUB)   ! PTM_TT for a triangle transformed to the local elem system for the quad
       REAL(DOUBLE)                    :: PTM_QQ(4,15,NTSUB)! PTM_TQ for a tria expanded to 15xNTSUB size for the 5 nodes of the quad
       REAL(DOUBLE)                    :: PTM_QQ_5(15,NTSUB)! Sum all PTM_QQi. Therm loads for the 5 node quad in local quad coords
-      REAL(DOUBLE)                    :: PTM_QQ_4(12,NTSUB)! PTM_QQ_5 reduced to 4 nodes 
+      REAL(DOUBLE)                    :: PTM_QQ_4(12,NTSUB)! PTM_QQ_5 reduced to 4 nodes
 
       REAL(DOUBLE)                    :: RAT               ! An intermediate variable
 
@@ -256,7 +256,7 @@
       REAL(DOUBLE)                    :: X2TL              ! x coord of elem node 2 of one of the 4 triangles (in tria local coords)
       REAL(DOUBLE)                    :: X3TL              ! x coord of elem node 3 of one of the 4 triangles (in tria local coords)
       REAL(DOUBLE)                    :: Y3TL              ! y coord of elem node 3 of one of the 4 triangles (in tria local coords)
- 
+
       REAL(DOUBLE)                    :: V12(2)            ! Components of a vector along side 1-2 of a sub-triangle
       REAL(DOUBLE)                    :: V13(2)            ! Components of a vector along side 1-3 of a sub-triangle
 
@@ -459,7 +459,7 @@ trias:DO K=1,NUM_TRIAS
 
 ! **********************************************************************************************************************************
 ! Expand/transform strain-displ matrices from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords
-! Do this indep of OPT since some of the the strain displ matrices are needed for BIG_BB 
+! Do this indep of OPT since some of the the strain displ matrices are needed for BIG_BB
 
          DO I=1,3                                       ! Reorder B2M from tria virgin DOF to local tria DOF order
             DO J=1,9
@@ -489,9 +489,9 @@ trias:DO K=1,NUM_TRIAS
                TE_SHEAR(I,J) = ZERO
             ENDDO
          ENDDO
-         TE_SHEAR(1,1) = TE_TRIA(2,2)   ;   TE_SHEAR(1,2) = TE_TRIA(3,2)   
+         TE_SHEAR(1,1) = TE_TRIA(2,2)   ;   TE_SHEAR(1,2) = TE_TRIA(3,2)
          TE_SHEAR(2,1) = TE_TRIA(2,3)   ;   TE_SHEAR(2,2) = TE_TRIA(3,3)
-         TE_SHEAR(3,3) = ONE   
+         TE_SHEAR(3,3) = ONE
          CALL MATMULT_FFF ( TE_SHEAR, B3M_TQ, 3, 3, 9, B3M_QQk )
 
          DO I=1,3                                       ! Expand to 15 DOF quad (5 nodes/3 DOF each)
@@ -506,7 +506,7 @@ trias:DO K=1,NUM_TRIAS
 
 
 
-! Expand/transform thermal loads from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords 
+! Expand/transform thermal loads from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords
 
          IF (OPT_MIN4T(2) == 'Y') THEN
 
@@ -526,7 +526,7 @@ trias:DO K=1,NUM_TRIAS
 
          ENDIF
 
-! Expand/transform stress recovery matrices (S2, S3) from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords 
+! Expand/transform stress recovery matrices (S2, S3) from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords
 
          IF (OPT_MIN4T(3) == 'Y') THEN
 
@@ -558,9 +558,9 @@ trias:DO K=1,NUM_TRIAS
                   TE_SHEAR(I,J) = ZERO
                ENDDO
             ENDDO
-            TE_SHEAR(1,1) = TE_TRIA(2,2)   ;   TE_SHEAR(1,2) = TE_TRIA(3,2)   
+            TE_SHEAR(1,1) = TE_TRIA(2,2)   ;   TE_SHEAR(1,2) = TE_TRIA(3,2)
             TE_SHEAR(2,1) = TE_TRIA(2,3)   ;   TE_SHEAR(2,2) = TE_TRIA(3,3)
-            TE_SHEAR(3,3) = ONE   
+            TE_SHEAR(3,3) = ONE
             CALL MATMULT_FFF ( TE_SHEAR, S3M_TQ, 3, 3, 9, S3M_QQk )
 
             DO I=1,3                                       ! Expand to 15 DOF quad (5 nodes/3 DOF each)
@@ -571,7 +571,7 @@ trias:DO K=1,NUM_TRIAS
 
          ENDIF
 
-! Expand/transform stiffness matrices from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords 
+! Expand/transform stiffness matrices from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords
 
          IF (OPT_MIN4T(4) == 'Y') THEN
 
@@ -592,7 +592,7 @@ trias:DO K=1,NUM_TRIAS
 
          ENDIF
 
-! Expand/transform pressure loads from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords 
+! Expand/transform pressure loads from virgin tria 9 DOF's in tria coords to quad 15 DOF's in quad coords
 
          IF (OPT_MIN4T(5) == 'Y') THEN
 
@@ -1001,27 +1001,27 @@ trias:DO K=1,NUM_TRIAS
       END SUBROUTINE QPLT3_INIT
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE ELMGM_TRIA ( TRIA, XQB, XQL, V12, V13, L12, L13, ALPHA, BETA, GAMMA, PSI, THETA, X2TL, X3TL, Y3TL, TE_TRIA )
- 
+
 ! Generates transformation matrix from one of the sub-triangles of the quad to the quad local coord system
 
 !                             | T3-tria |   | 1      0           0      | | T3-quad |
 !                             | R1-tria | = | 0  cos(THETA)  sin(THETA) | | R1-quad |
 !                             | R2-tria |   | 0 -sin(THETA   cos(THETA) | | R2-quad |
-  
+
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE IOUNT1, ONLY                :  ERR, F06
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE MODEL_STUF, ONLY            :  NUM_EMG_FATAL_ERRS, XTB, XTL
- 
+
       IMPLICIT NONE
- 
+
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG), INTENT(IN)       :: TRIA              ! 1, 2, 3, or 4 designator of a subtriangle of the quad
-  
+
       REAL(DOUBLE), INTENT(IN)        :: XQB(5,3)          ! coords of 5 quad nodes in quad basic coords
       REAL(DOUBLE), INTENT(IN)        :: XQL(5,3)          ! coords of 5 quad nodes in quad local coords
       REAL(DOUBLE), INTENT(OUT)       :: X2TL              ! X coord of this triangle node 2 in this triangle local coords
@@ -1224,13 +1224,13 @@ trias:DO K=1,NUM_TRIAS
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ELMGM_TRIA
- 
+
 ! ##################################################################################################################################
- 
+
       SUBROUTINE B54_REDUCTION ( XQL, IERROR )
- 
+
       USE CONSTANTS_1, ONLY           :  ZERO, QUARTER, HALF, ONE
       USE SCONTR, ONLY                :  FATAL_ERR
       USE IOUNT1, ONLY                :  ERR, F06
@@ -1338,20 +1338,20 @@ trias:DO K=1,NUM_TRIAS
       ENDDO
 
       B54(13, 1) = QUARTER
-      B54(13, 2) =-QUARTER*(B15 + SB5*C(1,1) + SA5*C(2,1)) 
-      B54(13, 3) =+QUARTER*(A15 + SB5*C(1,5) + SA5*C(2,5)) 
+      B54(13, 2) =-QUARTER*(B15 + SB5*C(1,1) + SA5*C(2,1))
+      B54(13, 3) =+QUARTER*(A15 + SB5*C(1,5) + SA5*C(2,5))
 
       B54(13, 4) = QUARTER
-      B54(13, 5) =-QUARTER*(B25 + SB5*C(1,2) + SA5*C(2,2)) 
-      B54(13, 6) =+QUARTER*(A25 + SB5*C(1,6) + SA5*C(2,6)) 
+      B54(13, 5) =-QUARTER*(B25 + SB5*C(1,2) + SA5*C(2,2))
+      B54(13, 6) =+QUARTER*(A25 + SB5*C(1,6) + SA5*C(2,6))
 
       B54(13, 7) = QUARTER
-      B54(13, 8) =-QUARTER*(B35 + SB5*C(1,3) + SA5*C(2,3)) 
-      B54(13, 9) =+QUARTER*(A35 + SB5*C(1,7) + SA5*C(2,7)) 
+      B54(13, 8) =-QUARTER*(B35 + SB5*C(1,3) + SA5*C(2,3))
+      B54(13, 9) =+QUARTER*(A35 + SB5*C(1,7) + SA5*C(2,7))
 
       B54(13,10) = QUARTER
-      B54(13,11) =-QUARTER*(B45 + SB5*C(1,4) + SA5*C(2,4)) 
-      B54(13,12) =+QUARTER*(A45 + SB5*C(1,8) + SA5*C(2,8)) 
+      B54(13,11) =-QUARTER*(B45 + SB5*C(1,4) + SA5*C(2,4))
+      B54(13,12) =+QUARTER*(A45 + SB5*C(1,8) + SA5*C(2,8))
 
       B54(14, 2) = C(1,1)
       B54(14, 3) = C(1,5)
@@ -1386,7 +1386,7 @@ trias:DO K=1,NUM_TRIAS
             DO J=1,12
                B2M_QQ_4(I,J,K) = DUM312(I,J)
             ENDDO
-         ENDDO  
+         ENDDO
 
          DO I=1,3
             DO J=1,15
@@ -1399,7 +1399,7 @@ trias:DO K=1,NUM_TRIAS
             DO J=1,12
                B3M_QQ_4(I,J,K) = DUM312(I,J)
             ENDDO
-         ENDDO  
+         ENDDO
 
       ENDDO
 
@@ -1428,7 +1428,7 @@ trias:DO K=1,NUM_TRIAS
                DO J=1,12
                   S2M_QQ_4(I,J,K) = DUM312(I,J)
                ENDDO
-            ENDDO  
+            ENDDO
 
             DO I=1,3
                DO J=1,15
@@ -1441,7 +1441,7 @@ trias:DO K=1,NUM_TRIAS
                DO J=1,12
                   S3M_QQ_4(I,J,K) = DUM312(I,J)
                ENDDO
-            ENDDO  
+            ENDDO
 
          ENDDO
 
@@ -1562,7 +1562,7 @@ trias:DO K=1,NUM_TRIAS
             DO J=1,12
                B2AB(I,J) = B2M_QQ_5(I,J,K)
             ENDDO
-         ENDDO               
+         ENDDO
 
          DO I=1,3
             DO J=13,15
@@ -1576,13 +1576,13 @@ trias:DO K=1,NUM_TRIAS
             DO J=1,12
                B2M_QQ_4(I,J,K) = DUM52(I,J)
             ENDDO
-         ENDDO  
+         ENDDO
 
          DO I=1,3                                       ! Reduce B3M_QQ_5's
             DO J=1,12
                B3AB(I,J) = B3M_QQ_5(I,J,K)
             ENDDO
-         ENDDO               
+         ENDDO
 
          DO I=1,3
             DO J=13,15
@@ -1596,7 +1596,7 @@ trias:DO K=1,NUM_TRIAS
             DO J=1,12
                B3M_QQ_4(I,J,K) = DUM62(I,J)
             ENDDO
-         ENDDO  
+         ENDDO
 
       ENDDO
 
@@ -1608,8 +1608,8 @@ trias:DO K=1,NUM_TRIAS
             DO J=1,NTSUB
                PTAB(I,J) = PTM_QQ_5(I,J)
             ENDDO
-         ENDDO               
-      
+         ENDDO
+
          DO I=13,15
             DO J=1,NTSUB
                PTO(I-12,J) = PTM_QQ_5(I,J)
@@ -1617,7 +1617,7 @@ trias:DO K=1,NUM_TRIAS
          ENDDO
 
          CALL MATMULT_FFF ( GOAT, PTO, 12, 3, NTSUB, DUM3 )
-         CALL MATADD_FFF  ( PTAB, DUM3, 12, NTSUB, ONE, -ONE, 0, PTM_QQ_4 ) 
+         CALL MATADD_FFF  ( PTAB, DUM3, 12, NTSUB, ONE, -ONE, 0, PTM_QQ_4 )
 
       ENDIF
 
@@ -1631,8 +1631,8 @@ trias:DO K=1,NUM_TRIAS
                DO J=1,12
                   S2AB(I,J) = S2M_QQ_5(I,J,K)
                ENDDO
-            ENDDO               
-         
+            ENDDO
+
             DO I=1,3
                DO J=13,15
                   S2O(I,J-12) = S2M_QQ_5(I,J,K)
@@ -1645,14 +1645,14 @@ trias:DO K=1,NUM_TRIAS
                DO J=1,12
                   S2M_QQ_4(I,J,K) = DUM52(I,J)
                ENDDO
-            ENDDO  
+            ENDDO
 
             DO I=1,3                                       ! Reduce S3M_QQ_5's
                DO J=1,12
                   S3AB(I,J) = S3M_QQ_5(I,J,K)
                ENDDO
-            ENDDO               
-         
+            ENDDO
+
             DO I=1,3
                DO J=13,15
                   S3O(I,J-12) = S3M_QQ_5(I,J,K)
@@ -1665,7 +1665,7 @@ trias:DO K=1,NUM_TRIAS
                DO J=1,12
                   S3M_QQ_4(I,J,K) = DUM62(I,J)
                ENDDO
-            ENDDO  
+            ENDDO
 
          ENDDO
 
@@ -1683,13 +1683,13 @@ trias:DO K=1,NUM_TRIAS
 ! Reduce pressure loads from 5 to 4 nodes by static condensation
 
       IF (OPT_MIN4T(5) == 'Y') THEN
-      
+
          DO I=1,12
             DO J=1,NSUB
                PPAB(I,J) = PPM_QQ_5(I,J)
             ENDDO
-         ENDDO               
-      
+         ENDDO
+
          DO I=13,15
             DO J=1,NSUB
                PPO(I-12,J) = PPM_QQ_5(I,J)
@@ -1697,9 +1697,9 @@ trias:DO K=1,NUM_TRIAS
          ENDDO
 
          CALL MATMULT_FFF ( GOAT, PPO, 12, 3, NSUB, DUM4 )
-         CALL MATADD_FFF  ( PPAB, DUM4, 12, NSUB, ONE, -ONE, 0, PPM_QQ_4 ) 
+         CALL MATADD_FFF  ( PPAB, DUM4, 12, NSUB, ONE, -ONE, 0, PPM_QQ_4 )
 
-      
+
       ENDIF
 
       IF (DEBUG(198) > 0) CALL DEB_QPLT3_2 ( OPT_MIN4T, 6, 'STC', GOAT, DUM2 , KAAB, KOO, KOA, KOOI,                               &
@@ -1760,10 +1760,10 @@ trias:DO K=1,NUM_TRIAS
       SUM_OFF_DIAGS = ZERO
 
       DETA = ( A(1,1)*A(2,2)*A(3,3) + A(2,1)*A(3,2)*A(1,3) + A(3,1)*A(2,3)*A(1,2) )                                                &
-            -( A(1,3)*A(2,2)*A(3,1) + A(1,2)*A(2,1)*A(3,3) + A(1,1)*A(3,2)*A(2,3) ) 
+            -( A(1,3)*A(2,2)*A(3,1) + A(1,2)*A(2,1)*A(3,3) + A(1,1)*A(3,2)*A(2,3) )
 
       IF (DABS(DETA) <= SMALL_NUM) THEN
-         
+
          IERR = 1
          WRITE(ERR,9000) EID
          WRITE(ERR,9001) DETA, SMALL_NUM
@@ -1795,7 +1795,7 @@ trias:DO K=1,NUM_TRIAS
          AI(3,1) =  Z(1,3)/DETA
          AI(3,2) = -Z(2,3)/DETA
          AI(3,3) =  Z(3,3)/DETA
- 
+
          IF (DEBUG(199) > 0) THEN
             CALL CHECK_MAT_INVERSE ( MAT_A_NAME, A, AI, 3 )
          ENDIF
@@ -2200,7 +2200,7 @@ trias:DO K=1,NUM_TRIAS
                      Write(f06,97765) i, j, km_qq_5(i,j),km_qq_5(j,i),(km_qq_5(i,j)-km_qq_5(j,i))
                   endif
                enddo
-               Write(f06,*) 
+               Write(f06,*)
             enddo
 
          ENDIF
@@ -2414,7 +2414,7 @@ trias:DO K=1,NUM_TRIAS
  2101 FORMAT(' The local x axis for the quad splits the angle between the 2 diagonals.',                                           &
              ' The angle between side 1-2 and the x axis = ',f7.3)
 
- 2102 FORMAT(' The local x axis is along side 1-2 of the quad') 
+ 2102 FORMAT(' The local x axis is along side 1-2 of the quad')
 
  3102 FORMAT(' ::::::::::::::::::::::::::::::::::::::::::::END DEBUG(198) OUTPUT FROM SUBROUTINE QPLT3:::::::::::::::::::::::::::',&
              ':::::::::::::::::'                                                                                                ,/,&
@@ -2553,8 +2553,8 @@ trias:DO K=1,NUM_TRIAS
 
                Write(f06,*) 'Matrix S2AB:'
                Write(f06,*) '------------'
-               do i=1,3 
-                  Write(f06,96001) (s2ab(i,j),j=1,12)   
+               do i=1,3
+                  Write(f06,96001) (s2ab(i,j),j=1,12)
                enddo
                Write(f06,*)
 
@@ -2567,15 +2567,15 @@ trias:DO K=1,NUM_TRIAS
 
                Write(f06,*) 'Matrix DUM5 = S2O*GOA:'
                Write(f06,*) '----------------------'
-               do i=1,3 
+               do i=1,3
                   Write(f06,96001) (dum5(i,j),j=1,12)
                enddo
                Write(f06,*)
 
                Write(f06,*) 'Matrix S3AB:'
                Write(f06,*) '------------'
-               do i=1,2 
-                  Write(f06,96001) (s3ab(i,j),j=1,12)   
+               do i=1,2
+                  Write(f06,96001) (s3ab(i,j),j=1,12)
                enddo
                Write(f06,*)
 
@@ -2588,7 +2588,7 @@ trias:DO K=1,NUM_TRIAS
 
                Write(f06,*) 'Matrix DUM5 = S2O*GOA:'
                Write(f06,*) '----------------------'
-               do i=1,2 
+               do i=1,2
                   Write(f06,96001) (dum6(i,j),j=1,12)
                enddo
                Write(f06,*)

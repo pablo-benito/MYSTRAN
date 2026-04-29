@@ -1,44 +1,44 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SORT_TDOF ( CALLING_SUBR, MESSAG, NSIZE, IARRAY, ICOL )
- 
+
 ! Performs shell sort on 2D integer array IARRAY1 such that column ICOL is in numerically increasing order. IARRAY
 ! has MTDOF columns (which is the number of columns in array TDOF)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MTDOF
       USE PARAMS, ONLY                :  SORT_MAX
       USE TIMDAT, ONLY                :  TSEC
- 
+
       USE SORT_TDOF_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SORT_TDOF'
       CHARACTER(LEN=*), INTENT(IN)    :: CALLING_SUBR      ! Subr that called this subr
       CHARACTER(LEN=*), INTENT(IN)    :: MESSAG            ! Message to be written out if this subr fails to sort
@@ -48,7 +48,7 @@
       INTEGER(LONG), INTENT(INOUT)    :: IARRAY(NSIZE,MTDOF) ! Integer array
       INTEGER(LONG)                   :: I,J,K,M             ! DO loop indices
       INTEGER(LONG), INTENT(IN)       :: ICOL                ! Col ICOL will be the col in numerical order after sort
-      INTEGER(LONG)                   :: IDUM(MTDOF)         ! Dummy values in IARRAY used when switching IARRAY rows during sort. 
+      INTEGER(LONG)                   :: IDUM(MTDOF)         ! Dummy values in IARRAY used when switching IARRAY rows during sort.
       INTEGER(LONG)                   :: IFLIP               ! Indicates whether two values have been switched in sort order.
       INTEGER(LONG)                   :: JCT                 ! Shell sort parameter returned from subroutine SORTLEN.
       INTEGER(LONG)                   :: MAXM                ! NSIZE - SORTPK
@@ -61,17 +61,17 @@
 
 ! **********************************************************************************************************************************
 ! Call SORTLEN to calculate the shell sort parameter JCT
- 
+
       SORT_NUM = 1
 
       CALL SORTLEN ( NSIZE, JCT )
- 
+
 outer:DO                                                      ! Run sort until array is sorted or SORT_MAX is exceeded
 
          DO K = JCT,1,-1                                      ! Do the sort
             SORTPK = 2**K - 1
             MAXM  = NSIZE - SORTPK
-            IFLIP = 0  
+            IFLIP = 0
             DO
                DO M = 1,MAXM
                   N = M + SORTPK
@@ -81,7 +81,7 @@ outer:DO                                                      ! Run sort until a
                         IARRAY(M,J) = IARRAY(N,J)
                         IARRAY(N,J) = IDUM(J)
                      ENDDO
-                     IFLIP = 1                       
+                     IFLIP = 1
                   ENDIF
                ENDDO
                IF (IFLIP == 1) THEN
@@ -90,7 +90,7 @@ outer:DO                                                      ! Run sort until a
                ELSE
                   EXIT
                ENDIF
-            ENDDO 
+            ENDDO
          ENDDO
 
 
@@ -125,7 +125,7 @@ chk_sort:DO I=1,NSIZE-1
 ! **********************************************************************************************************************************
   914 FORMAT(' *ERROR   914: SUBROUTINE ',A,', CALLED BY SUBR ',A                                                                  &
                     ,/,14X,' HAS MADE ',I8,' UNSUCCESSFUL ATTEMPTS TO SORT ARRAY(S) ',A                                            &
-                    ,/,14X,' THE MAX NUMBER OF SORT ATTEMPTS CAN BE INCREASED WITH BULK DATA PARAM SORT_MAX') 
+                    ,/,14X,' THE MAX NUMBER OF SORT ATTEMPTS CAN BE INCREASED WITH BULK DATA PARAM SORT_MAX')
 
 
 ! **********************************************************************************************************************************

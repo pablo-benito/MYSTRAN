@@ -1,32 +1,32 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE GET_MATANGLE_FROM_CID ( ACID )
- 
-! Calcs THETAM for plate elements that have the material angle specified via a coord sys ID (ACID here) 
+
+! Calcs THETAM for plate elements that have the material angle specified via a coord sys ID (ACID here)
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
@@ -35,11 +35,11 @@
       USE CONSTANTS_1, ONLY           :  CONV_DEG_RAD, ZERO, ONE
       USE PARAMS, ONLY                :  EPSIL
       USE MODEL_STUF, ONLY            :  CORD, EID, NUM_EMG_FATAL_ERRS, NUM_EMG_FATAL_ERRS, RCORD, TE, THETAM, TYPE, QUAD_DELTA
- 
+
       USE GET_MATANGLE_FROM_CID_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'GET_MATANGLE_FROM_CID'
       CHARACTER( 1*BYTE)              :: CORD_FND          ! If 'Y', ACID internal coord sys ID was found in array CORD
 
@@ -47,7 +47,7 @@
       INTEGER(LONG)                   :: I                 ! DO loop indices
       INTEGER(LONG)                   :: ICID              ! Internal coord sys ID for ACID
 
- 
+
       REAL(DOUBLE)                    :: DOT_XM            ! Dot product of VEC_XE and VEC_ME
       REAL(DOUBLE)                    :: CROSS_XM(3)       ! Cross product of VEC_XE and VEC_ME
       REAL(DOUBLE)                    :: Y                 ! First parameter for ATAN2 function
@@ -105,7 +105,7 @@ i_do1:   DO I=1,NCORD
          MAG2_ME = MAG2_ME + VEC_ME(I)*VEC_ME(I)
       ENDDO
       MAG_ME = DSQRT(MAG2_ME)
-      
+
       IF (MAG_ME <= EPS1) THEN
          FATAL_ERR = FATAL_ERR + 1
          NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
@@ -116,13 +116,13 @@ i_do1:   DO I=1,NCORD
 
                                                            ! Find the angle of ME from XE about ZE.
                                                            ! THETAM = atan2(ZE dot (XE cross ME) , XE dot ME )
-      
+
       CALL CROSS(VEC_XE, VEC_ME, CROSS_XM)                 ! XE cross ME
       DOT_XM = VEC_XE(1)*VEC_ME(1) + VEC_XE(2)*VEC_ME(2) + VEC_XE(3)*VEC_ME(3)  ! XE dot ME
-      Y = VEC_ZE(1)*CROSS_XM(1) + VEC_ZE(2)*CROSS_XM(2) + VEC_ZE(3)*CROSS_XM(3) ! ZE dot (CROSS_XM) 
+      Y = VEC_ZE(1)*CROSS_XM(1) + VEC_ZE(2)*CROSS_XM(2) + VEC_ZE(3)*CROSS_XM(3) ! ZE dot (CROSS_XM)
       THETAM = ATAN2(Y, DOT_XM)
 
-      IF (TYPE(1:5) == 'QUAD4') THEN     
+      IF (TYPE(1:5) == 'QUAD4') THEN
         THETAM = THETAM + QUAD_DELTA                       ! Convert angle from element x axis to angle from 1-2 edge.
       ENDIF
 

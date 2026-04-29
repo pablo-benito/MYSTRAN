@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE READ_INI ( INI_EXIST )
 
@@ -85,7 +85,7 @@
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error value from OPEN/READ
       INTEGER(LONG)                   :: LINE_NUMBER       ! Line number in the INI file
       INTEGER(LONG)                   :: MYSTRAN_DIR_LEN   ! Length of MYSTRAN_DIR (not including trailing blanks)
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to 
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to
 
 ! **********************************************************************************************************************************
 ! Default units for writing errors the screen (until LINK1A is read)
@@ -189,7 +189,7 @@
                      ELSE
                         EXIT                               ! Once we get to col where DEFDIR begins, exit loop
                      ENDIF                                 !                                 ------
-                  ENDDO  
+                  ENDDO
                   DEFDIR(1:) = CARD(IBEGIN:)
 
                ELSE IF (CARD(1:8) == 'LINKNOST') THEN
@@ -416,7 +416,7 @@
                   WRITE(SC1,'(1X,A79)') CARD(1:79)
                   WRITE(SC1,1502)
             !xx   WRITE(SC1, * )
-                  CYCLE                  
+                  CYCLE
 
                ENDIF
 
@@ -424,15 +424,15 @@
                   IF (IERRFL(I) == 'Y') THEN
                      IERR = IERR + 1
                   ENDIF
-               ENDDO   
+               ENDDO
                DO I=1,10
                    IERRFL(I)      = 'N'
                    FLD_ERR_MSG(I) = 'N'
-               ENDDO   
+               ENDDO
 
             ENDIF
 
-         ENDDO 
+         ENDDO
 
          CALL FILE_CLOSE ( INI, INIFIL, 'KEEP' )
 
@@ -453,7 +453,7 @@
       IF (IERR > 0) THEN
          DO
             WRITE(SC1,1511)
-            CALL WRITE_FILNAM ( INIFIL, SC1, 1 ) 
+            CALL WRITE_FILNAM ( INIFIL, SC1, 1 )
             WRITE(SC1,1512)
       !xx   WRITE(SC1, * )
             READ(*,*) RESPONSE
@@ -468,7 +468,7 @@
          ENDDO
       ENDIF
 
-      RETURN 
+      RETURN
 
 ! **********************************************************************************************************************************
   101 FORMAT(A80)
@@ -488,9 +488,9 @@
 ! **********************************************************************************************************************************
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
 !***********************************************************************************************************************************
@@ -587,7 +587,7 @@
             WRITE(SC1,1511) CHAR8, FNAME
             FLD_ERR_MSG(3) = 'Y'
          ENDIF
-      ENDIF  
+      ENDIF
 
       CALL BD_IMBEDDED_BLANK0  ( JCARD_08, 2, 3, 0, 0, 0, 0, 0, 0, WRT_HDR, WRT_CARD, FLD_ERR_MSG )
       CALL CARD_FLDS_NOT_BLANK0( JCARD_08, 0, 0, 4, 5, 6, 7, 8, 9, WRT_HDR, WRT_CARD )
@@ -607,27 +607,27 @@
       END SUBROUTINE READ_INI_LINE
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE I4FLD0 ( JCARDI_08, IFLD, I4INP, WRT_HDR, WRT_CARD, FLD_ERR_MSG )
- 
+
 ! Reads 8 column field of INTEGER*4 data
- 
+
       USE PENTIUM_II_KIND, ONLY        :  BYTE, LONG, DOUBLE
       USE SCONTR, ONLY                 :  IERRFL
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER( 8*BYTE), INTENT(IN)   :: JCARDI_08        ! The field of 8 characters to read
       CHARACTER( 1*BYTE), INTENT(INOUT):: FLD_ERR_MSG(10)  ! 'Y'/'N' designator of whether error msg has been written for a field
       CHARACTER( 1*BYTE), INTENT(INOUT):: WRT_CARD         ! 'Y', 'N' indicator if line from INI file was written to show errors
       CHARACTER( 1*BYTE), INTENT(INOUT):: WRT_HDR          ! 'Y', 'N' indicator if header msg written when there are errors
       CHARACTER( 1*BYTE)               :: DEC_PT           ! 'Y'/'N' indicator of whether a decimal point was founr in JCARDI_08
- 
+
       INTEGER(LONG), INTENT(IN)        :: IFLD             ! Field (2 - 9) of a Bulk Data card to read
       INTEGER(LONG), INTENT(OUT)       :: I4INP            ! The 4 byte integer value read
       INTEGER(LONG)                    :: I                ! DO loop index
       INTEGER(LONG)                    :: IOCHK            ! IOSTAT error value from READ
- 
+
 ! **********************************************************************************************************************************
 ! Initialize outputs
 
@@ -648,7 +648,7 @@
          IERRFL(IFLD) = 'Y'
 
       ENDIF
- 
+
 ! Scan to make sure there was not a decimal point.
 
       IF (JCARDI_08 /= '        ') THEN
@@ -673,27 +673,27 @@
             FLD_ERR_MSG = 'Y'
          ENDIF
       ENDIF
- 
+
       RETURN
- 
+
 ! **********************************************************************************************************************************
  1500 FORMAT(' A decimal pt was found in what is supposed to be an integer number in field ',I2)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE I4FLD0
 
 ! ##################################################################################################################################
-  
+
       SUBROUTINE BD_IMBEDDED_BLANK0 ( JCARD_08, CF2, CF3, CF4, CF5, CF6, CF7, CF8, CF9, WRT_HDR, WRT_CARD, FLD_ERR_MSG )
-  
+
 ! Prepares message when some fields of a Bulk data card imbedded blanks when they should not
- 
+
       USE PENTIUM_II_KIND, ONLY        :  BYTE, LONG, DOUBLE
       USE SCONTR, ONLY                 :  PROG_NAME
 
       IMPLICIT NONE
- 
+
       CHARACTER( 8*BYTE), INTENT(IN)   :: JCARD_08(10)     ! The 10 fields of 8 characters making up CARD
       CHARACTER( 1*BYTE), INTENT(INOUT):: FLD_ERR_MSG(10)  ! 'Y'/'N' designator of whether error msg has been written for a field
       CHARACTER( 1*BYTE), INTENT(INOUT):: WRT_CARD         ! 'Y'/'N' indicator if line from INI file was written to show errors
@@ -701,7 +701,7 @@
       CHARACTER( 1*BYTE)               :: ERRORS           ! 'Y'/'N' indicator of errors
       CHARACTER( 1*BYTE)               :: FOUND_DATA       ! 'Y'/'N' indicator of data found in a Bulk Data card field
       CHARACTER( 1*BYTE)               :: IMB_BLANK(2:9)   ! 'Y'/'N' indicator of whether fields 2-9 have imbedded blanks
- 
+
       INTEGER(LONG), INTENT(IN)        :: CF2              ! = 2 if field 2 is to be checked, or 0 otherwise
       INTEGER(LONG), INTENT(IN)        :: CF3              ! = 3 if field 2 is to be checked, or 0 otherwise
       INTEGER(LONG), INTENT(IN)        :: CF4              ! = 4 if field 2 is to be checked, or 0 otherwise
@@ -713,7 +713,7 @@
       INTEGER(LONG)                    :: CHK_FLD(2:9)     ! Array containing CF2 through CF9
       INTEGER(LONG)                    :: I,J              ! DO loop indices
       INTEGER(LONG)                    :: NUMBER(2:9)      ! Number of imbedded blanks found in a Bulk Data card field
- 
+
 ! **********************************************************************************************************************************
 
 ! Load CF2 through CF9 into array CHK_FLD
@@ -731,7 +731,7 @@
 
       DO I=2,9
          IMB_BLANK(I) = 'N'
-      ENDDO 
+      ENDDO
 
 ! Check fields for any imbedded blanks and set error if so
 
@@ -746,7 +746,7 @@
             DO J=8,1,-1
                IF(JCARD_08(I)(J:J) /= ' ') THEN
                   FOUND_DATA = 'Y'
-               ELSE 
+               ELSE
                   IF(FOUND_DATA == 'Y') THEN
                      IMB_BLANK(I) = 'Y'
                      NUMBER(I) = NUMBER(I) + 1
@@ -785,30 +785,30 @@
 
 ! **********************************************************************************************************************************
  1722 FORMAT(' There were ',I2,' imbedded blanks (not allowed) found in field ',I2)
- 
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_IMBEDDED_BLANK0
 
 ! ##################################################################################################################################
-  
+
       SUBROUTINE CARD_FLDS_NOT_BLANK0 ( JCARD_08, FLD2, FLD3, FLD4, FLD5, FLD6, FLD7, FLD8, FLD9, WRT_HDR, WRT_CARD )
-  
+
 ! Prepares message when some fields of a Bulk data card that should be blank, aren't
- 
+
       USE PENTIUM_II_KIND, ONLY        :  BYTE, LONG, DOUBLE
       USE SCONTR, ONLY                 :  PROG_NAME
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER( 8*BYTE), INTENT(IN)   :: JCARD_08(10)      ! The 10 fields of 8 characters making up CARD
       CHARACTER( 1*BYTE), INTENT(INOUT):: WRT_CARD          ! 'Y', 'N' indicator if line from INI file was written to show errors
       CHARACTER( 1*BYTE), INTENT(INOUT):: WRT_HDR           ! 'Y', 'N' indicator if header msg written when there are errors
-      CHARACTER( 1*BYTE)               :: COMMENT           ! 'Y' or 'N' depending on whether non-blank fields are a comment 
+      CHARACTER( 1*BYTE)               :: COMMENT           ! 'Y' or 'N' depending on whether non-blank fields are a comment
       CHARACTER( 8*BYTE)               :: MSSG8             ! Message with all fields that are not blank that should be blank
       CHARACTER( 1*BYTE)               :: MSSG1             ! Message that has the field number in it
- 
-      INTEGER(LONG), INTENT(IN)        :: FLD2              ! Refers to field 2 of a Bulk Data card. If /= 0, then check this field 
+
+      INTEGER(LONG), INTENT(IN)        :: FLD2              ! Refers to field 2 of a Bulk Data card. If /= 0, then check this field
       INTEGER(LONG), INTENT(IN)        :: FLD3              ! Refers to field 3 of a Bulk Data card. If /= 0, then check this field
       INTEGER(LONG), INTENT(IN)        :: FLD4              ! Refers to field 4 of a Bulk Data card. If /= 0, then check this field
       INTEGER(LONG), INTENT(IN)        :: FLD5              ! Refers to field 5 of a Bulk Data card. If /= 0, then check this field
@@ -818,7 +818,7 @@
       INTEGER(LONG), INTENT(IN)        :: FLD9              ! Refers to field 9 of a Bulk Data card. If /= 0, then check this field
       INTEGER(LONG)                    :: ALL_FLDS(2:9)     ! Array of the FLDi (2 through 9)
       INTEGER(LONG)                    :: I,J               ! Do loop indices
- 
+
 ! **********************************************************************************************************************************
 ! Set ALL_FLDS
 
@@ -884,13 +884,13 @@ j_do:       DO J=1,8                                       ! CYCLE through 8 cha
          IF ((JCARD_08(8) /= '        ') .AND. (FLD8 == 8)) THEN
             MSSG1 = '8'
             MSSG8 = MSSG8(1:6) // MSSG1(1:1) // MSSG8(8:8)
-         ENDIF  
+         ENDIF
          IF ((JCARD_08(9) /= '        ') .AND. (FLD9 == 9)) THEN
             MSSG1 = '9'
             MSSG8 = MSSG8(1:7) // MSSG1(1:1)
          ENDIF
 
-         IF (MSSG8 /= '        ') THEN      
+         IF (MSSG8 /= '        ') THEN
             IF (WRT_HDR  == 'N') THEN
                CALL WRITE_INIFIL_MSG ( '2', INIFIL_NAME_LEN )
                WRT_HDR  = 'Y'
@@ -899,7 +899,7 @@ j_do:       DO J=1,8                                       ! CYCLE through 8 cha
                WRITE(SC1,'(1X,A79)') CARD(1:79)
                WRT_CARD = 'Y'
             ENDIF
-            WRITE(SC1,1726) MSSG8 
+            WRITE(SC1,1726) MSSG8
          ENDIF
 
       ENDIF
@@ -908,78 +908,78 @@ j_do:       DO J=1,8                                       ! CYCLE through 8 cha
 
 ! **********************************************************************************************************************************
  1726 FORMAT(' Field(s) ',A8,' should be blank and are ignored')
- 
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE CARD_FLDS_NOT_BLANK0
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE CRDERR0 ( CARD, FLD_ERR_MSG )
- 
+
 ! Prints Bulk Data card errors and warnings
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_ERR
       USE SCONTR, ONLY                :  IERRFL
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=*)  , INTENT(IN)  :: CARD              ! A Bulk Data card
       CHARACTER( 1*BYTE), INTENT(IN)  :: FLD_ERR_MSG(10)   ! 'Y'/'N' designator of whether error msg has been written for a field
       CHARACTER( 1*BYTE)              :: CPN               ! = 'Y' if IERRFL is 'Y' for any Bulk Data card field
- 
+
       INTEGER(LONG)                   :: I                 ! DO loop index
- 
+
 ! **********************************************************************************************************************************
       CPN = 'N'
       DO I=1,10
          IF (IERRFL(I) == 'Y') THEN
             CPN = 'Y'
          ENDIF
-      ENDDO   
- 
+      ENDDO
+
       IF (CPN == 'Y') THEN
          WRITE(SC1,1501) CARD(1:79)
          DO I=1,10
             IF ((IERRFL(I) == 'Y') .AND. (FLD_ERR_MSG(I) == 'N')) THEN
                WRITE(SC1,1502) I
             ENDIF
-         ENDDO   
+         ENDDO
       ENDIF
- 
+
       RETURN
 
 ! **********************************************************************************************************************************
  1501 FORMAT(1X,A)
 
  1502 FORMAT(' Format error in field',I3)
- 
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE CRDERR0
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE LEFT_ADJ_BDFLD0 ( CHR8_FLD )
- 
+
 ! Shifts an 8 character string so that it is left adjusted
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(8*BYTE), INTENT(INOUT):: CHR8_FLD          ! Char field to left adjust and return
-      CHARACTER(8*BYTE)               :: TCHR8_FLD         ! Temporary char field 
- 
+      CHARACTER(8*BYTE)               :: TCHR8_FLD         ! Temporary char field
+
       INTEGER(LONG)                   :: I                 ! DO loop index
- 
+
 ! **********************************************************************************************************************************
       IF (CHR8_FLD(1:1) == ' ') THEN                       ! We need to shift:
- 
+
          TCHR8_FLD(1:8) = CHR8_FLD(1:8)                    ! Set temporary field to CHR8_FLD
 
          DO I = 2,8                                        ! Perform shift
@@ -988,33 +988,33 @@ j_do:       DO J=1,8                                       ! CYCLE through 8 cha
                EXIT
             ENDIF
          ENDDO
-   
-         CHR8_FLD(1:8) = TCHR8_FLD(1:8)                    ! Reset CHR*_FLD and return 
- 
-      ENDIF   
- 
+
+         CHR8_FLD(1:8) = TCHR8_FLD(1:8)                    ! Reset CHR*_FLD and return
+
+      ENDIF
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE LEFT_ADJ_BDFLD0
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE C8FLD0 ( JCARDI_08, IFLD, C8INP )
- 
+
 ! Reads a field of CHARACTER data that can be 1 to 8 chars in length
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  IERRFL, FATAL_ERR
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER( 8*BYTE), INTENT(IN)  :: JCARDI_08         ! The field of 8 characters to read
       CHARACTER(8*BYTE) , INTENT(OUT) :: C8INP             ! The character variable to read
- 
+
       INTEGER(LONG), INTENT(IN)       :: IFLD              ! Field (2 - 9) of a Bulk Data card to read
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error value from READ
- 
+
 ! **********************************************************************************************************************************
       READ(JCARDI_08,'(A8)',IOSTAT=IOCHK) C8INP
 
@@ -1033,29 +1033,29 @@ j_do:       DO J=1,8                                       ! CYCLE through 8 cha
          FATAL_ERR    = FATAL_ERR + 1
 
       ENDIF
- 
+
       RETURN
- 
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE C8FLD0
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE WRITE_INIFIL_MSG ( WHICH_MSG, INIFIL_NAME_LEN )
- 
+
 ! Writes message to screen about INIFIL
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE iount1, ONLY                :  FILE_NAM_MAXLEN
- 
+
       IMPLICIT NONE
- 
+
       INTEGER(LONG), PARAMETER        :: NUM_MSGS    = 2     ! Number of messages to write
 
       CHARACTER( 1*BYTE), INTENT(IN)  :: WHICH_MSG           ! Which message to write to screen
       CHARACTER(79*BYTE)              :: MSG(NUM_MSGS)       ! Message to write
- 
+
       INTEGER(LONG)                   :: INIFIL_NAME_LEN     ! Length of INI file name (incl path)
 
 ! **********************************************************************************************************************************
@@ -1082,7 +1082,7 @@ j_do:       DO J=1,8                                       ! CYCLE through 8 cha
  2000 FORMAT(1X,A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_INIFIL_MSG
 
       END SUBROUTINE READ_INI

@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE WRITE_L1A ( CLOSE_STAT, CALL_OUTA_HERE )
- 
+
 ! Writes data to file LINK1A at the end of each LINK. This is read by all LINK's after LINK1, as they begin. This text file contains
 ! the names of files opened for a run, the "counter" info (e.g. NGRID, number of grids, etc), solution number, PARAM's
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
 
       USE IOUNT1, ONLY                :  MOT4,    MOU4,    WRT_ERR
@@ -79,7 +79,7 @@
       USE WRITE_L1A_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_L1A'
       CHARACTER(LEN=*), INTENT(IN)    :: CLOSE_STAT        ! STATUS when closing file LINK1A
       CHARACTER(LEN=*), INTENT(IN)    :: CALL_OUTA_HERE    ! 'Y'/'N' indicator of whether to call OUTA_HERE (this should be 'Y'
@@ -94,12 +94,12 @@
 
 ! **********************************************************************************************************************************
 ! Units for writing open errors
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
 
 ! Open L1A file and write STIME
- 
+
       OPEN (L1A,FILE=LINK1A,STATUS='REPLACE',IOSTAT=IOCHK)
       IF (IOCHK /= 0) THEN
          CALL OPNERR (IOCHK, LINK1A, OUNT )
@@ -109,17 +109,17 @@
          ENDIF
       ENDIF
       WRITE(L1A,110) STIME
- 
+
 ! Write current LINK number
 
       WRITE(L1A,110) LINKNO
 
 ! Write solution name
- 
+
       WRITE(L1A,120) SOL_NAME
- 
+
 ! Write I/0 unit numbers, close status and names
- 
+
       WRITE(L1A,140) SC1                                   !   1
 
       WRITE(L1A,151) BUG,BUGSTAT,BUG_MSG,BUGFIL            !   3
@@ -127,7 +127,7 @@
       WRITE(L1A,151) ENF,ENFSTAT,ENF_MSG,ENFFIL            !   5
       WRITE(L1A,151) ERR,ERRSTAT,ERR_MSG,ERRFIL            !   6
       WRITE(L1A,151) F06,F06STAT,F06_MSG,F06FIL            !   8
-		WRITE(L1A,151) IN0,IN0STAT,IN0_MSG,IN0FIL            !   9
+      WRITE(L1A,151) IN0,IN0STAT,IN0_MSG,IN0FIL            !   9
       WRITE(L1A,151) L1A,L1ASTAT,L1A_MSG,LINK1A            !  10
       WRITE(L1A,151) NEU,NEUSTAT,NEU_MSG,NEUFIL            !  11
       WRITE(L1A,151) PCH,PCHSTAT,PCH_MSG,PCHFIL            !  12
@@ -200,7 +200,7 @@
       ENDDO
 
 ! Write counter info from module SCONTR
- 
+
       I = 0
 
       I = I + 1  ;     WRITE(L1A,160) LBAROFF            , 'LBAROFF               (  1)'  !
@@ -530,7 +530,7 @@
       WRITE(L1A,103) (COMM(I),I=0,49)
 
       CALL FILE_CLOSE ( L1A, LINK1A, CLOSE_STAT )
- 
+
 
 
       RETURN
@@ -557,5 +557,5 @@
   193 FORMAT(1X,1ES14.6,1X,A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_L1A

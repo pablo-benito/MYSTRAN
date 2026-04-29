@@ -1,38 +1,38 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE INTERFACE_FORCE_LTM
- 
+
 ! Merges matrices to get the interface force Loads Transformation Matrix (LTM):
 
 !            IF_LTM   = | MRRcb  MRN    KRRcb |
 
 ! For a description of Craig-Bamptom analyses, see Appendix D to the MYSTRAN User's Referance Manual
 
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, NDOFR, NTERM_KRRcb, NTERM_KRRcbn, NTERM_MRRcbn, NTERM_MRN  ,     &
@@ -40,11 +40,11 @@
       USE PARAMS, ONLY                :  PRTIFLTM, SPARSTOR
       USE TIMDAT, ONLY                :  TSEC
 
-      USE SPARSE_MATRICES, ONLY       :  SYM_KRRcb, SYM_KRRcbn, SYM_MRN  , SYM_MRRcbn, SYM_IF_LTM  
+      USE SPARSE_MATRICES, ONLY       :  SYM_KRRcb, SYM_KRRcbn, SYM_MRN  , SYM_MRRcbn, SYM_IF_LTM
 
       USE SPARSE_MATRICES, ONLY       :  I_MRRcbn   , J_MRRcbn   , MRRcbn   , I_MRN      , J_MRN      , MRN      ,                 &
                                          I_KRRcb    , J_KRRcb    , KRRcb    , I_KRRcbn   , J_KRRcbn   , KRRcbn   ,                 &
-                                         I_IF_LTM   , J_IF_LTM   , IF_LTM   
+                                         I_IF_LTM   , J_IF_LTM   , IF_LTM
 
       USE SCRATCH_MATRICES, ONLY      :  I_CRS1, J_CRS1, CRS1
 
@@ -52,7 +52,7 @@
       USE INTERFACE_FORCE_LTM_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'INTERFACE_FORCE_LTM'
 
       INTEGER(LONG)                   :: I,J               ! DO loop indices
@@ -96,9 +96,9 @@
       ENDIF
 
 
-! Allocate enough memory for merge of cols of MRRcbn with MRN  
+! Allocate enough memory for merge of cols of MRRcbn with MRN
 
-      NTERM_CRS1 = NTERM_MRRcbn+NTERM_MRN  
+      NTERM_CRS1 = NTERM_MRRcbn+NTERM_MRN
       CALL ALLOCATE_SCR_CRS_MAT ( 'CRS1', NDOFR, NTERM_CRS1, SUBR_NAME )
 
 ! Merge MRRcbn and MRN   (both in nonsym format) into nonsym format temporary scratch matrix CRS1.
@@ -107,14 +107,14 @@
                                 'MRN  '  , NTERM_MRN      , I_MRN   , J_MRN   , MRN   , SYM_MRN   , NDOFR,                         &
                                 'MRRcbn merged with MRN  ', I_CRS1  , J_CRS1  , CRS1  , 'N'        )
 
-! Merge CRS1 with KRRcb to get IF_LTM  
+! Merge CRS1 with KRRcb to get IF_LTM
 
       NCOL_CRS1      = NDOFR + NVEC
       NTERM_IF_LTM   = NTERM_CRS1 + NTERM_KRRcbn
       CALL ALLOCATE_SPARSE_MAT ( 'IF_LTM  ', NDOFR, NTERM_IF_LTM  , SUBR_NAME )
       CALL MERGE_MAT_COLS_SSS ( 'CRS1'    , NTERM_CRS1    , I_CRS1    , J_CRS1    , CRS1    , 'N'         , NCOL_CRS1,             &
                                 'KRRcbn'  , NTERM_KRRcbn  , I_KRRcbn  , J_KRRcbn  , KRRcbn  , SYM_KRRcbn  , NDOFR,                 &
-                                'IF_LTM',                   I_IF_LTM  , J_IF_LTM  , IF_LTM  , SYM_IF_LTM   ) 
+                                'IF_LTM',                   I_IF_LTM  , J_IF_LTM  , IF_LTM  , SYM_IF_LTM   )
       CALL DEALLOCATE_SCR_MAT ( 'CRS1' )
       CALL DEALLOCATE_SPARSE_MAT ( 'KRRcbn' )
 
@@ -124,7 +124,7 @@
 
 
 
- 
+
       RETURN
 
 ! **********************************************************************************************************************************

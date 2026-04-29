@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE IP6CHK ( JCARDI, JCARDO, IP6TYP, TOTAL_NUM_DIGITS )
- 
+
 ! Routine to check DOF component and PINFLG fields on Bulk Data cards to make sure that they contain valid entries:
 ! Output JCARDO is:
 
@@ -40,32 +40,32 @@
 
 !   (1) 'BLANK   ' if JCARDI is blank
 !   (2) 'COMP NOS' if JCARDI has 1,2,3,4,5, and/or 6's
-!   (3) 'ZERO    ' if JCARDI has one zero  
+!   (3) 'ZERO    ' if JCARDI has one zero
 !   (4) 'ERROR   ' if JCARDI has anything else
 
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, JCARD_LEN, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE PARAMS, ONLY                :  SUPWARN
- 
+
       USE IP6CHK_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM))    :: SUBR_NAME = 'IP6CHK'
       CHARACTER(LEN=JCARD_LEN), INTENT(IN):: JCARDI            ! Input 8 character field
       CHARACTER(8*BYTE), INTENT(OUT)      :: IP6TYP            ! Descriptor of JCARDI, see above
       CHARACTER(LEN(JCARDI)), INTENT(OUT) :: JCARDO            ! Output 8 character field, described above
       CHARACTER(LEN(JCARDI))              :: JCARDO_TMP        ! Output 8 character field, described above
- 
+
       INTEGER(LONG), INTENT(OUT)          :: TOTAL_NUM_DIGITS  ! Total of NUM_DIGITS(I)
       INTEGER(LONG)                       :: I                 ! DO loop index
       INTEGER(LONG)                       :: NUM_DIGITS(6)     ! NUM_DIGITS(I) is a count of the num of digits found in JCARDI
       INTEGER(LONG)                       :: POSN              ! An position in JCARDO
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -81,18 +81,18 @@
       TOTAL_NUM_DIGITS = 0
 
 ! Check for all blank input:
- 
+
       IF (JCARDI == '        ') THEN
          IP6TYP = 'BLANK   '
-  
+
 ! Check for only 1 zero in the field
-  
-      ELSE IF ((JCARDI == '0       ') .OR. (JCARDI == ' 0      ') .OR. (JCARDI == '  0     ') .OR. (JCARDI == '   0    ') .OR.  & 
+
+      ELSE IF ((JCARDI == '0       ') .OR. (JCARDI == ' 0      ') .OR. (JCARDI == '  0     ') .OR. (JCARDI == '   0    ') .OR.  &
                (JCARDI == '    0   ') .OR. (JCARDI == '     0  ') .OR. (JCARDI == '      0 ') .OR. (JCARDI == '       0')) THEN
          IP6TYP = 'ZERO    '
- 
+
 ! Check for digits 1, 2, 3, 4, 5 and/or 6 (blanks among them are OK). If anything else found, then error.
- 
+
       ELSE
 
 i_loop:  DO I = 1,JCARD_LEN
@@ -155,9 +155,9 @@ i_loop:  DO I = 1,JCARD_LEN
                JCARDO(POSN:POSN) = JCARDO_TMP(I:I)
             ENDIF
          ENDDO
- 
-      ENDIF   
- 
+
+      ENDIF
+
       IF ((NUM_DIGITS(1) > 1) .OR. (NUM_DIGITS(2) > 1) .OR. (NUM_DIGITS(3) > 1) .OR.                                               &
           (NUM_DIGITS(4) > 1) .OR. (NUM_DIGITS(5) > 1) .OR. (NUM_DIGITS(6) > 1)) THEN
          WARN_ERR = WARN_ERR + 1
@@ -176,8 +176,8 @@ i_loop:  DO I = 1,JCARD_LEN
       RETURN
 
 ! **********************************************************************************************************************************
- 1738 FORMAT(' *WARNING    : SOME DOF COMPONENT NUMBERS 1 THROUGH 6 ARE REPEATED ON ABOVE CARD') 
+ 1738 FORMAT(' *WARNING    : SOME DOF COMPONENT NUMBERS 1 THROUGH 6 ARE REPEATED ON ABOVE CARD')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE IP6CHK

@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE BD_CBUSH ( CARD, LARGE_FLD_INP )
 
@@ -50,7 +50,7 @@
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of 8 characters making up CARD
       CHARACTER(LEN=JCARD_LEN)        :: JCARD_EDAT(10)    ! JCARD values sent to subr ELEPRO
       CHARACTER(LEN=JCARD_LEN)        :: NAME              ! Name of this entry (field 1)
-      CHARACTER( 9*BYTE)              :: VVEC_TYPE         ! Type of V vector on this CBUSH 
+      CHARACTER( 9*BYTE)              :: VVEC_TYPE         ! Type of V vector on this CBUSH
 
       INTEGER(LONG)                   :: CID               ! Coord sys ID for v vector (required under some circumstances)
       INTEGER(LONG)                   :: G0   = 0          ! Grid specifying V vector for this CBUSH, if input
@@ -84,7 +84,7 @@
 !    4      Grid A         EDAT(nedat+4)
 !    5      Grid B         EDAT(nedat+5)
 !    6-8    V-Vector       EDAT(nedat+6) (see VVEC explanation below)
-!    9      CID            EDAT(nedat+7) Elem coord sys identification. 0 is basic. blank means to use G0 or X1,2,3 
+!    9      CID            EDAT(nedat+7) Elem coord sys identification. 0 is basic. blank means to use G0 or X1,2,3
 
 ! on optional second card:
 !    2      S              Location of spring/damper (def = 0.5). This is a relative distance = offset/BUSH length
@@ -114,7 +114,7 @@
 
       DO I=1,10
          JCARD_EDAT(I) = JCARD(I)
-      ENDDO 
+      ENDDO
 
 ! Check property ID field. Set to EID if blank
 
@@ -167,11 +167,11 @@ vec:  IF (JCARD(9)(1:) == ' ') THEN                        ! CID field is blank 
                ENDIF
             ENDDO
             IF (JERR /= 0) THEN
-               VVEC_TYPE = 'ERROR    '                     ! Found error in V vector components, so reset VVEC_TYPE 
+               VVEC_TYPE = 'ERROR    '                     ! Found error in V vector components, so reset VVEC_TYPE
             ENDIF
          ELSE                                              ! Check to see if there is a grid no. for specifying VVEC
             IF ((JCARD(6)(1:) /= ' ') .AND. (JCARD(7)(1:) == ' ') .AND. (JCARD(8)(1:) == ' ')) THEN
-               VVEC_TYPE = 'GRID     '    
+               VVEC_TYPE = 'GRID     '
                CALL I4FLD ( JCARD(6), JF(6), I4INP )
                IF (IERRFL(6) == 'N') THEN
                   G0 = I4INP
@@ -200,7 +200,7 @@ vec:  IF (JCARD(9)(1:) == ' ') THEN                        ! CID field is blank 
                                                            ! Load V vector data into EDAT and into VVEC, if not already there
          IF (VVEC_TYPE == 'GRID     ') THEN
 
-            EDAT(NEDAT_START+6) = G0                       ! --- Slot 6 in EDAT is VVEC defined by grid G0 
+            EDAT(NEDAT_START+6) = G0                       ! --- Slot 6 in EDAT is VVEC defined by grid G0
 
          ELSE IF (VVEC_TYPE == 'VECTOR   ') THEN
 
@@ -214,7 +214,7 @@ vec:  IF (JCARD(9)(1:) == ' ') THEN                        ! CID field is blank 
                ENDIF
             ENDDO
 
-            IF (FOUND == 'N') THEN   
+            IF (FOUND == 'N') THEN
                NVVEC = NVVEC + 1
                IF (NVVEC > LVVEC) THEN
                   FATAL_ERR = FATAL_ERR + 1
@@ -267,7 +267,7 @@ vec:  IF (JCARD(9)(1:) == ' ') THEN                        ! CID field is blank 
 ! Write warnings and errors for parent entry, if any
 
       CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,6,7,8,9 )     ! Make sure that there are no imbedded blanks in fields 2-9
-      CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields         
+      CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
 
 ! Optional Second Card: NOTE: The offset on this entry is relative to grid A and has only 3 components.
 ! The offset from grid B will be to the same location in space as where the offset from grid A is (since the CBUSH is a zero
@@ -378,7 +378,7 @@ vec:  IF (JCARD(9)(1:) == ' ') THEN                        ! CID field is blank 
  1188 FORMAT(' *ERROR  1188: NO V VECTOR SPECIFIED FOR ',A,' ELEMENT ID = ',A)
 
  1189 FORMAT(' *ERROR  1189: ',A,A,' MUST HAVE NON-NEGATIVE VALUE FOR CID IF FIELD ',I2,' IS NOT BLANK. VALUE READ WAS ',I8)
- 
+
 
 
 

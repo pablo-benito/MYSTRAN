@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE EMG ( INT_ELEM_ID, OPT, WRITE_WARN, CALLING_SUBR, WRT_BUG_THIS_TIME )
- 
+
 ! Main driver routine for calculation of matrices for all elements. This routine initializes appropriate arrays and calls
 ! other routines to calculate element matrices:
 
@@ -41,8 +41,8 @@
 !  TE        = Coord transformation matrix (basic to elem)
 !  ZS        = Stress recovery coeff's
 !  FCONV     = Constants to convert stress to engineering force
-!              NOTE: may need to calc KE to get this 
- 
+!              NOTE: may need to calc KE to get this
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MBUG, MEDAT0_CUSERIN, MELDOF, MEMATC, MOFFSET, NSUB, NTSUB
@@ -61,7 +61,7 @@
 
       IMPLICIT NONE
 
-      CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'EMG' 
+      CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'EMG'
       CHARACTER(LEN=*)  , INTENT(IN)  :: CALLING_SUBR       ! Name of subr that called this one
       CHARACTER( 1*BYTE), INTENT(IN)  :: OPT(6)             ! Array of EMG option indicators explained above
       CHARACTER(LEN=*)  , INTENT(IN)  :: WRITE_WARN         ! If 'Y" write warning messages, otherwise do not
@@ -69,32 +69,32 @@
       CHARACTER( 2*BYTE)              :: LOC                ! Location where THETAM is calculated (for DEBUG output purposes)
       CHARACTER( 1*BYTE)              :: FIX_EDAT      = 'N'! If 'Y', run code to change order of grids in EDAT for 3D elems
       CHARACTER( 1*BYTE)              :: RED_INT_SHEAR = 'N'! If 'Y', use Gaussian weighted average of B matrices for shear terms
- 
+
       INTEGER(LONG), INTENT(IN)       :: INT_ELEM_ID        ! Internal element ID for which
       INTEGER(LONG)                   :: CASE_NUM    = 0    ! Can be subcase number (e.g. for UEL, PEL outout)
       INTEGER(LONG)                   :: DUM_BUG(0:MBUG-1)  ! Values from WRT_BUG sent to subr ELMOUT in a particular call
       INTEGER(LONG)                   :: EPNTK              ! Value from array EPNT at the row for this internal elem ID. It is the
-!                                                             row number in array EDAT where data begins for this element. 
+!                                                             row number in array EDAT where data begins for this element.
       INTEGER(LONG)                   :: I                  ! DO loop index
       INTEGER(LONG)                   :: INT_ORDER   = 0    ! Gaussian integration order for element
       INTEGER(LONG)                   :: IORD_IJ            ! Integration order in the triangular plane for PENTA elements
       INTEGER(LONG)                   :: IORD_K             ! Integration order in Z direction for PENTA elements
       INTEGER(LONG)                   :: INT41,INT42        ! An integer used in getting MATANGLE
 
- 
+
 ! **********************************************************************************************************************************
       EPNTK = EPNT(INT_ELEM_ID)
       EID   = EDAT(EPNTK)
       TYPE  = ETYPE(INT_ELEM_ID)
       CALL IS_ELEM_PCOMP_PROPS ( INT_ELEM_ID )
- 
+
       NUM_EMG_FATAL_ERRS = 0
 
 
       CALL EMG_INIT
 
 ! **********************************************************************************************************************************
-! Call ELMDAT1 subr to get some of the data needed for this elem. 
+! Call ELMDAT1 subr to get some of the data needed for this elem.
 
       IF ((TYPE == 'ELAS1   ') .OR. (TYPE == 'ELAS2   ') .OR. (TYPE == 'ELAS3   ') .OR. (TYPE == 'ELAS4   ') .OR.                  &
           (TYPE == 'ROD     ') .OR. (TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ') .OR. (TYPE == 'BUSH    ') .OR.                  &
@@ -104,13 +104,13 @@
           (TYPE == 'USER1   ') .OR. (TYPE == 'USERIN  ') .OR. (TYPE == 'PLOTEL  ') .OR.                                            &
           (TYPE == 'SHEAR   ') .OR. (TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'QUAD4'   ) .OR. (TYPE(1:5) == 'QUAD8'   )) THEN
          CALL ELMDAT1 ( INT_ELEM_ID, WRITE_WARN )
-      ELSE             
+      ELSE
          WRITE(ERR,1916) SUBR_NAME,EID,TYPE
          WRITE(F06,1916) SUBR_NAME,EID,TYPE
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )                            ! Coding error, so quit
       ENDIF
- 
+
       IF (NUM_EMG_FATAL_ERRS > 0)   CALL EMG_QUIT
 
 ! **********************************************************************************************************************************
@@ -169,9 +169,9 @@
 
       ELSE IF ((TYPE == 'USER1   ') .OR. (TYPE == 'USERIN  ')) THEN
          CONTINUE
- 
+
       ENDIF
- 
+
       IF (NUM_EMG_FATAL_ERRS > 0)   CALL EMG_QUIT
 
 ! **********************************************************************************************************************************
@@ -250,7 +250,7 @@
 
             IF (WRITE_WARN == 'Y') THEN
                IF ((INT41 /= 0) .OR. (INT42 /= 0)) THEN
-                  
+
                   WARN_ERR = WARN_ERR + 1
                   WRITE(ERR,1003) TYPE, EID
                   IF (SUPWARN == 'N') THEN
@@ -264,7 +264,7 @@
       ENDIF
 
       IF (TYPE == 'QUAD8   ') THEN
-      
+
         CALL MATERIAL_PROPS_2D ( WRITE_WARN )
         ! Don't transform the material properties here because the transformation is different at each point in the element.
 
@@ -307,11 +307,11 @@
       IF ((OPT(1) == 'N') .AND. (OPT(2) == 'N') .AND. (OPT(3) == 'N') .AND. (OPT(4) == 'N') .AND. (OPT(5) == 'N') .AND.            &
           (OPT(6) == 'N')) THEN
          RETURN
-      ENDIF 
+      ENDIF
 
 ! **********************************************************************************************************************************
-! For all but USERIN elem, call ELMDAT2 subr to get the rest of the data needed to calculate the matrices for this element. 
- 
+! For all but USERIN elem, call ELMDAT2 subr to get the rest of the data needed to calculate the matrices for this element.
+
       IF ((TYPE(1:4) == 'ELAS'    ) .OR. (TYPE      == 'ROD     ') .OR. (TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ') .OR.        &
           (TYPE(1:5) == 'TRIA3'   ) .OR. (TYPE(1:5) == 'QUAD4'   ) .OR. (TYPE == 'SHEAR   ') .OR. (TYPE == 'USER1   ') .OR.        &
           (TYPE      == 'HEXA8   ') .OR. (TYPE      == 'HEXA20  ') .OR.                                                            &
@@ -325,14 +325,14 @@
 ! **********************************************************************************************************************************
 ! Now get the individual elem routines to calc the required elem matrices: ME and/or PTE and/or (SE1, SE2, STE1,STE2)
 ! and/or KE).
- 
+
       IF (TYPE(1:4) == 'ELAS') THEN
          CALL ELAS1 ( OPT, WRITE_WARN )
-      
+
       ELSE IF ((TYPE == 'ROD     ') .OR. (TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ')) THEN
          CALL BREL1 ( OPT, WRITE_WARN )
          IF (NUM_EMG_FATAL_ERRS > 0)   CALL EMG_QUIT
- 	
+
       ELSE IF (TYPE(1:4) == 'BUSH') THEN
          CALL BUSH ( INT_ELEM_ID, OPT, WRITE_WARN )
          IF (NUM_EMG_FATAL_ERRS > 0)   CALL EMG_QUIT
@@ -392,9 +392,9 @@
 
       ELSE IF (TYPE == 'USERIN  ') THEN
          CALL USERIN ( INT_ELEM_ID, OPT, CALLING_SUBR, WRITE_WARN )
- 
-      ENDIF       
- 
+
+      ENDIF
+
 
 ! **********************************************************************************************************************************
 ! For plate elements, process offsets (since they are specified in local element coordinates)
@@ -431,17 +431,17 @@
                     ,/,14X,' ELEMENT',I8,' IS TYPE ',A,'. NO CODE WRITTEN FOR THIS TYPE.')
 
  1001 FORMAT(' THETAM material angle for ',a,i8,' = ',f8.3,' deg (at code location ',a,' in subr EMG: Row number in array MATANGLE'&
-            ,' INT42 = ',I8,I3) 
+            ,' INT42 = ',I8,I3)
 
  1002 FORMAT(' THETAM material angle for ',a,i8,' = ',f8.3,' deg (at code location ',a,' in subr EMG: Material angle coord system' &
-            ,' INT42 = ',I8,I3) 
+            ,' INT42 = ',I8,I3)
 
  1003 FORMAT(' WARNING     : MATERIAL ANGLE FOR ',A,I8,' IS NOT USED FOR PLATE ELEMENTS WITH PCOMP PROPERTIES')
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE EMG_INIT
@@ -449,7 +449,7 @@
       USE SCONTR, ONLY                :  LSUB, MELDOF, MELGP, MDT, MPRESS, MAX_STRESS_POINTS
       USE MODEL_STUF, ONLY            :  AGRID, BE1, BE2, BE3, BGRID, DOFPIN, DT, ELAS_COMP, FCONV, KE, KED, ME,                   &
                                          OFFDIS, OFFSET, PEB, PEG, PEL, PPE, PRESS, PTE, SE1, SE2, SE3, STE1, STE2, STE3,          &
-                                         UEB, UEG, UEL, UGG, XEB, XEL 
+                                         UEB, UEG, UEL, UGG, XEB, XEL
       IMPLICIT NONE
 
       INTEGER(LONG)                   :: II,JJ,KK
@@ -516,24 +516,24 @@
          DO JJ=1,MELDOF
             DO II=1,MELDOF
                KE(II,JJ) = ZERO
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
       ENDIF
                                                            !  9
       IF (ALLOCATED(KED)) THEN
          DO JJ=1,MELDOF
             DO II=1,MELDOF
                KED(II,JJ) = ZERO
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
       ENDIF
                                                            ! 10
       IF (ALLOCATED(ME)) THEN
          DO JJ=1,MELDOF
             DO II=1,MELDOF
                ME(II,JJ) = ZERO
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
       ENDIF
                                                            ! 11
       IF (ALLOCATED(OFFDIS)) THEN
@@ -572,9 +572,9 @@
          DO JJ=1,NSUB
             DO II=1,MELDOF
                PPE(II,JJ) = ZERO
-            ENDDO 
-         ENDDO 
-      ENDIF 
+            ENDDO
+         ENDDO
+      ENDIF
                                                            ! 17
       IF (ALLOCATED(PRESS)) THEN
          DO II=1,MPRESS

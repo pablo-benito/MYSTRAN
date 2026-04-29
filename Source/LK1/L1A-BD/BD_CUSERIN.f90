@@ -1,47 +1,47 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_CUSERIN ( CARD, LARGE_FLD_INP, NG, NS )
-  
+
 ! Processes CUSERIN Bulk Data Cards
 !  1) Sets ETYPE for this element type
 !  2) Calls subr ELEPRO to read element ID, property ID and connection data into array EDAT
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, LGUSERIN, LSUSERIN, MEDAT0_CUSERIN,       &
-                                         NCUSERIN, NEDAT, NELE, WARN_ERR 
+                                         NCUSERIN, NEDAT, NELE, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE PARAMS, ONLY                :  SUPWARN
       USE MODEL_STUF, ONLY            :  EDAT, ETYPE
- 
+
       USE BD_CUSERIN_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_CUSERIN'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD              ! A Bulk Data card
       CHARACTER(LEN=*), INTENT(IN)    :: LARGE_FLD_INP     ! If 'Y', CARD is large field format
@@ -54,7 +54,7 @@
       CHARACTER(LEN=JCARD_LEN)        :: NAME              ! JCARD(1) from parent entry
       CHARACTER( 8*BYTE)              :: TOKEN             ! The 1st 8 characters from a JCARD
       CHARACTER( 8*BYTE)              :: TOKTYP            ! An output from subr TOKCHK called herein
- 
+
       INTEGER(LONG), INTENT(OUT)      :: NG                ! Number of GRID's for the elem as defined on parent card field 5
       INTEGER(LONG), INTENT(OUT)      :: NS                ! Number of SPOINT's for the elem as defined on parent card field 5
       INTEGER(LONG)                   :: FIELDS_NOT_BLANK  ! Indicator of problem with fields not being blank on CARD
@@ -81,12 +81,12 @@
       INTEGER(LONG)                   :: USERIN_COMPS(LGUSERIN)
 
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! CUSERIN element Bulk Data Card routine
- 
+
 !   FIELD         ITEM                  ARRAY ELEMENT
 !   -----   ----------------         -----------------
 !    1      Elem type                 ETYPE(nele) = 'USERIN  '
@@ -95,7 +95,7 @@
 !    4      NG , Num GRID's           EDAT(nedat+3)
 !    5      NS , Num SPOINT's         EDAT(nedat+4)
 !    6      CID0, basic coord sys ID  EDAT(nedat+5)
- 
+
 ! Cont cards defining NG GRIDCOMP pairs
 !    2-9    NG GRID/COMP pairs        EDAT(nedat+?)
 
@@ -104,20 +104,20 @@
 !   2-9     SPOINT ID's
 ! on optional continuation cards:
 !   2-9     Grid ID's
- 
+
 ! Format #2:
 !    2      SPOINT ID 1
 !    3      "THRU"
 !    4      SPOINT ID 2
- 
+
 
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
 
       NAME = JCARD(1)
       ID   = JCARD(2)
- 
+
 ! Read fields 4 and 5 since we need the values of NG, NS below
 
       NG = 0
@@ -274,28 +274,28 @@ cont:    IF (ICONT == 1) THEN
             TOKEN = JCARD(3)(1:8)                          ! Only send the 1st 8 chars of this JCARD. It has been left justified
             CALL TOKCHK ( TOKEN, TOKTYP )                  ! TOKTYP must be THRU', 'INTEGR', or 'BLANK'
 
-tok:        IF (TOKTYP == 'THRU    ') THEN                      
+tok:        IF (TOKTYP == 'THRU    ') THEN
 
                JERR = 0
 
                IF (JCARD(2)(1:) /= ' ') THEN               ! Get 1st SPOINT ID
                   CALL I4FLD ( JCARD(2), JF(2), SPOINT1 )
-               ELSE            
+               ELSE
                   JERR      = JERR + 1
                   FATAL_ERR = FATAL_ERR + 1
                   WRITE(ERR,1125) 'SCALAR POINT', JF(2), JCARD(1)
                   WRITE(F06,1125) 'SCALAR POINT', JF(2), JCARD(1)
                ENDIF
- 
+
                IF (JCARD(4)(1:) /= ' ') THEN            ! Get 2nd SPOINT ID
                   CALL I4FLD ( JCARD(4), JF(4), SPOINT2 )
-               ELSE            
+               ELSE
                   JERR      = JERR + 1
                   FATAL_ERR = FATAL_ERR + 1
                   WRITE(ERR,1125) 'SCALAR POINT', JF(4), JCARD(1)
                   WRITE(F06,1125) 'SCALAR POINT', JF(4), JCARD(1)
                ENDIF
- 
+
                IF ((IERRFL(2)=='N') .AND. (IERRFL(4)=='N')) THEN ! Check SPOINT2 > SPOINT1 if there were no errors reading them
                   IF (SPOINT2 <= SPOINT1) THEN
                      JERR      = JERR + 1
@@ -303,8 +303,8 @@ tok:        IF (TOKTYP == 'THRU    ') THEN
                      WRITE(ERR,1128) JCARD(1)
                      WRITE(F06,1128) JCARD(1)
                   ENDIF
-               ENDIF            
- 
+               ENDIF
+
                CALL BD_IMBEDDED_BLANK ( JCARD,2,0,4,0,0,0,0,0 )  ! Make sure that there are no imbedded blanks in fields 2, 4
                CALL CARD_FLDS_NOT_BLANK ( JCARD,0,0,0,5,6,7,8,9 )! Issue warning if fields 5, 6, 7, 8, 9 not blank
                CALL CRDERR ( CARD )                              ! CRDERR prints errors found when reading fields
@@ -315,7 +315,7 @@ tok:        IF (TOKTYP == 'THRU    ') THEN
                      USERIN_SPOINTS(NS_FOUND) = SPOINT1 + J - 1
                   ENDDO
                ENDIF
- 
+
                IF (NS_FOUND /= NS) THEN                    ! make sure we found the correct amount of SPOINT's
                   FATAL_ERR = FATAL_ERR + 1
                   WRITE(ERR,1149) NAME, ID, NS, ' SPOINTs ', NS_FOUND
@@ -423,9 +423,9 @@ do_i2:         DO WHILE (NS_FOUND < NS)
  1125 FORMAT(' *ERROR  1125: NO ',A,' SPECIFIED IN FIELD',I4,' ON ',A,' CARD')
 
  1128 FORMAT(' *ERROR  1128: ON ',A,' THE IDs MUST BE IN INCREASING ORDER FOR THRU OPTION')
- 
+
  1136 FORMAT(' *ERROR  1136: REQUIRED CONTINUATION FOR ',A,' ID = ',A,' MISSING')
- 
+
  1149 FORMAT(' *ERROR  1149: ',A,A,' HAS ',I8,A,' SPECIFIED ON THE PARENT ENTRY BUT ',I8,' HAVE BEEN FOUND ON CONTINUATION ENTRIES')
 
  1150 FORMAT(' *ERROR  1150: ',A,A,' HAS BLANK FIELDS BETWEEN FIELDS OF DATA FROM FIELD ',I2,' TO FIELD 9. NOT ALLOWED')
@@ -440,5 +440,5 @@ do_i2:         DO WHILE (NS_FOUND < NS)
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_CUSERIN

@@ -1,44 +1,44 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE SORT_INT3 ( CALLING_SUBR, MESSAG, NSIZE, IARRAY1, IARRAY2, IARRAY3 )
- 
+
 ! Performs shell sort on integer array IARRAY1 to put it into numerically increasing order and sorts integer arrays
 ! IARRAY2 and IARRAY3 along with IARRAY1. All 3 arrays are of size NSIZE
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE PARAMS, ONLY                :  SORT_MAX
       USE TIMDAT, ONLY                :  TSEC
- 
+
       USE SORT_INT3_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SORT_INT3'
       CHARACTER(LEN=*), INTENT(IN)    :: CALLING_SUBR      ! Subr that called this subr
       CHARACTER(LEN=*), INTENT(IN)    :: MESSAG            ! Message to be written out if this subr fails to sort
@@ -49,7 +49,7 @@
       INTEGER(LONG), INTENT(INOUT)    :: IARRAY2(NSIZE)    ! Integer array
       INTEGER(LONG), INTENT(INOUT)    :: IARRAY3(NSIZE)    ! Integer array
       INTEGER(LONG)                   :: I,K,M             ! DO loop indices
-      INTEGER(LONG)                   :: IDUM1,IDUM2,IDUM3 ! Dummy values in IARRAY used when switching IARRAY rows during sort. 
+      INTEGER(LONG)                   :: IDUM1,IDUM2,IDUM3 ! Dummy values in IARRAY used when switching IARRAY rows during sort.
       INTEGER(LONG)                   :: IFLIP             ! Indicates whether two values have been switched in sort order.
       INTEGER(LONG)                   :: JCT               ! Shell sort parameter returned from subroutine SORTLEN.
       INTEGER(LONG)                   :: MAXM              ! NSIZE - SORTPK
@@ -62,11 +62,11 @@
 
 ! **********************************************************************************************************************************
 ! Call SORTLEN to calculate the shell sort parameter JCT
- 
+
       SORT_NUM = 1
 
       CALL SORTLEN ( NSIZE, JCT )
- 
+
 outer:DO                                                      ! Run sort until array is sorted or SORT_MAX is exceeded
 
          DO K = JCT,1,-1                                      ! Do the sort
@@ -95,9 +95,9 @@ outer:DO                                                      ! Run sort until a
                ELSE
                   EXIT
                ENDIF
-            ENDDO 
+            ENDDO
          ENDDO
- 
+
          SORTED = 'YES'                                    ! Make sure array is sorted.
 chk_sort:DO I=1,NSIZE-1
             IF (IARRAY1(I) > IARRAY1(I+1)) THEN
@@ -129,7 +129,7 @@ chk_sort:DO I=1,NSIZE-1
 ! **********************************************************************************************************************************
   914 FORMAT(' *ERROR   914: SUBROUTINE ',A,', CALLED BY SUBR ',A                                                                  &
                     ,/,14X,' HAS MADE ',I8,' UNSUCCESSFUL ATTEMPTS TO SORT ARRAY(S) ',A                                            &
-                    ,/,14X,' THE MAX NUMBER OF SORT ATTEMPTS CAN BE INCREASED WITH BULK DATA PARAM SORT_MAX') 
+                    ,/,14X,' THE MAX NUMBER OF SORT ATTEMPTS CAN BE INCREASED WITH BULK DATA PARAM SORT_MAX')
 
 ! **********************************************************************************************************************************
 

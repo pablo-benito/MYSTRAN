@@ -1,46 +1,46 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_LOAD ( CARD, LARGE_FLD_INP, CC_LOAD_FND )
-  
+
 ! Processes LOAD Bulk Data Cards. Reads and checks data and enters data into arrays LOAD_SIDS and LOAD_FACS
 
 !  1) Load set ID's from the LOAD Bulk Data card are entered into array LOAD_SIDS
 !  2) Scale factors (overall for this LOAD card and individual for each set ID) are entered into array LOAD_FACS
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, LLOADR, LSUB, NLOAD, LLOADC, NSUB
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  LOAD_SIDS, LOAD_FACS, SUBLOD
- 
+
       USE BD_LOAD_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_LOAD'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD                ! A Bulk Data card
       CHARACTER( 1*BYTE),INTENT(INOUT):: CC_LOAD_FND(LSUB,2) ! 'Y' if B.D load/temp card w/ same set ID (SID) as C.C. LOAD = SID
@@ -48,19 +48,19 @@
       CHARACTER(LEN(CARD))            :: CHILD             ! "Child" card read in subr NEXTC, called herein
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)           ! The 10 fields of characters making up CARD
       CHARACTER(LEN(JCARD))           :: NAME                ! JCARD(1) from parent entry
- 
+
       INTEGER(LONG)                   :: I,J,K               ! DO loop index
       INTEGER(LONG)                   :: NUM_PAIRS           ! Counter on number of pairs of set ID's and scale factors on LOAD card
       INTEGER(LONG)                   :: ICONT     = 0       ! Indicator of whether a cont card exists. Output from subr NEXTC
       INTEGER(LONG)                   :: IERR      = 0       ! Error indicator returned from subr NEXTC called herein
       INTEGER(LONG)                   :: SETID               ! Set ID for this LOAD Bulk Data card
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! LOAD Bulk Data Card routine
- 
+
 !   FIELD   ITEM            ARRAY ELEMENT
 !   -----   ------------    -------------
 !    2      SID              LOAD_SIDS(nload,1)
@@ -71,9 +71,9 @@
 !    7      L2               LOAD_SIDS(nload,3)
 !    8      S3               LOAD_FACS(nload,4)
 !    9      L3               LOAD_SIDS(nload,4)
- 
+
 ! Optiona continuation cards:
-! 
+!
 !   FIELD   ITEM            ARRAY ELEMENT
 !   -----   ------------    -------------
 !    2      S4               LOAD_FACS(nload,5)
@@ -84,14 +84,14 @@
 !    7      L6               LOAD_SIDS(nload,7)
 !    8      S7               LOAD_FACS(nload,8)
 !    9      L7               LOAD_SIDS(nload,8)
- 
+
 ! Subsequent con't cards follow the same patterm as the 1st
- 
- 
+
+
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
       NAME = JCARD(1)
 
 ! Check for overflow
@@ -103,7 +103,7 @@
 !xx      WRITE(F06,1163) SUBR_NAME,JCARD(1),LLOADR
 !xx      CALL OUTA_HERE ( 'Y' )                            ! Coding error, so quit
 !xx   ENDIF
- 
+
 ! Read and check data on parent card
 
       CALL I4FLD ( JCARD(2), JF(2), LOAD_SIDS(NLOAD,1) )   ! Read set ID for this LOAD Bulk Data card
@@ -114,8 +114,8 @@
                CC_LOAD_FND(I,1) = 'Y'
             ENDIF
          ENDDO
-      ENDIF   
- 
+      ENDIF
+
       CALL R8FLD ( JCARD(3), JF(3), LOAD_FACS(NLOAD,1) )   ! Read overall scale factor on LOAD card
 
       NUM_PAIRS = 1                                        ! Read pairs of load mags and load ID's on parent card.
@@ -129,7 +129,7 @@
                WRITE(ERR,1139) SETID, NAME, NAME, LLOADC
                WRITE(F06,1139) SETID, NAME, NAME, LLOADC
                CALL OUTA_HERE ( 'Y' )                       ! Coding error, so quit
-            ENDIF            
+            ENDIF
             CALL R8FLD ( JCARD(J)  , JF(J)  , LOAD_FACS(NLOAD,NUM_PAIRS) )
             CALL I4FLD ( JCARD(J+1), JF(J+1), LOAD_SIDS(NLOAD,NUM_PAIRS) )
             DO K=1,NUM_PAIRS-1                             ! Check for duplicate set ID's
@@ -138,7 +138,7 @@
                   WRITE(ERR,1140) LOAD_SIDS(NLOAD,NUM_PAIRS),NAME,SETID
                   WRITE(F06,1140) LOAD_SIDS(NLOAD,NUM_PAIRS),NAME,SETID
                ENDIF
-            ENDDO 
+            ENDDO
             IF (IERRFL(J+1) == 'N') THEN
                IF (LOAD_SIDS(NLOAD,NUM_PAIRS) <= 0) THEN
                   FATAL_ERR = FATAL_ERR + 1
@@ -147,11 +147,11 @@
                ENDIF
             ENDIF
          ENDIF
-      ENDDO  
+      ENDDO
 
       CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,6,7,8,9 )     ! Make sure that there are no imbedded blanks in fields 2-9
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
-   
+
 ! Read and check data on optional continuation cards
 
       DO
@@ -172,7 +172,7 @@
                      WRITE(ERR,1139) SETID, NAME, NAME, LLOADC
                      WRITE(F06,1139) SETID, NAME, NAME, LLOADC
                      CALL OUTA_HERE ( 'Y' )                 ! Coding error, so quit
-                  ENDIF            
+                  ENDIF
                   CALL R8FLD ( JCARD(J)  , JF(J)  , LOAD_FACS(NLOAD,NUM_PAIRS) )
                   CALL I4FLD ( JCARD(J+1), JF(J+1), LOAD_SIDS(NLOAD,NUM_PAIRS) )
                   DO K=1,NUM_PAIRS-1                       ! Check for duplicate set ID's
@@ -181,7 +181,7 @@
                         WRITE(ERR,1140) LOAD_SIDS(NLOAD,NUM_PAIRS),NAME,SETID
                         WRITE(F06,1140) LOAD_SIDS(NLOAD,NUM_PAIRS),NAME,SETID
                      ENDIF
-                  ENDDO 
+                  ENDDO
                   IF (IERRFL(J+1) == 'N') THEN
                      IF (LOAD_SIDS(NLOAD,NUM_PAIRS) <= 0) THEN
                         FATAL_ERR = FATAL_ERR + 1
@@ -191,7 +191,7 @@
                   ENDIF
                ENDIF
             ENDDO
- 
+
             CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,6,7,8,9)! Make sure that there are no imbedded blanks in fields 2-9
             CALL CRDERR ( CARD )                           ! CRDERR prints errors found when reading fields
 
@@ -200,8 +200,8 @@
             EXIT
          ENDIF
 
-      ENDDO 
-  
+      ENDDO
+
 
 
       RETURN
@@ -219,5 +219,5 @@
  1176 FORMAT(' *ERROR  1176: LOAD SET ID ON BULK DATA LOAD ENTRY ID = ',I8,' IN FIELD ',I3,' IS = ',I8,'. MUST BE > 0')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_LOAD

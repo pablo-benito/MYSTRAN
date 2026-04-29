@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE LINK5
- 
+
 ! LINK5 takes the L-set displacements solved for in LINK3 (statics) or LINK4 (eigenvalues) and builds it back up to the G-set.
 ! See Appendix B to the MYSTRAN User's Reference Guide for an explanation of how this is done.
 
 ! In addition, for Craig-Bampton model generation (SOL = GEN CB MODEL or 31), array PHIXA is expanded to G-set size
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_ERR, ERR, F06, L1H, L2A, L2E, L2F, L3A, L5A, L5B, SC1
       USE IOUNT1, ONLY                :  LINK1H, LINK2A, LINK2E, LINK2F, LINK3A, LINK5A, LINK5B
@@ -47,31 +47,31 @@
       USE SPARSE_MATRICES, ONLY       :  I_GMN, J_GMN, GMN, I_GOA, J_GOA, GOA
       USE OUTPUT4_MATRICES, ONLY      :  NUM_OU4_REQUESTS
       USE MISC_MATRICES, ONLY         :  UG_T123_MAT
-      USE COL_VECS, ONLY              :  UG_COL, YSe, UO0_COL, UL_COL 
+      USE COL_VECS, ONLY              :  UG_COL, YSe, UO0_COL, UL_COL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE DOF_TABLES, ONLY            :  TDOF, TDOFI
       USE MODEL_STUF, ONLY            :  GRID, GRID_ID, INV_GRID_SEQ, EIG_COMP, EIG_GRID, EIG_NORM, MAXMIJ, MIJ_COL, MIJ_ROW
 
       USE LINK5_USE_IFs
       USE LINK_MESSAGE_Interface
-      
+
       IMPLICIT NONE
- 
+
       LOGICAL                         :: VEC_SIGN_CHG(NDOFL) ! Indicators of whether user wants to change sign of an eigenvector
 
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LINK5'
-      CHARACTER( 1*BYTE)              :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
+      CHARACTER( 1*BYTE)              :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
       CHARACTER( 8*BYTE)              :: CLOSE_STAT        ! What to do with file when it is closed
       CHARACTER( 1*BYTE)              :: DO_IT             ! If 'Y' execute some code
       CHARACTER( 1*BYTE)              :: MIJ_COL_FOUND='N' ! 'Y' if MIJ_ROW is processed as a solution vector in this LINK
       CHARACTER( 1*BYTE)              :: MIJ_ROW_FOUND='N' ! 'Y' if MIJ_ROW is processed as a solution vector in this LINK
-      CHARACTER( 1*BYTE)              :: READ_NTERM        ! 'Y' or 'N' Input to subr READ_MATRIX_1 
-      CHARACTER( 1*BYTE)              :: OPND              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not 
+      CHARACTER( 1*BYTE)              :: READ_NTERM        ! 'Y' or 'N' Input to subr READ_MATRIX_1
+      CHARACTER( 1*BYTE)              :: OPND              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not
       CHARACTER( 1*BYTE)              :: READ_UO0          ! If 'Y' then read UO0 data from file L2F
- 
+
       INTEGER(LONG)                   :: COL_NUM           ! Arg passed to subr BUILD_A_LR
-      INTEGER(LONG)                   :: EIG_NORM_GSET_DOF ! A-set DOF no. for EIG_GRID/EIG_COMP 
+      INTEGER(LONG)                   :: EIG_NORM_GSET_DOF ! A-set DOF no. for EIG_GRID/EIG_COMP
       INTEGER(LONG)                   :: EIGNORM2_ERR        ! Error indicator for reading param EIGNORM2 data
       INTEGER(LONG)                   :: G_SET_COL         ! Col number in TDOF, TDOFI where G-set DOF's exist
       INTEGER(LONG)                   :: I,J,K,L           ! DO loop indices
@@ -80,7 +80,7 @@
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening/reading a file
       INTEGER(LONG)                   :: NUM_COMPS         ! 6 if GRID_NUM is an physical grid, 1 if an SPOINT
       INTEGER(LONG)                   :: NUM_SOLNS    = 0  ! No. of solutions to process (e.g. NSUB for STATICS)
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG)                   :: P_LINKNO          ! Prior LINK no's that should have run before this LINK can execute
       INTEGER(LONG)                   :: REC_NO            ! Record number when reading a file
 
@@ -118,12 +118,12 @@
       OUNT(2) = F06
 
 ! Write info to text files
-  
+
       WRITE(F06,150) LINKNO
       WRITE(ERR,150) LINKNO
 
 ! Read LINK1A file
- 
+
       CALL READ_L1A ( 'KEEP' )
 ! Check COMM for successful completion of prior LINKs
 
@@ -207,7 +207,7 @@
       CALL ALLOCATE_SPARSE_MAT ( 'GMN', NDOFM, NTERM_GMN, SUBR_NAME )
       CALL ALLOCATE_SPARSE_MAT ( 'GOA', NDOFO, NTERM_GOA, SUBR_NAME )
       CALL ALLOCATE_COL_VEC ( 'YSe' , NDOFS, SUBR_NAME )
- 
+
 ! Read GMN matrix if there are MPC's
 
       IF (NTERM_GMN > 0) THEN
@@ -218,7 +218,7 @@
          CLOSE_IT   = 'Y'
          CALL READ_MATRIX_1 ( LINK2A, L2A, OPND, CLOSE_IT, 'KEEP', L2A_MSG, 'GMN', NTERM_GMN, READ_NTERM, NDOFM                    &
                             , I_GMN, J_GMN, GMN )
-      ENDIF 
+      ENDIF
 
 ! Read GOA matrix if there are omitted DOFs
 
@@ -283,9 +283,9 @@
 
       IF (DO_IT == 'Y') THEN
          IERROR = 0
-         CALL ALLOCATE_EIGEN1_MAT ( 'MODE_NUM' , NUM_EIGENS, 1, SUBR_NAME ) 
-!xx      CALL ALLOCATE_EIGEN1_MAT ( 'EIGEN_VAL', NUM_EIGENS, 1, SUBR_NAME ) 
-         CALL ALLOCATE_EIGEN1_MAT ( 'GEN_MASS' , NUM_EIGENS, 1, SUBR_NAME ) 
+         CALL ALLOCATE_EIGEN1_MAT ( 'MODE_NUM' , NUM_EIGENS, 1, SUBR_NAME )
+!xx      CALL ALLOCATE_EIGEN1_MAT ( 'EIGEN_VAL', NUM_EIGENS, 1, SUBR_NAME )
+         CALL ALLOCATE_EIGEN1_MAT ( 'GEN_MASS' , NUM_EIGENS, 1, SUBR_NAME )
          CALL READ_L1M ( IERROR )
 
          IF (IERROR /= 0) THEN
@@ -303,10 +303,10 @@
       ENDIF
 
 ! Open file for writing displs to.
- 
+
       CALL FILE_CLOSE ( L5A, LINK5A, 'KEEP' )
       CALL FILE_OPEN  ( L5A, LINK5A, OUNT, 'REPLACE', L5A_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
- 
+
 ! Open file that has UO0
 
       IF (NTERM_PO > 0) THEN
@@ -354,8 +354,8 @@
       IF (DO_IT == 'Y') THEN
          EIG_NORM_GSET_DOF = 0
          IGRID = 0
-         IF (EIG_NORM == 'POINT   ') THEN                  ! User requested to renormalize eigenvectors on POINT 
-  
+         IF (EIG_NORM == 'POINT   ') THEN                  ! User requested to renormalize eigenvectors on POINT
+
             CALL TDOF_COL_NUM ( 'G ',  G_SET_COL )
 i_do:       DO I=1,NDOFG
                IF (TDOF(I,1) == EIG_GRID) THEN
@@ -363,7 +363,7 @@ i_do:       DO I=1,NDOFG
                   EIG_NORM_GSET_DOF = TDOF(I,G_SET_COL) + EIG_COMP - 1
                   EXIT i_do
                ENDIF
-            ENDDO i_do 
+            ENDDO i_do
 
             IF (IGRID > 0) THEN
                WRITE(ERR,5102) EIG_GRID, EIG_COMP
@@ -388,13 +388,13 @@ i_do:       DO I=1,NDOFG
 
          ELSE                                              ! No renorm needed here (was done in LINK4 if not POINT or MASS)
 
-            WRITE(ERR,5104) 
+            WRITE(ERR,5104)
             IF (SUPINFO == 'N') THEN
-               WRITE(F06,5104) 
+               WRITE(F06,5104)
             ENDIF
-  
+
          ENDIF
-         
+
       ENDIF
 
       IF ((EIGNORM2 == 'Y') .AND. (NVEC > 0)) THEN
@@ -413,7 +413,7 @@ j_do: DO J = 1,NUM_SOLNS
 
          CALL ALLOCATE_COL_VEC ('UL_COL', NDOFL, SUBR_NAME)! Allocate array UL_COL
 
-                                                           ! Read UL displs for the current subcase/vector from LINK3A 
+                                                           ! Read UL displs for the current subcase/vector from LINK3A
          IF     ((SOL_NAME(1: 7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC')) THEN
             CALL LINK_MESSAGE_I('READ  L-SET DISPLACEMENTS                      Subcase', J)
          ELSE IF (SOL_NAME(1: 5) == 'MODES') THEN
@@ -465,9 +465,9 @@ j_do: DO J = 1,NUM_SOLNS
          CALL LINK_MESSAGE_I('BUILD UF DISPLS FROM UA, UO:                      "', J)
          IF (READ_UO0 == 'Y') THEN
             IF (NDOFO > 0) THEN
-               IF (NTERM_PO > 0) THEN      
+               IF (NTERM_PO > 0) THEN
                   CALL LINK_MESSAGE_I('  READ UO0 DISPLS,                                "', J)
-    
+
                   IERROR = 0
                   DO I=1,NDOFO
                      READ(L2F,IOSTAT=IOCHK) UO0_COL(I)
@@ -485,7 +485,7 @@ j_do: DO J = 1,NUM_SOLNS
                ELSE
                   DO I=1,NDOFO
                      UO0_COL(I) = ZERO
-                  ENDDO 
+                  ENDDO
                ENDIF
             ENDIF
          ENDIF
@@ -582,10 +582,10 @@ j_do: DO J = 1,NUM_SOLNS
      IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
                                                            ! Open file for writing cols of PHIXG
          CALL FILE_OPEN ( L5B, LINK5B, OUNT, 'REPLACE', L5B_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
- 
+
          CALL DEALLOCATE_COL_VEC ( 'UG_COL' )
          CALL EXPAND_PHIXA_TO_PHIXG                        ! Expand PHIXA to PHIXG and write cols to file L5B
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PHIXA', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'PHIXA' )
 
       ENDIF
@@ -672,22 +672,22 @@ j_do: DO J = 1,NUM_SOLNS
 ! Deallocate arrays (except EIGEN_VAL, may be needed later)
 
 !xx   WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate GMN      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'GMN' )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate GOA      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'GOA' )
-      WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MODE_NUM ', CR13  ;   CALL DEALLOCATE_EIGEN1_MAT ( 'MODE_NUM' ) 
-!xx   WRITE(SC1,12345,ADVANCE='NO') '       Deallocate EIGEN_VAL', CR13  ;   CALL DEALLOCATE_EIGEN1_MAT ( 'EIGEN_VAL' ) 
+      WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MODE_NUM ', CR13  ;   CALL DEALLOCATE_EIGEN1_MAT ( 'MODE_NUM' )
+!xx   WRITE(SC1,12345,ADVANCE='NO') '       Deallocate EIGEN_VAL', CR13  ;   CALL DEALLOCATE_EIGEN1_MAT ( 'EIGEN_VAL' )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate GEN_MASS ', CR13  ;   CALL DEALLOCATE_EIGEN1_MAT ( 'GEN_MASS' )
       CALL DEALLOCATE_COL_VEC    ( 'YSe' )
-      CALL DEALLOCATE_EIGEN1_MAT ( 'EIGEN_VEC' )  
- 
+      CALL DEALLOCATE_EIGEN1_MAT ( 'EIGEN_VEC' )
+
 ! Process is now complete so set COMM(LINKNO)
-  
+
       COMM(LINKNO) = 'C'
 
 ! Write data to L1A
       CALL WRITE_L1A ( 'KEEP', 'Y' )
-  
+
 ! Check allocation status of allocatable arrays, if requested
 
       IF (DEBUG(100) > 0) THEN
@@ -703,7 +703,7 @@ j_do: DO J = 1,NUM_SOLNS
       WRITE(F06,151) LINKNO
 
 ! Close files
-  
+
       IF (( DEBUG(193) == 5) .OR. (DEBUG(193) == 999)) THEN
          CALL FILE_INQUIRE ( 'near end of LINK5' )
       ENDIF
@@ -758,20 +758,20 @@ j_do: DO J = 1,NUM_SOLNS
 
 98004 FORMAT(1X,2I8,5(1ES20.6))
 
-99885 FORMAT(82X,'MATRIX PHIZG',/,82X,'------------')                                                                             
+99885 FORMAT(82X,'MATRIX PHIZG',/,82X,'------------')
 
-99886 FORMAT(5X,32676(I14))                                                                                                       
+99886 FORMAT(5X,32676(I14))
 
-99887 FORMAT(I8,'-',I1,32767(1ES14.6))                                                                                            
+99887 FORMAT(I8,'-',I1,32767(1ES14.6))
 
-99888 FORMAT(8X,'-',I1,32767(1ES14.6))                                                                                            
+99888 FORMAT(8X,'-',I1,32767(1ES14.6))
 
 12345 FORMAT(A,10X,A)
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE READ_EIGNORM2
@@ -782,7 +782,7 @@ j_do: DO J = 1,NUM_SOLNS
 
       IMPLICIT NONE
 
-      LOGICAL                         :: FILE_EXIST      
+      LOGICAL                         :: FILE_EXIST
 
       CHARACTER(JCARD_LEN*BYTE)       :: DATA_FIELD
       CHARACTER(80*BYTE)              :: TITLE             ! First record in EINFIL

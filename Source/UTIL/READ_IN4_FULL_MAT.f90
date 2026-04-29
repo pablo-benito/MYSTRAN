@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE READ_IN4_FULL_MAT ( ELEM_TYP, ELEM_ID, MAT_NAME_IN, NRI, NCI, UNT, FILNAM, MAT_FULL, IERRT, CALLING_SUBR )
 
@@ -47,12 +47,12 @@
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_NAME_IN       ! Name of matrix to read from UNT
       CHARACTER( 8*BYTE)              :: MAT_NAME          ! Name of matrix in file that is read
 
-      INTEGER(LONG), INTENT(IN)       :: UNT               ! I/O unit number from which to read MAT 
+      INTEGER(LONG), INTENT(IN)       :: UNT               ! I/O unit number from which to read MAT
       INTEGER(LONG), INTENT(IN)       :: ELEM_ID           ! ID of element for which this subr was called
       INTEGER(LONG), INTENT(IN)       :: NRI               ! Number of rows expected in MAT_FULL
       INTEGER(LONG), INTENT(IN)       :: NCI               ! Number of cols expected in MAT
       INTEGER(LONG), INTENT(OUT)      :: IERRT             ! IERR1+IERR2
-      INTEGER(LONG)                   :: FORM              ! 
+      INTEGER(LONG)                   :: FORM              !
       INTEGER(LONG)                   :: ICOL              ! The column number being read in a record from FILNAM
       INTEGER(LONG)                   :: IERR1             ! Local error count
       INTEGER(LONG)                   :: IERR2             ! Local error count
@@ -65,7 +65,7 @@
       INTEGER(LONG)                   :: MAT_NUM           ! Number of matrix read from file
       INTEGER(LONG)                   :: NC                ! From matrix trailer. Should be NCOLS+1
       INTEGER(LONG)                   :: PREC              ! Matrix precision (2 indicates double precision)
-      INTEGER(LONG)                   :: REC_NUM           ! 
+      INTEGER(LONG)                   :: REC_NUM           !
 
 
       REAL(DOUBLE), ALLOCATABLE       :: CCS1_COL(:)       ! One column of MAT
@@ -96,9 +96,9 @@ do_1: DO                                                   ! Loop over unknown n
          IF (PREC /= 2) THEN
             NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
             FATAL_ERR          = FATAL_ERR + 1
-            WRITE(ERR,956) PREC, FILNAM            
+            WRITE(ERR,956) PREC, FILNAM
             WRITE(F06,956) PREC, FILNAM
-            RETURN            
+            RETURN
          ENDIF
 
          IF      (IOCHK == 0) THEN                         ! No problems reading header, so proceed to read matrix values
@@ -207,7 +207,7 @@ do_1: DO                                                   ! Loop over unknown n
          WRITE(ERR,950) MAT_NAME_IN, FILNAM, SUBR_NAME, CALLING_SUBR
          WRITE(F06,950) MAT_NAME_IN, FILNAM, SUBR_NAME, CALLING_SUBR
          CALL OUTA_HERE ( 'Y' )
-       ENDIF         
+       ENDIF
 
 
 
@@ -256,7 +256,7 @@ do_1: DO                                                   ! Loop over unknown n
          MESSAGE = 'EOR/EOF READING MATRIX '
       ELSE IF (II == 31) THEN
          MESSAGE = 'ERROR READING MATRIX TRAILER'
-      ELSE IF (II == 32) THEN      
+      ELSE IF (II == 32) THEN
          MESSAGE = 'EOR/EOF READING MATRIX TRAILER'
       ENDIF
 

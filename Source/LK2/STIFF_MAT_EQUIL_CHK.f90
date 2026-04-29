@@ -1,30 +1,30 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
-! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
 
-      SUBROUTINE STIFF_MAT_EQUIL_CHK ( OUTPUT, X_SET, SYM_KIN, NROWS, NTERM_KIN, I_KIN, J_KIN, KIN, KIN_DIAG, KIN_MAX_DIAG, RBMAT ) 
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
+! _______________________________________________________________________________________________________
+
+! End MIT license text.
+
+      SUBROUTINE STIFF_MAT_EQUIL_CHK ( OUTPUT, X_SET, SYM_KIN, NROWS, NTERM_KIN, I_KIN, J_KIN, KIN, KIN_DIAG, KIN_MAX_DIAG, RBMAT )
 
 ! Performs a stiffness matrix equilibrium check on input matrix KIN by calculating KIN*RBMAT = PRB where RBMAT is a rigid body
 ! displacement matrix (NROWS x 6). Each column of RBMAT represents a rigid body displacement for one of the 6 components of motion:
@@ -59,8 +59,8 @@
 
       INTEGER(LONG), INTENT(IN)       :: NROWS               ! Number of rows in KIN
       INTEGER(LONG), INTENT(IN)       :: NTERM_KIN           ! Number of nonzero terms in KIN
-      INTEGER(LONG), INTENT(IN)       :: I_KIN(NROWS+1)      ! Row start indices for KIN 
-      INTEGER(LONG), INTENT(IN)       :: J_KIN(NTERM_KIN)    ! Col numbers of terms in KIN 
+      INTEGER(LONG), INTENT(IN)       :: I_KIN(NROWS+1)      ! Row start indices for KIN
+      INTEGER(LONG), INTENT(IN)       :: J_KIN(NTERM_KIN)    ! Col numbers of terms in KIN
       INTEGER(LONG), INTENT(IN)       :: OUTPUT              ! =1, output PRB, =2 output RB_STRN_ENRGY, =3 output both
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
       INTEGER(LONG)                   :: KIN_SDIA            ! No. of superdiags in KIN upper triangle
@@ -153,19 +153,19 @@
 ! Calculate grid forces due to rigid body motion
 
       IF (OUTPUT > 0) THEN
-      
+
          IF (DEBUG(21) == 0) THEN                          ! Use MATMULT_SFF to mult KIN*RBMAT
             CALL MATMULT_SFF ( MAT_NAME, NROWS, NROWS, NTERM_KIN, SYM_KIN, I_KIN, J_KIN, KIN, 'RBMAT', NROWS, 6, RBMAT, 'Y', 'PRB',&
                                ONE, PRB )
-            
+
          ELSE                                              ! Use DSBMV to mult KIN*RBMAT
-         
+
             WRITE(SC1,2191) MAT_NAME
             CALL BANDSIZ ( NROWS, NTERM_KIN, I_KIN, J_KIN, KIN_SDIA )
-             
+
             WRITE(SC1,2192) MAT_NAME
             CALL ALLOCATE_LAPACK_MAT ( 'ABAND', KIN_SDIA+1, NROWS, SUBR_NAME )
-            
+
             WRITE(SC1,2193) MAT_NAME
             CALL BANDGEN_LAPACK_DPB ( MAT_NAME, NROWS, KIN_SDIA, NTERM_KIN, I_KIN, J_KIN, KIN, ABAND, SUBR_NAME )
 
@@ -186,7 +186,7 @@
             ENDDO
 
             CALL DEALLOCATE_LAPACK_MAT ( 'ABAND' )
-            
+
          ENDIF
 
          CALL TDOF_COL_NUM ( 'SA',  SA_SET_COL )
@@ -205,13 +205,13 @@
             ENDDO
          ENDIF
       ENDIF
-      
+
 ! Write grid forces if requested
 
       IF ((OUTPUT == 1) .OR. (OUTPUT == 3)) THEN
          CALL WRITE_RB_MATS ( 'FORCE' )
       ENDIF
-      
+
 ! Output strain energy if requested
 
       IF ((OUTPUT == 2) .OR. (OUTPUT == 3)) THEN
@@ -269,7 +269,7 @@
  2107 FORMAT(33X,' STRAIN ENERGY DUE TO RBGLOGAL ',A,'-SET RIGID BODY DISPLACEMENTS',/,                                            &
              42X,'(max absolute value = ',1ES9.2,' at row',I2,', col',I2,')'                                                       &
                   ,/,26X,'T1             T2             T3             R1             R2             R3',/)
- 
+
  2108 FORMAT(15X,A,1X,6(1ES15.6))
 
  2191 FORMAT(8X,'CALCULATE BANDWIDTH OF ',A,' MATRIX')
@@ -281,9 +281,9 @@
  2194 FORMAT(8X,'CALC FORCES DUE TO R.B. DISPLS FOR EACH OF THE 6 COLS OF RBGLOBAL')
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE WRITE_RB_MATS ( WHAT )
@@ -317,7 +317,7 @@
       CALL TDOF_COL_NUM ( X_SET, X_SET_COL )
 
       IF (WHAT == 'DISPL') THEN
-      
+
          IF (EQCHK_REF_GRID == 0) THEN
             WRITE(F06,2901) X_SET
          ELSE
@@ -340,9 +340,9 @@
          ENDDO
          WRITE(F06,*)
          WRITE(F06,*)
-         
+
       ELSE IF (WHAT == 'FORCE') THEN
-      
+
          IF (EQCHK_NORM == 'N') THEN
             WRITE(F06,2911) X_SET, MAT_NAME, X_SET
          ELSE
@@ -397,7 +397,7 @@
          ENDDO
          WRITE(F06,2905)
          WRITE(F06,2906) (MAX_AFORCE(J),J=1,6)
-                  
+
          IF (EQCHK_NORM == 'Y') THEN
             WRITE(F06,2907) KIN_MAX_DIAG
          ENDIF
@@ -422,9 +422,9 @@
                   ,/,26X,'T1             T2             T3             R1             R2             R3')
 
  2903 FORMAT(1X,2I8,A1,6(1ES15.6))
- 
+
  2904 FORMAT(1X,2I8,1X,6(1ES15.6))
- 
+
  2905 FORMAT(20X,'-------------  -------------  -------------  -------------  -------------  -------------')
 
  2906 FORMAT(7X,'ABS MAX',4X,6(1ES15.6),/)

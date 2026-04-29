@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BD_CORD ( CARD, LARGE_FLD_INP )
- 
+
 ! Processes CORD1C, CORD1R, CORD1S and CORD2C, CORD2R, CORD2S Bulk Data Cards
 !  1) Sets coord type  (0 {2R},1 {2C},2 {2S}) and enters it into array CORD
 !  2) Reads coord system ID and reference ID  and enters it into array CORD
@@ -36,11 +36,11 @@
       USE SCONTR, ONLY                :  FATAL_ERR, IERRFL, JCARD_LEN, JF, LCORD, NCORD, NCORD1, NCORD2, BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  CORD, RCORD
- 
+
       USE BD_CORD_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_CORD'
       CHARACTER(LEN=*), INTENT(INOUT) :: CARD              ! A Bulk Data card
       CHARACTER(LEN=*), INTENT(IN)    :: LARGE_FLD_INP     ! If 'Y', CARD is large field format
@@ -48,32 +48,32 @@
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
       CHARACTER(LEN(JCARD))           :: CORD_CID          ! Field 2 of CORD card (coord sys ID)
       CHARACTER(LEN(JCARD))           :: CORD_NAME         ! Name of coors sys
- 
+
       INTEGER(LONG)                   :: J                 ! DO loop index
       INTEGER(LONG)                   :: I4INP     = 0     ! A value read from input file that should be an integer value
       INTEGER(LONG)                   :: ICONT     = 0     ! Indicator of whether a cont card exists. Output from subr NEXTC
       INTEGER(LONG)                   :: IERR      = 0     ! Error indicator returned from subr NEXTC called herein
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! CORD1R Bulk Data Card routine
- 
+
 !   FIELD   ITEM           ARRAY ELEMENT
 !   -----   ------------   -------------
-!    1      Cord Type       CORD(ncord,1) 11 is CORD1R, 21 is CORD2R, 22 is CORD2C, 23 is CORD2S 
+!    1      Cord Type       CORD(ncord,1) 11 is CORD1R, 21 is CORD2R, 22 is CORD2C, 23 is CORD2S
 !    2      CID             CORD(ncord,2)
 !    3      GA              Temporarily put into CORD(ncord,3)
 !    3      GB              Temporarily put into CORD(ncord,4)
 !    3      GC              Temporarily put into CORD(ncord,5)
-!    3      RID             CORD(ncord,3) ref sys for grid A (will be entered later when GRID array is sorted and we can find GA 
-!    4      RID             CORD(ncord,4) ref sys for grid B (will be entered later when GRID array is sorted and we can find GB 
-!    5      RID             CORD(ncord,5) ref sys for grid C (will be entered later when GRID array is sorted and we can find GC 
+!    3      RID             CORD(ncord,3) ref sys for grid A (will be entered later when GRID array is sorted and we can find GA
+!    4      RID             CORD(ncord,4) ref sys for grid B (will be entered later when GRID array is sorted and we can find GB
+!    5      RID             CORD(ncord,5) ref sys for grid C (will be entered later when GRID array is sorted and we can find GC
 
 
 ! CORD2C, CORD2R, CORD2S Bulk Data Card routine
- 
+
 !   FIELD   ITEM           ARRAY ELEMENT
 !   -----   ------------   -------------
 ! on first card:
@@ -90,12 +90,12 @@
 !    2      C1             RCORD(ncord,7)
 !    3      C2             RCORD(ncord,8)
 !    4      C3             RCORD(ncord,9)
- 
+
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
       CORD_NAME = JCARD(1)
-  
+
 ! ---------------------------------------------------------------------------------------------------------------------------------
       IF (CORD_NAME(1:5) == 'CORD1') THEN
                                                            ! Read data for 1st coord system defined on this entry
@@ -110,7 +110,7 @@
          ELSE IF (JCARD(1)(1:6) == 'CORD1S') THEN
             CORD(NCORD,1) = 13
          ENDIF
- 
+
          CALL I4FLD ( JCARD(2), JF(2), I4INP )             ! Read CID and make sure it is > 0 (cannot define 0, or basic, system)
          IF (IERRFL(2) == 'N') THEN
             IF (I4INP < 0) THEN                            ! --- CID cannot be negative
@@ -242,7 +242,7 @@
          ELSE IF (JCARD(1)(1:6) == 'CORD2S') THEN
             CORD(NCORD,1) = 23
          ENDIF
- 
+
          CALL I4FLD ( JCARD(2), JF(2), I4INP )             ! Read CID and make sure it is > 0 (cannot define 0, or basic, system)
          IF (IERRFL(2) == 'N') THEN
             IF (I4INP < 0) THEN                            ! --- CID cannot be negative
@@ -272,10 +272,10 @@
          DO J = 1,6                                        ! Read real data on parent card
             CALL R8FLD ( JCARD(J+3), JF(J+3), RCORD(NCORD,J) )
          ENDDO
-      
+
          CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,6,7,8,9 )
          CALL CRDERR ( CARD )
- 
+
          IF (LARGE_FLD_INP == 'N') THEN
             CALL NEXTC  ( CARD, ICONT, IERR )              ! Read 2nd card
          ELSE
@@ -297,7 +297,7 @@
             WRITE(ERR,1136) CORD_NAME, CORD_CID
             WRITE(F06,1136) CORD_NAME, CORD_CID
          ENDIF
- 
+
 ! ----------------------------------------------------------------------------------------------------------------------------------
       ENDIF
 
@@ -307,7 +307,7 @@
 
 ! **********************************************************************************************************************************
  1136 FORMAT(' *ERROR  1136: REQUIRED CONTINUATION FOR ',A,' ID = ',A,' MISSING')
- 
+
  1163 FORMAT(' *ERROR  1163: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' TOO MANY ',A,' ENTRIES; LIMIT = ',I12)
 
@@ -316,5 +316,5 @@
  1170 FORMAT(' *ERROR  1170: FIELD ',I3,' ON ',A,' ID ',A,' CANNOT BE 0 (CANNOT DEFINE BASIC SYSTEM). VALUE IS = ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_CORD

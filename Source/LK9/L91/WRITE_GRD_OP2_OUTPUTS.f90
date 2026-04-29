@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                            
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
 
 ! End MIT license text.
- 
+
       SUBROUTINE WRITE_GRD_OP2_OUTPUTS ( JSUB, NUM, WHAT, ITABLE, NEW_RESULT )
 !      Writes "plot" output for grid point related quantities:
 !        - accels
@@ -32,7 +32,7 @@
 !        - applied loads
 !        - SPC / MPC forces
 !        - velocity????
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, OP2
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, INT_SC_NUM, SOL_NAME
@@ -114,7 +114,7 @@
       MODE = 0
       ISUBCASE_INDEX = 0
       CALL GET_ANALYSIS_CODE_FIELD5_FIELD6(JSUB, ANALYSIS_CODE, MODE, EIGENVALUE, ISUBCASE_INDEX)
-      
+
       TITLEI = TITLE(INT_SC_NUM)
       STITLEI = STITLE(INT_SC_NUM)
       LABELI = LABEL(INT_SC_NUM)
@@ -149,7 +149,7 @@
       !    DO I=1,NUM
       !        WRITE(OP2) GID_OUT_ARRAY(I,1)*10+DEVICE_CODE  ! Nastran is weird and requires scaling the NODE_ID
       !        WRITE(OP2) G_OR_S(I)                          ! GRID, SPOINT flag
-      !        
+      !
       !        write the TX, TY, TZ, RX, RY, RZ
       !        DO J=1,6
       !            FLOAT_VAL = REAL(OGEL(I,J), 4)   ! convert from float64 (double precision) to float32 (single precision)
@@ -172,7 +172,7 @@
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_GRD_OP2_OUTPUTS
 
 !==============================================================================
@@ -193,7 +193,7 @@
       ELSE IF (WHAT == 'ACCE') THEN
         TABLE_NAME = 'OUGV1   '
         TABLE_CODE = 11
- 
+
       ELSE IF (WHAT == 'OLOAD') THEN
         TABLE_NAME = 'OPG1    '  ! TODO: should this be OPGV1?
         TABLE_CODE = 2
@@ -267,7 +267,7 @@
       ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
         ISUBCASE_INDEX = 1
         ANALYSIS_CODE = 1 ! statics
-        
+
       ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
         ISUBCASE_INDEX = 2
         ANALYSIS_CODE = 7 ! pre-buckling

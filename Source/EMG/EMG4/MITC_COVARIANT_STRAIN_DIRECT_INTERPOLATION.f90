@@ -1,33 +1,33 @@
 ! #################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
       SUBROUTINE MITC_COVARIANT_STRAIN_DIRECT_INTERPOLATION ( R, S, T, ROW_FROM, ROW_TO, B )
- 
+
 ! Covariant strain-displacement components at point (R,S,T) directly evaluated from the displacement and rotation interpolations
 !
-!        Grid point 1        Grid point 2      ...  
+!        Grid point 1        Grid point 2      ...
 !      ux uy uz rx ry rz   ux uy uz rx ry rz
 ! 11 [ #  #  #  #  #  #  | #  #  #  #  #  #  |     ]
 ! 22 [ #  #  #  #  #  #  | #  #  #  #  #  #  |     ]
@@ -45,8 +45,8 @@
       USE MITC_SHAPE_FUNCTIONS_Interface
       USE MITC_COVARIANT_BASIS_Interface
 
-      IMPLICIT NONE 
-      
+      IMPLICIT NONE
+
       REAL(DOUBLE) , INTENT(IN)       :: R,S,T             ! Isparametric coordinates
       REAL(DOUBLE) , INTENT(OUT)      :: B(6, 6*ELGP)      ! Strain-displacement matrix.
       REAL(DOUBLE)                    :: PSH(ELGP)         ! Shape functions
@@ -58,18 +58,18 @@
       INTEGER(LONG), INTENT(IN)       :: ROW_TO            ! Last row of B to generate. Strain component index 1-6.
       INTEGER(LONG)                   :: GP                ! Element grid point number
       INTEGER(LONG)                   :: I,J,K,L           ! Loop and tensor indices
-      INTEGER(LONG)                   :: ROW               
-      
+      INTEGER(LONG)                   :: ROW
+
 ! **********************************************************************************************************************************
 
 ! Reference [2]:
-!  MITC4 paper "A continuum mechanics based four-node shell element for general nonlinear analysis" 
+!  MITC4 paper "A continuum mechanics based four-node shell element for general nonlinear analysis"
 !     by Dvorkin and Bathe
 
                                                            ! Shape function derivatives at R,S
       CALL MITC_SHAPE_FUNCTIONS(R, S, PSH, DPSHG)
 
-                                                           ! Extend shape function derivates to include 
+                                                           ! Extend shape function derivates to include
                                                            ! thickness direction (0) for convenience.
       DO GP=1,ELGP
         DO J=1,2
@@ -117,7 +117,7 @@
               B(ROW, K+4) = B(ROW, K+4) + DIR_THICKNESS(GP) * PSH(GP) * (G(3,I) * DIRECTOR(2,GP) - G(2,I) * DIRECTOR(3,GP)) / FOUR
               B(ROW, K+5) = B(ROW, K+5) + DIR_THICKNESS(GP) * PSH(GP) * (G(1,I) * DIRECTOR(3,GP) - G(3,I) * DIRECTOR(1,GP)) / FOUR
               B(ROW, K+6) = B(ROW, K+6) + DIR_THICKNESS(GP) * PSH(GP) * (G(2,I) * DIRECTOR(1,GP) - G(1,I) * DIRECTOR(2,GP)) / FOUR
-            ELSE            
+            ELSE
                                                            ! 1/4 d/dr (t h phi) = 1/4 t h dN/dr phi
                                                            ! 1/4 d/ds (t h phi) = 1/4 t h dN/ds phi
               B(ROW, K+4) = B(ROW, K+4) +                                                                                          &
@@ -146,5 +146,5 @@
 
 
 ! **********************************************************************************************************************************
-  
+
       END SUBROUTINE MITC_COVARIANT_STRAIN_DIRECT_INTERPOLATION

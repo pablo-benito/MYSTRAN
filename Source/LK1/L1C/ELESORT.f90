@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ELESORT
-     
+
 ! Performs 3 functions:
 
 !   (1) Generates ESORT1 array (actual elem ID's) and ESORT2 array (internal elem no.) for all elements.
@@ -35,19 +35,19 @@
 !   (3) Sorts RIGID_ELEM_IDS so that the actual ID's of rigid elements are in numerically increasing order
 
 !   (4) Checks for redundant element ID's - elastic as well as rigid elements
- 
+
 ! At the beginning of the subroutine, ESORT1(I) is set to element ID's in the order in which they were encountered
 ! in the Bulk Data Deck and ESORT2(I) = I. EPNT(I) gives the location in EDAT where connection data starts for element
 ! ESORT1(I) and ETYPE(I) is the element type for element ESORT1(I).
- 
+
 ! This subr then sorts ESORT1, ESORT2, EPNT and ETYPE (together) so that the actual element numbers in ESORT1 are in
 ! numerical order. Then ESORT2(I) is the position, in the Bulk Data Deck (BDD), where actual elem ESORT1(I) was located.
-  
+
 ! For example:
- 
+
 !    EID's in    |    At Beginning of Subr  |   At End of Subroutine:
 !     Order      |        (after (1))       |
-!    as input    |                          |                        
+!    as input    |                          |
 !    in BDD    I | ESORT1 ESORT2 EPNT ETYPE | ESORT1 ESORT2 EPNT ETYPE
 !   -------------|--------------------------|-------------------------
 !       31     1 |     31      1    1    B1 |     11      2    9    E1
@@ -56,24 +56,24 @@
 !       21     4 |     21      4   19    T2 |     41      3   15    R1
 !       61     5 |     61      5   24    Q2 |     51      6   30    B1
 !       51     6 |     51      6   30    B1 |     61      5   24    Q2
-     
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, ELESORT_RUN, NELE, NRIGEL
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  EDAT, EOFF, EPNT, ESORT1, ESORT2, ETYPE, RIGID_ELEM_IDS
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE ELESORT_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ELESORT'
 
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: IERROR            ! Error count
 
-  
+
 
 
 ! **********************************************************************************************************************************
@@ -98,7 +98,7 @@
       IF (NELE > 1) THEN
          CALL SORT_INT3_CHAR2 ( SUBR_NAME, 'ESORT1, ESORT2, EPNT, ETYPE, EOFF', NELE, ESORT1, ESORT2, EPNT, ETYPE, EOFF )
       ENDIF
- 
+
       IF (DEBUG(7) == 1) THEN                              ! Debug output after sorting ESORT1, ESORT2, EPNT, ETYPE
          WRITE(F06,1002)
          WRITE(F06,1011)
@@ -140,7 +140,7 @@
          WRITE(ERR,1408) IERROR
          WRITE(F06,1408) IERROR
          CALL OUTA_HERE ( 'Y' )                                    ! Duplicate elem numbers, so quit
-      ENDIF   
+      ENDIF
 
 ! Set ELESORT_RUN so subrs which need to know if ELESORT subr has run, will know it has run
 
@@ -152,9 +152,9 @@
 
 ! **********************************************************************************************************************************
  1001 FORMAT('             Element arrays before sorting in subroutine ELESORT:')
-                     
+
  1002 FORMAT('             Element arrays after sorting in subroutine ELESORT:')
-                     
+
  1011 FORMAT('            I   ESORT1(I)   ESORT2(I)     EPNT(I)       ETYPE(I)')
 
  1021 FORMAT(1X,4I12,10X,A)
@@ -164,5 +164,5 @@
  1408 FORMAT(' PROCESSING TERMINATED DUE TO ABOVE ',I8,' ERRORS')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ELESORT

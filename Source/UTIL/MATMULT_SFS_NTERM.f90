@@ -1,32 +1,32 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MATMULT_SFS_NTERM ( MAT_A_NAME, NROW_A, NTERM_A, SYM_A, I_A, J_A, MAT_B_NAME, NROW_B, NCOL_B, B,  &
                                      AROW_MAX_TERMS, MAT_C_NAME, NTERM_C )
- 
+
 ! Setup routine for subr MATMULT_SFS (which performs the matrix operation C = cons*a*b with A and C in sparse format and B full
 ! Matrices A and C are stored in compressed row storage (CRS) format. In addition, if A is symmetric it can be stored  with only the
 ! terms on, and above, the diagonal.
@@ -54,11 +54,11 @@
       USE PARAMS, ONLY                :  EPSIL
       USE SPARSE_ALG_ARRAYS, ONLY     :  J_AROW
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE MATMULT_SFS_NTERM_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MATMULT_SFS_NTERM'
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_A_NAME             ! Name of matrix A
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_B_NAME             ! Name of matrix B
@@ -85,10 +85,10 @@
       INTEGER(LONG)                   :: NHITS_TOT_FOR_ROW_OF_A ! Num of "hits" of terms in a col of A existing where terms in any
 !                                                                 row of B exist when a row of A is multiplied by al cols of B
       INTEGER(LONG)                   :: NTERM_AROW             ! Number of nonzero terms in AROW (one row of A)
-      INTEGER(LONG)                   :: ROW_AT_COLJ_BEG(NROW_A)! jth term is row number in MATIN where col j nonzeros begin 
+      INTEGER(LONG)                   :: ROW_AT_COLJ_BEG(NROW_A)! jth term is row number in MATIN where col j nonzeros begin
       INTEGER(LONG)                   :: ROW_AT_COLJ_END(NROW_A)! jth term is row number in MATIN where col j nonzeros end
 
-       
+
       REAL(DOUBLE) , INTENT(IN )      :: B(NROW_B,NCOL_B)       ! Real values in matrix B
 
 
@@ -135,10 +135,10 @@
 ! terms for the A matrix that are not explicitly in a. This is done by getting A terms in the column (above the
 ! diagonal of a row) as well as the explicit terms from A that are there from the diagonal out to the end of the row. The two
 ! arrays: ROW_AT_COLJ_BEG and ROW_AT_COLJ_END are used to aid in getting the terms in the column above the diagonal.
-! ROW_AT_COLJ_BEG is an array that gives, for each col of A, the starting row number of nonzero terms in that column.  
+! ROW_AT_COLJ_BEG is an array that gives, for each col of A, the starting row number of nonzero terms in that column.
 ! ROW_AT_COLJ_END is an array that gives, for each col of A, the ending   row number of nonzero terms in that column.
 ! The span: ROW_AT_COLJ_BEG to ROW_AT_COLJ_END is used when we search for terms in the columns.
-! We only need ROW_AT_COLJ_BEG and ROW_AT_COLJ_END when A is input symmetric and MATOUT is not to be output as symmetric  
+! We only need ROW_AT_COLJ_BEG and ROW_AT_COLJ_END when A is input symmetric and MATOUT is not to be output as symmetric
 
       IF (SYM_A == 'Y') THEN
 
@@ -152,7 +152,7 @@
       NHITS   = 0
       NHITS_TOT_FOR_ROW_OF_A = 0
       NTERM_C = 0
-      A_ROW_BEG  = 1      
+      A_ROW_BEG  = 1
 i_do: DO I=1,NROW_A
 
          A_NTERM_ROW_I = I_A(I+1) - I_A(I)
@@ -161,7 +161,7 @@ i_do: DO I=1,NROW_A
 
          DO K=1,AROW_MAX_TERMS                             ! Null J_AROW and AROW each time we begin a new row of A
             J_AROW(K) = 0
-         ENDDO 
+         ENDDO
 
          NTERM_AROW = 0                                    ! Formulate J_AROW, AROW - a CRS representation of one row of A
          IF (SYM_A == 'Y') THEN                            ! 1st, look for terms that would be in this row, but are not, due to SYM
@@ -219,13 +219,13 @@ l_do:          DO L=1,NROW_B
          A_ROW_BEG = A_ROW_END + 1
 
       ENDDO i_do
-            
+
       IF ((DEBUG(83) == 1) .OR. (DEBUG(83) == 3)) CALL MATMULT_SFS_NTERM_DEB ( '9', '   ' )
 
       CALL DEALLOCATE_SPARSE_ALG ( 'J_AROW' )
 
 
- 
+
       RETURN
 
 ! **********************************************************************************************************************************
@@ -277,7 +277,7 @@ l_do:          DO L=1,NROW_B
 
       ELSE IF (WHICH == '6') THEN
 
-         WRITE(F06,2061) ALG, K, I, J_A(K),                  NTERM_AROW, J_AROW(NTERM_AROW) 
+         WRITE(F06,2061) ALG, K, I, J_A(K),                  NTERM_AROW, J_AROW(NTERM_AROW)
 
       ELSE IF (WHICH == '7') THEN
 

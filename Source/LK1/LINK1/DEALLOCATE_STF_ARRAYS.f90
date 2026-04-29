@@ -1,48 +1,48 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE DEALLOCATE_STF_ARRAYS ( NAME )
- 
+
 !  Deallocate some arrays used in LINK1
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, TOT_MB_MEM_ALLOC
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE STF_ARRAYS, ONLY            :  STFCOL, STFKEY, STFPNT, STF, STF3
- 
+
       USE DEALLOCATE_STF_ARRAYS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'DEALLOCATE_STF_ARRAYS'
       CHARACTER(LEN=*), INTENT(IN)    :: NAME              ! Array name (used for output error message)
- 
+
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
 
@@ -66,7 +66,7 @@
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
                FATAL_ERR = FATAL_ERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME == 'STFCOL') THEN
@@ -79,7 +79,7 @@
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
                FATAL_ERR = FATAL_ERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME == 'STFPNT') THEN
@@ -92,7 +92,7 @@
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
                FATAL_ERR = FATAL_ERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME == 'STF   ') THEN
@@ -105,7 +105,7 @@
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
                FATAL_ERR = FATAL_ERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE IF (NAME == 'STF3') THEN
@@ -118,7 +118,7 @@
                WRITE(F06,992) NAME,SUBR_NAME
                JERR = JERR + 1
                FATAL_ERR = FATAL_ERR + 1
-            ENDIF 
+            ENDIF
          ENDIF
 
       ELSE
@@ -154,5 +154,5 @@
 12345 FORMAT(5X,'Deallocated ',1ES9.2,' MB of mem from array: ',A, A)
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE DEALLOCATE_STF_ARRAYS  
+
+      END SUBROUTINE DEALLOCATE_STF_ARRAYS

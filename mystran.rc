@@ -1,8 +1,8 @@
 #include <winver.h>
 
 1 VERSIONINFO
-FILEVERSION 17,0,0,0
-PRODUCTVERSION 17,0,0,0
+FILEVERSION 18,0,0,0
+PRODUCTVERSION 18,0,0,0
 FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
 FILEFLAGS VS_FF_DEBUG
@@ -19,9 +19,9 @@ BEGIN
     BLOCK "040904E4"
     BEGIN
       VALUE "FileDescription", "MYSTRAN Finite Element Solver"
-      VALUE "FileVersion", "17.0.0"
+      VALUE "FileVersion", "18.0.0"
       VALUE "ProductName", "MYSTRAN"
-      VALUE "ProductVersion", "17.0.0"
+      VALUE "ProductVersion", "18.0.0"
       VALUE "CompanyName", "Open-Source Project"
       VALUE "OriginalFilename", "mystran.exe"
     END

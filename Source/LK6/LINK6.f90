@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE LINK6
-  
+
 ! LINK6 generates Craig-Bampton model matrices and outputs those matrices to unformatted files as requested in Executive Control
 ! via OUTPUT4 entries.
 
@@ -44,7 +44,7 @@
       USE SCONTR, ONLY                :  NTERM_CG_LTM, NTERM_DLR   , NTERM_PHIZL , NTERM_IF_LTM,                                   &
                                          NTERM_IRR   , NTERM_KLL   , NTERM_KRL   , NTERM_KRR   , NTERM_KRRcb ,                     &
                                          NTERM_KXX   , NTERM_MLL   , NTERM_MRL   , NTERM_MRN   , NTERM_MRR   , NTERM_MRRcb  ,      &
-                                         NTERM_MXX   , NTERM_PHIXA 
+                                         NTERM_MXX   , NTERM_PHIXA
 
       USE CONSTANTS_1, ONLY           :  ONE
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
@@ -63,25 +63,25 @@
 
       USE LINK6_USE_IFs                                      ! Added 2019/07/14
       USE LINK_MESSAGE_Interface
-      
+
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LINK6'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT            ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
-      CHARACTER(  1*BYTE)             :: READ_NTERM          ! 'Y' or 'N' Input to subr READ_MATRIX_1 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT            ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
+      CHARACTER(  1*BYTE)             :: READ_NTERM          ! 'Y' or 'N' Input to subr READ_MATRIX_1
       CHARACTER(  1*BYTE)             :: NULL_COL            ! = 'Y' if col returned from subr GET_SPARSE_CRS_COL is null
-      CHARACTER(  1*BYTE)             :: OPND                ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not 
+      CHARACTER(  1*BYTE)             :: OPND                ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not
 
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
       INTEGER(LONG)                   :: IERROR    = 0       ! Error count when reading records from a file.
       INTEGER(LONG)                   :: IOCHK               ! IOSTAT error number when opening/reading a file
       INTEGER(LONG)                   :: NUM_SOLNS           ! No. of solutions to process (e.g. NSUB for STATICS)
       INTEGER(LONG)                   :: OUNT(2)             ! File units to write messages to. Input to subr UNFORMATTED_OPEN.
-      INTEGER(LONG)                   :: PART_VEC_A_LR(NDOFA)! Partitioning vector (N set into F and S sets) 
+      INTEGER(LONG)                   :: PART_VEC_A_LR(NDOFA)! Partitioning vector (N set into F and S sets)
       INTEGER(LONG), PARAMETER        :: P_LINKNO  = 4       ! Prior LINK no's that should have run before this LINK can execute
       INTEGER(LONG)                   :: REC_NO              ! Record number when reading a file.
-      
+
       REAL(DOUBLE)                    :: PHIZL_COL(NDOFL)    ! Full column from sparse PHIZL matrix
 
 ! **********************************************************************************************************************************
@@ -114,12 +114,12 @@
       OUNT(2) = F06
 
 ! Write info to text files
-  
+
       WRITE(F06,150) LINKNO
       WRITE(ERR,150) LINKNO
 
 ! Read LINK1A file
- 
+
       CALL READ_L1A ( 'KEEP' )
 ! Set NUM_CB_DOFS (since it was initialized as 0 in SCONTR and hasn't been calc'd yet, must do this AFTER we call READ_L1A)
 
@@ -137,9 +137,9 @@
 ! Read eigenvalues. EIGEN_VAL was not deallocated in LINK4 (see LINK4 comment 01/11/19) so we do not allocate it here anymore
 
 
-!xx   CALL ALLOCATE_EIGEN1_MAT ( 'EIGEN_VAL', NUM_EIGENS, 1, SUBR_NAME ) 
-      CALL ALLOCATE_EIGEN1_MAT ( 'MODE_NUM' , NUM_EIGENS, 1, SUBR_NAME ) 
-      CALL ALLOCATE_EIGEN1_MAT ( 'GEN_MASS' , NUM_EIGENS, 1, SUBR_NAME ) 
+!xx   CALL ALLOCATE_EIGEN1_MAT ( 'EIGEN_VAL', NUM_EIGENS, 1, SUBR_NAME )
+      CALL ALLOCATE_EIGEN1_MAT ( 'MODE_NUM' , NUM_EIGENS, 1, SUBR_NAME )
+      CALL ALLOCATE_EIGEN1_MAT ( 'GEN_MASS' , NUM_EIGENS, 1, SUBR_NAME )
       CALL READ_L1M ( IERROR )
 
 !!Read KLL stiffness matrix
@@ -239,12 +239,12 @@
                IERROR = IERROR + 1
             ENDIF
          ENDDO
-      ENDDO 
-      CALL FILE_CLOSE ( L3A, LINK3A, 'KEEP' )  
+      ENDDO
+      CALL FILE_CLOSE ( L3A, LINK3A, 'KEEP' )
 
       IF (IERROR > 0) THEN
          CALL OUTA_HERE ( 'Y' )
-      ENDIF 
+      ENDIF
 
 ! Solve for DLR
 
@@ -296,7 +296,7 @@
       CALL CALC_KRRcb
 
       CALL LINK_MESSAGE('MERGE MATRICES INTO KXX    ')
-      CALL MERGE_KXX  
+      CALL MERGE_KXX
 
 ! Calc MXX, the CB mass matrix (with DOF's: R-set displs and modal DOF's)
 
@@ -304,14 +304,14 @@
       CALL CALC_MRRcb
 
       CALL LINK_MESSAGE('CALC MRN                   ')
-      CALL CALC_MRN  
+      CALL CALC_MRN
 
 !xx   WRITE(SC1, * )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate DLRt     ', CR13
       CALL DEALLOCATE_SPARSE_MAT ( 'DLRt' )
 
       CALL LINK_MESSAGE('MERGE MATRICES INTO MXX    ')
-      CALL MERGE_MXX  
+      CALL MERGE_MXX
 
 ! Calculate LTM for interface forces
 
@@ -343,7 +343,7 @@
             WRITE(L3A) PHIZL_COL(J)
          ENDDO
       ENDDO
-      CALL FILE_CLOSE ( L3A, LINK3A, 'KEEP' )         
+      CALL FILE_CLOSE ( L3A, LINK3A, 'KEEP' )
 
 ! Calc modal participation factors and modal mass
 
@@ -389,8 +389,8 @@
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KLLs     ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'KLLs'      )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KRL      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'KRL'       )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KRR      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'KRR'       )
-      WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KRRcb    ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'KRRcb'     ) 
-      WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KXX      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'KXX'       ) 
+      WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KRRcb    ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'KRRcb'     )
+      WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KXX      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'KXX'       )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate LTM      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'LTM'       )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MLL      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'MLL'       )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate MRL      ', CR13  ;   CALL DEALLOCATE_SPARSE_MAT ( 'MRL'       )
@@ -459,5 +459,5 @@
 99887 format(32767(1es14.6))
 
 ! ##################################################################################################################################
- 
+
       END SUBROUTINE LINK6

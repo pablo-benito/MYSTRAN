@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ROT_AXES_MATL_TO_LOC ( WRITE_WARN )
 
@@ -120,7 +120,7 @@
             CALL PLANE_COORD_TRANS_21 ( MATL_AXES_ROTATE, TME, SUBR_NAME )
             CALL MATL_TRANSFORM_MATRIX ( TME, T1 )
             T1 = TRANSPOSE(T1)
-            
+
                                                            ! T1_MB is for Sxx, Syy, Sxy which are rows and cols 1,2,4 from T1
             T1_MB(1,1) = T1(1,1)     ;     T1_MB(1,2) = T1(1,2)     ;     T1_MB(1,3) = T1(1,4)
             T1_MB(2,1) = T1(2,1)     ;     T1_MB(2,2) = T1(2,2)     ;     T1_MB(2,3) = T1(2,4)
@@ -182,7 +182,7 @@
                      FOUND = 'Y'
                      EXIT
                   ENDIF
-               ENDDO   
+               ENDDO
 
                IF (FOUND == 'Y') THEN
                   DO I=1,3
@@ -205,7 +205,7 @@
 
             CALL MATL_TRANSFORM_MATRIX ( TME, T1 )
             T1 = TRANSPOSE(T1)
-            
+
             CALL MATMULT_FFF   ( ES , T1   , 6, 6, 6, DUM66 )
             CALL MATMULT_FFF_T ( T1 , DUM66, 6, 6, 6, ES    )
 
@@ -225,12 +225,12 @@
  1822 FORMAT(' *ERROR  1822: ',A,I8,' ON ',A,I8,' IS UNDEFINED')
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
-      SUBROUTINE DEBUG_ROT_AXES_1 
+      SUBROUTINE DEBUG_ROT_AXES_1
 
       IMPLICIT NONE
 
@@ -256,7 +256,7 @@
                WRITE(F06,99667) (T1(I,J),J=1,6)
             ENDDO
             WRITE(F06,*)
-   
+
             MI(2) = ' Portion of T1: transforms 3x3 EM, EB, EBM from matl to elem axes'
             WRITE(F06,99664) 'T1_MB', MI(2)
             DO I=1,3
@@ -332,7 +332,7 @@ mem_bend:   IF ((MTRL_TYPE(4) == 2) .OR. (MTRL_TYPE(4) == 8)) THEN
          WRITE(F06,*)
 
          IF (ISOLID(3) /= -1) THEN                         ! If -1 ES already in elem coords, else transf ES from basic to elem axes
-            WRITE(F06,'()') 'MATL MATRIX ES BEFORE COORD TRANSFORMATION = '                                   
+            WRITE(F06,'()') 'MATL MATRIX ES BEFORE COORD TRANSFORMATION = '
             DO I=1,6
                WRITE(F06,67549) (ES(I,J),J=1,6)
             ENDDO
@@ -344,11 +344,11 @@ mem_bend:   IF ((MTRL_TYPE(4) == 2) .OR. (MTRL_TYPE(4) == 8)) THEN
       WRITE(F06,*)
 
       WRITE(F06,98799)
- 
+
       WRITE(F06,*)
 
 ! **********************************************************************************************************************************
-67549 format(6(1es14.6))                                                                                                            
+67549 format(6(1es14.6))
 
 99663 format(1x,a)
 
@@ -356,12 +356,12 @@ mem_bend:   IF ((MTRL_TYPE(4) == 2) .OR. (MTRL_TYPE(4) == 8)) THEN
 
 99665 format(20x,'Material matrix ',a3,' before/after T1 transformation',/,                                                        &
              19x,'before',40x,'after',/,'  ----------------------------------------      ----------------------------------------')
- 
-99667 format(3(1es14.6), 4x,3(1es14.6))                                                                                            
 
-99668 format(3(1es14.6), 4x,3(1es14.6))                                                                                                            
+99667 format(3(1es14.6), 4x,3(1es14.6))
 
-99669 format(7x,2(1es14.6),18x,2(1es14.6))                                                                                                            
+99668 format(3(1es14.6), 4x,3(1es14.6))
+
+99669 format(7x,2(1es14.6),18x,2(1es14.6))
 
 98720 FORMAT(' __________________________________________________________________________________________________________________',&
              '_________________'                                                                                               ,//,&

@@ -1,37 +1,37 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE LINK3
- 
+
 ! LINK 3 solves the equation KLL*UL = PL where KLL, UL, PL are the L-set stiffness matrix, displs and loads. It solves the equation
 ! using one of three methods. For each method the solution is obtained in a 2 step process: (1) the KLL matrix is decomposed into
 ! triangular factors and (2) UL is solved for by forward-backward substitution (FBS). The 3 methods are:
 
 !   a) The LAPACK freeware code. This code requires KLL to be in banded (NOT sparse) form. LAPACH has the advantage that
-!      MYSTRAN contains the LAPACK source code so debugging is easy. Its disadvantage is that banded matrices require much more 
+!      MYSTRAN contains the LAPACK source code so debugging is easy. Its disadvantage is that banded matrices require much more
 !      memory than sparse storage for large stiffness matrices.
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -55,23 +55,23 @@
 
 !     USE LINK3_USE_IFs
       USE LINK_MESSAGE_Interface
-                      
+
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LINK3'
       CHARACTER(  2*BYTE)             :: L_SET    = 'L '   ! L-set designator
-      CHARACTER(  1*BYTE)             :: EQUED             ! 'Y' if the stiff matrix was equilibrated in subr EQUILIBRATE    
-      CHARACTER(  1*BYTE)             :: NULL_COL          ! 'Y' if a col of KAO(transpose) is null 
- 
+      CHARACTER(  1*BYTE)             :: EQUED             ! 'Y' if the stiff matrix was equilibrated in subr EQUILIBRATE
+      CHARACTER(  1*BYTE)             :: NULL_COL          ! 'Y' if a col of KAO(transpose) is null
+
       INTEGER(LONG)                   :: DEB_PRT(2)        ! Debug numbers to say whether to write ABAND and/or its decomp to output
 !                                                            file in called subr SYM_MAT_DECOMP_LAPACK (ABAND = band form of KLL)
 
       INTEGER(LONG)                   :: IER_DECOMP        ! Overall error indicator
-      INTEGER(LONG)                   :: ISUB              ! DO loop index for subcases 
+      INTEGER(LONG)                   :: ISUB              ! DO loop index for subcases
       INTEGER(LONG)                   :: INFO     = 0      ! Info output from some routine that has been called
-      INTEGER(LONG)                   :: I,J               ! DO loop indices            
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: I,J               ! DO loop indices
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
       INTEGER(LONG), PARAMETER        :: P_LINKNO = 2      ! Prior LINK no's that should have run before this LINK can execute
 
       REAL(DOUBLE)                    :: BETA              ! Multiple for rhs for use in subr FBS
@@ -86,10 +86,10 @@
       REAL(DOUBLE)                    :: OMEGAI            ! RES_INORM/DEN (similar to EPSILON)
       REAL(DOUBLE)                    :: OMEGAI0           ! Upper bound on OMEGAI. OMEGAI0 = 10*NDOFL*MACH_EPS
       REAL(DOUBLE)                    :: PL_INORM          ! Inf norm of load vector
-      REAL(DOUBLE)                    :: RES_INORM         ! Inf norm of residual vector R = K*UL - PL 
+      REAL(DOUBLE)                    :: RES_INORM         ! Inf norm of residual vector R = K*UL - PL
       REAL(DOUBLE)                    :: RCOND             ! Recrip of cond no. of the KLL. Det in  subr COND_NUM
       REAL(DOUBLE)                    :: UL_INORM          ! Inf norm of displacement vector
- 
+
       INTRINSIC                       :: DABS
 
 !***********************************************************************************************************************************
@@ -124,12 +124,12 @@
       OUNT(2) = F06
 
 ! Write info to text files
-  
+
       WRITE(F06,150) LINKNO
       WRITE(ERR,150) LINKNO
 
 ! Read LINK1A file
- 
+
       CALL READ_L1A ( 'KEEP' )
 
 ! Check COMM for successful completion of prior LINKs
@@ -160,7 +160,7 @@
          DUM_COL(J) = ZERO                                 ! (only because it appears in the calling list)
       ENDDO
 
-      IF ((RESTART == 'Y') .AND. (RELINK3 == 'Y')) THEN     
+      IF ((RESTART == 'Y') .AND. (RELINK3 == 'Y')) THEN
 sol_do:  DO
             WRITE(SC1,*) ' Input the value of SOLLIB (8 characters) to use in this restart:'
             READ (*,*) SOLLIB
@@ -213,9 +213,9 @@ Factr:IF (SOLLIB == 'BANDED  ') THEN                       ! Use LAPACK
       CALL ALLOCATE_LAPACK_MAT ( 'RES', NDOFL, 1, SUBR_NAME )
 
 ! Open file for writing displs to.
- 
+
       CALL FILE_OPEN ( L3A, LINK3A, OUNT, 'REPLACE', L3A_MSG, 'WRITE_STIME', 'UNFORMATTED', 'WRITE', 'REWIND', 'Y', 'N' )
- 
+
 ! Loop on subcases
 
       WRITE(F06,*)
@@ -236,13 +236,13 @@ Solve:DO ISUB = 1,NSUB
          DO J=1,NDOFL
             DUM_COL(J) = PL_COL(J)
          ENDDO
- 
+
          IF (DEBUG(32) == 1) THEN                          ! DEBUG output of load vector for this subcase, if requested
             WRITE(F06,3020) ISUB
             CALL WRITE_VECTOR ( '      L-SET LOADS      ',' LOAD', NDOFL, PL_COL )
             WRITE(F06,*)
          ENDIF
- 
+
                                                            ! Call FBS to solve for displacements for this subcase
          CALL LINK_MESSAGE_I('FBS - SOLVE FOR RHS ANSWERS FOR                   "', ISUB)
    !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
@@ -285,19 +285,19 @@ Solve:DO ISUB = 1,NSUB
             CALL WRITE_VECTOR ( '      A-SET DISPL      ','DISPL', NDOFL, UL_COL )
             WRITE(F06,*)
          ENDIF
- 
+
          IF (EPSERR == 'Y') THEN                           ! Calculate residual vector, R. Use RES to calculate EPSILON
             CALL LINK_MESSAGE_I('CALC  EPSILON ERROR ESTIMATE                      "', ISUB)
             CALL EPSCALC ( ISUB )
          ENDIF
                                                            ! Calculate the LAPACK error bounds
-         IF ((RCONDK == 'Y') .AND. (SOLLIB == 'BANDED')) THEN 
+         IF ((RCONDK == 'Y') .AND. (SOLLIB == 'BANDED')) THEN
             IF (DABS(RCOND) > MACH_SFMIN) THEN
                CALL LINK_MESSAGE_I('CALC LAPACK ERROR ESTIMATE                        "', ISUB)
                CALL VECINORM ( UL_COL, NDOFL,  UL_INORM )
                CALL VECINORM ( PL_COL, NDOFL,  PL_INORM )
                CALL VECINORM ( RES   , NDOFL, RES_INORM )
-               DEN = K_INORM*UL_INORM + PL_INORM 
+               DEN = K_INORM*UL_INORM + PL_INORM
                IF (DABS(DEN) > EPS1) THEN
                   OMEGAI = (RES_INORM)/(DEN)
                   OMEGAI0 = TEN*NDOFL*MACH_EPS
@@ -309,9 +309,9 @@ Solve:DO ISUB = 1,NSUB
             ELSE
                WARN_ERR = WARN_ERR + 1
                WRITE(ERR,3025) ISUB, RCOND, MACH_SFMIN
-               IF (SUPWARN == 'N') THEN 
+               IF (SUPWARN == 'N') THEN
                   WRITE(F06,3025) ISUB, RCOND, MACH_SFMIN
-               ENDIF 
+               ENDIF
             ENDIF
          ENDIF
 
@@ -344,11 +344,11 @@ FreeS:IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free the stor
          ENDIF
 
       ENDIF FreeS
- 
+
 ! Dellocate arrays
 
       CALL LINK_MESSAGE('DEALLOCATE ARRAYS')
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
       IF (SOL_NAME(1:8) == 'BUCKLING') THEN
          CONTINUE
@@ -368,13 +368,13 @@ FreeS:IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free the stor
       CALL FILE_CLOSE ( L3A, LINK3A, 'KEEP' )
 
 ! Process is now complete so set COMM(LINKNO)
-  
+
       COMM(LINKNO) = 'C'
 
 ! Write data to L1A
 
       CALL WRITE_L1A ( 'KEEP', 'Y' )
-  
+
 ! Check allocation status of allocatable arrays, if requested
 
       IF (DEBUG(100) > 0) THEN
@@ -390,7 +390,7 @@ FreeS:IF (SOLLIB == 'SPARSE  ') THEN                       ! Last, free the stor
       WRITE(F06,151) LINKNO
 
 ! Close files
-  
+
       IF (( DEBUG(193) == 3) .OR. (DEBUG(193) == 999)) THEN
          CALL FILE_INQUIRE ( 'near end of LINK3' )
       ENDIF

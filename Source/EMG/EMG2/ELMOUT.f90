@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ELMOUT ( INT_ELEM_ID, DUM_BUG, CASE_NUM, OPT )
- 
+
 ! Prints elem related data (controlled by Case Control ELDATA requests and situational variable WRT_BUG(i) ).
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, BUG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELDT_BUG_DAT1_BIT, ELDT_BUG_DAT2_BIT, ELDT_BUG_ME_BIT, ELDT_BUG_P_T_BIT,    &
@@ -46,7 +46,7 @@
       USE ELMOUT_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ELMOUT'
       CHARACTER(LEN=*), INTENT(IN)    :: OPT(6)              ! Array of EMG option indicators explained above
       CHARACTER( 1*BYTE)              :: FOUND               ! Used in determining if we found something we were looking for
@@ -54,7 +54,7 @@
       CHARACTER(60*BYTE)              :: NAME1               ! Text used for output print purposes
       CHARACTER(21*BYTE)              :: NAME2               ! Text used for output print purposes
       CHARACTER(12*BYTE)              :: NAME3               ! Text used for output print purposes
-  
+
       INTEGER(LONG), INTENT(IN)       :: INT_ELEM_ID         ! Internal element ID for which
       INTEGER(LONG), INTENT(IN)       :: CASE_NUM            ! Can be subcase number (e.g. for UEL, PEL output)
       INTEGER(LONG), INTENT(IN)       :: DUM_BUG(0:MBUG-1)   ! Indicator for output of elem data to BUG file
@@ -65,7 +65,7 @@
       INTEGER(LONG)                   :: TCASE2(NSUB)        ! TCASE2(I) gives the internal subcase no. for internal thermal case I
 !                                                              If there are 5 subcases and internal S/C 3 is the 1-st S/C to have
 !                                                              thermal load and internal S/C 5 is the 2-nd to have thermal load:
-!                                                              TCASE2(1-5) = 3, 5, 0, 0, 0 
+!                                                              TCASE2(1-5) = 3, 5, 0, 0, 0
 
 
       REAL(DOUBLE)                    :: OEL(6)              ! Temp array for holding elem displ, node loads
@@ -92,7 +92,7 @@
 ! Write output from ELMDAT subroutine.
 
       IF (DUM_BUG(0) > 0) THEN
-  
+
          WRITE(BUG,1000)
 
          WRITE(BUG,1001) ELDT_BUG_DAT1_BIT, TYPE, EID
@@ -114,7 +114,7 @@
          WRITE(BUG,*) '  Actual  Internal  Element        X              Y              Z'
          DO I=1,ELGP
             WRITE(BUG,1004)  AGRID(I), BGRID(I),I,(XEB(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          IF ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ') .OR. (TYPE == 'USER1   ')) THEN
             WRITE(BUG,1113) (XEB(ELGP+1,J),J=1,3)
          ENDIF
@@ -147,7 +147,7 @@
             WRITE(BUG,*) '    Col 1         Col 2         Col 3         Col 4'
             DO I=1,MEMATR
                WRITE(BUG,3004) (EMAT(I,J),J=1,MEMATC)
-            ENDDO 
+            ENDDO
             WRITE(BUG,*)
 
             WRITE(BUG,*) '  ULT_STRE, material stress allowables'
@@ -185,7 +185,7 @@
                WRITE(BUG,*) '  --------------------------------'
                DO I=1,ELGP
                   WRITE(BUG,3003) (OFFDIS(I,J),J=1,3)
-               ENDDO 
+               ENDDO
                WRITE(BUG,*)
             ENDIF
 
@@ -194,7 +194,7 @@
             ENDIF
 
             IF(TYPE(1:4) == 'ELAS') THEN                   ! For ELAS, write displ comps, at elem grids, that elem connects to
-               WRITE(BUG,4001) (ELAS_COMP(I), GRID_TYPE(I), AGRID(I), I=1,2) 
+               WRITE(BUG,4001) (ELAS_COMP(I), GRID_TYPE(I), AGRID(I), I=1,2)
             ENDIF
 
 ! Write output from ELMGMi
@@ -227,7 +227,7 @@
             ENDIF
             DO I=1,3
                WRITE(BUG,3003) (TE(I,J),J=1,3)
-            ENDDO 
+            ENDDO
             WRITE(BUG,*)
 
             WRITE(BUG,*) '  Actual & Internal G.P.s and local coordinates (AGRID, BGRID, I, XEL)'
@@ -236,7 +236,7 @@
             WRITE(BUG,*) '  Actual Internal     No.          X              Y              Z'
             DO I=1,ELGP
                WRITE(BUG,1004)  AGRID(I), BGRID(I),I,(XEL(I,J),J=1,3)
-            ENDDO 
+            ENDDO
             WRITE(BUG,*)
 
             IF ((TYPE == 'QDMEM   ') .OR. (TYPE == 'QDPLT1  ') .OR. (TYPE == 'QDPLT2   ') .OR.                                     &
@@ -255,7 +255,7 @@
                         WRITE(BUG,1005) (BMEANT(I,3*(J-1)+K),I=1,8)
                      ENDDO
                      WRITE(BUG,*)
-                  ENDDO 
+                  ENDDO
                   WRITE(BUG,*)
                ENDIF
 
@@ -274,21 +274,21 @@
                WRITE(BUG,*) '  -----------------------------------------------------------------------------'
                DO I=1,3
                   WRITE(BUG,3003) (EM(I,J),J=1,3)
-               ENDDO 
+               ENDDO
                WRITE(BUG,*)
 
                WRITE(BUG,*) '  EB material matrix, in local element coordinate system, for bending stresses'
                WRITE(BUG,*) '  ----------------------------------------------------------------------------'
                DO I=1,3
                   WRITE(BUG,3003) (EB(I,J),J=1,3)
-               ENDDO 
+               ENDDO
                WRITE(BUG,*)
 
                WRITE(BUG,*) '  ET material matrix, in local element coordinate system, for transverse shear stresses'
                WRITE(BUG,*) '  -------------------------------------------------------------------------------------'
                DO I=1,2
                   WRITE(BUG,3002) (ET(I,J),J=1,2)
-               ENDDO 
+               ENDDO
                WRITE(BUG,*)
 
             ELSE IF ((TYPE == 'HEXA8   ') .OR. (TYPE == 'HEXA20  ') .OR.                                                           &
@@ -299,7 +299,7 @@
                WRITE(BUG,*) '  -----------------------------------------------------------------------------'
                DO I=1,6
                   WRITE(BUG,3006) (ES(I,J),J=1,6)
-               ENDDO 
+               ENDDO
                WRITE(BUG,*)
 
             ENDIF
@@ -311,7 +311,7 @@
 ! **********************************************************************************************************************************
 ! Element thermal and pressure load matrices
 
-      IF (DUM_BUG(2) > 0) THEN 
+      IF (DUM_BUG(2) > 0) THEN
 
          WRITE(BUG,1000)
 
@@ -321,14 +321,14 @@
 
             DO I = 1,NSUB
                TCASE2(I) = 0
-            ENDDO 
+            ENDDO
             J = 0
             DO I = 1,NSUB
                IF (SUBLOD(I,2) /= 0) THEN
                   J = J + 1
                   TCASE2(J) = I
                ENDIF
-            ENDDO   
+            ENDDO
 
             WRITE(BUG,*) '  DT, Array of element temperature data (one row for each thermal subcase):'
             WRITE(BUG,*) '  ------------------------------------------------------------------------'
@@ -336,7 +336,7 @@
                WRITE(BUG,1006) J, NTSUB
                WRITE(BUG,3026) (DT(I,J),I=1,MDT)
                WRITE(BUG,*)
-            ENDDO 
+            ENDDO
             WRITE(BUG,*)
 
             DO J=1,NTSUB
@@ -350,7 +350,7 @@
                ENDIF
                WRITE(BUG,3006) (PTE(I,J),I=1,ELDOF)
                WRITE(BUG,*)
-            ENDDO 
+            ENDDO
          ELSE
             WRITE(BUG,*) '  There is no thermal load data'
          ENDIF
@@ -362,7 +362,7 @@
             WRITE(BUG,1006) J, NSUB
             WRITE(BUG,3026) (PRESS(I,J),I=1,MPRESS)
             WRITE(BUG,*)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
          DO J=1,NSUB
@@ -376,7 +376,7 @@
             ENDIF
             WRITE(BUG,3006) (PPE(I,J),I=1,ELDOF)
             WRITE(BUG,*)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
       ENDIF
@@ -403,7 +403,7 @@
             WRITE(BUG,*) '  Row',I
             WRITE(BUG,3006) (ME(I,J),J=1,ELDOF)
             WRITE(BUG,*)
-         ENDDO 
+         ENDDO
 
       ENDIF
 
@@ -459,7 +459,7 @@
                WRITE(BUG,3006) (KED(I,J),J=1,ELDOF)
                WRITE(BUG,*)
             ENDDO
-         ELSE 
+         ELSE
             WRITE(BUG,*) '  KE element stiffness matrix in local element coordinate system'
             WRITE(BUG,*) '  --------------------------------------------------------------'
             IF ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ') .OR. (TYPE == 'ROD     ')) THEN
@@ -474,7 +474,7 @@
                WRITE(BUG,3006) (KE(I,J),J=1,ELDOF)
                WRITE(BUG,*)
             ENDDO
-         ENDIF 
+         ENDIF
 
       ENDIF
 
@@ -521,7 +521,7 @@
                   WRITE(BUG,*) '  Row',I
                   WRITE(BUG,3006) (SE1(I,J,K),J=1,ELDOF)
                   WRITE(BUG,*)
-               ENDDO 
+               ENDDO
                WRITE(BUG,*)
             ENDDO
 
@@ -532,7 +532,7 @@
                   WRITE(BUG,*) '  Row',I
                   WRITE(BUG,3006) (SE2(I,J,K),J=1,ELDOF)
                   WRITE(BUG,*)
-               ENDDO 
+               ENDDO
                WRITE(BUG,*)
             ENDDO
 
@@ -543,7 +543,7 @@
                   WRITE(BUG,*) '  Row',I
                   WRITE(BUG,3006) (SE3(I,J,K),J=1,ELDOF)
                   WRITE(BUG,*)
-               ENDDO 
+               ENDDO
                WRITE(BUG,*)
             ENDDO
 
@@ -556,7 +556,7 @@
                      WRITE(BUG,*) '  Column',J
                      WRITE(BUG,3003) (STE1(I,J,K),I=1,3)
                      WRITE(BUG,*)
-                  ENDDO 
+                  ENDDO
                   WRITE(BUG,*)
                ENDDO
 
@@ -567,7 +567,7 @@
                      WRITE(BUG,*) '  Column',J
                      WRITE(BUG,3003) (STE2(I,J,K),I=1,3)
                      WRITE(BUG,*)
-                  ENDDO 
+                  ENDDO
                   WRITE(BUG,*)
                ENDDO
 
@@ -578,7 +578,7 @@
                      WRITE(BUG,*) '  Column',J
                      WRITE(BUG,3003) (STE3(I,J,K),I=1,3)
                      WRITE(BUG,*)
-                  ENDDO 
+                  ENDDO
                   WRITE(BUG,*)
                ENDDO
 
@@ -602,7 +602,7 @@
                      WRITE(BUG,*) '  Row',I
                      WRITE(BUG,3006) (BE1(I,J,K),J=1,ELDOF)
                      WRITE(BUG,*)
-                  ENDDO 
+                  ENDDO
                   WRITE(BUG,*)
                ENDDO
 
@@ -613,7 +613,7 @@
                      WRITE(BUG,*) '  Row',I
                      WRITE(BUG,3006) (BE2(I,J,K),J=1,ELDOF)
                      WRITE(BUG,*)
-                  ENDDO 
+                  ENDDO
                   WRITE(BUG,*)
                ENDDO
 
@@ -624,7 +624,7 @@
                      WRITE(BUG,*) '  Row',I
                      WRITE(BUG,3006) (BE3(I,J,K),J=1,ELDOF)
                      WRITE(BUG,*)
-                  ENDDO 
+                  ENDDO
                   WRITE(BUG,*)
                ENDDO
 
@@ -781,7 +781,7 @@
  2010 FORMAT(3X,A,' elem nodes in ',A,' coordinate system for subcase ',I8                                                     ,//,&
              '    Grid           T1            T2            T3            R1            R2            R3'                      ,/,&
              '    ----           --            --            --            --            --            --')
- 2024 FORMAT(24I3) 
+ 2024 FORMAT(24I3)
 
  3002 FORMAT(2(1ES14.6))
 
@@ -824,5 +824,5 @@
  5007 FORMAT(A,1ES14.6)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE ELMOUT

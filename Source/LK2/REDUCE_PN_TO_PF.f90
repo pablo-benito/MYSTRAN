@@ -1,69 +1,69 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_PN_TO_PF ( PART_VEC_N_FS, PART_VEC_SUB )
- 
+
 ! Call routines to reduce the PN grid point load matrix from the N-set to the F, S-sets. See Appendix B to the MYSTRAN User's
 ! Reference Manual for the derivation of the reduction equations.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, L2D, LINK2D, L2D_MSG, SC1, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, NDOFN, NDOFF, NDOFS, NDOFSE, NSUB, NTERM_KFSe, NTERM_PN,         &
                                          NTERM_PF, NTERM_PFYS, NTERM_PS
       USE TIMDAT, ONLY                :  HOUR, MINUTE, SEC, SFRAC, TSEC
-      USE CONSTANTS_1, ONLY           :  ONE 
+      USE CONSTANTS_1, ONLY           :  ONE
       USE PARAMS, ONLY                :  MATSPARS
       USE SPARSE_MATRICES, ONLY       :  I_KFSe, J_KFSe, KFSe, I_PN, J_PN, PN, I_PF, J_PF, PF, I_PS, J_PS, PS, I_PF_TMP, J_PF_TMP, &
                                          PF_TMP, I_PFYS, J_PFYS, PFYS, I_PFYS1, J_PFYS1, PFYS1, I_QSYS, J_QSYS, QSYS
       USE SPARSE_MATRICES, ONLY       :  SYM_KFSe, SYM_PN, SYM_PF, SYM_PFYS, SYM_PF_TMP, SYM_PS
-      USE COL_VECS, ONLY              :  YSe 
+      USE COL_VECS, ONLY              :  YSe
       USE FULL_MATRICES, ONLY         :  KFSe_FULL, PF_FULL, PFYS_FULL, DUM1
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
-   
+
       USE SCRATCH_MATRICES
- 
+
       USE REDUCE_PN_TO_PF_USE_IFs
 
       IMPLICIT NONE
-               
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_PN_TO_PF'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT            ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT            ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
       CHARACTER(  8*BYTE)             :: CLOSE_STAT          ! Char constant for the CLOSE status of a file
-      CHARACTER(132*BYTE)             :: MATRIX_NAME         ! Name of matrix for printout 
- 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_N_FS(NDOFN)! Partitioning vector (F set into A and O sets) 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_SUB(NSUB)  ! Partitioning vector (1's for all subcases) 
+      CHARACTER(132*BYTE)             :: MATRIX_NAME         ! Name of matrix for printout
+
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_N_FS(NDOFN)! Partitioning vector (F set into A and O sets)
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_SUB(NSUB)  ! Partitioning vector (1's for all subcases)
       INTEGER(LONG)                   :: AROW_MAX_TERMS      ! Output from MATMULT_SFS_NTERM and input to MATMULT_SFS
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
       INTEGER(LONG), PARAMETER        :: ITRNSPB     = 0     ! Transpose indicator for matrix multiply routine
       INTEGER(LONG)                   :: K                   ! Counter or DO loop index
       INTEGER(LONG), PARAMETER        :: NUM1        = 1     ! Used in subr's that partition matrices
       INTEGER(LONG), PARAMETER        :: NUM2        = 2     ! Used in subr's that partition matrices
-      INTEGER(LONG), PARAMETER        :: NUM_YS_COLS = 1     ! Variable for number of cols in array YSe 
+      INTEGER(LONG), PARAMETER        :: NUM_YS_COLS = 1     ! Variable for number of cols in array YSe
       INTEGER(LONG)                   :: NTERM_PF_TMP   = 0  ! No. of terms in matrix PF_TMP
       INTEGER(LONG)                   :: NTERM_PFYS1 = 0     ! No. of terms in matrix PFYS1
       INTEGER(LONG)                   :: PF_ROW_MAX_TERMS    ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
@@ -83,7 +83,7 @@
       IF (NDOFF > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'PN' , NTERM_PN , NDOFN, NSUB , SYM_PN , I_PN , J_PN ,      PART_VEC_N_FS, PART_VEC_SUB,        &
-                                    NUM1, NUM1, PF_ROW_MAX_TERMS, 'PF', NTERM_PF, SYM_PF ) 
+                                    NUM1, NUM1, PF_ROW_MAX_TERMS, 'PF', NTERM_PF, SYM_PF )
 
          CALL ALLOCATE_SPARSE_MAT ( 'PF', NDOFF, NTERM_PF, SUBR_NAME )
 
@@ -93,13 +93,13 @@
          ENDIF
 
       ENDIF
-                            
+
 ! Partition PS from PN
 
       IF (NDOFS > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'PN' , NTERM_PN , NDOFN, NSUB , SYM_PN , I_PN , J_PN ,      PART_VEC_N_FS, PART_VEC_SUB,        &
-                                    NUM2, NUM1, PS_ROW_MAX_TERMS, 'PS', NTERM_PS, SYM_PS ) 
+                                    NUM2, NUM1, PS_ROW_MAX_TERMS, 'PS', NTERM_PS, SYM_PS )
 
          CALL ALLOCATE_SPARSE_MAT ( 'PS', NDOFS, NTERM_PS, SUBR_NAME )
 
@@ -112,7 +112,7 @@
 
 ! Deallocate PN
 
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PN ', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'PN' )
 
 ! Reduce PN to PF = PF(bar) - PFYS where PF(bar) was original F-set partition from PN. If there are no enforced displs then
@@ -124,7 +124,7 @@
 !     (3) Calc reduced PF from PF(bar) and PFYS. This step is done 1 of 2 ways:
 !         (a) If there are applied loads on the F-set DOF's (i.e. if NTERM_PF > 0), then we calc PF = PF(bar) - PFYS
 !         (b) If there are no applied loads on the F-set DOF's (i.e. if NTERM_PF = 0), then we calc PF = -PFYS
- 
+
 ! If PARAM MATSPARS = 'Y', then we use sparse matrix operations (multiply/add/transpose). If not, use full matrix operations
 
       IF (MATSPARS == 'Y') THEN
@@ -133,7 +133,7 @@
                                                            ! Step (1), calc PFYS1 = KFSe * YSe
             CALL MATMULT_SFS_NTERM ( 'KFSe', NDOFF, NTERM_KFSe, SYM_KFSe, I_KFSe, J_KFSe                                           &
                                      ,'YSe', NDOFSE, NUM_YS_COLS, YSe, AROW_MAX_TERMS, 'PFYS1', NTERM_PFYS1 )
- 
+
             CALL ALLOCATE_SPARSE_MAT ( 'PFYS1', NDOFF, NTERM_PFYS1, SUBR_NAME )
 
             CALL MATMULT_SFS ( 'KFSe', NDOFF, NTERM_KFSe, SYM_KFSe, I_KFSe, J_KFSe, KFSe                                           &
@@ -155,10 +155,10 @@
                   K         = K + 1
                   J_PFYS(K) = J_PFYS1(I) + (J-1)
                     PFYS(K) = PFYS1(I)
-               ENDDO 
+               ENDDO
             ENDDO
 
-      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages         
+      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PFYS1', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'PFYS1' )
 
 
@@ -172,7 +172,7 @@
 
                   DO I=1,NDOFF+1                           ! PF_TMP = PF(bar) so we can use MATADD to get PF = PF_TMP - PFYS
                      I_PF_TMP(I) = I_PF(I)
-                  ENDDO 
+                  ENDDO
                   NTERM_PF_TMP = NTERM_PF
                   DO K=1,NTERM_PF_TMP
                      J_PF_TMP(K) = J_PF(K)
@@ -181,9 +181,9 @@
                                                            ! Recalc NTERM_PF for new PF = PF_TMP + PFYS
                   CALL MATADD_SSS_NTERM ( NDOFF, 'PF-bar', NTERM_PF_TMP, I_PF_TMP, J_PF_TMP, SYM_PF_TMP,                           &
                                                  'KFse*YSe', NTERM_PFYS  , I_PFYS  , J_PFYS  , SYM_PFYS  , 'PFYS', NTERM_PF )
-            !xx   WRITE(SC1, * )                           ! Advance 1 line for screen messages         
+            !xx   WRITE(SC1, * )                           ! Advance 1 line for screen messages
                   WRITE(SC1, * ) '    Reallocate PF '
-            !xx   WRITE(SC1, * )                           ! Advance 1 line for screen messages         
+            !xx   WRITE(SC1, * )                           ! Advance 1 line for screen messages
                   WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PF ', CR13
                   CALL DEALLOCATE_SPARSE_MAT ( 'PF' )
                   WRITE(SC1,12345,ADVANCE='NO') '       Allocate   PF ', CR13
@@ -191,9 +191,9 @@
 
                   CALL MATADD_SSS ( NDOFF, 'PF-bar', NTERM_PF_TMP, I_PF_TMP, J_PF_TMP, PF_TMP, ALPHA,                              &
                                    'KFse*YSe'  , NTERM_PFYS  , I_PFYS  , J_PFYS  , PFYS  , BETA ,'PF', NTERM_PF, I_PF, J_PF, PF)
-            !xx   WRITE(SC1, * )                           ! Advance 1 line for screen messages         
+            !xx   WRITE(SC1, * )                           ! Advance 1 line for screen messages
                   WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PF_TMP', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'PF_TMP' )
-         
+
                ENDIF
 
             ELSE                                           ! Step (3b), NTERM_PF = 0 so reduced PF = PF(bar)
@@ -202,7 +202,7 @@
 
                   NTERM_PF = NTERM_PFYS*NSUB
                   WRITE(SC1, * ) '    Reallocate PF '
-            !xx   WRITE(SC1, * )                           ! Advance 1 line for screen messages         
+            !xx   WRITE(SC1, * )                           ! Advance 1 line for screen messages
                   WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PF ', CR13
                   CALL DEALLOCATE_SPARSE_MAT ( 'PF' )
                   WRITE(SC1,12345,ADVANCE='NO') '       Allocate   PF ', CR13
@@ -217,7 +217,7 @@
                         K = K + 1
                         J_PF(K) = J_PFYS(I)
                           PF(K) =  -PFYS(I)
-                     ENDDO 
+                     ENDDO
                   ENDDO
 
 
@@ -233,10 +233,10 @@
 
                ENDIF
 
-            ENDIF 
+            ENDIF
 
             WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
-      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages         
+      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PFYS', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'PFYS' )
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KFSe', CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'KFSe' )
 
@@ -256,8 +256,8 @@
             DO I=1,NDOFSE
                DO J=1,NSUB
                   DUM1(I,J) = YSe(I)
-               ENDDO 
-            ENDDO 
+               ENDDO
+            ENDDO
             CALL ALLOCATE_FULL_MAT ( 'KFSe_FULL', NDOFF, NDOFSE, SUBR_NAME )
             CALL ALLOCATE_FULL_MAT ( 'PFYS_FULL', NDOFF, NSUB, SUBR_NAME )
             CALL MATMULT_FFF (KFSe_FULL, DUM1, NDOFF, NDOFSE, NSUB, PFYS_FULL )
@@ -272,15 +272,15 @@
                   DO I=1,NDOFF
                      DO J=1,NSUB
                         DUM1(I,J) = PF_FULL(I,J)
-                     ENDDO 
-                  ENDDO 
+                     ENDDO
+                  ENDDO
 
                   ALPHA =  ONE
                   BETA  = -ONE
                   CALL MATADD_FFF ( DUM1, PFYS_FULL, NDOFF, NSUB, ALPHA, BETA, ITRNSPB, PF_FULL)
 
                   CALL DEALLOCATE_FULL_MAT ( 'DUM1' )
-         
+
                ENDIF
 
             ELSE                                           ! Step (3b), NTERM_PF = 0 so reduced PF = PF(bar)
@@ -290,12 +290,12 @@
                   DO I=1,NDOFF
                      DO J=1,NSUB
                         PF_FULL(I,J) = -PFYS_FULL(I,J)
-                     ENDDO 
-                  ENDDO 
+                     ENDDO
+                  ENDDO
 
                ENDIF
 
-            ENDIF 
+            ENDIF
 
             CALL DEALLOCATE_FULL_MAT ( 'PFYS_FULL' )
             CALL DEALLOCATE_FULL_MAT ( 'KFSe_FULL' )
@@ -304,7 +304,7 @@
 
          IF (NTERM_PF > 0) THEN                            ! Create new sparse arrays from PF_FULL
 !xx         CALL FULL_TO_SPARSE_CRS ( 'PF_FULL   ', NDOFF, NSUB , PF_FULL,  NTERM_PF,  SYM_PF,  I_PF,  J_PF,  PF  )
-            CALL DEALLOCATE_FULL_MAT ( 'PF_FULL' )      
+            CALL DEALLOCATE_FULL_MAT ( 'PF_FULL' )
          ENDIF
 
       ELSE
@@ -317,7 +317,7 @@
       ENDIF
 
 ! Write PS to L2D for constraint force recovery in LINK9.
-  
+
       IF (NTERM_PS > 0) THEN
          CLOSE_IT   = 'Y'
          CLOSE_STAT = 'KEEP'
@@ -336,6 +336,6 @@
 12345 FORMAT(A,10X,A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE REDUCE_PN_TO_PF
 

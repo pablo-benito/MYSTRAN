@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE FBS_LAPACK ( EQUED, NROWS, MATIN_SDIA, EQUIL_SCALE_FACS, INOUT_COL )
 
 ! FBS_LAPACK performs the forward-backward substitution to get displacements after the stiffness matrix has been decomposed using
@@ -37,7 +37,7 @@
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, LINKNO
-      USE TIMDAT, ONLY                :  HOUR, MINUTE, SEC, SFRAC, STIME, TSEC       
+      USE TIMDAT, ONLY                :  HOUR, MINUTE, SEC, SFRAC, STIME, TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  EPSERR, RCONDK
       USE LAPACK_DPB_MATRICES, ONLY   :  ABAND, LAPACK_S, RES
@@ -46,14 +46,14 @@
       USE LAPACK_LIN_EQN_DPB
 
       USE SYM_MAT_DECOMP_LAPACK_USE_IFs
-                      
+
       USE FBS_LAPACK_USE_IFs                               ! Added 2019/07/14
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'FBS_LAPACK'
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: CALLED_SUBR = ' ' ! Name of a called subr (for output error purposes)
-      CHARACTER(  1*BYTE), INTENT(IN) :: EQUED             ! 'Y' if MATIN was equilibrated in subr EQUILIBRATE (called herein)   
+      CHARACTER(  1*BYTE), INTENT(IN) :: EQUED             ! 'Y' if MATIN was equilibrated in subr EQUILIBRATE (called herein)
                                                            !       and the factorization (in DPBTRS) could not be completed.
       CHARACTER(  1*BYTE), PARAMETER  :: UPLO        = 'U' ! Indicates upper triang part of matrix is stored
 
@@ -82,7 +82,7 @@
       IF (EQUED == 'Y') THEN
          DO I=1,NROWS
             INOUT_COL(I) = EQUIL_SCALE_FACS(I)*INOUT_COL(I)
-         ENDDO 
+         ENDDO
       ENDIF
 
 ! Calculate the answer via forward/backward substitution. Subr DPBTRS returns the answer in the workspace (INOUT_COL)
@@ -90,7 +90,7 @@
 
       CALL DPBTRS ( UPLO, NROWS, MATIN_SDIA, NUM_COLS, ABAND, MATIN_SDIA+1, INOUT_COL, NROWS, INFO, 'N' )
 
-      CALLED_SUBR = 'DPBTRS'      
+      CALLED_SUBR = 'DPBTRS'
       IF (INFO < 0) THEN                                   ! LAPACK subr XERBLA should have reported error on an illegal argument
          WRITE(ERR,993) SUBR_NAME, CALLED_SUBR             ! in calling a LAPACK subr, so we should not have gotten here
          WRITE(F06,993) SUBR_NAME, CALLED_SUBR
@@ -103,7 +103,7 @@
       IF (EQUED == 'Y') THEN
          DO I=1,NROWS
             INOUT_COL(I) = EQUIL_SCALE_FACS(I)*INOUT_COL(I)
-         ENDDO 
+         ENDDO
       ENDIF
 
 !***********************************************************************************************************************************

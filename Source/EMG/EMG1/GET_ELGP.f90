@@ -1,39 +1,39 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE GET_ELGP ( INT_ELEM_ID )
- 
+
 ! Gets number of grid points for a given element based on the element's internal ID
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MEFE, MELGP, METYPE 
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MEFE, MELGP, METYPE
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  EDAT, EID, ELGP, ELMTYP, etype, EMG_IFE, EPNT, ERR_SUB_NAM, NELGP, NUM_EMG_FATAL_ERRS, TYPE
- 
+
       USE GET_ELGP_USE_IFs
 
       IMPLICIT NONE
@@ -43,7 +43,7 @@
 
       INTEGER(LONG), INTENT(IN)       :: INT_ELEM_ID       ! Internal element ID
       INTEGER(LONG)                   :: EPNTK             ! Value from array EPNT at the row for this internal elem ID. It is the
-!                                                            row number in array EDAT where data begins for this element. 
+!                                                            row number in array EDAT where data begins for this element.
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: NG                ! Number of GRID's for USERIN elem
       INTEGER(LONG)                   :: NS                ! Number of SPOINT's for USERIN elem
@@ -103,7 +103,7 @@
          NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
          FATAL_ERR = FATAL_ERR + 1
          IF (WRT_ERR > 0) THEN
-            WRITE(ERR,1933) SUBR_NAME, TYPE, EID, ELGP, MELGP 
+            WRITE(ERR,1933) SUBR_NAME, TYPE, EID, ELGP, MELGP
             WRITE(F06,1933) SUBR_NAME, TYPE, EID, ELGP, MELGP
          ELSE
             IF (NUM_EMG_FATAL_ERRS <= MEFE) THEN
@@ -114,12 +114,12 @@
             ENDIF
          ENDIF
          CALL OUTA_HERE ( 'Y' )
-      ENDIF 
+      ENDIF
 
 ! **********************************************************************************************************************************
  1933 FORMAT(' *ERROR  1933: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' THE NUMBER OF GRID POINTS FOR ',A,' ELEMENT ',I8,', IS: ',I8                                          &
-                    ,/,14X,' THE MINIMUM NUMBER IS 1 AND THE MAXIMUM NUMBER ALLOWED FOR ANY ELEMENT IS: ',I8) 
+                    ,/,14X,' THE MINIMUM NUMBER IS 1 AND THE MAXIMUM NUMBER ALLOWED FOR ANY ELEMENT IS: ',I8)
 
  1940 FORMAT(' *ERROR  1940: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' ELEMENT TYPE "',A,'" NOT FOUND IN ARRAY ELMTYP')

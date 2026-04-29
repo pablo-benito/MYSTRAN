@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE SHP2DQ ( IGAUS, JGAUS, NUM_NODES, CALLING_SUBR, IORD_MSG, IORZZZ, SSI, SSJ, WRT_BUG_THIS_TIME, PSH, DPSHG )
 
 ! Generates shape functions for 2D elements.
-  
+
 ! The node numbering and axes convention are shown below with XI and ETA ranging from -1 to +1
- 
+
 !                         ETA
 !                          |
 !                          |
@@ -43,14 +43,14 @@
 !              .                       .
 !              .                       .
 !              1 . . . . . 5 . . . . . 2
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  BUG, ERR, F06, WRT_BUG, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELDT_BUG_SHPJ_BIT, MEFE, FATAL_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE, TWO, FOUR
       USE MODEL_STUF, ONLY            :  EID, EMG_IFE, ERR_SUB_NAM, NUM_EMG_FATAL_ERRS, TYPE
- 
+
       USE SHP2DQ_USE_IFs
 
       IMPLICIT NONE
@@ -69,7 +69,7 @@
       INTEGER(LONG)                   :: NODES_4     = 4   ! Number of nodes for one type of element
       INTEGER(LONG)                   :: NODES_8     = 8   ! Number of nodes for one type of element
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: SSI               ! Gauss point location component
       REAL(DOUBLE) , INTENT(IN)       :: SSJ               ! Gauss point location component
       REAL(DOUBLE) , INTENT(OUT)      :: PSH(NUM_NODES)    ! Shape functions for all grid points for this Gauss point
@@ -79,7 +79,7 @@
       REAL(DOUBLE)                    :: B1,B2,B3          ! Intermediate variables used in calculating outputs
       REAL(DOUBLE)                    :: XI2               ! Squares of xi coords
       REAL(DOUBLE)                    :: ET2               ! Squares of eta coords
- 
+
 
 ! **********************************************************************************************************************************
 ! Initialize outputs
@@ -95,29 +95,29 @@
       ENDDO
 
 ! Generate shape functions for 2D element with 4 grid points
-  
+
       IF (NUM_NODES == NODES_4) THEN
- 
+
          XI(1) = -ONE
          XI(2) =  ONE
          XI(3) =  ONE
          XI(4) = -ONE
- 
+
          ET(1) = -ONE
          ET(2) = -ONE
          ET(3) =  ONE
          ET(4) =  ONE
- 
+
          DO I=1,4
             PSH(I) = (ONE + SSI*XI(I))*(ONE + SSJ*ET(I))/FOUR
             DPSHG(1,I) = XI(I)*(ONE + SSJ*ET(I))/FOUR
             DPSHG(2,I) = ET(I)*(ONE + SSI*XI(I))/FOUR
-         ENDDO 
-  
+         ENDDO
+
 ! Generate shape functions and derivatives for 8 node serendipity elem
-  
+
       ELSE IF (NUM_NODES == NODES_8) THEN
-  
+
          XI(1) = -ONE
          XI(2) =  ONE
          XI(3) =  ONE
@@ -126,7 +126,7 @@
          XI(6) =  ONE
          XI(7) =  ZERO
          XI(8) = -ONE
-  
+
          ET(1) = -ONE
          ET(2) = -ONE
          ET(3) =  ONE
@@ -135,7 +135,7 @@
          ET(6) =  ZERO
          ET(7) =  ONE
          ET(8) =  ZERO
-  
+
          DO I=1,8
             XI2 = XI(I)*XI(I)
             ET2 = ET(I)*ET(I)
@@ -146,16 +146,16 @@
             A3 = ONE - XI2
             B3 = ONE - ET2
             PSH(I)     = ((A1 - A2)*B1 - B2*A1)*XI2*ET2/FOUR + A2*B1*A3*ET2/TWO + B2*A1*B3*XI2/TWO
- 
+
             DPSHG(1,I) = ((TWO*SSI + XI(I))*B1 - XI(I)*B2)*XI2*ET2/FOUR - SSI*B1*A3*ET2 + XI(I)*B2*B3*XI2/TWO
- 
+
             DPSHG(2,I) = ((TWO*SSJ + ET(I))*A1 - ET(I)*A2)*XI2*ET2/FOUR - SSJ*A1*B3*XI2 + ET(I)*A2*A3*ET2/TWO
-         ENDDO 
-  
+         ENDDO
+
 ! Error: NUM_NODES is not 4 or 8
-  
+
       ELSE
-  
+
          NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
          FATAL_ERR = FATAL_ERR + 1
          IF (WRT_ERR > 0) THEN
@@ -169,12 +169,12 @@
             ENDIF
          ENDIF
          CALL OUTA_HERE ( 'Y' )                            ! Coding error, so quit
-  
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! ELDATA output:
- 
+
       IF ((WRT_BUG_THIS_TIME == 'Y') .AND. (WRT_BUG(7) > 0)) THEN
 
          NAME(1) = 'Nodes  1 thru  4:'
@@ -210,7 +210,7 @@
          ENDDO
          WRITE(BUG,*)
          WRITE(BUG,*)
- 
+
          J = 0
          WRITE(BUG,1125)
          DO I=1,NUM_NODES,4
@@ -219,9 +219,9 @@
          ENDDO
          WRITE(BUG,*)
          WRITE(BUG,*)
- 
+
       ENDIF
-  
+
 
 
       RETURN
@@ -254,5 +254,5 @@
  1125 FORMAT(42X,'Derivatives of shape functions with respect to ET')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE SHP2DQ

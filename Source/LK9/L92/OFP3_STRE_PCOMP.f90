@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE OFP3_STRE_PCOMP ( JVEC, FEMAP_SET_ID, ITE, OT4_EROW )
 
 ! Processes element ply stress output requests for PCOMP elements (TRIA3, QUAD4) for one subcase
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
       USE IOUNT1, ONLY                :  WRT_BUG, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELOUT_STRE_BIT, FATAL_ERR, IBIT, INT_SC_NUM, MBUG, MOGEL,                   &
@@ -40,23 +40,23 @@
                                          NUM_PLIES, PCOMP_PROPS, PLY_NUM, THETA_PLY, TYPE
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, MAXREQ, OGEL
       USE OUTPUT4_MATRICES, ONLY      :  OTM_STRE, TXT_STRE
-  
+
       USE OFP3_STRE_PCOMP_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'OFP3_STRE_PCOMP'
       CHARACTER( 1*BYTE), PARAMETER   :: IHDR      = 'Y'   ! An input to subr WRITE_GRID_OUTPUTS, called herein
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option indicators for subr EMG, called herein
       CHARACTER(31*BYTE)              :: OT4_DESCRIPTOR    ! Descriptor for rows of OT4 file
       CHARACTER(30*BYTE)              :: REQUEST           ! Text for error message
       CHARACTER(20*BYTE)              :: STRESS_ITEM(18)   ! Char description of element strains
- 
+
       INTEGER(LONG), INTENT(IN)       :: FEMAP_SET_ID      ! Set ID for FEMAP output
-      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors 
+      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Solution vector number
       INTEGER(LONG), INTENT(INOUT)    :: OT4_EROW          ! Row number in OT4 file for elem related OTM descriptors
-      INTEGER(LONG)                   :: ELOUT_STRE        ! If > 0, there are STRESS   requests for some elems                
+      INTEGER(LONG)                   :: ELOUT_STRE        ! If > 0, there are STRESS   requests for some elems
       INTEGER(LONG)                   :: I,J,K,L,M         ! DO loop indices
       INTEGER(LONG)                   :: IERROR       = 0  ! Local error count
 !xx   INTEGER(LONG)                   :: IROW_MAT          ! Row number in OTM's
@@ -71,7 +71,7 @@
                                                            ! Indicator for output of elem data to BUG file
       INTEGER(LONG)                   :: NUM_OTM_ENTRIES   ! Number of entries in OGEL for a particular element type
 
- 
+
       INTEGER(LONG)                   :: ITABLE           ! the op2 subtable number
       CHARACTER(8*BYTE)               :: TABLE_NAME       ! the op2 table name
       LOGICAL                         :: IS_RESULT        ! is there a result
@@ -88,25 +88,25 @@
 
 ! **********************************************************************************************************************************
 ! Process element stress output (STRESS) requests for composite shell elements
- 
+
       OPT(1) = 'N'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'N'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'Y'                                         ! OPT(3) is for calc of SEi, STEi
       OPT(4) = 'N'                                         ! OPT(4) is for calc of KE-linear
       OPT(5) = 'N'                                         ! OPT(5) is for calc of PPE
       OPT(6) = 'N'                                         ! OPT(6) is for calc of KE-diff stiff
- 
+
 ! Find out how many output requests were made for each element type.
 
       DO I=1,METYPE                                        ! Initialize the array containing the no. requests/elem.
          NELREQ(I) = 0
-      ENDDO 
- 
+      ENDDO
+
       DO I=1,METYPE
          DO J=1,NELE
             CALL IS_ELEM_PCOMP_PROPS ( J )
             IF (PCOMP_PROPS == 'Y') THEN
-               IF ((ETYPE(J)(1:5) == 'TRIA3') .OR. (ETYPE(J)(1:5) == 'QUAD4')) THEN 
+               IF ((ETYPE(J)(1:5) == 'TRIA3') .OR. (ETYPE(J)(1:5) == 'QUAD4')) THEN
                   IF (ETYPE(J) == ELMTYP(I)) THEN
                      ELOUT_STRE = IAND(ELOUT(J,INT_SC_NUM),IBIT(ELOUT_STRE_BIT))
                      IF (ELOUT_STRE > 0) THEN
@@ -117,15 +117,15 @@
                   ENDIF
                ENDIF
             ENDIF
-         ENDDO  
-      ENDDO 
- 
+         ENDDO
+      ENDDO
+
       DO I=1,MAXREQ
          DO J=1,MOGEL
             OGEL(I,J) = ZERO
-         ENDDO 
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
 !xx   IROW_MAT = 0
 !xx   IROW_TXT = 0
       OT4_DESCRIPTOR = 'Element stress'
@@ -133,7 +133,7 @@ reqs4:DO I=1,METYPE
          IF (NELREQ(I) == 0) CYCLE reqs4
          NUM_LINES = 0
          NUM_OGEL  = 0
- 
+
 elems_4: DO J = 1,NELE
 
             CALL IS_ELEM_PCOMP_PROPS ( J )
@@ -160,7 +160,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
                         IF (NUM_PLIES > 1) THEN
                            CALL ELMDIS_PLY                    ! If there is more than 1 ply, get displs from elem mid plane displs
                         ENDIF
- 
+
                         IF (ETYPE(J)(1:5) == 'USER1') THEN
                            CALL SUSER1
                         ELSE                                  ! Get ply stresses in ply coords (also need strains for failure index)
@@ -183,7 +183,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
                                  ENDIF
                               ENDDO
                            ENDDO
-                        ENDIF   
+                        ENDIF
 
                         IF ((SOL_NAME(1:12) == 'GEN CB MODEL') .AND. (JVEC == 1) .AND. (OT4_EROW >= 1)) THEN
                            DO K=1,OTMSKIP                        ! Write OTMSKIP blank separator lines
@@ -203,24 +203,24 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
                               WRITE(ERR,100) "OES_PCOMP",TYPE,TABLE_NAME,ITABLE
                               CALL SET_OESC_TABLE_NAME(TABLE_NAME, ITABLE)
                               WRITE(ERR,100) "OES_PCOMP",ETYPE(J)(1:8),TABLE_NAME,ITABLE
-                        
+
                               CALL WRITE_PLY_STRESSES ( JVEC, NUM_LINES, IHDR, ETYPE(J)(1:8), ITABLE )
                               EXIT
                            ENDIF
                         ENDIF
- 
+
                      ENDDO do_plies_4
- 
+
                   ENDIF
 
                ENDIF
- 
+
             ENDIF pcomp
 
          ENDDO elems_4
- 
+
       ENDDO reqs4
- 
+
   10   FORMAT("*DEBUG:      OES_PCOMP_END:    TABLE_NAME",A)
       WRITE(ERR,10) TABLE_NAME
       IF (ITABLE < 0) THEN
@@ -230,7 +230,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
       IF (WRITE_NEU .AND. (ANY_STRE_OUTPUT > 0)) THEN
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out TRIA3 stresses
-         DO J=1,NELE 
+         DO J=1,NELE
             CALL IS_ELEM_PCOMP_PROPS ( J )
             IF (PCOMP_PROPS == 'Y') THEN
                EID   = EDAT(EPNT(J))
@@ -244,7 +244,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
          IF (NUM_FROWS > 0) THEN
             CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NUM_FROWS, 9, SUBR_NAME )
             NUM_FROWS = 0
-            DO J=1,NELE 
+            DO J=1,NELE
                CALL IS_ELEM_PCOMP_PROPS ( J )
                IF (PCOMP_PROPS == 'Y') THEN
                   EID   = EDAT(EPNT(J))
@@ -272,7 +272,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
                         CALL ROT_COMP_ELEM_AXES ( J, M, THETA_PLY, '2-1' )
                         CALL CALC_ELEM_STRESSES ( NCTRIA3, NDUM, NUM_FROWS, 'N', 'Y' )
                      ENDDO
-                  ENDIF            
+                  ENDIF
                ENDIF
             ENDDO
             CALL WRITE_FEMAP_STRE_VECS ( 'TRIA3   ', 'Y', NUM_FROWS, FEMAP_SET_ID )
@@ -281,7 +281,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
 
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out QUAD4 stresses
-         DO J=1,NELE 
+         DO J=1,NELE
             CALL IS_ELEM_PCOMP_PROPS ( J )
             IF (PCOMP_PROPS == 'Y') THEN
                EID   = EDAT(EPNT(J))
@@ -295,7 +295,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
          IF (NUM_FROWS > 0) THEN
             CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NUM_FROWS, 9, SUBR_NAME )
             NUM_FROWS = 0
-            DO J=1,NELE 
+            DO J=1,NELE
                CALL IS_ELEM_PCOMP_PROPS ( J )
                IF (PCOMP_PROPS == 'Y') THEN
                   EID   = EDAT(EPNT(J))
@@ -324,7 +324,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
                         CALL CALC_ELEM_STRESSES ( NCQUAD4, NDUM, NUM_FROWS, 'N', 'Y' )
                      ENDDO
                   ENDIF
-               ENDIF            
+               ENDIF
             ENDDO
             CALL WRITE_FEMAP_STRE_VECS ( 'QUAD4   ', 'Y', NUM_FROWS, FEMAP_SET_ID )
             CALL DEALLOCATE_FEMAP_DATA
@@ -332,7 +332,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
 
          NDUM = 0
          NUM_FROWS= 0                                      ! Write out SHEAR stresses
-         DO J=1,NELE 
+         DO J=1,NELE
             CALL IS_ELEM_PCOMP_PROPS ( J )
             IF (PCOMP_PROPS == 'Y') THEN
                EID   = EDAT(EPNT(J))
@@ -346,7 +346,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
          IF (NUM_FROWS > 0) THEN
             CALL ALLOCATE_FEMAP_DATA ( 'FEMAP ELEM ARRAYS', NUM_FROWS, 9, SUBR_NAME )
             NUM_FROWS = 0
-            DO J=1,NELE 
+            DO J=1,NELE
                CALL IS_ELEM_PCOMP_PROPS ( J )
                IF (PCOMP_PROPS == 'Y') THEN
                   EID   = EDAT(EPNT(J))
@@ -374,7 +374,7 @@ do_plies_4:          DO M=1,NUM_PLIES                         ! Cycle over numbe
                         CALL ROT_COMP_ELEM_AXES ( J, M, THETA_PLY, '2-1' )
                         CALL CALC_ELEM_STRESSES ( NCSHEAR, NDUM, NUM_FROWS, 'N', 'Y' )
                      ENDDO
-                  ENDIF            
+                  ENDIF
                ENDIF
             ENDDO
             CALL WRITE_FEMAP_STRE_VECS ( 'SHEAR   ', 'Y', NUM_FROWS, FEMAP_SET_ID )

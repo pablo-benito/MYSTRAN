@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_EIGR ( CARD, LARGE_FLD_INP, EIGFND )
-  
+
 ! Processes EIGR Bulk Data Cards. Reads and checks data and write data to file LINK1M.
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -60,9 +60,9 @@
 
 ! **********************************************************************************************************************************
 ! EIGR Bulk Data Card routine
-  
+
 !  Card 1:
- 
+
 !  Field   Item           Description                     Type
 !  -----   ------------   -----------                     ----
 !   2      EIG_SID        EIGR set ID                     Integer
@@ -74,17 +74,17 @@
 !   8      EIG_VECS       Are eigenvecs requested         Char (def = Y)
 !   9      EIG_CRIT       Criteria for ortho check        Real >= 0. or blank (used for orthog. check)
 !  Required card 2:
-  
-!  Field   Item           Description                     Type           
+
+!  Field   Item           Description                     Type
 !  -----   ------------   -------------                   ----
 !   2      EIG_NORM       Type of eigenvec normalization  Char
 !   3      EIG_GRID       Grid to normailze on            Integer
 !   4      EIG_COMP       DOF comp to normalize on        Integer
-!   5      EIG_SIGMA      Shift eigen                     Real           
- 
+!   5      EIG_SIGMA      Shift eigen                     Real
+
 
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
 
       JERR = 0
@@ -124,7 +124,7 @@
             WRITE(F06,1164) CHRINP
          ENDIF
       ENDIF
- 
+
       CALL R8FLD ( JCARD(4), JF(4), EIG_FRQ1 )             ! Read lower  frequency of search range
       CALL R8FLD ( JCARD(5), JF(5), EIG_FRQ2 )             ! Read higher frequency of search range
       CALL I4FLD ( JCARD(6), JF(6), EIG_N1 )               ! Read 1st mode number
@@ -146,17 +146,17 @@
       CALL EIGR_DATA_CHECK
 
       CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,6,7,8,9 )     ! Make sure that there are no imbedded blanks in fields 2-9
-      CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields 
+      CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
 
       IF ((IERRFL(2) == 'Y') .OR. (IERRFL(3) == 'Y') .OR. &! Increment JERR if there were errors reading any of the data fields
           (IERRFL(4) == 'Y') .OR. (IERRFL(5) == 'Y') .OR. &
           (IERRFL(6) == 'Y') .OR. (IERRFL(7) == 'Y') .OR. &
           (IERRFL(8) == 'Y') .OR. (IERRFL(9) == 'Y')) THEN
-         JERR = JERR + 1 
+         JERR = JERR + 1
       ENDIF
 
 ! Second Card only required if user wants other than default renormalization of eigenvectors:
-  
+
       IF (LARGE_FLD_INP == 'N') THEN
          CALL NEXTC  ( CARD, ICONT, IERR )
       ELSE
@@ -177,7 +177,7 @@
          IF (EIG_NORM == 'POINT   ') THEN
             CALL I4FLD ( JCARD(3), JF(3), EIG_GRID )
             CALL I4FLD ( JCARD(4), JF(4), EIG_COMP )
-            IF(IERRFL(4) == 'N') THEN 
+            IF(IERRFL(4) == 'N') THEN
                IF ((EIG_COMP < 1) .OR. (EIG_COMP > 6)) THEN
                   JERR = JERR + 1
                   FATAL_ERR = FATAL_ERR + 1
@@ -185,7 +185,7 @@
                   WRITE(F06,1118) JF(4), EIG_SID, EIG_COMP
                ENDIF
             ENDIF
-            
+
             IF ((IERRFL(3) == 'Y') .OR. (IERRFL(4) == 'Y')) THEN
                JERR = JERR + 1
             ENDIF
@@ -239,20 +239,20 @@
 
  1118 FORMAT(' *ERROR  1118: DOF COMPONENT NUMBER IN FIELD ',I3,' OF EIGR CONTINUATION ENTRY WITH ID = ',I8,' MUST BE A SINGLE',   &
                            ' DIGIT 1-6'                                                                                            &
-                    ,/,14X,' BUT VALUE IS = ',I8) 
+                    ,/,14X,' BUT VALUE IS = ',I8)
 
  1164 FORMAT(' *ERROR  1164: METHOD MUST BE GIV, MGIV, OR INV ON EIGR ENTRY. VALUE IS ',A)
 
  1165 FORMAT(' *ERROR  1165: NORMALIZATION FACTOR ON EIGR CONTINUATION ENTRY MUST BE MASS, MAX, POINT or NONE. VALUE INPUT IS = ',A)
- 
+
  1117 FORMAT(' *ERROR  1117: ',A,' ENTRY WITH SET ID = ',A,' IS A DUPLICATE SET ID.')
 
 ! *********************************************************************************************************************************
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE EIGR_DATA_CHECK
@@ -270,7 +270,7 @@
       ENDIF
 
       EIG_SEARCH_CRIT(1:) = ' '
-      
+
       IF (JCARD(7)(1:) /= ' ') THEN                        ! Search criteria must be mode number so check EIG_N1,2
          EIG_SEARCH_CRIT = 'MODE NMBR'
          IF (JCARD(6)(1:) == ' ') THEN

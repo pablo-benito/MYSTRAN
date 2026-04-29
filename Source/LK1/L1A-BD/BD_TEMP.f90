@@ -1,79 +1,79 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_TEMP ( CARD, CC_LOAD_FND )
-  
+
 ! Processes TEMP Bulk Data Cards and writes CARD to file LINK1K for later processing
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1K
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, LSUB, NSUB, NTCARD
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  SUBLOD
- 
+
       USE BD_TEMP_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_TEMP'
       CHARACTER(LEN=*),INTENT(IN)     :: CARD                ! A Bulk Data card
       CHARACTER( 1*BYTE),INTENT(INOUT):: CC_LOAD_FND(LSUB,2) ! 'Y' if B.D load/temp card w/ same set ID (SID) as C.C. LOAD = SID
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)           ! The 10 fields of characters making up CARD
       CHARACTER( 1*BYTE)              :: KEEP_IT             ! ='Y' if the SID on TEMPD is one we need to write to LINK1K
- 
+
       INTEGER(LONG)                   :: EGRID     = 0       ! Actual grid number
       INTEGER(LONG)                   :: I4INP     = 0       ! Value read by subr I4FLD when reading a CARD field
       INTEGER(LONG)                   :: JERR      = 0       ! Error count
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
       INTEGER(LONG)                   :: SID       = 0       ! Set ID read from CARD
 
-  
+
       REAL(DOUBLE)                    :: RTEMP     = ZERO  ! Real value of a temperature
- 
+
 
 
 ! **********************************************************************************************************************************
 !  TEMP Bulk Data card check (for format checking only)
- 
-!    FIELD   ITEM          
-!    -----   ------------  
+
+!    FIELD   ITEM
+!    -----   ------------
 !     2      SID
-!     3      Grid ID       
+!     3      Grid ID
 !     4      Temp
-!     5      Grid ID       
+!     5      Grid ID
 !     6      Temp
-!     7      Grid ID       
+!     7      Grid ID
 !     8      Temp
- 
- 
+
+
 !  Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Read and check data
 
       DO I=1,3                                             ! Check that pairs of fields either both have data or neither has data
@@ -90,7 +90,7 @@
             WRITE(ERR,1191) 2*I+1, 2*I+2, JCARD(1)
             WRITE(F06,1191) 2*I+1, 2*I+2, JCARD(1)
          ENDIF
-      ENDDO 
+      ENDDO
 
       IF (JERR == 0) THEN                                  ! Overall format is OK
 
@@ -104,7 +104,7 @@
                   KEEP_IT  = 'Y'
                ENDIF
             ENDDO
-         ENDIF   
+         ENDIF
 
          DO J=1,3                                          ! Read pairs of grid/temperature
             IF (JCARD(2*J+1)(1:) == ' ') EXIT
@@ -126,8 +126,8 @@
             ENDIF
          ENDDO
 
-      ENDIF   
- 
+      ENDIF
+
       CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,6,7,8,0 )     ! Make sure that there are no imbedded blanks in fields 2-8
       CALL CARD_FLDS_NOT_BLANK ( JCARD,0,0,0,0,0,0,0,9 )   ! Issue warning if field 9 not blank
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
@@ -148,5 +148,5 @@
  1192 FORMAT(' *ERROR  1192: ID IN FIELD ',I3,' OF ',A,A,' MUST BE ',A,' BUT IS = ',I8)
 
 ! **********************************************************************************************************************************
-  
+
       END SUBROUTINE BD_TEMP

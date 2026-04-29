@@ -1,29 +1,29 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MERGE_COL_VECS ( IN1_COL, IN1_NDOF, UIN1, IN2_COL, IN2_NDOF, UIN2  &
                         ,OUT_COL, OUT_NDOF, UOUT )
 
@@ -32,18 +32,18 @@
 
 ! If the 2 input vector displ sets being merged are not complementary to the output vector displ set, a coding error is given
 ! and processing is stopped.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, NDOFG
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE DOF_TABLES, ONLY            :  TDOFI
-      
+
       USE MERGE_COL_VECS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MERGE_COL_VECS'
 
       INTEGER(LONG), INTENT(IN )      :: IN1_COL           ! Column number in TDOF, TDOFI for the displ set for input vector UIN1
@@ -61,8 +61,8 @@
       REAL(DOUBLE) , INTENT(IN )      :: UIN1(IN1_NDOF)    ! Input  vector for IN1_COL displ set
       REAL(DOUBLE) , INTENT(IN )      :: UIN2(IN2_NDOF)    ! Input  vector for IN2_COL displ set
       REAL(DOUBLE) , INTENT(OUT)      :: UOUT(OUT_NDOF)    ! Output vector for OUT_COL displ set
- 
- 
+
+
 
 
 ! **********************************************************************************************************************************
@@ -75,17 +75,17 @@
 ! Merge rows of UIN1 and UIN2 into UOUT
 
       DO I=1,NDOFG
-    
+
          IN1_DOF = TDOFI(I,IN1_COL)
          IN2_DOF = TDOFI(I,IN2_COL)
          OUT_DOF = TDOFI(I,OUT_COL)
 
          IF ((IN1_DOF > IN1_NDOF) .OR. (IN2_DOF > IN2_NDOF) .OR. (OUT_DOF > OUT_NDOF)) THEN
-            WRITE(ERR,938) SUBR_NAME,IN1_DOF,IN1_NDOF,IN2_DOF,IN2_NDOF,OUT_DOF,OUT_NDOF 
-            WRITE(F06,938) SUBR_NAME,IN1_DOF,IN1_NDOF,IN2_DOF,IN2_NDOF,OUT_DOF,OUT_NDOF 
+            WRITE(ERR,938) SUBR_NAME,IN1_DOF,IN1_NDOF,IN2_DOF,IN2_NDOF,OUT_DOF,OUT_NDOF
+            WRITE(F06,938) SUBR_NAME,IN1_DOF,IN1_NDOF,IN2_DOF,IN2_NDOF,OUT_DOF,OUT_NDOF
             FATAL_ERR = FATAL_ERR + 1
             CALL OUTA_HERE ( 'Y' )                                 ! Coding error (attempt to exceed allocated array size), so quit
-         ENDIF            
+         ENDIF
 
          IF (OUT_DOF > 0) THEN
             IF      (IN1_DOF > 0) THEN
@@ -100,8 +100,8 @@
             ENDIF
          ENDIF
 
-      ENDDO 
-            
+      ENDDO
+
 
 
       RETURN

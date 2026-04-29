@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE BANDIT_FILES ( IOU6, IOU7, IOU8, IOU9, IOU11, IOU12, IOU13, IOU14, IOU15, IOU16, IOU17 )
- 
+
 ! Opens all output files and closes and deletes them so that no confusion about files if MYSTRAN aborts
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
@@ -34,7 +34,7 @@
       USE BANDIT_FILES_USE_IFs
 
       IMPLICIT NONE
- 
+
       LOGICAL                         :: FILE_EXIST        ! T/F depending on whether a file exists
 
       CHARACTER(FILE_NAM_MAXLEN*BYTE) :: BANDIT_OUT        ! Bandit file name
@@ -73,14 +73,14 @@
       INTEGER(LONG), INTENT(IN)       :: IOU16             ! Bandit file unit number
       INTEGER(LONG), INTENT(IN)       :: IOU17             ! Bandit file unit number
 
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr READERR  
- 
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr READERR
+
 ! **********************************************************************************************************************************
 ! Default units for writing errors the screen (until LINK1A is read) and set filename length
- 
+
       OUNT(1) = SC1
       OUNT(2) = SC1
- 
+
 ! Formatted files.
 
       BANDIT_OUT(1:) = ' '         ;   OUT_MSG(1:) = ' '

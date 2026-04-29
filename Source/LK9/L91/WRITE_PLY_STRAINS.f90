@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE WRITE_PLY_STRAINS ( JSUB, NUM, IHDR, ETYPE, ITABLE  )
-  
+
 ! Writes blocks of element ply strains for one subcase one element type for elements with PCOMP properties.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, OP2
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, BARTOR, INT_SC_NUM, LPCOMP_PLIES, NDOFR, NUM_CB_DOFS,            &
@@ -39,17 +39,17 @@
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, FTNAME, OGEL
       USE MODEL_STUF, ONLY            :  ANY_FAILURE_THEORY, ELEM_ONAME, LABEL, PCOMP, SCNUM, STITLE, TITLE
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_OPT
-      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM  
-  
+      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM
+
       USE WRITE_PLY_STRAINS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_PLY_STRAINS'
       CHARACTER(LEN=*), INTENT(IN)    :: IHDR              ! Indicator of whether to write an output header
       CHARACTER(128*BYTE)             :: FILL              ! Padding for output format
       CHARACTER(LEN=LEN(ELEM_ONAME))  :: ONAME             ! Element name to write out in F06 file
-  
+
       INTEGER(LONG), INTENT(IN)       :: JSUB              ! Solution vector number
       INTEGER(LONG), INTENT(IN)       :: NUM               ! The number of rows of OGEL to write out
       CHARACTER(8*BYTE), INTENT(IN)   :: ETYPE             ! the name of the element
@@ -59,7 +59,7 @@
       INTEGER(LONG)                   :: BDY_DOF_NUM       ! DOF number for BDY_GRID/BDY_COMP
       INTEGER(LONG)                   :: I,J               ! DO loop indices
 
-  
+
       REAL(DOUBLE)                    :: ABS_ANS(10)       ! Max ABS for all grids output for each of the 6 disp components
       REAL(DOUBLE)                    :: MAX_ANS(10)       ! Max for all grids output for each of the 6 disp components
       REAL(DOUBLE)                    :: MIN_ANS(10)       ! Min for all grids output for each of the 6 disp components
@@ -99,10 +99,10 @@
          ABS_ANS(J) = ZERO
          MAX_ANS(J) = -MACH_LARGE_NUM
          MIN_ANS(J) = ZERO
-      ENDDO 
+      ENDDO
 
 ! Get element output name
- 
+
       ONAME(1:) = ' '
       CALL GET_ELEM_ONAME ( ONAME )
 
@@ -153,7 +153,7 @@
             ANALYSIS_CODE = 2
             FIELD5_INT_MODE = JSUB
 
-            IF ((JSUB <= NDOFR) .OR. (JSUB >= NDOFR+NVEC)) THEN 
+            IF ((JSUB <= NDOFR) .OR. (JSUB >= NDOFR+NVEC)) THEN
                IF (JSUB <= NDOFR) THEN
                   BDY_DOF_NUM = JSUB
                ELSE
@@ -209,9 +209,9 @@
                WRITE(F06,1404) FILL(1: 0), ONAME, FILL(1: 0), FILL(1: 0)
             ENDIF
          ENDIF
- 
+
       ENDIF
- 
+
 ! Write the element strain output
       ! 95:  cquad4
       ! 96:  cquad8
@@ -235,7 +235,7 @@
          CALL GET_STRESS_CODE( STRESS_CODE, 0,            1,         1)
       ENDIF
 
-      ! elementi = [eid_device, layer, 
+      ! elementi = [eid_device, layer,
       !             o1, o2, t12, t1z, t2z, angle, major, minor, ovm)
       NUM_WIDE = 11
       NVALUES = NUM * NUM_WIDE
@@ -326,7 +326,7 @@
   301 FORMAT(45X,A,' S T R A I N S   I N   L A Y E R E D   C O M P O S I T E   E L E M E N T S')
 
   302 FORMAT(9X,A,'C B   E L E M E N T   S T R A I N   O T M   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M')
-  
+
  1401 FORMAT(53X,A,'F O R   E L E M E N T   T Y P E   ',A11,/,                                                                     &
       1X,A,' Element   Ply  Strains in fiber and matrix directions     Inter-laminar strains      Principal strains  (zero shear)',&
            '      von',/,                                                                                                          &
@@ -373,5 +373,5 @@
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_PLY_STRAINS

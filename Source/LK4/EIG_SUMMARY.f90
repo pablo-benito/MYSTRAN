@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE EIG_SUMMARY
-  
+
 ! Prints eigenvalue analysis summary table
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, NDOFL, NUM_EIGENS, NVEC, NUM_KLLD_DIAG_ZEROS, NUM_MLL_DIAG_ZEROS, SOL_NAME, &
@@ -39,27 +39,27 @@
       USE EIGEN_MATRICES_1, ONLY      :  GEN_MASS, MODE_NUM, EIGEN_VAL
       USE MODEL_STUF, ONLY            :  EIG_COMP, EIG_CRIT, EIG_GRID, EIG_LAP_MAT_TYPE, EIG_METH, EIG_MODE, EIG_N2, EIG_NORM,     &
                                          EIG_SIGMA, MAXMIJ, MIJ_COL, MIJ_ROW, NUM_FAIL_CRIT
- 
+
       USE EIG_SUMMARY_USE_IFs
 
       IMPLICIT NONE
-  
+
       LOGICAL                         :: FILE_OPND         ! .TRUE. if a file is opened
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'EIG_SUMMARY'
       CHARACTER( 1*BYTE)              :: ASTERISK = '*'    ! Used for denoting negative eigenvalues
-  
+
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: NUM_FINITE_EIGENS ! Number of eigenvalues that are finite (excluding zero mass modes)
       INTEGER(LONG)                   :: MAX_LANCZOS_EIGENS! Max number of eigenvalues that can be found by Lanczos method
       INTEGER(LONG)                   :: NUM_NEG_EIGENS    ! Number of eigenvalues that are negative
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
 
-  
+
       REAL(DOUBLE)                    :: CYCLES1           ! Circular frequency of a mode
       REAL(DOUBLE)                    :: GEN_STIFF1        ! Generalized stiffness for a mode
       REAL(DOUBLE)                    :: RADS1             ! Radian frequency of a mode
-  
+
 
 
 ! **********************************************************************************************************************************
@@ -120,7 +120,7 @@
          WRITE(F06,92010)
 
       ENDIF
-  
+
       IF (SOL_NAME(1:8) == 'BUCKLING') THEN
          WRITE(F06,94101)
          WRITE(F06,94102)
@@ -148,7 +148,7 @@
                WRITE(F06,95402) MODE_NUM(I),I,EIGEN_VAL(I),         RADS1,CYCLES1,GEN_MASS(I),GEN_STIFF1
             ENDIF
          ENDIF
-      ENDDO 
+      ENDDO
 
       IF (SOL_NAME(1:8) == 'BUCKLING') THEN
          NUM_FINITE_EIGENS = NDOFL - NUM_KLLD_DIAG_ZEROS
@@ -264,7 +264,7 @@
 98006 FORMAT(' *WARNING    : THE BULK DATA EIGR/EIGRL ENTRY ASKED FOR MODES UP TO NUMBER',I8,'. HOWEVER, THIS MODEL HAS ONLY',I8   &
                     ,/,14X,' FINITE EIGENVALUES DUE TO THE FACT THAT THE L-SET MASS MATRIX HAS',I8,' ZERO MASS DEGREES OF FREEDOM.'&
                     ,/,14x,' (USE OF BULK DATA PARAM ART_MASS WITH SMALL VALUE MAY HELP TO AVOID EIGENVALUES THAT ARE',      &
-                           ' THEORETICALLY INFINITE)') 
+                           ' THEORETICALLY INFINITE)')
 
 98007 FORMAT(' *WARNING    : THE USE OF BULK DATA PARAM ART_MASS MAY HAVE MASKED SOME OTHERWISE INFINITE EIGENVALUES. IF A SMALL', &
                            ' VALUE FOR'                                                                                            &
@@ -272,7 +272,7 @@
                            ' IF A LARGE VALUE FOR'                                                                                 &
                     ,/,14X,' ART_MASS WAS USED THEN ALL EIGENVALUES MAY BE SUSPECT. THIS RUN USED THE FOLLOWING ART_MASS VALUES:',/&
                     ,/,14X,'                   Artificial mass for translational G-set DOFs = ',1ES14.6                            &
-                    ,/,14X,'                   Artificial mass for rotational    G-set DOFs = ',1ES14.6) 
+                    ,/,14X,'                   Artificial mass for rotational    G-set DOFs = ',1ES14.6)
 
 98008 FORMAT(' *WARNING    : LANCZOS ONLY FOUND',I8,' EIGENVALUES DUE TO:'                                                         &
                     ,/,14X,' (1) IT CAN NEVER FIND ALL',I8,' FINITE EIGENVALUES (IT IS ONLY POSSIBLE TO FIND 1 LESS THAN ALL)'     &
@@ -288,5 +288,5 @@
                                   ,' A-SET)')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE EIG_SUMMARY

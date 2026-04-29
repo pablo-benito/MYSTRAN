@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
-! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
 
-      SUBROUTINE ELMOFF ( OPT, WRITE_WARN ) 
- 
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
+! _______________________________________________________________________________________________________
+
+! End MIT license text.
+
+      SUBROUTINE ELMOFF ( OPT, WRITE_WARN )
+
 ! Processes element mass, stiffness, thermal load, pressure load, stress recovery matrices if there are any offsets of the element
-! at any grid points. This is a general routine which can be used by any of the elements as long as the 
+! at any grid points. This is a general routine which can be used by any of the elements as long as the
 ! element has no more than 4 grid points.
 ! ======================================
 
@@ -52,15 +52,15 @@
       CHARACTER(LEN=*), INTENT(IN)    :: WRITE_WARN        ! If 'Y" write warning messages, otherwise do not
 
       INTEGER(LONG)                   :: I,J,K,L,M,N       ! DO loop indices
-      INTEGER(LONG)                   :: II,JJ             ! Computed indices 
-      INTEGER(LONG)                   :: JBEG              ! Index 
-      INTEGER(LONG)                   :: KBEG              ! Index 
+      INTEGER(LONG)                   :: II,JJ             ! Computed indices
+      INTEGER(LONG)                   :: JBEG              ! Index
+      INTEGER(LONG)                   :: KBEG              ! Index
       INTEGER(LONG)                   :: ROW               ! A computed row number in the elem stiff matrix
       INTEGER(LONG)                   :: COL               ! A computed col number in the elem stiff matrix
       INTEGER(LONG)                   :: NCOL              ! An input to subr MULT_OFFSET, called herein
       INTEGER(LONG)                   :: METH              ! An input to subr MULT_OFFSET, called herein
 
- 
+
       REAL(DOUBLE)                    :: DUM3(3,3)         ! An intermediate result when calculating offset SEi
       REAL(DOUBLE)                    :: DUM4(3,3)         ! An intermediate result when calculating offset SEi
       REAL(DOUBLE)                    :: DUM11(3,3)        ! An intermediate result when calculating offset KE
@@ -95,7 +95,7 @@
       REAL(DOUBLE)                    :: TY_DIR(3)            ! Vector that defines the y axis of the spring.
       REAL(DOUBLE)                    :: T(3,3)               ! Transformation matrix for spring.
       REAL(DOUBLE)                    :: KROT(3,3)            ! Stiff matrix for spring.
-      
+
       INTRINSIC                       :: DABS
 
 
@@ -120,7 +120,7 @@
 ! The offset matrix is called E for each G.P. but is never written out as a 6 x 6 matrix.
 
 ! The general form of E for one grid point is:
- 
+
 !                             | 1  0  0 |  0    DZ  -DY |
 !                             | 0  1  0 | -DZ   0    DX |
 !                             | 0  0  1 |  DY  -DX   0  |
@@ -213,43 +213,43 @@
 ! **********************************************************************************************************************************
 ! Add K6ROT stiffness
 
-                                                           ! Only for QUAD4 and TRIA3, 
+                                                           ! Only for QUAD4 and TRIA3,
                                                            ! not QUAD8, QUAD4K, or TRIA3K.
          IF (TYPE == 'QUAD4   ' .OR. TYPE == 'TRIA3   ') THEN
-            
+
                                                            ! No K6ROT for shells that only use MID1.
             IF (INTL_MID(2) > 0) THEN
 
                AREA = ZERO
 
                IF ((TYPE(1:5) == "QUAD4")) THEN
-               
+
                   XSD(1) = XEL(1,1) - XEL(2,1)             ! x coord diffs (in local elem coords)
                   XSD(2) = XEL(2,1) - XEL(3,1)
                   XSD(3) = XEL(3,1) - XEL(4,1)
                   XSD(4) = XEL(4,1) - XEL(1,1)
-            
+
                   YSD(1) = XEL(1,2) - XEL(2,2)             ! y coord diffs (in local elem coords)
                   YSD(2) = XEL(2,2) - XEL(3,2)
                   YSD(3) = XEL(3,2) - XEL(4,2)
                   YSD(4) = XEL(4,2) - XEL(1,2)
-         
+
                   CALL ORDER_GAUSS ( 2, SSS, HHH )
                   DO I=1,2
                      DO J=1,2
                         CALL JAC2D ( SSS(I), SSS(J), XSD, YSD, 'N', JAC, JACI, DETJ )
                         AREA = AREA + HHH(I)*HHH(J)*DETJ
-                     ENDDO   
-                  ENDDO   
-                  
+                     ENDDO
+                  ENDDO
+
                ELSEIF (TYPE(1:5) == "TRIA3") THEN
-               
+
                   X2E  = XEL(2,1)
                   Y3E  = XEL(3,2)
                                                            ! Actual area is half this but using this value
                                                            ! gives the same stiffness as MSC.
                   AREA = X2E*Y3E
-               
+
                ENDIF
 
                ! Drilling spring stiffness = K6ROT * 10^-6 * G12 * thickness * area
@@ -258,8 +258,8 @@
 
                ! Find the direction of the singularity DOF (SNORM) in the element coordinate system.
                IF ((TYPE == 'QUAD4   ') .AND. ((QUAD4TYP == 'MITC4 ') .OR. (QUAD4TYP == 'MITC4+'))) THEN
-                                                           ! This is currently the director vector 
-                                                           ! but it won't be if SNORM is implemented 
+                                                           ! This is currently the director vector
+                                                           ! but it won't be if SNORM is implemented
                                                            ! without changing the geometry of the element.
                   K6_DIR(:,1:ELGP) = DIRECTOR(:,1:ELGP)
                ELSEIF (((TYPE == 'QUAD4   ') .AND. ((QUAD4TYP == 'MIN4  ') .OR. (QUAD4TYP == 'MIN4T ')))                           &
@@ -308,10 +308,10 @@
          ENDIF
 
 ! **********************************************************************************************************************************
-         
+
 
 ! Set KE = KE1 for 6*ELGP by 6*ELGP terms
-        
+
          DO J=1,6*ELGP
             DO K=1,6*ELGP
                KE(J,K) = KE1(J,K)
@@ -335,17 +335,17 @@
                DO J=1,3
                   DO K=1,NTSUB
                      PDUM1(J,K) = PTE(II+J,K)
-                  ENDDO 
-               ENDDO 
+                  ENDDO
+               ENDDO
                NCOL = NTSUB
                METH = 2
                CALL MULT_OFFSET ( PDUM1, DXI, DYI, DZI, NCOL, METH, PDUM2 )
                DO J=1,3
                   DO K=1,NTSUB
                      PTE(II+J+3,K) = PTE(II+J+3,K) + PDUM2(J,K)
-                  ENDDO 
+                  ENDDO
                ENDDO
-            ENDIF 
+            ENDIF
 
             IF (OPT(1) == 'Y') THEN                        ! Process ME. Generate E(transp)*ME*E.
                DO J=I,ELGP
@@ -361,8 +361,8 @@
                            DUM12(K,L) = ME(II+K,JJ+L+3)
                            DUM21(K,L) = ME(II+K+3,JJ+L)
                            DUM22(K,L) = ME(II+K+3,JJ+L+3)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                      NCOL = 3                              ! Modify upper right 3x3 partition of ME
                      METH = 1
@@ -370,8 +370,8 @@
                      DO K=1,3
                         DO L=1,3
                            ME(II+K,JJ+L+3) = DUM12(K,L) + DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                      NCOL = 3                              ! Modify lower left 3x3 partition of ME
                      METH = 2
@@ -379,8 +379,8 @@
                      DO K=1,3
                         DO L=1,3
                            ME(II+K+3,JJ+L) = DUM21(K,L) + DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                      NCOL = 3                              ! Modify lower right 3x3 partition of ME
                      METH = 1
@@ -388,17 +388,17 @@
                      DO K=1,3
                         DO L=1,3
                            ME(II+K+3,JJ+L+3) = DUM22(K,L) + DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
- 
+                        ENDDO
+                     ENDDO
+
                      NCOL = 3
                      METH = 2
                      CALL MULT_OFFSET ( DUM12, DXI, DYI, DZI, NCOL, METH, DUM3 )
                      DO K=1,3
                         DO L=1,3
                            ME(II+K+3,JJ+L+3) = ME(II+K+3,JJ+L+3) +DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                      NCOL = 3
                      METH = 1
@@ -409,13 +409,13 @@
                      DO K=1,3
                         DO L=1,3
                            ME(II+K+3,JJ+L+3) = ME(II+K+3,JJ+L+3) +DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                   ENDIF
 
-               ENDDO   
- 
+               ENDDO
+
                DO K=2,ELGP                                 ! Generate the remaining Mij using symmetry.
                   DO L=1,K-1
                      DO M=1,6
@@ -423,13 +423,13 @@
                            ROW = 6*(K-1) + M
                            COL = 6*(L-1) + N
                            ME(ROW,COL) = ME(COL,ROW)
-                        ENDDO 
-                     ENDDO   
-                  ENDDO 
+                        ENDDO
+                     ENDDO
+                  ENDDO
                ENDDO
 
-            ENDIF   
- 
+            ENDIF
+
             IF (OPT(3) == 'Y') THEN                        ! Process SEi. Generate SEi*E
 
                DO L=1,MAX_STRESS_POINTS+1
@@ -437,29 +437,29 @@
                      DO K=1,3
 !xxError                DUM3(J,K) = SE1(L,J,II+K)
                         DUM3(J,K) = SE1(J,II+K,L)
-                     ENDDO 
+                     ENDDO
                   ENDDO
-               ENDDO 
+               ENDDO
                NCOL = 3
                METH = 1
                CALL MULT_OFFSET ( DUM3, DXI, DYI, DZI, NCOL, METH, DUM4 )
                DO L=1,MAX_STRESS_POINTS+1
-                  DO J=1,3 
+                  DO J=1,3
                      DO K=1,3
 !xxError                SE1(L,J,II+K+3) = SE1(L,J,II+K+3) + DUM4(J,K)
                         SE1(J,II+K+3,L) = SE1(J,II+K+3,L) + DUM4(J,K)
                      ENDDO
-                  ENDDO 
-               ENDDO 
+                  ENDDO
+               ENDDO
 
                DO L=1,MAX_STRESS_POINTS+1
                   DO J=1,3
                      DO K=1,3
 !xxError                DUM3(J,K) = SE2(L,J,II+K)
                         DUM3(J,K) = SE2(J,II+K,L)
-                     ENDDO 
+                     ENDDO
                   ENDDO
-               ENDDO 
+               ENDDO
                NCOL = 3
                METH = 1
                CALL MULT_OFFSET ( DUM3, DXI, DYI, DZI, NCOL, METH, DUM4 )
@@ -468,8 +468,8 @@
                      DO K=1,3
 !xxError                SE2(L,J,II+K+3) = SE2(L,J,II+K+3) + DUM4(J,K)
                         SE2(J,II+K+3,L) = SE2(J,II+K+3,L) + DUM4(J,K)
-                     ENDDO 
-                  ENDDO 
+                     ENDDO
+                  ENDDO
                ENDDO
 
                DO L=1,MAX_STRESS_POINTS+1
@@ -477,9 +477,9 @@
                      DO K=1,3
 !xxError                DUM3(J,K) = SE3(L,J,II+K)
                         DUM3(J,K) = SE3(J,II+K,L)
-                     ENDDO 
+                     ENDDO
                   ENDDO
-               ENDDO 
+               ENDDO
                NCOL = 3
                METH = 1
                CALL MULT_OFFSET ( DUM3, DXI, DYI, DZI, NCOL, METH, DUM4 )
@@ -488,9 +488,9 @@
                      DO K=1,3
 !xxError                SE3(L,J,II+K+3) = SE3(L,J,II+K+3) + DUM4(J,K)
                         SE3(J,II+K+3,L) = SE3(J,II+K+3,L) + DUM4(J,K)
-                     ENDDO 
+                     ENDDO
                   ENDDO
-               ENDDO 
+               ENDDO
 
             ENDIF
 
@@ -509,8 +509,8 @@
                            DUM12(K,L) = KE(II+K,JJ+L+3)
                            DUM21(K,L) = KE(II+K+3,JJ+L)
                            DUM22(K,L) = KE(II+K+3,JJ+L+3)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                      NCOL = 3                              ! Modify upper right 3x3 partition of KE
                      METH = 1
@@ -518,8 +518,8 @@
                      DO K=1,3
                         DO L=1,3
                            KE(II+K,JJ+L+3) = DUM12(K,L) + DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                      NCOL = 3                              ! Modify lower left 3x3 partition of KE
                      METH = 2
@@ -527,8 +527,8 @@
                      DO K=1,3
                         DO L=1,3
                            KE(II+K+3,JJ+L) = DUM21(K,L) + DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                      NCOL = 3                              ! Modify lower right 3x3 partition of KE
                      METH = 1
@@ -536,17 +536,17 @@
                      DO K=1,3
                         DO L=1,3
                            KE(II+K+3,JJ+L+3) = DUM22(K,L) + DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
- 
+                        ENDDO
+                     ENDDO
+
                      NCOL = 3
                      METH = 2
                      CALL MULT_OFFSET ( DUM12, DXI, DYI, DZI, NCOL, METH, DUM3 )
                      DO K=1,3
                         DO L=1,3
                            KE(II+K+3,JJ+L+3) = KE(II+K+3,JJ+L+3) +DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                      NCOL = 3
                      METH = 1
@@ -557,13 +557,13 @@
                      DO K=1,3
                         DO L=1,3
                            KE(II+K+3,JJ+L+3) = KE(II+K+3,JJ+L+3) +DUM3(K,L)
-                        ENDDO 
-                     ENDDO   
+                        ENDDO
+                     ENDDO
 
                   ENDIF
 
-               ENDDO   
- 
+               ENDDO
+
                DO K=2,ELGP                                 ! Generate the remaining Kij using symmetry.
                   DO L=1,K-1
                      DO M=1,6
@@ -571,36 +571,36 @@
                            ROW = 6*(K-1) + M
                            COL = 6*(L-1) + N
                            KE(ROW,COL) = KE(COL,ROW)
-                        ENDDO 
-                     ENDDO   
-                  ENDDO 
+                        ENDDO
+                     ENDDO
+                  ENDDO
                ENDDO
 
-            ENDIF   
- 
+            ENDIF
+
             IF (OPT(5) == 'Y') THEN                        ! Process PPE. Generate E(transp.)*PPE
                DO J=1,3
                   DO K=1,NSUB
                      PDUM1(J,K) = PPE(II+J,K)
-                  ENDDO 
-               ENDDO 
+                  ENDDO
+               ENDDO
                NCOL = NSUB
                METH = 2
                CALL MULT_OFFSET ( PDUM1, DXI, DYI, DZI, NCOL, METH, PDUM2 )
                DO J=1,3
                   DO K=1,NSUB
                      PPE(II+J+3,K) = PPE(II+J+3,K) + PDUM2(J,K)
-                  ENDDO 
-               ENDDO 
+                  ENDDO
+               ENDDO
 
             ENDIF
 
          ENDIF
 
-      ENDDO   
- 
+      ENDDO
 
- 
+
+
 
 
       RETURN
@@ -631,9 +631,9 @@
       CONTAINS
 
 ! ##################################################################################################################################
- 
+
       SUBROUTINE MULT_OFFSET ( A, DX, DY, DZ, NCOLA, METH, B )
- 
+
 ! Perform matrix multiply to get A*E or E(transp)*A for elem offsets. Matrix E, the offset matrix, is a simple form.
 ! It is an identity  6 x 6 plus a 3 x 3 in the upper right corner containing the 3 offset distances. Due to this
 ! simplicity, A*E or E(transp)*A is calculated explicitly
@@ -642,7 +642,7 @@
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MEFE
       USE TIMDAT, ONLY                :  TSEC
-      USE MODEL_STUF, ONLY            :  EMG_IFE, ERR_SUB_NAM, NUM_EMG_FATAL_ERRS 
+      USE MODEL_STUF, ONLY            :  EMG_IFE, ERR_SUB_NAM, NUM_EMG_FATAL_ERRS
 
       IMPLICIT NONE
 
@@ -653,13 +653,13 @@
                                                            ! = 2 if E(transp)*A is to be calculated
       INTEGER(LONG), INTENT(IN)       :: NCOLA             ! Number of cols in matrix A
 
- 
+
       REAL(DOUBLE) , INTENT(IN)       :: A(3,NCOLA)        ! Matrix to either post-multiply E by or pre-multiply E(transp) by
       REAL(DOUBLE) , INTENT(IN)       :: DX                ! Offset distance in direction 1
       REAL(DOUBLE) , INTENT(IN)       :: DY                ! Offset distance in direction 2
       REAL(DOUBLE) , INTENT(IN)       :: DZ                ! Offset distance in direction 3
       REAL(DOUBLE) , INTENT(INOUT)    :: B(3,NCOLA)        ! Result matrix of either A*E or E(transp)*A
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -670,14 +670,14 @@
             B(IK,1) = -A(IK,2)*DZ + A(IK,3)*DY
             B(IK,2) =  A(IK,1)*DZ - A(IK,3)*DX
             B(IK,3) = -A(IK,1)*DY + A(IK,2)*DX
-         ENDDO 
+         ENDDO
       ELSE IF (METH == 2) THEN
          DO JK=1,NCOLA
             B(1,JK) = -A(2,JK)*DZ + A(3,JK)*DY
             B(2,JK) =  A(1,JK)*DZ - A(3,JK)*DX
             B(3,JK) = -A(1,JK)*DY + A(2,JK)*DX
-         ENDDO 
-      ELSE  
+         ENDDO
+      ELSE
          NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
          FATAL_ERR = FATAL_ERR + 1
          IF (WRT_ERR /= 0) THEN
@@ -692,7 +692,7 @@
          ENDIF
          CALL OUTA_HERE ( 'Y' )
       ENDIF
- 
+
 
 
       RETURN

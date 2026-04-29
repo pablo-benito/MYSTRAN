@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
-! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
 
- 
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
+! _______________________________________________________________________________________________________
+
+! End MIT license text.
+
+
       SUBROUTINE SOLVE_GOA
 
 ! Solves the sustem of equations: KOO*GOA = -KAO' for matrix GOA which is used in the reduction of the F set stiffness, mass and
 ! load matrices from the F-set to the A, O_sets
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  FILE_NAM_MAXLEN, ERR, F06, SCR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FACTORED_MATRIX, FATAL_ERR, KOO_SDIA, NDOFA, NDOFO, NTERM_GOA, NTERM_KOO,   &
@@ -50,19 +50,19 @@
 
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SOLVE_GOA'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT          ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close a file or not
       CHARACTER(  8*BYTE)             :: CLOSE_STAT        ! What to do with file when it is closed
-      CHARACTER( 24*BYTE)             :: MESSAG            ! File description. Input to subr UNFORMATTED_OPEN 
+      CHARACTER( 24*BYTE)             :: MESSAG            ! File description. Input to subr UNFORMATTED_OPEN
       CHARACTER( 22*BYTE)             :: MODNAM1           ! Name to write to screen to describe module being run
-      CHARACTER(  1*BYTE)             :: READ_NTERM        ! 'Y' or 'N' Input to subr READ_MATRIX_1 
-      CHARACTER(  1*BYTE)             :: NULL_COL          ! 'Y' if a col of KAO(transpose) is null 
-      CHARACTER(  1*BYTE)             :: OPND              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not 
+      CHARACTER(  1*BYTE)             :: READ_NTERM        ! 'Y' or 'N' Input to subr READ_MATRIX_1
+      CHARACTER(  1*BYTE)             :: NULL_COL          ! 'Y' if a col of KAO(transpose) is null
+      CHARACTER(  1*BYTE)             :: OPND              ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to open  a file or not
       CHARACTER(FILE_NAM_MAXLEN*BYTE) :: SCRFIL            ! File name
- 
+
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices or counters
       INTEGER(LONG)                   :: INFO              ! Info on success of factorization or solve
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening a file
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN   
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr UNFORMATTED_OPEN
 
 
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
@@ -70,17 +70,17 @@
       REAL(DOUBLE)                    :: INOUT_COL(NDOFO)  ! A column of KAO'
       REAL(DOUBLE)                    :: KOO_SCALE_FACS(NDOFO)
                                                            ! KOO scale facs. KOO will not be equilibrated so these are set to 1.0
- 
+
       INTRINSIC                       :: DABS
 
 
 
 ! **********************************************************************************************************************************
 ! Make units for writing errors the screen and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! Make sure that ABAND (KOO triangular factor) was successfully generated when SYM_MAT_DECOMP_LAPACK was run.
 
       IF (SOLLIB == 'BANDED  ') THEN
@@ -110,9 +110,9 @@
          CALL FILE_CLOSE ( SCR(1), SCRFIL, 'DELETE' )
          CALL OUTA_HERE ( 'Y' )                            ! Can't open scratch file, so quit
       ENDIF
- 
+
 ! Loop on columns of KAO(transpose)
- 
+
 !xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
 
       NTERM_GOA = 0
@@ -121,7 +121,7 @@
          DO I=1,NDOFO
             INOUT_COL(I)       = ZERO                      ! Initialize INOUT_COL since GET_SPARSE_CRS_COL won't
             KOO_SCALE_FACS(I)  = ONE                       ! Initialize these
-         ENDDO 
+         ENDDO
          NULL_COL = 'Y'
          CALL GET_SPARSE_CRS_ROW ( 'KAO',J, NTERM_KAO, NDOFA, NDOFO, I_KAO, J_KAO, KAO, -ONE, INOUT_COL, NULL_COL )
 
@@ -136,7 +136,7 @@
                CALL FBS_LAPACK ( 'N', NDOFO, KOO_SDIA, KOO_SCALE_FACS, INOUT_COL )
 
             ELSE IF (SOLLIB == 'SPARSE  ') THEN
-         
+
                IF (SPARSE_FLAVOR(1:7) == 'SUPERLU') THEN
 
                   INFO = 0
@@ -169,16 +169,16 @@
                   NTERM_GOA = NTERM_GOA + 1
                   WRITE(SCR(1)) I,J,GOA_COL(I)
                ENDIF
-            ENDDO 
+            ENDDO
 
          ELSE
 
             DO I=1,NDOFO
                GOA_COL(I) = ZERO
-            ENDDO 
+            ENDDO
 
          ENDIF
-  
+
       ENDDO
 
 ! The GOA data in SCRATCH-991 is written one col at a time. We need it to be  written for one row at a time with all
@@ -198,12 +198,12 @@
       WRITE(SCR(1)) NTERM_GOA
       DO K=1,NTERM_GOA
          WRITE(SCR(1)) I2_GOA(K),J_GOA(K),GOA(K)
-      ENDDO  
+      ENDDO
 
 ! Reallocate memory to GOA based on the NTERM_GOA counted above and read values from scratch file into GOA arrays
 
       WRITE(SC1, * ) '    Reallocate GOA'
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate GOA'     , CR13   ;   CALL DEALLOCATE_SPARSE_MAT ( 'GOA' )
       WRITE(SC1,12345,ADVANCE='NO') '       Deallocate L2_GOA_2', CR13   ;   CALL DEALLOCATE_L2_GOA_2
       WRITE(SC1,12345,ADVANCE='NO') '       Allocate   GOA'     , CR13
@@ -244,8 +244,8 @@
 
 12345 FORMAT(A,10X,A)
 
-22345 FORMAT(3X,A,I8,' of ',I8,A) 
+22345 FORMAT(3X,A,I8,' of ',I8,A)
 
 ! **********************************************************************************************************************************
- 
-      END SUBROUTINE SOLVE_GOA        
+
+      END SUBROUTINE SOLVE_GOA

@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BD_PSOLID ( CARD, IOR3D )
-  
+
 ! Processes PSOLID Bulk Data Cards. Reads and checks:
 
 !  1) Property ID and material ID and enter them into array PSOLID
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ECHO, FATAL_ERR, IERRFL, JCARD_LEN, JF, LPSOLID, NPSOLID, WARN_ERR
@@ -40,22 +40,22 @@
       USE BD_PSOLID_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BD_PSOLID'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
       CHARACTER(LEN=JCARD_LEN)        :: JCARD(10)         ! The 10 fields of characters making up CARD
       CHARACTER(LEN(JCARD))           :: CHR_FLD           ! Character data from 1 card field that has been left adjusted
- 
+
       INTEGER(LONG), INTENT(OUT)      :: IOR3D             ! Integration order for this PSOLID entry
       INTEGER(LONG)                   :: J                 ! DO loop index
       INTEGER(LONG)                   :: ID        = 0     ! An integer ID read from a field of this card
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! PSOLID Bulk Data Card routine
- 
+
 !   FIELD   ITEM            ARRAY ELEMENT
 !   -----   ------------    -------------
 !    2      Prop ID          PSOLID(npsolid,1)
@@ -64,12 +64,12 @@
 !    5      Int order        PSOLID(npsolid,4)
 !    6      Stress locations PSOLID(npsolid,5) ***** Not currently used *****
 !    7      Int scheme       PSOLID(npsolid,6)
- 
- 
+
+
 ! Make JCARD from CARD
- 
+
       CALL MKJCARD ( SUBR_NAME, CARD, JCARD )
- 
+
 ! Check for overflow
 
       NPSOLID = NPSOLID+1
@@ -79,7 +79,7 @@
 !xx      WRITE(F06,1163) SUBR_NAME,JCARD(1),LPSOLID
 !xx      CALL OUTA_HERE ( 'Y' )                            ! Coding error, so quit
 !xx   ENDIF
- 
+
 ! Read and check data on parent card
 
       PSOLID(NPSOLID,1) = 0
@@ -92,10 +92,10 @@
                WRITE(F06,1145) JCARD(1),ID
                EXIT
             ENDIF
-         ENDDO   
+         ENDDO
          PSOLID(NPSOLID,1) = ID
       ENDIF
- 
+
       PSOLID(NPSOLID,2) = 0
       CALL I4FLD ( JCARD(3), JF(3), ID )                   ! Read material ID and enter into array PSOLID
       IF (IERRFL(3) == 'N') THEN
@@ -163,7 +163,7 @@
       CALL BD_IMBEDDED_BLANK ( JCARD,2,3,4,5,0,7,0,0 )     ! Make sure that there are no imbedded blanks in fields 2-5,7
       CALL CARD_FLDS_NOT_BLANK ( JCARD,0,0,0,0,6,0,8,9 )   ! Issue warning if fields 6, 8 and 9 not blank
       CALL CRDERR ( CARD )                                 ! CRDERR prints errors found when reading fields
- 
+
 
 
       RETURN
@@ -174,12 +174,12 @@
  1104 FORMAT(' *ERROR  1104: INVALID ENTRY = "',A,'" IN FIELD ',I3,' OF ',A,' ENTRY WITH ID = ',A)
 
  1145 FORMAT(' *ERROR  1145: DUPLICATE ',A,' ENTRY WITH ID = ',I8)
- 
+
  1163 FORMAT(' *ERROR  1163: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' TOO MANY ',A,' ENTRIES; LIMIT = ',I12)
 
  1192 FORMAT(' *ERROR  1192: ID IN FIELD ',I3,' OF ',A,A,' MUST BE ',A,' BUT IS = ',I8)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BD_PSOLID

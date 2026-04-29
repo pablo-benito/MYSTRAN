@@ -1,39 +1,39 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                      
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ELMGM3 ( WRITE_WARN )
- 
+
 ! Calculates and checks elem geometry for 3D elems and provides a transformation matrix ( TE ) to transfer the elem stiffness matrix
 ! in the elem system to the basic coordinate system. Calculates grid point coords in local coord system.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_ERR, BUG, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MEFE, MELGP
       USE TIMDAT, ONLY                :  TSEC
-      USE CONSTANTS_1, ONLY           :  ZERO, HALF, ONE, TWO  
+      USE CONSTANTS_1, ONLY           :  ZERO, HALF, ONE, TWO
       USE PARAMS, ONLY                :  EPSIL, HEXAXIS
       USE MODEL_STUF, ONLY            :  EID, ELGP, EMG_IFE, ERR_SUB_NAM, HEXA_DELTA, HEXA_GAMMA, HEXA_THETA,                      &
                                          NUM_EMG_FATAL_ERRS, TE, TE_IDENT, TYPE, XEB, XEL
@@ -74,7 +74,7 @@
       REAL(DOUBLE)                    :: V24B(3)           ! Vector from G.P. 2 to G.P. 4 in basic coords (a diagonal)
       REAL(DOUBLE)                    :: V13BM             ! Mag of V13B
       REAL(DOUBLE)                    :: V24BM             ! Mag of V24B
- 
+
       INTRINSIC                       :: DABS
 
 
@@ -83,12 +83,12 @@
       EPS1 = EPSIL(1)
 
 ! Initialize XEL to zero
- 
+
       DO I=1,MELGP
          DO J=1,3
             XEL(I,J) = ZERO
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
 ! Calc coords of a mean plane between grids 1-4 and grids 5-8. These will be referred to as points AM, BM, CM, DM:
 
@@ -97,20 +97,20 @@
          XEBM(2,J) = (XEB(2,J) + XEB(6,J))/TWO
          XEBM(3,J) = (XEB(3,J) + XEB(7,J))/TWO
          XEBM(4,J) = (XEB(4,J) + XEB(8,J))/TWO
-      ENDDO 
+      ENDDO
 
 ! **********************************************************************************************************************************
 ! Calculate elem z direction from cross products of diagonals
- 
+
 ! Generate vectors from G.P AM to G.P CM and from G.P. BM to G.P. DM (diagonals in the mean (M) plane)
- 
+
       DO I=1,3
          V13B(I) = XEBM(3,I) - XEBM(1,I)
          V24B(I) = XEBM(4,I) - XEBM(2,I)
-      ENDDO 
- 
+      ENDDO
+
       V13BM = DSQRT(V13B(1)*V13B(1) + V13B(2)*V13B(2) + V13B(3)*V13B(3))
-      V24BM = DSQRT(V24B(1)*V24B(1) + V24B(2)*V24B(2) + V24B(3)*V24B(3))        
+      V24BM = DSQRT(V24B(1)*V24B(1) + V24B(2)*V24B(2) + V24B(3)*V24B(3))
 
       CALL CROSS ( V13B, V24B, KVEC )
       MAGK = DSQRT(KVEC(1)*KVEC(1) + KVEC(2)*KVEC(2) + KVEC(3)*KVEC(3))
@@ -133,28 +133,28 @@
       ENDIF
 
 ! Unit vector in elem local z direction is 3rd row of TE
- 
+
       DO I=1,3
          KVEC(I)    = KVEC(I)/MAGK
          TE_12(3,I) = KVEC(I)
-      ENDDO 
- 
+      ENDDO
+
 ! **********************************************************************************************************************************
 ! Calc initial elem x dir along side 1-2 of the element. First, get vector from pt 1 to 2:
 
       DO I=1,3
          V12B(I) = XEB(2,I) - XEB(1,I)
-      ENDDO 
- 
+      ENDDO
+
 ! HEXA_HBAR is one half of the projection of V12B in z direction
- 
+
       HEXA_HBAR = HALF*((V12B(1)*KVEC(1) + V12B(2)*KVEC(2) + V12B(3)*KVEC(3)))
- 
+
 ! Now calculate initial x direction along side 1-2 of the elem projection onto the mean plane.
- 
+
       DO I=1,3
          IVEC(I) = V12B(I) - TWO*HEXA_HBAR*KVEC(I)
-      ENDDO 
+      ENDDO
 
 ! If initial MAGI = 0 then write error and quit.
 
@@ -183,7 +183,7 @@
       DO I=1,3
          IVEC(I)     = IVEC(I)/MAGI                        ! Unit vector along side 1-2 in the mean plane (NOT from G.P. 1-2)
          TE_12(1,I) = IVEC(I)
-      ENDDO 
+      ENDDO
 
 ! **********************************************************************************************************************************
 ! Calculate unit vector in initial elem. y dir. (from VZ (cross) VX):
@@ -211,18 +211,18 @@
       DO I=1,3
          JVEC(I)     = JVEC(I)/MAGJ
          TE_12(2,I) = JVEC(I)
-      ENDDO 
+      ENDDO
 
 ! **********************************************************************************************************************************
 ! Now TE_12 is for elem coord system with x along projected side 1-2. We need to rotate x-y (about z) to get x in a
 ! direction which splits the angle between the two diagonals. HEXA_THETA is the angle between side 1-2 and diagonal from
 ! point 1 to point 3. HEXA_GAMMA is the angle between side 1-2 and the diagonal from point 2 to point 4. The rotation
 ! about z is thru an angle of HEXA_DELTA = (HEXA_THETA - HEXA_GAMMA)/2.
- 
+
 ! Find HEXA_THETA from the dot product of vector along side 1-2 and  diagonal from point 1 to point 3 (in the mean plane)
 ! Find HEXA_GAMMA from the dot product of vector along side 1-2 and  diagonal from point 2 to point 4 (in the mean plane).
 ! Use ABS to get the acute angle
- 
+
       HEXA_THETA = DACOS(( V13B(1)*IVEC(1) + V13B(2)*IVEC(2) + V13B(3)*IVEC(3))/V13BM)
       HEXA_GAMMA = DACOS((-V24B(1)*IVEC(1) - V24B(2)*IVEC(2) - V24B(3)*IVEC(3))/V24BM)
       HEXA_DELTA = (HEXA_THETA - HEXA_GAMMA)/TWO
@@ -237,42 +237,42 @@
          DO I=1,3
             DO J=1,3
                TE(I,J) = TE_SD(I,J)
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
 
       ELSE
 
          DO I=1,3
             DO J=1,3
                TE(I,J) = TE_12(I,J)
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
 
       ENDIF
 
-! Now TE is final transformation from basic to elem coordinates. That is, UEL = TE*UEB        
- 
+! Now TE is final transformation from basic to elem coordinates. That is, UEL = TE*UEB
+
       IF ((DEBUG(6) == 2) .AND. (WRT_BUG(0) == 1)) THEN
 
          WRITE(BUG,*) '  Coord transformation matrix that rotates a vector through angle HEXA_DELTA'
          WRITE(BUG,*) '  --------------------------------------------------------------------------'
          DO I=1,3
             WRITE(BUG,90003) (CT_QD(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
          WRITE(BUG,*) '  TE matrix if local x is along side 1-2'
          WRITE(BUG,*) '  --------------------------------------'
          DO I=1,3
             WRITE(BUG,90003) (TE_12(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
          WRITE(BUG,*) '  TE matrix if local x splits the angle between the diagonals'
          WRITE(BUG,*) '  -----------------------------------------------------------'
          DO I=1,3
             WRITE(BUG,90003) (TE_SD(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
          IF (HEXAXIS == 'SPLITD') THEN
@@ -284,7 +284,7 @@
          ENDIF
          DO I=1,3
             WRITE(BUG,90003) (TE(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
          CALL CHECK_TE_MATRIX ( TE, 'TE' )
       ENDIF
@@ -299,13 +299,13 @@
          ELSE
             ID(I) = 0
          ENDIF
-      ENDDO 
+      ENDDO
       IF ((ID(1) == 1) .AND. (ID(2) == 1) .AND. (ID(3) == 1)) THEN
          TE_IDENT = 'Y'
       ENDIF
 
 ! **********************************************************************************************************************************
-! Calculate XEL coords of grids in local element coord system (relative to node 1). 
+! Calculate XEL coords of grids in local element coord system (relative to node 1).
 
       XEL(1,1) = ZERO
       XEL(1,2) = ZERO
@@ -316,8 +316,8 @@
             XEL(I,J) = ZERO
             DO K=1,3
                XEL(I,J) = XEL(I,J) + (XEB(I,K) - XEB(1,K))*TE(J,K)
-            ENDDO 
-         ENDDO 
+            ENDDO
+         ENDDO
       ENDDO
 
       IF ((DEBUG(6) == 1) .AND. (WRT_BUG(0) == 1)) THEN
@@ -325,7 +325,7 @@
          WRITE(BUG,*) '  --------------------------------------------------------'
          DO I=1,4
             WRITE(BUG,90003) (XEL(I,J),J=1,3)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
       ENDIF
 

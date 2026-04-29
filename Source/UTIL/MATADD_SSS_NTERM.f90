@@ -1,32 +1,32 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MATADD_SSS_NTERM ( NROWS, MAT_A_NAME, NTERM_A, I_A, J_A, SYM_A, MAT_B_NAME, NTERM_B, I_B, J_B, SYM_B,             &
                                            MAT_C_NAME, NTERM_C )
- 
+
 ! Setup routine for performing the sparse matrix add operation C = A + B where A, B and C are in stored in sparse CRS format.
 ! This subr must be run prior to the subr that actually does the add (MATADD_SSS) in order to calc NTERM_C, the number of terms that
 ! will be in C (so that memory could be allocated, prior to this MATADD_SSS, for arrays J_C and C)
@@ -44,11 +44,11 @@
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE MATADD_SSS_NTERM_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MATADD_SSS_NTERM'
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_A_NAME        ! Name of matrix A
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_B_NAME        ! Name of matrix B
@@ -76,7 +76,7 @@
       INTEGER(LONG)                   :: COL_B
       INTEGER(LONG)                   :: CNT
 
-       
+
 
 
 ! **********************************************************************************************************************************
@@ -96,9 +96,9 @@
       DO ROW=1,NROWS
          P_A = I_A(ROW)
          P_B = I_B(ROW)
-      
+
          DO WHILE(P_A < I_A(ROW+1) .OR. P_B < I_B(ROW+1))
-         
+
                                                            ! Sentinel when A's row is exhausted
             IF (P_A < I_A(ROW+1)) then
                COL_A = J_A(P_A)
@@ -112,7 +112,7 @@
                COL_B = HUGE(0)
             ENDIF
 
- 
+
             IF (COL_A < COL_B) THEN                        ! Only A has an entry in this column
                CNT = CNT + 1
                P_A = P_A + 1
@@ -124,16 +124,16 @@
                P_A = P_A + 1
                P_B = P_B + 1
             ENDIF
-         
+
          ENDDO
-            
+
       ENDDO
 
       NTERM_C = CNT
 
 
 
- 
+
       RETURN
 
 ! **********************************************************************************************************************************

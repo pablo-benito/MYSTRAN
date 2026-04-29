@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE PARAM_CORDS_ACT_CORDS ( NROW, IORD, XEP, XEA )
 
@@ -59,15 +59,15 @@
        fatal_err = fatal_err + 1
          call outa_here ( 'y' )
       ENDIF
-      
+
 
 
       RETURN
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
 
@@ -94,7 +94,7 @@
 
 ! **********************************************************************************************************************************
 
-! The PSH_MAT columns are from subr SHP2DQ for each of the 4 XEP parametric coord points for the element. 
+! The PSH_MAT columns are from subr SHP2DQ for each of the 4 XEP parametric coord points for the element.
 ! We want the XEA orderd in the same fashion as the element node coords in XEL (namely 1-2-3-4 clockwise around the element).
 
       CALL SHP2DQ ( 1, 1, ELGP, SUBR_NAME, ' ', IORD, XEP(1,1), XEP(1,2), 'Y', PSH_MAT(:,1), DPSHG )
@@ -115,12 +115,12 @@
          WRITE(BUG,*) '  Parametric and element local coords. (Pt no., parametric coords (XEP), actual coords (XEA)'
          WRITE(BUG,*) '        Pt No.         Parametric Coords, XEP          XEA, coords in local elem coord system'
          WRITE(BUG,*) '                          XI            ET                X             Y               Z'
-         WRITE(BUG,1001) '1',(XEP(1,J),J=1,3) , (XEA(1,J),J=1,3) 
-         WRITE(BUG,1001) '2',(XEP(2,J),J=1,3) , (XEA(2,J),J=1,3) 
-         WRITE(BUG,1001) '3',(XEP(3,J),J=1,3) , (XEA(3,J),J=1,3) 
+         WRITE(BUG,1001) '1',(XEP(1,J),J=1,3) , (XEA(1,J),J=1,3)
+         WRITE(BUG,1001) '2',(XEP(2,J),J=1,3) , (XEA(2,J),J=1,3)
+         WRITE(BUG,1001) '3',(XEP(3,J),J=1,3) , (XEA(3,J),J=1,3)
          WRITE(BUG,1001) '4',(XEP(4,J),J=1,3) , (XEA(4,J),J=1,3)
          WRITE(BUG,*)
-      ENDIF 
+      ENDIF
 
 ! **********************************************************************************************************************************
  1001 FORMAT(8X,A,10X,2(1ES15.6),2X,3(1ES15.6))

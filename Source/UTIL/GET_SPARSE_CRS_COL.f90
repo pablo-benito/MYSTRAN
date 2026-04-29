@@ -1,44 +1,44 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE GET_SPARSE_CRS_COL ( MATIN_NAME, COL_NUM, NTERM, NROWS, NCOLS, I_MATIN, J_MATIN, MATIN, BETA, OUT_VEC, NULL_COL )
 
 ! Gets col number COL_NUM from a matrix in sparse (compressed row storage) format described by I_MATIN, J_MATIN, MATIN
 ! arrays, multiplies it by BETA, and puts result into array OUT_VEC. Sets NULL_COL to 'Y' if result is null.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
-      
+
       USE GET_SPARSE_CRS_COL_USE_IFs
 
-      IMPLICIT NONE 
- 
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'GET_SPARSE_CRS_COL'
       CHARACTER(LEN=*), INTENT(IN )   :: MATIN_NAME        ! Name of input matrix to be partitioned
       CHARACTER(1*BYTE),INTENT(OUT)   :: NULL_COL          ! = 'Y' if OUT_VEC is null
@@ -53,7 +53,7 @@
       INTEGER(LONG)                   :: NUM_TERMS_IN_ROW  ! No. terms in a row of MATIN. Each term will be checked to see if it
 !                                                            belongs to col number COL_NUM
 
-                                 
+
       REAL(DOUBLE) , INTENT(IN)       :: MATIN(NTERM)      ! Nonzero terms in matrix MATIN
       REAL(DOUBLE) , INTENT(IN)       :: BETA              ! Scalar multiplier for row from MATIN
       REAL(DOUBLE) , INTENT(OUT)      :: OUT_VEC(NROWS)    ! Output vector containing the terms from col COL_NUM of MATIN
@@ -65,7 +65,7 @@
 
       DO I=1,NROWS
          OUT_VEC(I) = ZERO
-      ENDDO 
+      ENDDO
 
 ! Make sure COL_NUM is a col of MATIN
 
@@ -80,7 +80,7 @@
 
       DO J=1,NROWS
          OUT_VEC(J) = ZERO
-      ENDDO 
+      ENDDO
 
 ! Load nonzero terms from col COL_NUM of MATIN into OUT_VEC
 
@@ -90,7 +90,7 @@
          NUM_TERMS_IN_ROW = I_MATIN(I+1) - I_MATIN(I)
          DO J=1,NUM_TERMS_IN_ROW                           ! Check each term to see if it is in col number COL_NUM
             K = K + 1
-            IF (J_MATIN(K) == COL_NUM) THEN       
+            IF (J_MATIN(K) == COL_NUM) THEN
                NULL_COL = 'N'
                OUT_VEC(I) = BETA*MATIN(K)
             ENDIF
@@ -103,8 +103,8 @@
 
 ! **********************************************************************************************************************************
   930 FORMAT(' *ERROR   930: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' ATTEMPT TO GET COL = ',I12,' FROM MATRIX ',A,' WHEN IT ONLY HAS COL NUMBERS 1 THRU ',I12)   
+                    ,/,14X,' ATTEMPT TO GET COL = ',I12,' FROM MATRIX ',A,' WHEN IT ONLY HAS COL NUMBERS 1 THRU ',I12)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE GET_SPARSE_CRS_COL

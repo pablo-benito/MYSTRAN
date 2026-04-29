@@ -1,57 +1,57 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE BCHECK_3D ( B, NUM_GRIDS, ID, NROWB, NCOLB, BW )
- 
+
 ! Checks strain-displacement matrices for rigid body motion and constant strain for 3-D solid elements
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, BUG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, TWO
       USE MODEL_STUF, ONLY            :  AGRID, TE, XEB, XEL
- 
+
       USE BCHECK_3D_USE_IFs
 
       IMPLICIT NONE
-  
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'BCHECK_3D'
       CHARACTER(41*BYTE)              :: MESSAG(12)        ! Output messages for the 14 modes of deformation (6 RB + 8 const strain)
       CHARACTER( 3*BYTE)              :: NOTE(12)          ! Output message
-  
+
       INTEGER(LONG), INTENT(IN)       :: NCOLB             ! Number of cols in the input B matrix
       INTEGER(LONG), INTENT(IN)       :: NROWB             ! Number of rows in the input B matrix
       INTEGER(LONG), INTENT(IN)       :: NUM_GRIDS         ! Number of grids that this solid element has.
       INTEGER(LONG), INTENT(IN)       :: ID(NCOLB)         ! List of elem DOF's for each of the elem grids (e.g 3,4,5 for each of
-!                                                            4 grids for a 4 node plate bending elem 
+!                                                            4 grids for a 4 node plate bending elem
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: KK                ! A computed index into array W
 
-  
+
       REAL(DOUBLE) , INTENT(IN)       :: B(NROWB,NCOLB)    ! Strain-displ matrix
       REAL(DOUBLE) , INTENT(OUT)      :: BW(NROWB,12)      ! Output from subr BCHECK_3D (matrix of NROWB elem strains for various
 !                                                            elem rigid body motions/constant strain distortions)
@@ -93,8 +93,8 @@
       DO I=1,6*NUM_GRIDS
          DO J=1,12
             W(I,J) = ZERO
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
       MESSAG( 1) = '      Rigid Body Displacement,  T1  = 1.0:'
       MESSAG( 2) = '      Rigid Body Displacement,  T2  = 1.0:'
@@ -109,19 +109,19 @@
       MESSAG(11) = '      Constant shear yz strain, Gxy = 1.0:'
       MESSAG(12) = '      Constant shear zx strain, Gxy = 1.0:'
 
-      NOTE( 1)   = '(a)' 
-      NOTE( 2)   = '(a)' 
-      NOTE( 3)   = '(a)' 
-      NOTE( 4)   = '(a)' 
-      NOTE( 5)   = '(a)' 
-      NOTE( 6)   = '(a)' 
-      NOTE( 7)   = '(b)' 
-      NOTE( 8)   = '(c)' 
-      NOTE( 9)   = '(d)' 
-      NOTE(10)   = '(e)' 
-      NOTE(11)   = '(f)' 
-      NOTE(12)   = '(g)' 
-  
+      NOTE( 1)   = '(a)'
+      NOTE( 2)   = '(a)'
+      NOTE( 3)   = '(a)'
+      NOTE( 4)   = '(a)'
+      NOTE( 5)   = '(a)'
+      NOTE( 6)   = '(a)'
+      NOTE( 7)   = '(b)'
+      NOTE( 8)   = '(c)'
+      NOTE( 9)   = '(d)'
+      NOTE(10)   = '(e)'
+      NOTE(11)   = '(f)'
+      NOTE(12)   = '(g)'
+
 ! Calc RB modes (cols 1-6 of W)
 
       DO I=1,NUM_GRIDS
@@ -159,7 +159,7 @@
          W(KK+3,12) =  XEL(K,1)/TWO                        ! The next 2 give constant shear zx strain
          W(KK+1,12) =  XEL(K,3)/TWO
 
-      ENDDO 
+      ENDDO
 
 ! Calc BW = B*W (but B has fewer cols since element has no stiffness for 4,5,6 DOF's)
 
@@ -168,31 +168,31 @@
             BW(I,J) = ZERO
             DO K=1,NCOLB
                BW(I,J) = BW(I,J) + B(I,K)*W(ID(K),J)
-            ENDDO 
-         ENDDO 
-      ENDDO 
-  
+            ENDDO
+         ENDDO
+      ENDDO
+
 ! Write results
 
       DO J=1,3
          WRITE(BUG,9101) MESSAG(J),(BW(I,J),I=1,NROWB), NOTE(J)
       ENDDO
-      WRITE(BUG,*)        
+      WRITE(BUG,*)
 
       DO J=4,6
          WRITE(BUG,9101) MESSAG(J),(BW(I,J),I=1,NROWB), NOTE(J)
       ENDDO
-      WRITE(BUG,*)        
+      WRITE(BUG,*)
 
       DO J=7,9
          WRITE(BUG,9101) MESSAG(J),(BW(I,J),I=1,NROWB), NOTE(J)
       ENDDO
-      WRITE(BUG,*)        
+      WRITE(BUG,*)
 
       DO J=10,12
          WRITE(BUG,9101) MESSAG(J),(BW(I,J),I=1,NROWB), NOTE(J)
       ENDDO
-      WRITE(BUG,*)        
+      WRITE(BUG,*)
 
       WRITE(BUG,*)
       WRITE(BUG,9901)
@@ -213,5 +213,5 @@
              '        (g) Gzx should be 1.0, others 0',/)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BCHECK_3D

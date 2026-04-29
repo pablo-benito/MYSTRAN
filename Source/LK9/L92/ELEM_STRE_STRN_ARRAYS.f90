@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ELEM_STRE_STRN_ARRAYS ( STR_PT_NUM )
- 
+
 ! Calculates element stress and strain arrays (arrays STRESS and STRAIN). Stresses are calculated for all engineering elements
 ! (1-D, 2-D, 3-D elements). Strains are calculated for the BUSH element, all 2-D and 3-D elements. The default method for
 ! calculating stresses (for 2D and 3D elements) is to first calculate strains by multiplying the element strain-displ matrices
@@ -37,7 +37,7 @@
 ! The arrays STRESS and STRAIN are calculated at the mid plane of 2-D elements and have to be processed later to get element
 ! specific outputs (e.g. stresses at the top and bottom of the 2-D element). The same is true for some of the 1-D elements (e.g.
 ! the BAR element stresses at the 4 points on the cross-section have to be processed from the STRESS array generated here)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, INT_SC_NUM, JTSUB
@@ -52,7 +52,7 @@
       USE ELEM_STRE_STRN_ARRAYS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ELEM_STRE_STRN_ARRAYS'
 
       INTEGER(LONG), INTENT(IN)       :: STR_PT_NUM        ! Which point (3rd index in SEi matrices) this call is for
@@ -60,7 +60,7 @@
       INTEGER(LONG)                   :: K                 ! Counter
 
       INTEGER(LONG)                   :: STR_CID_SOLID
- 
+
       REAL(DOUBLE)                    :: ALPT(6)           ! Col of ALPVEC times temperatures
       REAL(DOUBLE)                    :: ALPTM(3)          ! Col of ALPVEC times temperatures
       REAL(DOUBLE)                    :: ALPTB(3)          ! Col of ALPVEC times temperatures
@@ -83,7 +83,7 @@
       REAL(DOUBLE)                    :: STRESS1_MECH(3)   ! Part of array STRESS1
       REAL(DOUBLE)                    :: STRESS2_MECH(3)   ! Part of array STRESS2
       REAL(DOUBLE)                    :: STRESS3_MECH(3)   ! Part of array STRESS3
-      REAL(DOUBLE)                    :: TBAR              ! Average elem temperature 
+      REAL(DOUBLE)                    :: TBAR              ! Average elem temperature
       REAL(DOUBLE)                    :: STR_TENSOR(3,3)   ! 2D stress or strain tensor
 
 
@@ -113,7 +113,7 @@
                STRESS(I) = STRESS(I) - STE1(I,JTSUB,STR_PT_NUM)
             ENDIF
          ENDDO
- 
+
          IF ((TYPE(1:3) == 'BAR') .OR. (TYPE(1:4) == 'BUSH')) THEN
             K = 0
             DO I=4,6
@@ -124,8 +124,8 @@
                ENDIF
                DO J=1,ELDOF
                   STRESS(I) = STRESS(I) + SE2(K,J,STR_PT_NUM)*UEL(J)
-               ENDDO 
-            ENDDO   
+               ENDDO
+            ENDDO
          ENDIF
 
 
@@ -142,23 +142,23 @@
                STRAIN(I) = STRAIN(I) + BE1(I,J,STR_PT_NUM)*UEL(J)
             ENDDO
          ENDDO
- 
+
          K = 0
          DO I=4,6
             STRAIN(I) = ZERO
             K = K + 1
             DO J=1,ELDOF
                STRAIN(I) = STRAIN(I) + BE2(K,J,STR_PT_NUM)*UEL(J)
-            ENDDO 
-         ENDDO   
- 
+            ENDDO
+         ENDDO
+
 
 ! **********************************************************************************************************************************
 ! Calc strains, then stresses for 2D elements
 
       ELSE IF ((TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'QUAD8') .OR.                                 &
                (TYPE(1:5) == 'SHEAR') .OR. (TYPE(1:5) == 'USER1')) THEN
-         
+
          DO I=1,3
             STRAIN(I) = ZERO
             STRAIN(I+3) = ZERO
@@ -166,14 +166,14 @@
                STRAIN(I)   = STRAIN(I)   + BE1(I,J,STR_PT_NUM)*UEL(J)
                STRAIN(I+3) = STRAIN(I+3) + BE2(I,J,STR_PT_NUM)*UEL(J)
             ENDDO
-         ENDDO   
+         ENDDO
 
          DO I=1,2
             STRAIN(I+6) = ZERO
             DO J=1,ELDOF
                STRAIN(I+6) = STRAIN(I+6) + BE3(I,J,STR_PT_NUM)*UEL(J)
             ENDDO
-         ENDDO   
+         ENDDO
 
                                                            ! Calc stresses from strains
 
@@ -213,7 +213,7 @@
             ALPTB(:) = ZERO
             ALPTT(:) = ZERO
          ENDIF
-     
+
 
          ET3(:,:) = ZERO
          DO I=1,2
@@ -231,8 +231,8 @@
          STRESS3_MECH = PHI_SQ*DUM33                       ! Need PHI_SQ on transv shear stress since this calc is from strains and
                                                            ! BE3, not SE3. If DEBUG(176) > 0 then stresses are calc'd from the SE3
                                                            ! below and SE3 has PHI_SQ incorporated in subrs QPLT1, QPLT3, TPLT2.
-              
-  
+
+
          IF (SUBLOD(INT_SC_NUM,2) > 0) THEN
             CALL MATMULT_FFF ( EM , ALPTM  , 3, 3, 1, STRESS1_THERM )
             CALL MATMULT_FFF ( EB , ALPTB  , 3, 3, 1, STRESS2_THERM )
@@ -242,7 +242,7 @@
          CALL MATADD_FFF  ( STRESS1_MECH, STRESS1_THERM, 3, 1, ONE, -ONE, 0, STRESS1 )
          CALL MATADD_FFF  ( STRESS2_MECH, STRESS2_THERM, 3, 1, ONE, -ONE, 0, STRESS2 )
          CALL MATADD_FFF  ( STRESS3_MECH, STRESS3_THERM, 3, 1, ONE, -ONE, 0, STRESS3 )
- 
+
          DO I=1,3
             STRESS(I)   = STRESS1(I)
             STRESS(I+3) = STRESS2(I)
@@ -305,7 +305,7 @@
                ALPT(I) = ZERO
             ENDIF
          ENDDO
-      
+
          CALL MATMULT_FFF ( ES, STRAIN, 6, 6, 1, STRESS_MECH )
 
          IF (SUBLOD(INT_SC_NUM,2) > 0) THEN
@@ -396,9 +396,9 @@
                                                            ! STR_CID_SOLID is -1 if ISOLID(3) is -1 which means
                                                            ! material coordinates = element coordinates so don't
                                                            ! transform it.
-            
-            ELSE IF(STR_CID_SOLID >= 0) THEN                    
-                                                           
+
+            ELSE IF(STR_CID_SOLID >= 0) THEN
+
                                                            ! Transform 3D stresses
                STR_TENSOR(1,1) = STRESS(1)   ;   STR_TENSOR(1,2) = STRESS(4)   ;   STR_TENSOR(1,3) = STRESS(6)
                STR_TENSOR(2,1) = STRESS(4)   ;   STR_TENSOR(2,2) = STRESS(2)   ;   STR_TENSOR(2,3) = STRESS(5)
@@ -459,7 +459,7 @@
 ! **********************************************************************************************************************************
  9203 FORMAT(' *ERROR  9203: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' INCORRECT ELEMENT TYPE = "',A,'"')
- 
+
  9303 FORMAT(' *ERROR  9303: PARAM,STR_CID not implemented for QUAD and TRIA elements.' )
 
  9304 FORMAT(' *ERROR  9304: PSOLID field 4, CORDM <= -2 not allowed for solid elements.' )

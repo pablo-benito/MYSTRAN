@@ -31,7 +31,7 @@
 !        DSYTRD: To reduce A to tridiagonal form, and
 !        DSTERF: To calc eigenvalues if NO eigenvectors are sought, or
 !                NOTE: DSTEQR is not in this module, it is in module LAPACK_MISCEL, since it is used in several modules
-!        DORGTR: To generate orthogonal matrices            
+!        DORGTR: To generate orthogonal matrices
 
 ! DSYEV also uses
 
@@ -39,7 +39,7 @@
 !                NOTE: DSTEQR is not in this module, it is in module LAPACK_MISCEL, since it is used in several other modules
 
 ! In addition, other LAPACK procedures are called from module LAPACK_BLAS_AUX_1
- 
+
       CONTAINS
 
 ! ##################################################################################################################################

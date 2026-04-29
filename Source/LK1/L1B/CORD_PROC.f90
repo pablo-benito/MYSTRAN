@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE CORD_PROC
- 
+
 ! This subroutine calculates coordinate system transformation matrices defined on CORD2R, CORD2C, or CORD2S bulk data
 ! cards. The final  transformations in this subroutine are between a defined coord systems' principal axes and the
 ! basic coordinate system.  The principal axes of a coordinate system are the three orthogonal rectangular axes that
@@ -35,7 +35,7 @@
 ! axes depend on the radius and angles in those systems. These transformations are only between the basic system and the
 ! principal axes of the  coord system.  The final transformations for specific grid points in cylindrical and spherical
 ! coordinate systems is generated from the transformations in this subroutine and is done in subroutine GEN_T0L.FOR.
- 
+
 ! The transformation matrices are stored, temporarily, in a 3-D array TN(I,J,K) where K is the internal coord sys
 ! number (NCORD of them). Thus, TN can be looked at as NCORD 2-D arrays with each 2-D array being a 3x3 coord
 ! transformation matrix.
@@ -44,12 +44,12 @@
 
 ! At the conclusion of this subroutine, the transformation matrices are stored in array RGRID
 ! along with the basic coordinates of the origin of the coord system. This data is needed in GEN_T0L.FOR
- 
+
 ! The subroutine is divided into 8 Phases with the description of each phase given in that section below. The final result is arrays
 ! CORD(I) (modified so that all reference coord systems are basic), RCORD(I) (which has 12 cols: 1-3 are basic coords of origin,
 ! 4-6 are ist row of TN, 7-9 are 2nd row and 10-12 are 3rd row. TN is the 3x3 coord transformation matrix which transforms a vector
 ! from CID to basic.
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE CONSTANTS_1, ONLY           :  ZERO, ONE80, PI, CONV_DEG_RAD
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
@@ -61,7 +61,7 @@
       USE CORD_PROC_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME   = 'CORD_PROC'
       CHARACTER( 1*BYTE)              :: ALL_RIDS_0  = 'Y' ! Set to 'Y' when all coord systems' RID is basic
       CHARACTER( 1*BYTE)              :: CIRC_ERR    = 'N' ! Set to 'Y' if a coord sys has a circular reference back to itself
@@ -71,7 +71,7 @@
       CHARACTER( 1*BYTE)              :: FOUND_GC    = 'N' ! Set to 'Y' if grid C for CORD1R coord system is found in array GRID
       CHARACTER( 1*BYTE)              :: FOUND_RID   = 'N' ! Set to 'Y' if the RID for a coord system is a system in array CORD
       CHARACTER( 1*BYTE)              :: TRANS_DONE(NCORD) ! If 'Y' then the transformation to basic for a coord sys has been done
- 
+
       INTEGER(LONG)                   :: CASCADE_PROC_ARRAY1(3,3)
                                                            ! Array which has info about how many coord systems have to be cascaded
 !                                                            in order to get a transformation from a coord sys (actual number CID)
@@ -81,7 +81,7 @@
 !                                                            coord systems to get the coord transformation from CID to basic. Row 3
 !                                                            has the number of coord systems that need to be cascaded to get the
 !                                                            transformation from CID to basic.
-!                                                             
+!
 
       INTEGER(LONG)                   :: CASCADE_PROC_ARRAY(3,NCORD)
                                                            ! Same info from CASCADE_PROC_ARRAY1 but values for all coord systems.
@@ -116,7 +116,7 @@
 
       INTEGER(LONG)                   :: RID_ARRAY_COL     ! Col number in RID_ARRAY
 
-  
+
       REAL(DOUBLE)                    :: EMTN(3,3)         ! A coord transf matrix from some coord system to basic
       REAL(DOUBLE)                    :: EPS1              ! A small number
       REAL(DOUBLE)                    :: IVEC(3)           ! A unit vector in the x direction of a coord system
@@ -151,16 +151,16 @@
       REAL(DOUBLE)                    :: VI(3)             ! Vector in the x-z plane of a coord system
       REAL(DOUBLE)                    :: VJ(3)             ! Vector in the y direction in a coord system
       REAL(DOUBLE)                    :: VK(3)             ! Vector in the z direction in a coord system
- 
+
       INTRINSIC                       :: DCOS, DSIN, DSQRT
- 
+
 
 
 ! **********************************************************************************************************************************
 ! Initialize
- 
+
       EPS1    = DABS(EPSIL(1))
- 
+
       DO I=1,NCORD
          TRANS_DONE = 'N'
          IF (CORD(I,1) == 11) CORD_NAME(I) = 'CORD1R'
@@ -168,7 +168,7 @@
          IF (CORD(I,1) == 13) CORD_NAME(I) = 'CORD1S'
          IF (CORD(I,1) == 21) CORD_NAME(I) = 'CORD2R'
          IF (CORD(I,1) == 22) CORD_NAME(I) = 'CORD2C'
-         IF (CORD(I,1) == 23) CORD_NAME(I) = 'CORD2S'         
+         IF (CORD(I,1) == 23) CORD_NAME(I) = 'CORD2S'
       ENDDO
 
       DO I=1,NCORD
@@ -181,15 +181,15 @@
 
 ! **********************************************************************************************************************************
 ! Phase 1: For CORD1R: (1) Change grid numbers (that were put into array CORD when B.D. was read) to the reference coordinate system
-!                          number for that grid. 
-!                      (2) Put coords of the reference grids on the CORD1R into array RCORD. 
+!                          number for that grid.
+!                      (2) Put coords of the reference grids on the CORD1R into array RCORD.
 
       IF ((PRTCORD == 1) .OR. (PRTCORD == 2)) CALL PARAM_PRTCORD_OUTPUT ( '11' )
- 
+
       IERROR = 0
 
       CALL CORDCHK ( IERROR )                              ! CORDCHK makes sure that all cord system ID's are unique
- 
+
 doi11:DO I=1,NCORD
 
          CORD_TYPE = CORD(I,1)
@@ -234,20 +234,20 @@ doj11:      DO J=1,NGRID
 
             IF (FOUND_GA == 'N') THEN
                IERROR = IERROR + 1
-               WRITE(ERR,1315) GA, CORD(I,2) 
-               WRITE(F06,1315) GA, CORD(I,2) 
+               WRITE(ERR,1315) GA, CORD(I,2)
+               WRITE(F06,1315) GA, CORD(I,2)
             ENDIF
 
             IF (FOUND_GB == 'N') THEN
                IERROR = IERROR + 1
-               WRITE(ERR,1315) GB, CORD(I,2) 
-               WRITE(F06,1315) GB, CORD(I,2) 
+               WRITE(ERR,1315) GB, CORD(I,2)
+               WRITE(F06,1315) GB, CORD(I,2)
             ENDIF
 
             IF (FOUND_GC == 'N') THEN
                IERROR = IERROR + 1
-               WRITE(ERR,1315) GC, CORD(I,2) 
-               WRITE(F06,1315) GC, CORD(I,2) 
+               WRITE(ERR,1315) GC, CORD(I,2)
+               WRITE(F06,1315) GC, CORD(I,2)
             ENDIF
 
             IF ((PRTCORD == 1) .OR. (PRTCORD == 2)) CALL PARAM_PRTCORD_OUTPUT ( '12' )
@@ -268,12 +268,12 @@ doj11:      DO J=1,NGRID
 ! Phase 2: Change coords on cylindrical and spherical systems to coords in terms of the defining rectangular axes of that system
 
       DO I = 1,NCORD
- 
+
          CORD_TYPE = CORD(I,1)
 
          CID  = CORD(I,2)                                  ! CID is the actual coord system no. for internal no. I.
          RID  = CORD(I,3)                                  ! RID is the ref coord sys for coord sys I
- 
+
          IF (RID /= 0) THEN                                ! If RID is not basic, determine the coord type for RID.
             DO J=1,NCORD
                CIDJ = CORD(J,2)
@@ -281,15 +281,15 @@ doj11:      DO J=1,NGRID
                   CORD_TYPE = CORD(J,1)
                   EXIT
                ENDIF
-            ENDDO 
-                                                           
+            ENDDO
+
             IF      ((CORD_TYPE == 12) .OR. (CORD_TYPE == 22)) THEN
                DO J=1,7,3                                  ! If RID is cyl, replace R and THETA in RCORD w/ X, Y coords that are
                   RADIUS = RCORD(I,J)                      ! the defining rectangular axes of the cyl system with the X-Y plane
                   THETA  = RCORD(I,J+1)*CONV_DEG_RAD       ! at THETA = 0.
                   RCORD(I,J)   = RADIUS*DCOS(THETA)
                   RCORD(I,J+1) = RADIUS*DSIN(THETA)
-               ENDDO 
+               ENDDO
             ELSE IF ((CORD_TYPE == 13) .OR. (CORD_TYPE == 23)) THEN
                DO J=1,7,3                                  ! If RID is cyl, replace R, PHI, THETA in RCORD w/ X, Y, Z coords that
                   RADIUS = RCORD(I,J)                      ! are the defining rectangular axes of the cyl system with the X-Y plane
@@ -298,24 +298,24 @@ doj11:      DO J=1,NGRID
                   RCORD(I,J)   = RADIUS*DSIN(THETA)*DCOS(PHI)
                   RCORD(I,J+1) = RADIUS*DSIN(THETA)*DSIN(PHI)
                   RCORD(I,J+2) = RADIUS*DCOS(THETA)
-               ENDDO 
+               ENDDO
             ENDIF
          ENDIF
 
       ENDDO
 
       IF (PRTCORD == 2) CALL PARAM_PRTCORD_OUTPUT ( '21' )
- 
+
 ! **********************************************************************************************************************************
-! Phase 3: Check coordinate system data for logic. 
+! Phase 3: Check coordinate system data for logic.
 !          (1) There must be a final reference to the basic system (0)
 !          (2) There can be no circular references (i.e. a coord system can reference any number of other coord sys but cannot
 !              reference itself in that chain of refs).
-!          (3) Create RID_ARRAY which shows the chain of references of each coord system 
+!          (3) Create RID_ARRAY which shows the chain of references of each coord system
 
 ! A complete check is made and processing is not stopped until all errors of the above kind are found. Bulk Data parameter
 ! PRTCORD is used to  print out information from these checks as well as the coord transformation matrices later.
- 
+
       IF ((PRTCORD == 1) .OR. (PRTCORD == 2)) CALL PARAM_PRTCORD_OUTPUT ( '31' )
 
       IERROR = 0                                           ! Initialize IERROR for Phase 2
@@ -325,7 +325,7 @@ doj11:      DO J=1,NGRID
          WRITE(F06,1304)
          CALL OUTA_HERE ( 'Y' )
       ENDIF
- 
+
 ! Begin loop over all coord systems
 
       RID_ARRAY_COL = 0
@@ -349,7 +349,7 @@ dom21:   DO M=1,NUM_RIDS
 doj21:      DO J=1,NCORD+1                                 ! Initially set all of RID_ARRAY to some negative number since we know,
                RID_ARRAY(J,RID_ARRAY_COL) = -99            ! after this CID has been traced, it cannot have any negative coord ID's
             ENDDO doj21                                    ! but it must have 0 (basic) as the last coord sys in the chain
- 
+
             I1  = 1                                        ! We need I1 to increment this index later
             RID_ARRAY(I1,RID_ARRAY_COL) = CID
             I1  = 2
@@ -358,7 +358,7 @@ doj21:      DO J=1,NCORD+1                                 ! Initially set all o
             IF (PRTCORD == 2) CALL PARAM_PRTCORD_OUTPUT ( '32' )
 
             IF (RID /= 0) THEN                             ! If RID is not the basic system, make sure it is defined
- 
+
                FOUND_RID = 'N'
 doj22:         DO J=1,NCORD
                   IF (CORD(J,2) == RID) THEN
@@ -366,22 +366,22 @@ doj22:         DO J=1,NCORD
                      EXIT doj22
                   ENDIF
                ENDDO doj22
- 
-               IF (FOUND_RID == 'N') THEN                  ! Could not find reference coord sys (RID) for coord sys CID   
+
+               IF (FOUND_RID == 'N') THEN                  ! Could not find reference coord sys (RID) for coord sys CID
                   WRITE(ERR,1300) RID,CID
                   WRITE(F06,1300) RID,CID
                   IERROR = IERROR + 1
                   FATAL_ERR = FATAL_ERR + 1
                ENDIF
- 
+
 ! Build chain of references for CID. Initially, RID was read from field 3 of the CORD card, above.
 ! Now go thru all CORD cards until we find one that has RID as the defined system in field 2. When we find this CORD
 ! card, we reset RID to be the value from field 3 of that card and continue to cascade down until we come to a CORD
 ! card with 0 (basic) in field 3. When we find this system, exit from the loops. Two loops on NCORD are needed to do
 ! the check. The inner (K) loop steps thru the CORD cards looking for the one that defines the RID system. When it is
 ! found, we continue in that loop looking for the next system (if necessary). However, that system may have already
-! been passed in the K loop, so the outer loop starts the process over if necessary. 
-  
+! been passed in the K loop, so the outer loop starts the process over if necessary.
+
                CIRC_ERR = 'N'
 doj23:         DO J=1,NCORD
                   IF (J /= I) THEN
@@ -413,7 +413,7 @@ dol21:                        DO L=1,I1-1                  ! Check for circular 
                                     EXIT dol21
                                  ENDIF
                               ENDDO dol21
-         
+
                            ENDIF
                         ENDIF
                         IF ((RID ==  0 ) .OR. (CIRC_ERR == 'Y')) EXIT dok21
@@ -421,7 +421,7 @@ dol21:                        DO L=1,I1-1                  ! Check for circular 
                      IF ((RID ==  0 ) .OR. (CIRC_ERR == 'Y')) EXIT doj23
                   ENDIF
                ENDDO doj23
- 
+
                IF (RID_ARRAY(I1,RID_ARRAY_COL) == 0) THEN  ! Check if last sys in RID_ARRAY is basic. If it is, CYCLE back to the I
                   CYCLE dom21                              ! loop to begin with a new coord system.
                ELSE                                        ! Otherwise write error and CYCLE
@@ -437,17 +437,17 @@ dol21:                        DO L=1,I1-1                  ! Check for circular 
          ENDDO dom21
 
       ENDDO doi21
-    
+
       IF ((PRTCORD == 1) .OR. (PRTCORD == 2)) CALL PARAM_PRTCORD_OUTPUT ( '34' )
 
 ! Check IERROR and quit if > 0
 
       IF (IERROR > 0) THEN
-         WRITE(ERR,1304) 
-         WRITE(F06,1304) 
+         WRITE(ERR,1304)
+         WRITE(F06,1304)
          CALL OUTA_HERE ( 'Y' )
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Phase 4: Solve for array CASCADE_PROC_ARRAY. It will be used to do the cascading of coord references to get the transformation
 ! from CID to basic
@@ -499,7 +499,7 @@ doK31:      DO K=NCORD+1,1,-1
                IF(CASCADE_PROC_ARRAY1(3,J) < CASCADE_PROC_ARRAY1(3,J-1)) THEN
                   CASCADE_PROC_ARRAY(1,I) = CASCADE_PROC_ARRAY1(1,J)  ! Coord system ID (CID)
                   CASCADE_PROC_ARRAY(2,I) = CASCADE_PROC_ARRAY1(2,J)  ! Row in RID_ARRAY where to find the coord references for CID
-                  CASCADE_PROC_ARRAY(3,I) = CASCADE_PROC_ARRAY1(3,J)  ! 
+                  CASCADE_PROC_ARRAY(3,I) = CASCADE_PROC_ARRAY1(3,J)  !
                ENDIF
             ENDDO
          ENDIF
@@ -563,7 +563,7 @@ doi32:DO I=1,NCORD
             DO J=1,3                                       ! Unit vector in z direction is KVEC
                KVEC(J) = VK(J)/MAGVK
                RCORD(ICID,9+J) = KVEC(J)
-            ENDDO 
+            ENDDO
 
             IF ((MAGVK >= EPS1) .AND. (MAGVI >= EPS1)) THEN! Calc unit vector in y dir if vectors VK, VI are not null
                CALL CROSS ( KVEC, VI, VJ )
@@ -574,7 +574,7 @@ doi32:DO I=1,NCORD
                   WRITE(F06,1308) CORD(ICID,2)
                   IERROR = IERROR + 1
                   FATAL_ERR = FATAL_ERR + 1
-               ENDIF 
+               ENDIF
             ENDIF
 
             IF (IERROR > 0) CYCLE
@@ -582,7 +582,7 @@ doi32:DO I=1,NCORD
             DO J = 1,3                                     ! Unit vector in y direction is JVEC
                JVEC(J) = VJ(J)/MAGVJ
                RCORD(ICID,6+J) = JVEC(J)
-            ENDDO 
+            ENDDO
 
             CALL CROSS ( JVEC, KVEC, IVEC )                ! Unit vector in x direction is IVEC
 
@@ -592,12 +592,12 @@ doi32:DO I=1,NCORD
                TN(J,2,ICID) = JVEC(J)                      ! -- Col 2 of TN is JVEC
                TN(J,3,ICID) = KVEC(J)                      ! -- Col 3 of TN is KVEC
             ENDDO
-   
+
             DO J=1,3
                RCORD(ICID,3+J) = TN(1,J,ICID)              ! Row 1 of TN goes into RCORD cols  4- 6
                RCORD(ICID,6+J) = TN(2,J,ICID)              ! Row 1 of TN goes into RCORD cols  7- 9
                RCORD(ICID,9+J) = TN(3,J,ICID)              ! Row 1 of TN goes into RCORD cols 10-12
-            ENDDO 
+            ENDDO
 
             IF (PRTCORD == 2) CALL PARAM_PRTCORD_OUTPUT ( '52' )
 
@@ -614,40 +614,40 @@ doi32:DO I=1,NCORD
       ENDIF
 
 ! **********************************************************************************************************************************
-! Phase 6:  Calculate transformations to basic (zero ) system for all CORD2 coordinate systems. 
+! Phase 6:  Calculate transformations to basic (zero ) system for all CORD2 coordinate systems.
 
 ! The TN transformation matrices generated in Phase 5 give the transformation from CID system to RID system for one coord card.
 ! In Phase 6 we cascade these to get the transformation from basic to CID system for each CORD2 coord system. That is, consider the
 ! following example:
- 
+
 !             CID             RID             TN from Phase 2
 !     CORD2R   1               0                   TN01
 !     CORD2R   2               1                   TN12
 !     CORD2C   3               2                   TN23
 !     CORD2S   4               1                   TN14
- 
+
 ! Where, e.g., TN12 is the transformation matrix from coord sys 2 to coord sys 1 (princ. axes) found in Phase 5.
 ! The transformation  from 2 to 0 is TN01 x TN12.  The transformations generated here are:
-  
+
 !       TN02 = TN01 x TN12
- 
+
 ! and stores the result back into array TN and resets the RID to 0 for CID 2
- 
+
 !       TN03 = TN02 x TN23
 !       TN04 = TN01 x TN14
-  
-! and TN01 was already determined in Phase 5.  
- 
+
+! and TN01 was already determined in Phase 5.
+
 ! The procedure is to work backwards.  Begin looking for a coord system that has 0 as a reference (or RID = 0).  The coord
 ! transformation to basic for that system is already in TN.  If that coord system is referenced on another coord
 ! card, then we multiply those two matrices together to get the transformation to basic for the second system, and
 ! so on. This transformation matrix is stored over the original TN found in Phase 5.  Once we have gotten the
 ! transformation to basic for a CORD2 coord system,  we reset RID (i.e. CORD(I,3)) to zero to indicate that its' TN is
 ! now referenced to basic.
-  
+
 ! The basic coords of the origin of each coord system are also calculated. The calc begins by taking the point A coords from the
 ! system that has 0 as reference and adding the amounts from each coord sys A point after transforming it to basic.
- 
+
       IERROR = 0
 main: DO                                                   ! Until all RID's are 0
          ALL_RIDS_0 = 'Y'                                  ! Find out if there are coord systems whose RID is not, or has not been
@@ -744,8 +744,8 @@ jloop2:     DO J = 1,NCORD                                 ! Loop on J since the
                         RCORD(J,K) = RO(K,ICID_RID0) + RP(K,J)! Coords of origin of system J in basic coords
                         DO L = 1,3
                            TN(K,L,J) = EMTN(K,L)
-                        ENDDO 
-                     ENDDO 
+                        ENDDO
+                     ENDDO
 
                      CORD(J,3) = 0                         ! Reset RID on this coord sys to 0 since TN matrix now is trans to basic
                      TRANS_DONE(J) = 'Y'                   ! We have completed the transformation to basic for this coord sys
@@ -761,9 +761,9 @@ jloop2:     DO J = 1,NCORD                                 ! Loop on J since the
             EXIT main
 
          ENDIF
- 
+
       ENDDO main
-  
+
 ! Check IERROR and quit if > 0
 
       IF (IERROR > 0) THEN
@@ -775,7 +775,7 @@ jloop2:     DO J = 1,NCORD                                 ! Loop on J since the
 ! Now put transformation for the CORD2 systems matrices in RCORD. First 3 words in RCORD are now the basic coords of the origin of
 ! the coord system. Next 9 words give the 3 rows (row 1 followed by row 2 then row 3) of the transformation matrix which will
 ! transform a vector in CID (of coord principal axes) to a vector in basic coord system.
- 
+
       IF ((PRTCORD == 1) .OR. (PRTCORD == 2)) CALL PARAM_PRTCORD_OUTPUT ( '61' )
 
       DO I=1,NCORD
@@ -785,12 +785,12 @@ jloop2:     DO J = 1,NCORD                                 ! Loop on J since the
                DO K=1,3
                   L = 3 + 3*(J-1) + K
                   RCORD(I,L) = TN(J,K,I)
-               ENDDO 
+               ENDDO
             ENDDO
             IF ((PRTCORD == 1) .OR. (PRTCORD == 2)) CALL PARAM_PRTCORD_OUTPUT ( '62' )
          ENDIF
-      ENDDO 
-  
+      ENDDO
+
       IF ((PRTCORD == 1) .OR. (PRTCORD == 2)) CALL PARAM_PRTCORD_OUTPUT ( '63' )
 
 ! **********************************************************************************************************************************
@@ -856,10 +856,10 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
                IF      (ICIDA == -99) THEN                 ! Set error and cycle if we couldn't find the internal ID's for CIDA,B,C
                   IERROR = IERROR + 1
                   INT1 = CIDA   ;   INT2 = ICIDA
-               ELSE IF (ICIDB == -99) THEN 
+               ELSE IF (ICIDB == -99) THEN
                   IERROR = IERROR + 1
                   INT1 = CIDB   ;   INT2 = ICIDB
-               ELSE IF (ICIDC== -99) THEN 
+               ELSE IF (ICIDC== -99) THEN
                   IERROR = IERROR + 1
                   INT1 = CIDC   ;   INT2 = ICIDC
                ENDIF
@@ -986,7 +986,7 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
 
                DO K = 1,3                                  ! Unit vector in basic coord z direction for z axis of CID is KVEC
                   KVEC(K) = VK(K)/MAGVK
-               ENDDO 
+               ENDDO
 
                IF ((MAGVK >= EPS1) .AND. (MAGVI >= EPS1)) THEN! Calc unit vector in y dir if vectors VK, VI are not null
                   CALL CROSS ( KVEC, VI, VJ )
@@ -997,14 +997,14 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
                      WRITE(F06,1308) CORD(J,2)
                      IERROR = IERROR + 1
                      FATAL_ERR = FATAL_ERR + 1
-                  ENDIF 
+                  ENDIF
                ENDIF
 
                IF (IERROR > 0) CYCLE main7
 
                DO K = 1,3                                  ! Unit vector in basic coord y direction for z axis of CID is JVEC
                   JVEC(K) = VJ(K)/MAGVJ
-               ENDDO 
+               ENDDO
                                                            ! Unit vector in basic coord x direction for z axis of CID is IVEC
                CALL CROSS ( JVEC, KVEC, IVEC )
 
@@ -1021,7 +1021,7 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
                   DO L=1,3
                      M = 3 + 3*(K-1) + L
                      RCORD(ICID,M) = TN(K,L,ICID)
-                  ENDDO 
+                  ENDDO
                ENDDO
 
                IF (IERROR == 0) THEN
@@ -1046,13 +1046,13 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
                   IF (TRANS_DONE(K) == 'N') THEN
                      WRITE(ERR,7001) CORD_NAME(K), CORD(K,2)
                   ENDIF
-               ENDDO 
-               WRITE(F06,1318) 
+               ENDDO
+               WRITE(F06,1318)
                DO K=1,NCORD
                   IF (TRANS_DONE(K) == 'N') THEN
                      WRITE(F06,7001) CORD_NAME(K), CORD(K,2)
                   ENDIF
-               ENDDO 
+               ENDDO
                CALL OUTA_HERE ( 'Y' )
             ENDIF
 
@@ -1096,16 +1096,16 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
             IF (TRANS_DONE(K) == 'N') THEN
                WRITE(ERR,7001) CORD_NAME(K), CORD(K,2)
             ENDIF
-         ENDDO 
+         ENDDO
          WRITE(F06,1319) SUBR_NAME
          DO K=1,NCORD
             IF (TRANS_DONE(K) == 'N') THEN
                WRITE(F06,7001) CORD_NAME(K), CORD(K,2)
             ENDIF
-         ENDDO 
+         ENDDO
          CALL OUTA_HERE ( 'Y' )
       ENDIF
-            
+
       IF ((PRTCORD == 1) .OR. (PRTCORD == 2)) CALL PARAM_PRTCORD_OUTPUT ( '81' )
 
 ! Check IERROR and quit if > 0
@@ -1151,50 +1151,50 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
 
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
- 
+
       SUBROUTINE CORDCHK ( IERROR )
-     
+
 ! Checks array CORD to make sure that there are not more than 1 coord systems with the same ID. It does this by
 ! sorting the coord system ID's and then checking the sorted dummy array for uniqueness
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  NCORD, BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  CORD
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CORDCHK'
 
       INTEGER(LONG), INTENT(OUT)      :: IERROR            ! Count of the number of duplicate coord system ID's
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: DUMCORD(NCORD)    ! Dummy array of coord system ID's sorted
 
-  
+
 
 
 ! **********************************************************************************************************************************
 ! Create DUMCORD to be an array of the coordinate system ID's
- 
+
       DO I=1,NCORD
          DUMCORD(I) = CORD(I,2)
-      ENDDO 
- 
+      ENDDO
+
 ! Sort cord system ID's into numerically increasing order using the shell sort method
- 
+
       IF (NCORD > 1) THEN
          CALL SORT_INT1 ( SUBR_NAME, 'CORD', NCORD, DUMCORD )
       ENDIF
- 
+
 ! Check for duplicate numbers
-  
+
       IERROR = 0
       DO I=1,NCORD-1
          IF (DUMCORD(I) == DUMCORD(I+1)) THEN
@@ -1203,19 +1203,19 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
             WRITE(ERR,1309) DUMCORD(I+1)
             WRITE(F06,1309) DUMCORD(I+1)
          ENDIF
-      ENDDO 
-    
+      ENDDO
+
 
 
       RETURN
 
 ! **********************************************************************************************************************************
  1309 FORMAT(' *ERROR  1309: COORDINATE SYSTEM NUMBER ',I8,' IS A DUPLICATE.')
- 
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE CORDCHK
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE PARAM_PRTCORD_OUTPUT ( WHICH )
@@ -1231,7 +1231,7 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
       INTEGER(LONG)                   :: I,J,K             ! Local DO loop indices
       INTEGER(LONG)                   :: II,JJ             ! Local DO loop indices
       INTEGER(LONG)                   :: IA,IB,IC          ! Array indices
-      
+
       I = 1
       J = 1
       K = 1
@@ -1262,7 +1262,7 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
          ENDDO
          WRITE(F06,*)
          WRITE(F06,*)
-            
+
          WRITE(F06,1203)
          DO II=1,NCORD
             NAME1(1:) = ' '   ;   NAME2(1:) = ' '
@@ -1421,7 +1421,7 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
                                                             CORD(II,5), TRANS_DONE(IC)
                ENDIF
             ENDIF
-         ENDDO 
+         ENDDO
          WRITE(F06,*)
 
       ELSE IF (WHICH == '73') THEN
@@ -1502,7 +1502,7 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
 
  8107 FORMAT(42X,'A R R A Y   R C O R D   W I T H   O R I G I N S   A N D   3 X 3   T R A N F O R M A T I O N   M A T R I C E S',/,&
              70X,'T H A T   T R A N S F O R M   C I D   T O   B A S I C',/)
- 
+
  8108 FORMAT(14X,'|         Coords of origin of CID        |  Row 1 of coord transformation matrix  |',                            &
                   '  Row 2 of coord transformation matrix  |  Row 3 of coord transformation matrix')
 
@@ -1533,7 +1533,7 @@ big_loop:   DO J=1,NCORD                                   ! Find a CORD1 with a
              '            3rd col and on give the ref coord system numbers (RID) for the CID. CORD2 types have 1 RID, CORD1',      &
              ' types have 3 RID''s',//,42X,'Coord type      CID      RID''s ->',/)
 
- 1202 FORMAT('                                            ',A,2X,4I9)     
+ 1202 FORMAT('                                            ',A,2X,4I9)
 
  1203 FORMAT(' Array RCORD (cols 1-3) with coords of the 3 reference points from CORD2 entries and coords of the 3 grids on',      &
              ' CORD1 entries',/,&

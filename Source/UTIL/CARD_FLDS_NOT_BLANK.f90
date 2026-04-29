@@ -1,50 +1,50 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE CARD_FLDS_NOT_BLANK ( JCARD, FLD2, FLD3, FLD4, FLD5, FLD6, FLD7, FLD8, FLD9 )
-  
+
 ! Prepares message when some fields of a Bulk data card that should be blank, aren't
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, JCARD_LEN, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE PARAMS, ONLY                :  SUPWARN
- 
+
       USE CARD_FLDS_NOT_BLANK_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM))    :: SUBR_NAME = 'CARD_FLDS_NOT_BLANK'
       CHARACTER(LEN=JCARD_LEN), INTENT(IN):: JCARD(10)         ! The 10 fields of 8 characters making up CARD
-      CHARACTER( 1*BYTE)                  :: COMMENT           ! 'Y' or 'N' depending on whether non-blank fields are a comment 
+      CHARACTER( 1*BYTE)                  :: COMMENT           ! 'Y' or 'N' depending on whether non-blank fields are a comment
       CHARACTER( 8*BYTE)                  :: MSSG8             ! Message with all fields that are not blank that should be blank
       CHARACTER( 1*BYTE)                  :: MSSG1             ! Message that has the field number in it
- 
-      INTEGER(LONG), INTENT(IN)           :: FLD2              ! Refers to field 2 of a B.D. card. If /= 0, then check this field 
+
+      INTEGER(LONG), INTENT(IN)           :: FLD2              ! Refers to field 2 of a B.D. card. If /= 0, then check this field
       INTEGER(LONG), INTENT(IN)           :: FLD3              ! Refers to field 3 of a B.D. card. If /= 0, then check this field
       INTEGER(LONG), INTENT(IN)           :: FLD4              ! Refers to field 4 of a B.D. card. If /= 0, then check this field
       INTEGER(LONG), INTENT(IN)           :: FLD5              ! Refers to field 5 of a B.D. card. If /= 0, then check this field
@@ -55,7 +55,7 @@
       INTEGER(LONG)                       :: ALL_FLDS(2:9)     ! Array of the FLDi (2 through 9)
       INTEGER(LONG)                       :: I,J               ! Do loop indices
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -123,17 +123,17 @@ j_do:       DO J=1,JCARD_LEN                               ! CYCLE through chars
          IF ((JCARD(8)(1:) /= ' ') .AND. (FLD8 == 8)) THEN
             MSSG1 = '8'
             MSSG8 = MSSG8(1:6) // MSSG1(1:1) // MSSG8(8:8)
-         ENDIF  
+         ENDIF
          IF ((JCARD(9)(1:) /= ' ') .AND. (FLD9 == 9)) THEN
             MSSG1 = '9'
             MSSG8 = MSSG8(1:7) // MSSG1(1:1)
          ENDIF
-         IF (MSSG8 /= '        ') THEN      
+         IF (MSSG8 /= '        ') THEN
             WARN_ERR = WARN_ERR+1
-            WRITE(ERR,1726) MSSG8 
+            WRITE(ERR,1726) MSSG8
             IF (SUPWARN == 'N') THEN
                WRITE(F06,1726) MSSG8
-            ENDIF 
+            ENDIF
          ENDIF
 
       ENDIF
@@ -144,7 +144,7 @@ j_do:       DO J=1,JCARD_LEN                               ! CYCLE through chars
 
 ! **********************************************************************************************************************************
  1726 FORMAT(' *WARNING    : FIELD(s) ',A8,' ON PREVIOUS ENTRY SHOULD BE BLANK AND ARE IGNORED')
- 
+
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE CARD_FLDS_NOT_BLANK

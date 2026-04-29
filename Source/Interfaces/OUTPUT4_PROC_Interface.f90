@@ -1,28 +1,28 @@
 ! ###############################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
    MODULE OUTPUT4_PROC_Interface
 
@@ -30,7 +30,7 @@
 
       SUBROUTINE OUTPUT4_PROC ( CALLING_SUBR )
 
- 
+
       USE PENTIUM_II_KIND, ONLY        :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                 :  ERR, F06, MOU4, OU4, OU4_MSG, OU4FIL
 
@@ -47,7 +47,7 @@
       USE MODEL_STUF, ONLY             :  MCG
       USE PARAMS, ONLY                 :  MPFOUT
 
-      USE EIGEN_MATRICES_1, ONLY       :  EIGEN_VAL, EIGEN_VEC, GEN_MASS,  MEFFMASS,  MPFACTOR_N6,  MPFACTOR_NR 
+      USE EIGEN_MATRICES_1, ONLY       :  EIGEN_VAL, EIGEN_VEC, GEN_MASS,  MEFFMASS,  MPFACTOR_N6,  MPFACTOR_NR
 
       USE FULL_MATRICES, ONLY          :  DUM1, PHIZG_FULL
 
@@ -78,7 +78,7 @@
                                           OU4_PART_MAT_NAMES, OU4_PART_VEC_NAMES, RBM0, SUBR_WHEN_TO_WRITE_OU4_MATS
 
       USE TIMDAT, ONLY                 :  TSEC
-      USE RIGID_BODY_DISP_MATS, ONLY   :  TR6_CG, TR6_0            
+      USE RIGID_BODY_DISP_MATS, ONLY   :  TR6_CG, TR6_0
       USE EIGEN_MATRICES_1, ONLY       :  GEN_MASS, EIGEN_VAL, EIGEN_VEC, MEFFMASS, MPFACTOR_N6, MPFACTOR_NR
 
       USE SPARSE_MATRICES, ONLY        :  I_CG_LTM, J_CG_LTM, CG_LTM,      I_DLR   , J_DLR   , DLR   ,                             &
@@ -89,15 +89,15 @@
                                           I_MLL   , J_MLL   , MLL   ,      I_MRL   , J_MRL   , MRL   ,                             &
                                           I_MRN   , J_MRN   , MRN   ,      I_MRR   , J_MRR   , MRR   ,                             &
                                           I_MRRcb , J_MRRcb , MRRcb ,      I_MXX   , J_MXX   , MXX   ,                             &
-                                          I_PHIXG , J_PHIXG , PHIXG 
+                                          I_PHIXG , J_PHIXG , PHIXG
 
       USE SPARSE_MATRICES, ONLY        :  I_KAA, J_KAA, KAA, I_KGG, J_KGG, KGG, I_MAA, J_MAA, MAA, I_MGG, J_MGG, MGG,              &
                                           I_PA , J_PA , PA , I_PG , J_PG , PG , I_PL , J_PL , PL
 
       USE FULL_MATRICES, ONLY          :  PHIZG_FULL
- 
+
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=*), INTENT(IN)    :: CALLING_SUBR      ! Subr that called this one
 
 

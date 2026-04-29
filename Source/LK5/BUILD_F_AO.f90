@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE BUILD_F_AO
- 
+
 ! For one subcase:
-    
+
 !   1) Calcs UO displacements: UO = GOA*UA + UO0 where:
- 
+
 !          UA  = from calculation in subr BUILD_A_LR
 !          UO0 = KOO(-1)*PO from LINK2
 
@@ -43,20 +43,20 @@
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE SPARSE_MATRICES, ONLY       :  I_GOA, J_GOA, GOA, SYM_GOA
       USE COL_VECS, ONLY              :  UA_COL, UF_COL, UO_COL, UO0_COL
- 
+
       USE BUILD_F_AO_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME   = 'BUILD_F_AO'
- 
+
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: F_SET_COL         ! Col no. in TDOF for F  displ set definition
       INTEGER(LONG)                   :: A_SET_COL         ! Col no. in TDOF for A  displ set definition
       INTEGER(LONG)                   :: O_SET_COL         ! Col no. in TDOF for O  displ set definition
       INTEGER(LONG), PARAMETER        :: NUMCOLS     = 1   ! Variable for number of cols of an array
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -67,7 +67,7 @@
          CALL MATMULT_SFF ( 'GOA', NDOFO, NDOFA, NTERM_GOA, SYM_GOA, I_GOA, J_GOA, GOA, 'UA', NDOFA, NUMCOLS, UA_COL, 'Y',         &
                             'UO', ONE, UO_COL )
 
-! Add UO0 (= KOO(-1) x PO) to get final UO but only if statics solution 
+! Add UO0 (= KOO(-1) x PO) to get final UO but only if statics solution
 
          IF ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC') .OR.                                                  &
             ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1))) THEN
@@ -88,7 +88,7 @@
 
          DO I=1,NDOFF
             UF_COL(I) = UA_COL(I)
-         ENDDO 
+         ENDDO
 
       ENDIF
 
@@ -111,5 +111,5 @@
       RETURN
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE BUILD_F_AO

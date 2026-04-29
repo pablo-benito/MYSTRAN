@@ -11,7 +11,7 @@
       INTEGER(LONG)               :: MONTH, DAY, YEAR
       CHARACTER(LEN=10*BYTE) B(3)
 
-      CALL DATE_AND_TIME(B(1), B(2), B(3), DATE_TIME)  
+      CALL DATE_AND_TIME(B(1), B(2), B(3), DATE_TIME)
       YEAR  = DATE_TIME(1)
       MONTH = DATE_TIME(2)
       DAY   = DATE_TIME(3)
@@ -56,7 +56,7 @@
 !      ]
       WRITE(OP2) 7
       WRITE(OP2) 0, 1, MONTH, DAY, YEAR - 2000, 0, 1
-      
+
       !ITABLE = -3
       !CALL WRITE_ITABLE(ITABLE)
 9110 FORMAT(" *DEBUG:       WRITE WRITE_TABLE_HEADER; TABLE_NAME=", A)

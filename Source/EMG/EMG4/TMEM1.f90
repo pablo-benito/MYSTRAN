@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 	
+
+! End MIT license text.
+
       SUBROUTINE TMEM1 ( OPT, AREA, X2E, X3E, Y3E, WRT_BUG_THIS_TIME, BIG_BM )
-  
+
 ! Constant strain membrane triangle
 
 ! Subroutine calculates:
@@ -35,7 +35,7 @@
 !  3) KE        = element linea stiffness matrix       , if OPT(4) = 'Y'
 !  4) PPE       = element pressure load matrix         , if OPT(5) = 'Y'
 !  5) KED       = element differen stiff matrix calc   , if OPT(6) = 'Y' = 'Y'
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, BUG, WRT_BUG, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELDT_BUG_BCHK_BIT, ELDT_BUG_BMAT_BIT, NSUB, NTSUB, FATAL_ERR
@@ -46,11 +46,11 @@
                                          SHELL_AALP, SHELL_A, SHELL_PROP_ALP, TREF, TYPE, XEB, XEL, ELGP, FCONV, STRESS, KED,      &
                                          NUM_EMG_FATAL_ERRS
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE TMEM1_USE_IFs
 
-      IMPLICIT NONE 
- 
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'TMEM1'
       CHARACTER(1*BYTE), INTENT(IN)   :: OPT(6)            ! 'Y'/'N' flags for whether to calc certain elem matrices
       CHARACTER( 1*BYTE), INTENT(IN)  :: WRT_BUG_THIS_TIME ! If 'Y' then write to BUG file if WRT_BUG array says to
@@ -58,7 +58,7 @@
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: ID(18)
 
- 
+
       REAL(DOUBLE) , INTENT(IN)       :: AREA              ! Element area
       REAL(DOUBLE) , INTENT(IN)       :: X2E               ! x coord of elem node 2
       REAL(DOUBLE) , INTENT(IN)       :: X3E               ! x coord of elem node 3
@@ -74,7 +74,7 @@
       REAL(DOUBLE)                    :: BM(3,ELDOF)       ! Strain-displ matrix for this elem
       REAL(DOUBLE)                    :: AMB(3,ELDOF)      ! SHELL_A matrix times strain-displ matrix for this elem
       REAL(DOUBLE)                    :: DPSHX(2,ELGP)     ! Derivatives of PSH wrt elem x, y coords.
-      REAL(DOUBLE)                    :: DUM(ELDOF,ELDOF)  ! Needed for calc 18 x 18 KE  using MATMULT, since KE is MELDOF x MELDOF 
+      REAL(DOUBLE)                    :: DUM(ELDOF,ELDOF)  ! Needed for calc 18 x 18 KE  using MATMULT, since KE is MELDOF x MELDOF
       REAL(DOUBLE)                    :: DUM1(ELDOF,1)     ! Intermediate matrix used in determining PTE thermal loads
       REAL(DOUBLE)                    :: DUM11(2,2)        ! Intermediate matrix used in solving for KED matrices
       REAL(DOUBLE)                    :: DUM12(ELGP,2)     ! Intermediate matrix used in solving for KED matrices
@@ -86,12 +86,12 @@
       REAL(DOUBLE)                    :: C03               ! Intermediate variable used in calc PTE, SEi, STEi, KE
       REAL(DOUBLE)                    :: C04               ! Intermediate variable used in calc PTE, SEi, STEi, KE
       REAL(DOUBLE)                    :: CT0               ! Intermediate variable used in calc PTE thermal loads
-      REAL(DOUBLE)                    :: TBAR              ! Average elem temperature 
+      REAL(DOUBLE)                    :: TBAR              ! Average elem temperature
       REAL(DOUBLE)                    :: FORCEx            ! Engineering force in the elem x direction
       REAL(DOUBLE)                    :: FORCEy            ! Engineering force in the elem x direction
       REAL(DOUBLE)                    :: FORCExy           ! Engineering force in the elem xy direction
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -100,8 +100,8 @@
       DO I=1,3
          DO J=1,ELDOF
             BM(I,J) = ZERO
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
       C01 = ONE/X2E
       C02 = ONE/Y3E
@@ -124,7 +124,7 @@
       DO I=1,18
          ID(I) = I
       ENDDO
- 
+
       IF ((WRT_BUG_THIS_TIME == 'Y') .AND. (WRT_BUG(8) > 0)) THEN
 
          WRITE(BUG,1101) ELDT_BUG_BMAT_BIT, TYPE, EID
@@ -132,7 +132,7 @@
          DO I=1,3
             WRITE(BUG,8902) I,(BM(I,J),J=1,ELDOF)
             WRITE(BUG,*)
-         ENDDO 
+         ENDDO
          WRITE(BUG,*)
 
       ENDIF
@@ -157,7 +157,7 @@
             BIG_BM(I,J,1) = ZERO
          ENDDO
       ENDDO
-  
+
       IF ((PCOMP_PROPS == 'Y') .AND. (PCOMP_LAM == 'NON')) THEN
 
          DO I=1,3
@@ -169,7 +169,7 @@
       ENDIF
 
 ! **********************************************************************************************************************************
-! Determine element thermal loads. 
+! Determine element thermal loads.
 
       IF (OPT(2) == 'Y') THEN
 
@@ -184,11 +184,11 @@
          ENDDO
 
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate BE1, SE1 matrices (3 x ELDOF) for strain/stress data recovery.
 ! Note: strain/stress recovery matrices only make sense for individual plies (or whole elem if only 1 "ply")
- 
+
       IF (OPT(3) == 'Y' .OR. OPT(6) == "Y") THEN
 
          DO I=1,3
@@ -219,10 +219,10 @@
          ENDDO
 
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate element stiffness matrix KE.
- 
+
       IF (OPT(4) == 'Y') THEN
 
          CALL MATMULT_FFF ( SHELL_A, BM, 3, 3, ELDOF, AMB )
@@ -232,13 +232,13 @@
                KE(I,J) = KE(I,J) + AREA*DUM(I,J)
             ENDDO
          ENDDO
- 
+
       ENDIF
-  
+
 ! **********************************************************************************************************************************
 ! Calculate element pressure load matrix PPE.
 ! NOTE: for this element work equivalent and static equivalent loads are the same
- 
+
       IF (OPT(5) == 'Y') THEN
 
          DO J=1,NSUB
@@ -248,13 +248,13 @@
             PPE( 8,J) = AREA*PRESS(2,J)/THREE
             PPE(13,J) = AREA*PRESS(1,J)/THREE
             PPE(14,J) = AREA*PRESS(2,J)/THREE
-         ENDDO 
-   
+         ENDDO
+
       ENDIF
 
 ! **********************************************************************************************************************************
 ! Calculate linear differential stiffness matrix
- 
+
       IF ((OPT(6) == 'Y') .AND. (LOAD_ISTEP > 1)) THEN
 
         IF (PCOMP_PROPS == 'Y') THEN
@@ -270,7 +270,7 @@
 !   Section 14.3 Stress Stiffness Matrix Of A Plate Element
 
 !         +1  +1
-! [  ]   ⌠   ⌠  [   ]T [   ]-T [ Nx  Nxy ] [   ]-1 [   ] 
+! [  ]   ⌠   ⌠  [   ]T [   ]-T [ Nx  Nxy ] [   ]-1 [   ]
 ! [k ] = |   |  [ G ]  [ J ]   [ Nxy Ny  ] [ J ]   [ G ]  |J|  dξ dη
 ! [ σ]   ⌡   ⌡  [  I]  [   ]               [   ]   [  I]
 !        -1  -1
@@ -283,20 +283,20 @@
 ! DPSHX = J^-1 G_I is the 2 x ELGP matrix of shape function derivatives with respect to element coordinates x and y.
 
 !        +1  +1
-! [k ]   ⌠   ⌠        T [ Nx  Nxy ]   
+! [k ]   ⌠   ⌠        T [ Nx  Nxy ]
 ! [ σ] = ⌡   ⌡   DPSHX  [ Nxy Ny  ]  DPSHX  |J|  dξ dη
-!        -1  -1  
+!        -1  -1
 
         CALL ELMDIS
 
         DO I=1,ELGP
           DO J=1,ELGP
             KS(I,J) = ZERO
-          ENDDO   
-        ENDDO 
+          ENDDO
+        ENDDO
 
         CALL ELEM_STRE_STRN_ARRAYS (1)                     ! Stress at the Gauss point
-                                                       
+
         FORCEx  = FCONV(1)*STRESS(1)                       ! Engineering forces at the Gauss point
         FORCEy  = FCONV(1)*STRESS(2)
         FORCExy = FCONV(1)*STRESS(3)
@@ -310,31 +310,31 @@
 
         CALL MATMULT_FFF_T ( DPSHX, DUM11, 2, ELGP, 2, DUM12 )
         CALL MATMULT_FFF ( DUM12, DPSHX, ELGP, 2, ELGP, DUM13 )
-                           
+
                                                            ! Accumulate integrand into the result
         DO I=1,ELGP
           DO J=1,ELGP
             KS(I,J) = KS(I,J) + DUM13(I,J) * AREA
-          ENDDO   
-        ENDDO 
+          ENDDO
+        ENDDO
                                                            ! Copy KS into KED for each translational DOF.
         DO I=1,6*ELGP
           DO J=1,6*ELGP
             KED(I,J) = 0
-          ENDDO   
-        ENDDO 
+          ENDDO
+        ENDDO
         DO I=1,ELGP
           DO J=1,ELGP
             KED(6*(I-1) + 1,6*(J-1) + 1) = KS(I,J)
             KED(6*(I-1) + 2,6*(J-1) + 2) = KS(I,J)
             KED(6*(I-1) + 3,6*(J-1) + 3) = KS(I,J)
-          ENDDO   
-        ENDDO 
+          ENDDO
+        ENDDO
 
 
       ENDIF
 
-  
+
 
 
       RETURN

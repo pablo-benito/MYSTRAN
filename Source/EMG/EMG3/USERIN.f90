@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE USERIN ( INT_ELEM_ID, OPT, EMG_CALLING_SUBR, WRITE_WARN )
-  
+
 ! Reads in matrices for a USERIN element from file IN4FIL specified in Exec Control (with statement IN4 i = in4file file name
 ! The matrices read are:
 
@@ -43,7 +43,7 @@
 ! WTMASS B.D. entry, PARAM WTMASS is 1.0). After the grid point weight generator is run (subr GPWG), the mass matrix will be
 ! converted back, same as all other mass, by multiplying by WTMASS. NOTE: WTMASS was checked to be sure it is > 0 when WTMASS B.D.
 ! entry was read
-  
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, IN4, IN4_MSG, IN4FIL
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MEDAT0_CUSERIN, MELDOF, NDOFG, NGRID, NSUB
@@ -53,18 +53,18 @@
       USE DOF_TABLES, ONLY            :  TDOF, TDOFI, TDOF_ROW_START
       USE PARAMS, ONLY                :  grdpnt, WTMASS
       USE INPUTT4_MATRICES, ONLY      :  IN4_COL_MAP, IN4_MAT
-      USE RIGID_BODY_DISP_MATS, ONLY  :  RBGLOBAL_GSET, TR6_0            
+      USE RIGID_BODY_DISP_MATS, ONLY  :  RBGLOBAL_GSET, TR6_0
       USE MODEL_STUF, ONLY            :  AGRID, EDAT, EID, ELDOF, ELGP, EPNT, GRID_ID, INTL_PID, KE, ME, PPE, PUSERIN, TYPE,       &
                                          NUM_EMG_FATAL_ERRS
       USE MODEL_STUF, ONLY            :  USERIN_ACT_GRIDS, USERIN_ACT_COMPS, USERIN_CID0, USERIN_IN4_INDEX, USERIN_RBM0,           &
                                          USERIN_NUM_BDY_DOF, USERIN_NUM_ACT_GRDS, USERIN_NUM_SPOINTS,                              &
                                          USERIN_MASS_MAT_NAME, USERIN_LOAD_MAT_NAME, USERIN_RBM0_MAT_NAME, USERIN_STIF_MAT_NAME
 
- 
+
       USE USERIN_USE_IFs
 
-      IMPLICIT NONE 
-  
+      IMPLICIT NONE
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'USERIN'
       CHARACTER(LEN=*) , INTENT(IN)   :: EMG_CALLING_SUBR  ! Subr that called EMG which, in turn, called this subr
       CHARACTER( 1*BYTE), INTENT(IN)  :: OPT(6)            ! 'Y'/'N' flags for whether to calc certain elem matrices
@@ -72,9 +72,9 @@
       CHARACTER( 1*BYTE)              :: CDOF(6)           ! Contains 1 in each of the 6 pos'ns corresponding to a DOF from CGRID(I)
 
       INTEGER(LONG), INTENT(IN)       :: INT_ELEM_ID       ! Internal element ID for which
-      INTEGER(LONG)                   :: ELDOF_INDEX       ! 
+      INTEGER(LONG)                   :: ELDOF_INDEX       !
       INTEGER(LONG)                   :: EPNTK             ! Value from array EPNT at the row for this internal elem ID. It is the
-!                                                            row number in array EDAT where data begins for this element. 
+!                                                            row number in array EDAT where data begins for this element.
       INTEGER(LONG)                   :: G_SET_COL         ! Col no. in array TDOF where the  G-set is (from subr TDOF_COL_NUM)
       INTEGER(LONG)                   :: I,J,L             ! DO loop index
       INTEGER(LONG)                   :: IERR              ! Error count returned from subr READ_IN4_FULL_MAT
@@ -82,13 +82,13 @@
       INTEGER(LONG)                   :: K                 ! Counter
       INTEGER(LONG)                   :: NRC               ! Row/col size of stiff, mass matrices to be read from IN4 file
       INTEGER(LONG)                   :: IROW              ! Row number where TDOFI data begins for GRID_NUM
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr FILE_OPEN  
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr FILE_OPEN
 
                                                            ! Array that has USERIN grid num in col 1 and comp number in remaining 7
                                                            ! cols (1 col has all comps, others each indiv comp) for USERIN bdy DOF's
       INTEGER(LONG)                   :: USERIN_CID0_ICID  ! Internal coordinate system ID for USERIN_CID0
 
-  
+
       REAL(DOUBLE)                    :: DX                ! X offset of USERIN elem CG from overall model basic sys origin
       REAL(DOUBLE)                    :: DY                ! Y offset of USERIN elem CG from overall model basic sys origin
       REAL(DOUBLE)                    :: DZ                ! Z offset of USERIN elem CG from overall model basic sys origin
@@ -180,7 +180,7 @@
       ENDDO
 
 ! Get coord transformation matrix TN that transforms a vec from coord system USERIN_CID0 (dirs of basic sys in run that generates
-! the USERIN matrices) to overall model basic system. 
+! the USERIN matrices) to overall model basic system.
 
       CALL GET_TN_TRANSFORM_MAT ( USERIN_CID0_ICID, TN )
 
@@ -215,7 +215,7 @@
 ! If there is a RB mass matrix on the IN4 file read it as the 6x6 RB mass matrix for the elem. Otherwise calc the 6x6
 ! RB mass matrix from the boundary partition of the mass matrix (NASTRAN matrix MRRGN) and TB6, calc'd above.
 
-         IF (USERIN_RBM0_MAT_NAME(1:) /= ' ') THEN 
+         IF (USERIN_RBM0_MAT_NAME(1:) /= ' ') THEN
             CALL READ_IN4_FULL_MAT ( TYPE, EID, USERIN_RBM0_MAT_NAME, 6, 6, IN4, IN4FIL(USERIN_IN4_INDEX), RBM66,                  &
                                      IERR, SUBR_NAME//' (for USERIN_RBM0 matrix)' )
             DO I=1,6                                       ! Divide by WTMASS (default is 1.0) here to get USERIN elem mass same
@@ -239,9 +239,9 @@
                DO I=1,6
                   DO J=1,6
                      USERIN_RBM0(I,J) = RBM66(I,J)
-                  ENDDO 
+                  ENDDO
                ENDDO
-            ENDIF 
+            ENDIF
 
             IF (DEBUG(180) > 0) CALL DEB_USERIN ( 16 )
 
@@ -254,7 +254,7 @@
                                                            ! Transform MRRcb to basic coords
             CALL MATMULT_FFF   ( MRRcb_FULL  , TB6, USERIN_NUM_BDY_DOF, USERIN_NUM_BDY_DOF, 6, DUM )
             CALL MATMULT_FFF_T ( TB6, DUM         , USERIN_NUM_BDY_DOF, 6                 , 6, USERIN_RBM0 )
-            DO I=1,6                                       ! Divide by WTMASS to get units same as input mass 
+            DO I=1,6                                       ! Divide by WTMASS to get units same as input mass
                DO J=1,6
                   USERIN_RBM0(I,J) = USERIN_RBM0(I,J)/WTMASS
                ENDDO
@@ -336,9 +336,9 @@
  9999 FORMAT(' PROCESSING STOPPED IN SUBR ',A,' DUE TO ABOVE ',I8,' ERROR(S)')
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE GET_TN_TRANSFORM_MAT ( USERIN_CID0_ICID, TN )
@@ -431,7 +431,7 @@ j_do12:     DO J=1,NCORD
 ! (1) Rotate RBM66 from USERIN basic coord system to be parallel with overall model basic coord system. Call result temp USERIN_RBM0
 !     Rotational transformation matrix R66 has 2 copies of the transpose of 3x3 matrix TN on its diagonal
 !     TN transforms a vec from coord system USERIN_CID0 (dirs of basic sys in run that generates the USERIN matrices)
-!     to overall model basic system. 
+!     to overall model basic system.
 
       DO I=1,6                                         ! Initialize 6x6 transformation matrix for USERIN RB mass
          DO J=1,6
@@ -465,9 +465,9 @@ j_do12:     DO J=1,NCORD
 ! where I is a 3x3 identity matrix, O a 3x3 null matrix and D is the 3x3 matrix that has offsets of USERIN coord sys ICID (basic
 ! coord sys of USERIN elem) relative to basic coord sys origin of the overall model:
 
-!                                            |  0    DZ -DY |  
+!                                            |  0    DZ -DY |
 !                                        D = | -DZ   0   DX | , DX = RCORD(ICID,1), DY = RCORD(ICID,2), DZ = RCORD(ICID,3)
-!                                            |  DY  -DX  0  | 
+!                                            |  DY  -DX  0  |
 
       DX = RCORD(USERIN_CID0_ICID,1)                       ! Get DX, DY, DZ offsets of USERIN internal coord sys ICID (USERIN basic
       DY = RCORD(USERIN_CID0_ICID,2)                       ! coord sys definition) relative to overall model basic coord sys
@@ -479,7 +479,7 @@ j_do12:     DO J=1,NCORD
          ENDDO
       ENDDO
 
-      DO I=1,3                                             ! Upper left 3x3, and lower right 3x3, matrices I are identity matrices 
+      DO I=1,3                                             ! Upper left 3x3, and lower right 3x3, matrices I are identity matrices
          T66(I,I)     = ONE
          T66(I+3,I+3) = ONE
       ENDDO
@@ -706,7 +706,7 @@ j_do12:     DO J=1,NCORD
 98722 FORMAT('      (15) Name of RB mass   matrix (USERIN_RBM0)  = "',a,'"',/)
 
 98723 FORMAT('      (15) Name of RB mass   matrix (USERIN_RBM0)  = (none input so one will be generated internally)',/)
- 
+
 98731 FORMAT(10I10)
 
 98741 FORMAT(4X,32767(13X,I3))

@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_KAA_TO_KLL ( PART_VEC_A_LR )
- 
+
 ! Call routines to reduce the KAA linear stiffness matrix from the A-set to the L, R-sets
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -36,14 +36,14 @@
       USE SPARSE_MATRICES, ONLY       :  I_KAA, J_KAA, KAA, I_KLL, J_KLL, KLL, I_KRL, J_KRL, KRL, I_KRR, J_KRR, KRR,               &
                                          SYM_KAA, SYM_KLL, SYM_KRL, SYM_KRR
       USE SCRATCH_MATRICES
- 
+
       USE REDUCE_KAA_TO_KLL_USE_IFs
 
       IMPLICIT NONE
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_KAA_TO_KLL'
- 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_A_LR(NDOFA)! Partitioning vector (F set into A and O sets) 
+
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_A_LR(NDOFA)! Partitioning vector (F set into A and O sets)
       INTEGER(LONG)                   :: KLL_ROW_MAX_TERMS   ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
       INTEGER(LONG)                   :: KRL_ROW_MAX_TERMS   ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
       INTEGER(LONG)                   :: KRR_ROW_MAX_TERMS   ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
@@ -59,11 +59,11 @@
       IF (NDOFL > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'KAA', NTERM_KAA, NDOFA, NDOFA, SYM_KAA, I_KAA, J_KAA,      PART_VEC_A_LR, PART_VEC_A_LR,       &
-                                    NUM1, NUM1, KLL_ROW_MAX_TERMS, 'KLL', NTERM_KLL, SYM_KLL ) 
+                                    NUM1, NUM1, KLL_ROW_MAX_TERMS, 'KLL', NTERM_KLL, SYM_KLL )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KLL', NDOFL, NTERM_KLL, SUBR_NAME )
 
-         IF (NTERM_KLL > 0) THEN      
+         IF (NTERM_KLL > 0) THEN
             CALL PARTITION_SS ( 'KAA', NTERM_KAA, NDOFA, NDOFA, SYM_KAA, I_KAA, J_KAA, KAA, PART_VEC_A_LR, PART_VEC_A_LR,          &
                                  NUM1, NUM1, KLL_ROW_MAX_TERMS, 'KLL', NTERM_KLL, NDOFL, SYM_KLL, I_KLL, J_KLL, KLL )
          ENDIF
@@ -75,7 +75,7 @@
       IF ((NDOFL > 0) .AND. (NDOFR > 0)) THEN
 
          CALL PARTITION_SS_NTERM ( 'KAA', NTERM_KAA, NDOFA, NDOFA, SYM_KAA, I_KAA, J_KAA,      PART_VEC_A_LR, PART_VEC_A_LR,       &
-                                    NUM2, NUM1, KRL_ROW_MAX_TERMS, 'KRL', NTERM_KRL, SYM_KRL ) 
+                                    NUM2, NUM1, KRL_ROW_MAX_TERMS, 'KRL', NTERM_KRL, SYM_KRL )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KRL', NDOFR, NTERM_KRL, SUBR_NAME )
 
@@ -91,7 +91,7 @@
       IF (NDOFR > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'KAA', NTERM_KAA, NDOFA, NDOFA, SYM_KAA, I_KAA, J_KAA,      PART_VEC_A_LR, PART_VEC_A_LR,       &
-                                    NUM2, NUM2, KRR_ROW_MAX_TERMS, 'KRR', NTERM_KRR, SYM_KRR ) 
+                                    NUM2, NUM2, KRR_ROW_MAX_TERMS, 'KRR', NTERM_KRR, SYM_KRR )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KRR', NDOFR, NTERM_KRR, SUBR_NAME )
 

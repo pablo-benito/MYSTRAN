@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
        SUBROUTINE EIG_GIV_MGIV
-  
+
 ! Solves for eigenvalues and eigenvectors when method is GIV (Givens) or MGIV (modified Givens)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, KLL_SDIA, KLLD_SDIA, MLL_SDIA, NDOFL, NTERM_KLL, NTERM_KLLD,     &
@@ -41,12 +41,12 @@
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL, I_KLLD, J_KLLD, KLLD, I_MLL, J_MLL, MLL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE LAPACK_GIV_MGIV_EIG
- 
+
       USE EIG_GIV_MGIV_USE_IFs
       USE LINK_MESSAGE_Interface
-      
+
       IMPLICIT NONE
-  
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'EIG_GIV_MGIV'
       CHARACTER( 1*BYTE)              :: JOBZ                ! 'V' or 'N' input to subr DSBGVX ( if 'V', calc vecs, 'N' do not).
@@ -104,10 +104,10 @@
 ! **********************************************************************************************************************************
       EPS1   = EPSIL(1)
 
-! Determine bandwidth of stiffness and mass matrices so BANDGEN can put them in LAPACK band form 
+! Determine bandwidth of stiffness and mass matrices so BANDGEN can put them in LAPACK band form
 
       CALL LINK_MESSAGE('CALCULATE BANDWIDTH OF KLL MATRIX')
-      CALL BANDSIZ ( NDOFL, NTERM_KLL, I_KLL, J_KLL, KLL_SDIA ) 
+      CALL BANDSIZ ( NDOFL, NTERM_KLL, I_KLL, J_KLL, KLL_SDIA )
       WRITE(ERR,4904) KLL_SDIA
       IF (SUPINFO == 'N') THEN
          WRITE(F06,4904) KLL_SDIA
@@ -115,14 +115,14 @@
 
       IF (SOL_NAME(1:8) == 'BUCKLING') THEN
          CALL LINK_MESSAGE('CALCULATE BANDWIDTH OF KLLD MATRIX')
-         CALL BANDSIZ ( NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, KLLD_SDIA ) 
+         CALL BANDSIZ ( NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, KLLD_SDIA )
          WRITE(ERR,4905) 'KLLD', KLLD_SDIA
          IF (SUPINFO == 'N') THEN
             WRITE(F06,4905) 'KLLD', KLLD_SDIA
          ENDIF
       ELSE
          CALL LINK_MESSAGE('CALCULATE BANDWIDTH OF MLL MATRIX')
-         CALL BANDSIZ ( NDOFL, NTERM_MLL, I_MLL, J_MLL, MLL_SDIA ) 
+         CALL BANDSIZ ( NDOFL, NTERM_MLL, I_MLL, J_MLL, MLL_SDIA )
          WRITE(ERR,4905) 'MLL', MLL_SDIA
          IF (SUPINFO == 'N') THEN
             WRITE(F06,4905) 'MLL', MLL_SDIA
@@ -220,7 +220,7 @@
 
       IF ((SOL_NAME(1:12) /= 'GEN CB MODEL' ) .AND. (SOL_NAME(1:8) /= 'BUCKLING')) THEN
          CALL LINK_MESSAGE('DEALLOCATE SPARSE KLL ARRAYS')
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate KLL', CR13
          CALL DEALLOCATE_SPARSE_MAT ( 'KLL' )
       ENDIF
@@ -313,14 +313,14 @@
                IF ( I_KLLD(I) == I_KLLD(I-1) ) THEN
                   KLLD_NULL_ROWS = KLLD_NULL_ROWS + 1
                ENDIF
-            ENDDO 
+            ENDDO
          ELSE
             MLL_NULL_ROWS = 0
             DO I=2,NDOFL+1
                IF ( I_MLL(I) == I_MLL(I-1) ) THEN
                   MLL_NULL_ROWS = MLL_NULL_ROWS + 1
                ENDIF
-            ENDDO 
+            ENDDO
          ENDIF
 
          CALL LINK_MESSAGE('SOLVE FOR EIGENVALUES/VECTORS - MGIV METHOD')
@@ -377,7 +377,7 @@
 
          ELSE                                              ! INFO > NDOFL indicates lead minor of MLL (or KLLD) or KLL not pos def
 
-            NAME2 = 'No name' 
+            NAME2 = 'No name'
             IF      (EIG_METH(1:3) == 'GIV' ) THEN
                IF (SOL_NAME(1:8) == 'BUCKLING') THEN
                   NAME2 = 'KLLD'
@@ -441,5 +441,5 @@
 12345 FORMAT(A,10X,A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE EIG_GIV_MGIV

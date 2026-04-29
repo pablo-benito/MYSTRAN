@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE ALLOCATE_CB_ELM_OTM ( NAME_IN )
 
@@ -54,10 +54,10 @@
       CHARACTER(LEN=*), INTENT(IN)    :: NAME_IN           ! Array name of the matrix to be allocated
       CHARACTER(LEN(NAME_IN))         :: NAME              ! Name for output error purposes
 
-      INTEGER(LONG)                   :: ELOUT_ELFE        ! If > 0, there are ELFORCE(ENGR) requests for some elems                
-      INTEGER(LONG)                   :: ELOUT_ELFN        ! If > 0, there are ELFORCE(NODE) requests for some elems                
-      INTEGER(LONG)                   :: ELOUT_STRE        ! If > 0, there are STRESS   requests for some elems                
-      INTEGER(LONG)                   :: ELOUT_STRN        ! If > 0, there are STRAIN   requests for some elems                
+      INTEGER(LONG)                   :: ELOUT_ELFE        ! If > 0, there are ELFORCE(ENGR) requests for some elems
+      INTEGER(LONG)                   :: ELOUT_ELFN        ! If > 0, there are ELFORCE(NODE) requests for some elems
+      INTEGER(LONG)                   :: ELOUT_STRE        ! If > 0, there are STRESS   requests for some elems
+      INTEGER(LONG)                   :: ELOUT_STRN        ! If > 0, there are STRAIN   requests for some elems
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: IERR              ! STAT from DEALLOCATE
       INTEGER(LONG)                   :: JERR              ! Local error indicator
@@ -80,7 +80,7 @@
       JERR = 0
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
-      IF (NAME_IN == 'OTM_ELFE') THEN                      ! Determine size of OTM_ELFE and allocate it and TXT_ELFE                
+      IF (NAME_IN == 'OTM_ELFE') THEN                      ! Determine size of OTM_ELFE and allocate it and TXT_ELFE
 
          NROWS_MAT = 0
          NROWS_TXT = 0
@@ -95,7 +95,7 @@
                      ELOUT_ELFE = IAND(ELOUT(J,1),IBIT(ELOUT_ELFE_BIT))
                      IF (ELOUT_ELFE > 0) THEN
                         NROWS_MAT = NROWS_MAT + 1
-                        NROWS_TXT = NROWS_TXT + 1 + OTMSKIP 
+                        NROWS_TXT = NROWS_TXT + 1 + OTMSKIP
                      ENDIF
                   ENDIF
 
@@ -104,7 +104,7 @@
                      ELOUT_ELFE = IAND(ELOUT(J,1),IBIT(ELOUT_ELFE_BIT))
                      IF (ELOUT_ELFE > 0) THEN
                         NROWS_MAT = NROWS_MAT + 6
-                        NROWS_TXT = NROWS_TXT + 6 + OTMSKIP 
+                        NROWS_TXT = NROWS_TXT + 6 + OTMSKIP
                      ENDIF
                   ENDIF
 
@@ -113,7 +113,7 @@
                      ELOUT_ELFE = IAND(ELOUT(J,1),IBIT(ELOUT_ELFE_BIT))
                      IF (ELOUT_ELFE > 0) THEN
                         NROWS_MAT = NROWS_MAT + 2
-                        NROWS_TXT = NROWS_TXT + 2 + OTMSKIP 
+                        NROWS_TXT = NROWS_TXT + 2 + OTMSKIP
                      ENDIF
                   ENDIF
 
@@ -151,7 +151,7 @@
             ENDDO
 
          ENDDO
- 
+
          NROWS_OTM_ELFE = NROWS_MAT
          NROWS_TXT_ELFE = NROWS_TXT
          NCOLS          = NUM_CB_DOFS
@@ -222,7 +222,7 @@
          NROWS_OTM_ELFN = NROWS_MAT
          NROWS_TXT_ELFN = NROWS_TXT
          NCOLS          = NUM_CB_DOFS
-      
+
          NAME = 'OTM_ELFN'
          IF (ALLOCATED(OTM_ELFN)) THEN
             WRITE(ERR,990) SUBR_NAME, NAME
@@ -306,7 +306,7 @@
                      ELSE IF ((TYPE(1:4) == 'HEXA') .OR. (TYPE(1:5) == 'PENTA') .OR. (TYPE(1:5) == 'TETRA')) THEN
                         NROWS_MAT = NROWS_MAT + 6
                         NROWS_TXT = NROWS_TXT + 6 + OTMSKIP
-                     ENDIF   
+                     ENDIF
                   ENDIF
                ENDIF
             ENDDO
@@ -314,7 +314,7 @@
          NROWS_OTM_STRE = NROWS_MAT
          NROWS_TXT_STRE = NROWS_TXT
          NCOLS          = NUM_CB_DOFS
- 
+
          NAME = 'OTM_STRE'
          IF (ALLOCATED(OTM_STRE)) THEN
             WRITE(ERR,990) SUBR_NAME, NAME
@@ -389,7 +389,7 @@
                      ELSE IF ((TYPE(1:4) == 'HEXA') .OR. (TYPE(1:5) == 'PENTA') .OR. (TYPE(1:5) == 'TETRA')) THEN
                         NROWS_MAT = NROWS_MAT + 6
                         NROWS_TXT = NROWS_TXT + 6 + OTMSKIP
-                     ENDIF   
+                     ENDIF
                   ENDIF
                ENDIF
             ENDDO
@@ -397,7 +397,7 @@
          NROWS_OTM_STRN = NROWS_MAT
          NROWS_TXT_STRN = NROWS_TXT
          NCOLS          = NUM_CB_DOFS
- 
+
          NAME = 'OTM_STRN'
          IF (ALLOCATED(OTM_STRN)) THEN
             WRITE(ERR,990) SUBR_NAME, NAME
@@ -447,13 +447,13 @@
 ! ---------------------------------------------------------------------------------------------------------------------------------
       ELSE                                                 ! NAME not recognized, so coding error
 
-         WRITE(ERR,915) SUBR_NAME, 'ALLOCATED', NAME_IN 
+         WRITE(ERR,915) SUBR_NAME, 'ALLOCATED', NAME_IN
          WRITE(F06,915) SUBR_NAME, 'ALLOCATED', NAME_IN
          FATAL_ERR = FATAL_ERR + JERR
          JERR = JERR + 1
 
       ENDIF
- 
+
 ! ---------------------------------------------------------------------------------------------------------------------------------
 ! Quit if there were errors
 

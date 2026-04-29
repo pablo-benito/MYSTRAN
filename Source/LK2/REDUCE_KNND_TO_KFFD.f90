@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_KNND_TO_KFFD ( PART_VEC_N_FS, PART_VEC_S_SzSe, PART_VEC_F, PART_VEC_S )
- 
+
 ! Call routines to reduce the KNND differential stiffness matrix from the N-set to the F, S-sets
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L2B, LINK2B, L2B_MSG
       USE SCONTR, ONLY                :  FATAL_ERR, NDOFN, NDOFF, NDOFS, NDOFSE, NTERM_KNND, NTERM_KFFD, NTERM_KFSD, NTERM_KSSD,   &
@@ -37,19 +37,19 @@
                                          I_KSFD, J_KSFD, KSFD, I_KSSD, J_KSSD, KSSD, I_KSSDe, J_KSSDe, KSSDe
       USE SPARSE_MATRICES, ONLY       :  SYM_KNND, SYM_KFFD, SYM_KFSD, SYM_KFSDe, SYM_KSSD, SYM_KSSD, SYM_KSSDe
       USE SCRATCH_MATRICES
- 
+
       USE REDUCE_KNND_TO_KFFD_USE_IFs
 
       IMPLICIT NONE
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_KNND_TO_KFFD'
-      CHARACTER(  1*BYTE)             :: CLOSE_IT               ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close file or not 
+      CHARACTER(  1*BYTE)             :: CLOSE_IT               ! Input to subr READ_MATRIX_i. 'Y'/'N' whether to close file or not
       CHARACTER(  8*BYTE)             :: CLOSE_STAT             ! Char constant for the CLOSE status of a file
- 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_F(NDOFF)      ! Partitioning vector (1's for all of F set) 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_N_FS(NDOFN)   ! Partitioning vector (N set into F and S sets) 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_S(NDOFS)      ! Partitioning vector (1's for all of S set) 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_S_SzSe(NDOFS) ! Partitioning vector (S set into SZ and SE sets) 
+
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_F(NDOFF)      ! Partitioning vector (1's for all of F set)
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_N_FS(NDOFN)   ! Partitioning vector (N set into F and S sets)
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_S(NDOFS)      ! Partitioning vector (1's for all of S set)
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_S_SzSe(NDOFS) ! Partitioning vector (S set into SZ and SE sets)
       INTEGER(LONG)                   :: KFFD_ROW_MAX_TERMS     ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
       INTEGER(LONG)                   :: KFSD_ROW_MAX_TERMS     ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
 !xx   INTEGER(LONG)                   :: KSFD_ROW_MAX_TERMS     ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
@@ -72,11 +72,11 @@
       IF (NDOFF > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'KNND', NTERM_KNND, NDOFN, NDOFN, SYM_KNND, I_KNND, J_KNND,      PART_VEC_N_FS, PART_VEC_N_FS,  &
-                                    NUM1, NUM1, KFFD_ROW_MAX_TERMS, 'KFFD', NTERM_KFFD, SYM_KFFD ) 
+                                    NUM1, NUM1, KFFD_ROW_MAX_TERMS, 'KFFD', NTERM_KFFD, SYM_KFFD )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KFFD', NDOFF, NTERM_KFFD, SUBR_NAME )
 
-         IF (NTERM_KFFD > 0) THEN      
+         IF (NTERM_KFFD > 0) THEN
             CALL PARTITION_SS ( 'KNND', NTERM_KNND, NDOFN, NDOFN, SYM_KNND, I_KNND, J_KNND, KNND, PART_VEC_N_FS, PART_VEC_N_FS,    &
                                  NUM1, NUM1, KFFD_ROW_MAX_TERMS, 'KFFD', NTERM_KFFD, NDOFF, SYM_KFFD, I_KFFD, J_KFFD, KFFD )
          ENDIF
@@ -88,7 +88,7 @@
       IF ((NDOFF > 0) .AND. (NDOFS > 0)) THEN
 
          CALL PARTITION_SS_NTERM ( 'KNND', NTERM_KNND, NDOFN, NDOFN, SYM_KNND, I_KNND, J_KNND,      PART_VEC_N_FS, PART_VEC_N_FS,  &
-                                    NUM1, NUM2, KFSD_ROW_MAX_TERMS, 'KFSD', NTERM_KFSD, SYM_KFSD ) 
+                                    NUM1, NUM2, KFSD_ROW_MAX_TERMS, 'KFSD', NTERM_KFSD, SYM_KFSD )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KFSD', NDOFF, NTERM_KFSD, SUBR_NAME )
 
@@ -99,7 +99,7 @@
             IF (NDOFSE > 0) THEN
 
                CALL PARTITION_SS_NTERM ( 'KFSD', NTERM_KFSD, NDOFF, NDOFS, SYM_KFSD, I_KFSD, J_KFSD, PART_VEC_F, PART_VEC_S_SzSe   &
-                                         ,NUM1, NUM2, KFSDe_ROW_MAX_TERMS, 'KFSDe', NTERM_KFSDe, SYM_KFSDe ) 
+                                         ,NUM1, NUM2, KFSDe_ROW_MAX_TERMS, 'KFSDe', NTERM_KFSDe, SYM_KFSDe )
 
                CALL ALLOCATE_SPARSE_MAT ( 'KFSDe', NDOFF, NTERM_KFSDe, SUBR_NAME )
 
@@ -119,7 +119,7 @@
       IF ((NDOFF > 0) .AND. (NDOFS > 0)) THEN
 
 !xx      CALL PARTITION_SS_NTERM ( 'KNND', NTERM_KNND, NDOFN, NDOFN, SYM_KNND, I_KNND, J_KNND,      PART_VEC_N_FS, PART_VEC_N_FS,  &
-!xx                                 NUM2, NUM1, KSFD_ROW_MAX_TERMS, 'KSFD', NTERM_KSFD, SYM_KFSD ) 
+!xx                                 NUM2, NUM1, KSFD_ROW_MAX_TERMS, 'KSFD', NTERM_KSFD, SYM_KFSD )
 
 !xx      IF (NTERM_KSFD /= NTERM_KFSD) THEN
 !xx         FATAL_ERR = FATAL_ERR + 1
@@ -159,19 +159,19 @@
       IF (NDOFS > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'KNND', NTERM_KNND, NDOFN, NDOFN, SYM_KNND, I_KNND, J_KNND,      PART_VEC_N_FS, PART_VEC_N_FS,  &
-                                    NUM2, NUM2, KSSD_ROW_MAX_TERMS, 'KSSD', NTERM_KSSD, SYM_KSSD ) 
+                                    NUM2, NUM2, KSSD_ROW_MAX_TERMS, 'KSSD', NTERM_KSSD, SYM_KSSD )
 
          CALL ALLOCATE_SPARSE_MAT ( 'KSSD', NDOFS, NTERM_KSSD, SUBR_NAME )
 
          IF (NTERM_KSSD > 0) THEN
-      
+
             CALL PARTITION_SS ( 'KNND', NTERM_KNND, NDOFN, NDOFN, SYM_KNND, I_KNND, J_KNND, KNND, PART_VEC_N_FS, PART_VEC_N_FS,    &
                                  NUM2, NUM2, KSSD_ROW_MAX_TERMS, 'KSSD', NTERM_KSSD, NDOFS, SYM_KSSD, I_KSSD, J_KSSD, KSSD )
 
             IF (NDOFSE > 0) THEN
 
                CALL PARTITION_SS_NTERM ( 'KSSD', NTERM_KSSD, NDOFS, NDOFS, SYM_KSSD, I_KSSD, J_KSSD, PART_VEC_S, PART_VEC_S_SzSe   &
-                                         ,NUM1, NUM2, KSSDe_ROW_MAX_TERMS, 'KSSDe', NTERM_KSSDe, SYM_KSSDe ) 
+                                         ,NUM1, NUM2, KSSDe_ROW_MAX_TERMS, 'KSSDe', NTERM_KSSDe, SYM_KSSDe )
 
                CALL ALLOCATE_SPARSE_MAT ( 'KSSDe', NDOFS, NTERM_KSSDe, SUBR_NAME )
 

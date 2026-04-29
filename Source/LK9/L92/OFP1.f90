@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE OFP1 ( JVEC, WHAT, SC_OUT_REQ, FEMAP_SET_ID, ITG, OT4_GROW, ITABLE, NEW_RESULT )
 
@@ -62,11 +62,11 @@
 !                                                            constr forces in subr WRITE_GRD_PRT_OUTPUTS for grids with no force
 
       INTEGER(LONG), INTENT(IN)       :: FEMAP_SET_ID      ! Set ID for FEMAP output
-      INTEGER(LONG), INTENT(IN)       :: ITG               ! Unit number for text files for OTM row descriptors 
+      INTEGER(LONG), INTENT(IN)       :: ITG               ! Unit number for text files for OTM row descriptors
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Solution vector number
       INTEGER(LONG), INTENT(IN)       :: SC_OUT_REQ        ! If > 0, then requests for WHAT are to be output
       INTEGER(LONG), INTENT(INOUT)    :: OT4_GROW          ! Row number in OT4 file for grid related OTM descriptors
-      INTEGER(LONG), INTENT(INOUT)    :: ITABLE            ! 
+      INTEGER(LONG), INTENT(INOUT)    :: ITABLE            !
       LOGICAL, INTENT(INOUT)          :: NEW_RESULT        ! is this the first result of a table
       INTEGER(LONG)                   :: G_SET_COL         ! Col number in TDOF where the G-set DOF's exist
       INTEGER(LONG)                   :: GDOF              ! G-set DOF number
@@ -95,16 +95,16 @@
       DO I=1,MAXREQ
          DO J=1,MOGEL
             OGEL(I,J) = ZERO
-         ENDDO 
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
       ! Initialize WRITE_OGEL
       DO I=1,NGRID
          WRITE_OGEL(I) = 'Y'
       ENDDO
 
 ! ---------------------------------------------------------------------------------------------------------------------------------
-! Process acceleration output requests for CB sol. 
+! Process acceleration output requests for CB sol.
 
 !      TODO: where is the velocity output?
  9002 FORMAT(" *DEBUG:      WHAT=",A,"; NGRID",I8, "; NREQ=",I8, "; SC_OUT_REQ=",I8)
@@ -114,7 +114,7 @@
          IROW_MAT  = 0
          OT4_DESCRIPTOR = 'Acceleration'
 
-         
+
          ACCE_ALL_SAME_CID = 'Y'
          DO I=1,NGRID-1
             IB = IAND(GROUT(I,INT_SC_NUM),IBIT(GROUT_ACCE_BIT))
@@ -283,7 +283,7 @@
          ENDIF
 
 ! ---------------------------------------------------------------------------------------------------------------------------------
-! Process applied load output requests. 
+! Process applied load output requests.
 
       ELSE IF (WHAT == 'OLOAD') THEN
          OLOAD_ALL_SAME_CID = 'Y'                          ! Check if all grids, for which there will be output, have same coord sys
@@ -303,11 +303,11 @@
             IF (IB > 0) THEN
                NREQ = NREQ + 1
             ENDIF
-         ENDDO   
+         ENDDO
 
          NUM = 0
          write(ERR,9002) WHAT, NGRID, NREQ, SC_OUT_REQ
-         DO I=1,NGRID                                      ! 
+         DO I=1,NGRID                                      !
             IB = IAND(GROUT(I,INT_SC_NUM),IBIT(GROUT_OLOA_BIT))
             IF (IB > 0) THEN
                NUM = NUM + 1
@@ -322,7 +322,7 @@
                   TDOF_ROW = ROW_NUM_START + J - 1
                   GDOF = TDOF(TDOF_ROW,G_SET_COL)
                   OGEL(NUM,J) = PG_COL(GDOF)
-               ENDDO   
+               ENDDO
                WRITE_OGEL(NUM) = 'N'
                DO J=1,NUM_COMPS
                   IF (OGEL(NUM,J) /= ZERO) THEN
@@ -362,8 +362,8 @@
 
       ELSE
 
-         WRITE(ERR,9100) SUBR_NAME, WHAT   
-         WRITE(F06,9100) SUBR_NAME, WHAT   
+         WRITE(ERR,9100) SUBR_NAME, WHAT
+         WRITE(F06,9100) SUBR_NAME, WHAT
          FATAL_ERR = FATAL_ERR + 1
          CALL OUTA_HERE ( 'Y' )
 

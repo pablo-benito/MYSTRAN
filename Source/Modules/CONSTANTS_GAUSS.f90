@@ -1,43 +1,43 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       MODULE CONSTANTS_GAUSS
-  
-! Real parameters used in subroutine ORDER for Gaussian integration 
-  
+
+! Real parameters used in subroutine ORDER for Gaussian integration
+
       USE PENTIUM_II_KIND, ONLY       :  DOUBLE
 
       IMPLICIT NONE
 
       SAVE
-  
+
       REAL(DOUBLE), PARAMETER         :: SSV(29) = (/ 0.577350269189626D0, & ! SSV( 1)
                                                       0.774596669241483D0, & ! SSV( 2)
-                                                      0.000000000000000D0, & ! SSV( 3) 
-                                                      0.861136311594053D0, & ! SSV( 4) 
+                                                      0.000000000000000D0, & ! SSV( 3)
+                                                      0.861136311594053D0, & ! SSV( 4)
                                                       0.339981043584856D0, & ! SSV( 5)
                                                       0.906179845938664D0, & ! SSV( 6)
                                                       0.538469310105683D0, & ! SSV( 7)
@@ -63,7 +63,7 @@
                                                       0.679409568299024D0, & ! SSV(27)
                                                       0.433395394129247D0, & ! SSV(28)
                                                       0.148874338981631D0 /) ! SSV(29)
-   
+
       REAL(DOUBLE), PARAMETER         :: HHV(29) = (/ 1.000000000000000D0, & ! HHV( 1)
                                                       0.555555555555556D0, & ! HHV( 2)
                                                       0.888888888888889D0, & ! HHV( 3)

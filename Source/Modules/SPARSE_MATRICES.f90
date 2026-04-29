@@ -1,37 +1,37 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       MODULE SPARSE_MATRICES
-  
+
 ! Arrays for sparse stiffness, mass, load, constraint and some other matrices
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
 
       IMPLICIT NONE
-  
+
       SAVE
 
 ! **********************************************************************************************************************************
@@ -226,8 +226,8 @@
       INTEGER(LONG), ALLOCATABLE      :: I_MSF(:)          ! Row indicators for nonzero terms in mass matrix MSF
       INTEGER(LONG), ALLOCATABLE      :: I_MSS(:)          ! Row indicators for nonzero terms in mass matrix MSS
 
-      INTEGER(LONG), ALLOCATABLE      :: I_PF(:)           ! Row indicators for nonzero terms in load matrix PF 
-      INTEGER(LONG), ALLOCATABLE      :: I_PF_TMP(:)       ! Row indicators for nonzero terms in load matrix PF_TMP 
+      INTEGER(LONG), ALLOCATABLE      :: I_PF(:)           ! Row indicators for nonzero terms in load matrix PF
+      INTEGER(LONG), ALLOCATABLE      :: I_PF_TMP(:)       ! Row indicators for nonzero terms in load matrix PF_TMP
       INTEGER(LONG), ALLOCATABLE      :: I_PS(:)           ! Row indicators for nonzero terms in load matrix PS
       INTEGER(LONG), ALLOCATABLE      :: I_PFYS(:)         ! Row indicators for nonzero terms in load matrix PFYS
       INTEGER(LONG), ALLOCATABLE      :: I_PFYS1(:)        ! Row indicators for nonzero terms in load matrix PFYS1
@@ -252,8 +252,8 @@
       INTEGER(LONG), ALLOCATABLE      :: J_MSF(:)          ! Col numbers for nonzero terms in mass matrix MSF
       INTEGER(LONG), ALLOCATABLE      :: J_MSS(:)          ! Col numbers for nonzero terms in mass matrix MSS
 
-      INTEGER(LONG), ALLOCATABLE      :: J_PF(:)           ! Col numbers for nonzero terms in load matrix PF 
-      INTEGER(LONG), ALLOCATABLE      :: J_PF_TMP(:)       ! Col numbers for nonzero terms in load matrix PF_TMP 
+      INTEGER(LONG), ALLOCATABLE      :: J_PF(:)           ! Col numbers for nonzero terms in load matrix PF
+      INTEGER(LONG), ALLOCATABLE      :: J_PF_TMP(:)       ! Col numbers for nonzero terms in load matrix PF_TMP
       INTEGER(LONG), ALLOCATABLE      :: J_PS(:)           ! Col numbers for nonzero terms in load matrix PS
       INTEGER(LONG), ALLOCATABLE      :: J_PFYS(:)         ! Col numbers for nonzero terms in load matrix PFYS
       INTEGER(LONG), ALLOCATABLE      :: J_PFYS1(:)        ! Col numbers for nonzero terms in load matrix PFYS1
@@ -316,7 +316,7 @@
       INTEGER(LONG), ALLOCATABLE      :: I_KOODs(:)        ! Row indicators for nonzero terms in stiff matrix KOODs-diff stiff
       INTEGER(LONG), ALLOCATABLE      :: I2_KOODs(:)       ! Row values     for nonzero terms in stiff matrix KOODs-diff stiff
 
-      INTEGER(LONG), ALLOCATABLE      :: I_MAA(:)          ! Row indicators for nonzeros in mass matrix MAA 
+      INTEGER(LONG), ALLOCATABLE      :: I_MAA(:)          ! Row indicators for nonzeros in mass matrix MAA
       INTEGER(LONG), ALLOCATABLE      :: I_MAO(:)          ! Row indicators for nonzero terms in mass matrix MAO
       INTEGER(LONG), ALLOCATABLE      :: I_MOO(:)          ! Row indicators for nonzero terms in mass matrix MOO
 
@@ -337,7 +337,7 @@
       INTEGER(LONG), ALLOCATABLE      :: J_KOOD(:)         ! Col numbers for nonzero terms in stiff matrix KOOD-diff stiff
       INTEGER(LONG), ALLOCATABLE      :: J_KOODs(:)        ! Col numbers for nonzero terms in stiff matrix KOODs-diff stiff
 
-      INTEGER(LONG), ALLOCATABLE      :: J_MAA(:)          ! Col numbers for nonzeros in mass matrix MAA 
+      INTEGER(LONG), ALLOCATABLE      :: J_MAA(:)          ! Col numbers for nonzeros in mass matrix MAA
       INTEGER(LONG), ALLOCATABLE      :: J_MAO(:)          ! Col numbers for nonzero terms in mass matrix MAO
       INTEGER(LONG), ALLOCATABLE      :: J_MOO(:)          ! Col numbers for nonzero terms in mass matrix MOO
 
@@ -419,7 +419,7 @@
       INTEGER(LONG), ALLOCATABLE      :: I2_DLR(:)         ! Array of row numbers for all nonzero terms in matrix DLR
       INTEGER(LONG), ALLOCATABLE      :: I2_DLRt(:)        ! Array of row numbers for all nonzero terms in matrix DLRt
 
-      INTEGER(LONG), ALLOCATABLE      :: I_IF_LTM(:)       ! Row indicators for nonzero terms in matrix IF_LTM  
+      INTEGER(LONG), ALLOCATABLE      :: I_IF_LTM(:)       ! Row indicators for nonzero terms in matrix IF_LTM
       INTEGER(LONG), ALLOCATABLE      :: I_IRR(:)          ! Row indicators for nonzero terms in identity matrix IRR
 
       INTEGER(LONG), ALLOCATABLE      :: I_KLL(:)          ! Row indicators for nonzero terms in stiff matrix KLL
@@ -431,7 +431,7 @@
       INTEGER(LONG), ALLOCATABLE      :: I_KRRcb(:)        ! Row indicators for nonzero terms in stiff matrix KRRcb
       INTEGER(LONG), ALLOCATABLE      :: I_KRRcbn(:)       ! Row indicators for nonzero terms in stiff matrix KRRcbn
       INTEGER(LONG), ALLOCATABLE      :: I_KRRcbs(:)       ! Row indicators for nonzero terms in stiff matrix KRRcbs
-      INTEGER(LONG), ALLOCATABLE      :: I_KXX(:)          ! Row indicators for nonzero terms in stiff matrix KXX  
+      INTEGER(LONG), ALLOCATABLE      :: I_KXX(:)          ! Row indicators for nonzero terms in stiff matrix KXX
 
       INTEGER(LONG), ALLOCATABLE      :: I_KLLD(:)         ! Row indicators for nonzero terms in stiff matrix KLLD
       INTEGER(LONG), ALLOCATABLE      :: I_KLLDn(:)        ! Row indicators for nonzero terms in stiff matrix KLLDn
@@ -441,28 +441,28 @@
       INTEGER(LONG), ALLOCATABLE      :: I_KRLD(:)         ! Row indicators for nonzero terms in stiff matrix KRLD
       INTEGER(LONG), ALLOCATABLE      :: I_KRRD(:)         ! Row indicators for nonzero terms in stiff matrix KRRD
 
-      INTEGER(LONG), ALLOCATABLE      :: I_KMSM(:)         ! Row ind for nonzero terms in KLL - sigma*MLL 
-      INTEGER(LONG), ALLOCATABLE      :: I2_KMSM(:)        ! Row values for nonzero terms in KLL - sigma*MLL 
-      INTEGER(LONG), ALLOCATABLE      :: I_KMSMn(:)        ! Row ind for nonzero terms in KLL - sigma*MLL (nonsym) 
+      INTEGER(LONG), ALLOCATABLE      :: I_KMSM(:)         ! Row ind for nonzero terms in KLL - sigma*MLL
+      INTEGER(LONG), ALLOCATABLE      :: I2_KMSM(:)        ! Row values for nonzero terms in KLL - sigma*MLL
+      INTEGER(LONG), ALLOCATABLE      :: I_KMSMn(:)        ! Row ind for nonzero terms in KLL - sigma*MLL (nonsym)
       INTEGER(LONG), ALLOCATABLE      :: I_KMSMs(:)        ! Row ind for nonzero terms in KLL - sigma*MLL  (sym)
-      INTEGER(LONG), ALLOCATABLE      :: I2_KMSMs(:)       ! Row values for nonzero terms in KLL - sigma*MLL (sym) 
+      INTEGER(LONG), ALLOCATABLE      :: I2_KMSMs(:)       ! Row values for nonzero terms in KLL - sigma*MLL (sym)
 
-      INTEGER(LONG), ALLOCATABLE      :: I_MPF0 (:)        ! Row indicators for nonzeros in temp matrix MPF0 
-      INTEGER(LONG), ALLOCATABLE      :: I_MLL(:)          ! Row indicators for nonzeros in mass matrix MLL 
+      INTEGER(LONG), ALLOCATABLE      :: I_MPF0 (:)        ! Row indicators for nonzeros in temp matrix MPF0
+      INTEGER(LONG), ALLOCATABLE      :: I_MLL(:)          ! Row indicators for nonzeros in mass matrix MLL
       INTEGER(LONG), ALLOCATABLE      :: I2_MLL(:)         ! Row numbers for nonzero terms in mass matrix MLL
       INTEGER(LONG), ALLOCATABLE      :: I_MLLn(:)         ! Row indicators for nonzeros in mass matrix MLLn
-      INTEGER(LONG), ALLOCATABLE      :: I_MLLs(:)         ! Row indicators for nonzeros in mass matrix MLL 
+      INTEGER(LONG), ALLOCATABLE      :: I_MLLs(:)         ! Row indicators for nonzeros in mass matrix MLL
       INTEGER(LONG), ALLOCATABLE      :: I2_MLLs(:)        ! Row numbers for nonzero terms in mass matrix MLL
       INTEGER(LONG), ALLOCATABLE      :: I_MLR(:)          ! Row indicators for nonzero terms in mass matrix MLR
       INTEGER(LONG), ALLOCATABLE      :: I_MRL(:)          ! Row indicators for nonzero terms in mass matrix MRL
       INTEGER(LONG), ALLOCATABLE      :: I_MRR(:)          ! Row indicators for nonzero terms in mass matrix MRR
-      INTEGER(LONG), ALLOCATABLE      :: I_MRN(:)          ! Row indicators for nonzero terms in mass matrix MRN  
+      INTEGER(LONG), ALLOCATABLE      :: I_MRN(:)          ! Row indicators for nonzero terms in mass matrix MRN
       INTEGER(LONG), ALLOCATABLE      :: I_MRRcb(:)        ! Row indicators for nonzero terms in mass matrix MRRcb
       INTEGER(LONG), ALLOCATABLE      :: I_MRRcbn(:)       ! Row indicators for nonzero terms in mass matrix MRRcb
       INTEGER(LONG), ALLOCATABLE      :: I_MXX(:)          ! Row indicators for nonzero terms in mass matrix MRRcb
       INTEGER(LONG), ALLOCATABLE      :: I_MXXn(:)         ! Row indicators for nonzero terms in mass matrix MRRcbn
 
-      INTEGER(LONG), ALLOCATABLE      :: I_LTM(:)          ! Row indicators for nonzero terms in matrix LTM  
+      INTEGER(LONG), ALLOCATABLE      :: I_LTM(:)          ! Row indicators for nonzero terms in matrix LTM
 
       INTEGER(LONG), ALLOCATABLE      :: I_PHIXA(:)        ! Row indicators for nonzero terms in CB matrix PHIXA
       INTEGER(LONG), ALLOCATABLE      :: I_PHIXG(:)        ! Row indicators for nonzero terms in CB matrix PHIXG
@@ -471,8 +471,8 @@
       INTEGER(LONG), ALLOCATABLE      :: I_PHIZL1(:)       ! Row indicators for nonzeros in matrix PHIZL1
       INTEGER(LONG), ALLOCATABLE      :: I_PHIZL1t(:)      ! Row indicators for nonzeros in matrix PHIZL1
       INTEGER(LONG), ALLOCATABLE      :: I_PHIZL2(:)       ! Row indicators for nonzeros in matrix PHIZL2
-      INTEGER(LONG), ALLOCATABLE      :: I2_PHIZL1(:)      ! Array of row numbers for all nonzero terms in matrix PHIZL1  
-      INTEGER(LONG), ALLOCATABLE      :: I2_PHIZL1t(:)     ! Array of row numbers for all nonzero terms in matrix PHIZL1t  
+      INTEGER(LONG), ALLOCATABLE      :: I2_PHIZL1(:)      ! Array of row numbers for all nonzero terms in matrix PHIZL1
+      INTEGER(LONG), ALLOCATABLE      :: I2_PHIZL1t(:)     ! Array of row numbers for all nonzero terms in matrix PHIZL1t
 
       INTEGER(LONG), ALLOCATABLE      :: I_PL(:)           ! Row indicators for nonzero terms in load matrix PL
       INTEGER(LONG), ALLOCATABLE      :: I_PR(:)           ! Row indicators for nonzero terms in load matrix PR
@@ -482,7 +482,7 @@
       INTEGER(LONG), ALLOCATABLE      :: J_DLR(:)          ! Col numbers for nonzeros in matrix DLR
       INTEGER(LONG), ALLOCATABLE      :: J_DLRt(:)         ! Col numbers for nonzeros in matrix DLRt
 
-      INTEGER(LONG), ALLOCATABLE      :: J_IF_LTM(:)       ! Col numbers for nonzero term in matrix IF_LTM  
+      INTEGER(LONG), ALLOCATABLE      :: J_IF_LTM(:)       ! Col numbers for nonzero term in matrix IF_LTM
       INTEGER(LONG), ALLOCATABLE      :: J_IRR(:)          ! Col numbers for nonzero term in identity matrix IRR
 
       INTEGER(LONG), ALLOCATABLE      :: J_KLL(:)          ! Col numbers for nonzero terms in stiff matrix KLL
@@ -492,7 +492,7 @@
       INTEGER(LONG), ALLOCATABLE      :: J_KRRcb(:)        ! Col numbers for nonzero terms in stiff matrix KRRcb
       INTEGER(LONG), ALLOCATABLE      :: J_KRRcbn(:)       ! Col numbers for nonzero terms in stiff matrix KRRcbn
       INTEGER(LONG), ALLOCATABLE      :: J_KRRcbs(:)       ! Col numbers for nonzero terms in stiff matrix KRRcbs
-      INTEGER(LONG), ALLOCATABLE      :: J_KXX  (:)        ! Col numbers for nonzero terms in stiff matrix KXX  
+      INTEGER(LONG), ALLOCATABLE      :: J_KXX  (:)        ! Col numbers for nonzero terms in stiff matrix KXX
 
       INTEGER(LONG), ALLOCATABLE      :: J_KLLD(:)         ! Col numbers for nonzero terms in stiff matrix KLLD
       INTEGER(LONG), ALLOCATABLE      :: J_KLLDn(:)        ! Col numbers for nonzero terms in stiff matrix KLLDn
@@ -500,20 +500,20 @@
       INTEGER(LONG), ALLOCATABLE      :: J_KRLD(:)         ! Col numbers for nonzero terms in stiff matrix KRLD
       INTEGER(LONG), ALLOCATABLE      :: J_KRRD(:)         ! Col numbers for nonzero terms in stiff matrix KRRD
 
-      INTEGER(LONG), ALLOCATABLE      :: J_KMSM(:)         ! Col ind for nonzero terms in KLL - sigma*MLL 
-      INTEGER(LONG), ALLOCATABLE      :: J_KMSMn(:)        ! Col ind for nonzero terms in KLL - sigma*MLL (nonsym) 
-      INTEGER(LONG), ALLOCATABLE      :: J_KMSMs(:)        ! Col ind for nonzero terms in KLL - sigma*MLL (sym) 
+      INTEGER(LONG), ALLOCATABLE      :: J_KMSM(:)         ! Col ind for nonzero terms in KLL - sigma*MLL
+      INTEGER(LONG), ALLOCATABLE      :: J_KMSMn(:)        ! Col ind for nonzero terms in KLL - sigma*MLL (nonsym)
+      INTEGER(LONG), ALLOCATABLE      :: J_KMSMs(:)        ! Col ind for nonzero terms in KLL - sigma*MLL (sym)
 
-      INTEGER(LONG), ALLOCATABLE      :: J_LTM(:)          ! Col numbers for nonzero term in matrix LTM  
+      INTEGER(LONG), ALLOCATABLE      :: J_LTM(:)          ! Col numbers for nonzero term in matrix LTM
 
-      INTEGER(LONG), ALLOCATABLE      :: J_MPF0 (:)        ! Col numbers for nonzeros in temp matrix MPF0  
-      INTEGER(LONG), ALLOCATABLE      :: J_MLL(:)          ! Col numbers for nonzeros in mass matrix MLL 
+      INTEGER(LONG), ALLOCATABLE      :: J_MPF0 (:)        ! Col numbers for nonzeros in temp matrix MPF0
+      INTEGER(LONG), ALLOCATABLE      :: J_MLL(:)          ! Col numbers for nonzeros in mass matrix MLL
       INTEGER(LONG), ALLOCATABLE      :: J_MLLn(:)         ! Col numbers for nonzeros in mass matrix MLLn
-      INTEGER(LONG), ALLOCATABLE      :: J_MLLs(:)         ! Col numbers for nonzeros in mass matrix MLL 
+      INTEGER(LONG), ALLOCATABLE      :: J_MLLs(:)         ! Col numbers for nonzeros in mass matrix MLL
       INTEGER(LONG), ALLOCATABLE      :: J_MLR(:)          ! Col numbers for nonzero terms in mass matrix MLR
       INTEGER(LONG), ALLOCATABLE      :: J_MRL(:)          ! Col numbers for nonzero terms in mass matrix MRL
       INTEGER(LONG), ALLOCATABLE      :: J_MRR(:)          ! Col numbers for nonzero terms in mass matrix MRR
-      INTEGER(LONG), ALLOCATABLE      :: J_MRN  (:)        ! Col numbers for nonzero terms in mass matrix MRN  
+      INTEGER(LONG), ALLOCATABLE      :: J_MRN  (:)        ! Col numbers for nonzero terms in mass matrix MRN
       INTEGER(LONG), ALLOCATABLE      :: J_MRRcb(:)        ! Col numbers for nonzero terms in mass matrix MRRcb
       INTEGER(LONG), ALLOCATABLE      :: J_MRRcbn(:)       ! Col numbers for nonzero terms in mass matrix MRRcbn
       INTEGER(LONG), ALLOCATABLE      :: J_MXX(:)          ! Col numbers for nonzero terms in mass matrix MRRcb
@@ -530,13 +530,13 @@
       INTEGER(LONG), ALLOCATABLE      :: J_PL(:)           ! Col numbers for nonzero terms in load matrix PL
       INTEGER(LONG), ALLOCATABLE      :: J_PR(:)           ! Col numbers for nonzero terms in load matrix PR
 
-      REAL(DOUBLE) , ALLOCATABLE      :: CG_LTM(:)         ! Real values for matrix CG_LTM  
+      REAL(DOUBLE) , ALLOCATABLE      :: CG_LTM(:)         ! Real values for matrix CG_LTM
 
       REAL(DOUBLE) , ALLOCATABLE      :: DLR(:)            ! -KLL(-1)*KRL
       REAL(DOUBLE) , ALLOCATABLE      :: DLRt(:)           ! DLR'
       REAL(DOUBLE) , ALLOCATABLE      :: PHIZL(:)          ! CB Displ Transformation Matrix for the L-set
 
-      REAL(DOUBLE) , ALLOCATABLE      :: IF_LTM(:)         ! Real terms in matrix IF_LTM  
+      REAL(DOUBLE) , ALLOCATABLE      :: IF_LTM(:)         ! Real terms in matrix IF_LTM
       REAL(DOUBLE) , ALLOCATABLE      :: IRR(:)            ! R-set row and R-set col identity matrix
 
       REAL(DOUBLE) , ALLOCATABLE      :: KLL(:)            ! Initially, L-set part. of KAA.  Finally, A-set reduced stiff terms
@@ -558,7 +558,7 @@
       REAL(DOUBLE) , ALLOCATABLE      :: KMSMn(:)          ! KAA - sigma*MAA stored nonsymmetrically
       REAL(DOUBLE) , ALLOCATABLE      :: KMSMs(:)          ! KAA - sigma*MAA stored symmetrically
 
-      REAL(DOUBLE) , ALLOCATABLE      :: LTM(:)            ! Real terms in matrix LTM  
+      REAL(DOUBLE) , ALLOCATABLE      :: LTM(:)            ! Real terms in matrix LTM
 
       REAL(DOUBLE) , ALLOCATABLE      :: MPF0 (:)          ! Temp array for eff mass calc
       REAL(DOUBLE) , ALLOCATABLE      :: MLL(:)            ! Initially, L-set part. of MAA. Finally, L-set reduced mass terms
@@ -577,7 +577,7 @@
       REAL(DOUBLE) , ALLOCATABLE      :: PHIXG(:)          ! CB matrix PHIXG
 
       REAL(DOUBLE) , ALLOCATABLE      :: PHIZL1(:)         ! -KLL(-1)*(MLR + MLL*DLR) part of PHIZL
-      REAL(DOUBLE) , ALLOCATABLE      :: PHIZL1t(:)        ! PHIZL1 transposed 
+      REAL(DOUBLE) , ALLOCATABLE      :: PHIZL1t(:)        ! PHIZL1 transposed
       REAL(DOUBLE) , ALLOCATABLE      :: PHIZL2(:)         ! -EIGEN_VEC*diag(EIGEN_VAL) part of PHIZL
 
       REAL(DOUBLE) , ALLOCATABLE      :: PL(:)             ! Initially, L-set part. of PA. Finally, L-set reduced load terms
@@ -590,6 +590,6 @@
 !         have I_KGG(I+1) - I_KGG(I) nonzero terms in sparse array KGG
 
 !     (2) Array J_KGG is dimensioned NTERM_KGG (the number of nonzeros in the G-set stiff matrix). Term j gives the row number the
-!         G-set stiffness matrix for the j-th term in sparse array KGG 
+!         G-set stiffness matrix for the j-th term in sparse array KGG
 
       END MODULE SPARSE_MATRICES

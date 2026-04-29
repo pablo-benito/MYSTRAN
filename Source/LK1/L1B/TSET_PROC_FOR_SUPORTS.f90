@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE TSET_PROC_FOR_SUPORTS ( IERRT )
- 
-! DOF Processor for SUPORT's 
- 
+
+! DOF Processor for SUPORT's
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1T, L1T_MSG, LINK1T
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, NDOFR, NGRID, NUM_SUPT_CARDS
@@ -35,7 +35,7 @@
       USE PARAMS, ONLY                :  EPSIL
       USE DOF_TABLES, ONLY            :  TSET_CHR_LEN, TSET
       USE MODEL_STUF, ONLY            :  GRID, GRID_ID
- 
+
       USE TSET_PROC_FOR_SUPORTS_USE_IFs                    ! Added 2019/07/14
 
       IMPLICIT NONE
@@ -43,7 +43,7 @@
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'TSET_PROC_FOR_SUPTS'
       CHARACTER( 1*BYTE)              :: CDOF(6)           ! An output from subr RDOF
       CHARACTER(LEN=LEN(TSET_CHR_LEN)):: DOFSET            ! The name of a DOF set (e.g. 'SB', 'A ', etc)
- 
+
       INTEGER(LONG), INTENT(INOUT)    :: IERRT             ! Sum of all grid and DOF errors
       INTEGER(LONG)                   :: GRID_NUM          ! An actual grid ID
       INTEGER(LONG)                   :: DOF_ERR   = 0     ! Count of errors that result from setting displ sets in TSET
@@ -52,28 +52,28 @@
       INTEGER(LONG)                   :: I,K               ! DO loop indices
       INTEGER(LONG)                   :: ICOMP             ! DOF components read from file LINK1T (SUPORT's)
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening or reading a file
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.   
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.
       INTEGER(LONG)                   :: REC_NO    = 0     ! Record number when reading a file
 
- 
+
 
 
 ! **********************************************************************************************************************************
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! **********************************************************************************************************************************
 ! Process SPC data from file L1T (data written when SUPORT Bulk Data cards were read)
- 
+
       GID_ERR = 0
       DOF_ERR = 0
       DOFSET = 'R '
       REC_NO = 0
 
 i_do6:DO I=1,NUM_SUPT_CARDS
- 
+
          READ(L1T,IOSTAT=IOCHK) GRID_NUM, ICOMP
          REC_NO = REC_NO + 1
          IF (IOCHK /= 0) THEN
@@ -88,7 +88,7 @@ i_do6:DO I=1,NUM_SUPT_CARDS
             WRITE(ERR,1310) 'GRID ', GRID_NUM, 'SUPORT'
             WRITE(F06,1310) 'GRID ', GRID_NUM, 'SUPORT'
          ENDIF
- 
+
          IF (GID_ERR == 0) THEN
             CALL RDOF ( ICOMP, CDOF )                      ! Convert ICOMP to CDOF char form for use below
             DO K = 1,6                                     ! Put data in TSET
@@ -108,7 +108,7 @@ i_do6:DO I=1,NUM_SUPT_CARDS
             ENDDO
          ENDIF
 
-      ENDDO i_do6 
+      ENDDO i_do6
 
       IERRT = IERRT + GID_ERR + DOF_ERR
 

@@ -1,34 +1,34 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE OFP3_ELFE_2D ( JVEC, FEMAP_SET_ID, ITE, OT4_EROW )
 
 ! Processes element engr force output requests for 2D (TRIA3, QUAD4, SHEAR) elements for one subcase. Results go into array OGEL
 ! for later output in LINK9
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, ELOUT_ELFE_BIT, FATAL_ERR, IBIT, INT_SC_NUM, MBUG, MOGEL,                   &
@@ -43,26 +43,26 @@
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  FORC_LOC
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, GID_OUT_ARRAY, MAXREQ, OGEL
       USE OUTPUT4_MATRICES, ONLY      :  OTM_ELFE, TXT_ELFE
-  
+
       USE PLANE_COORD_TRANS_21_Interface
       USE TRANSFORM_SHELL_STR_Interface
       USE OFP3_ELFE_2D_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'OFP3_ELFE_2D'
       CHARACTER( 1*BYTE), PARAMETER   :: IHDR      = 'Y'   ! An input to subr WRITE_GRID_OUTPUTS, called herein
       CHARACTER(20*BYTE)              :: FORCE_ITEM(8)     ! Char description of element engineering forces
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option indicators for subr EMG, called herein
       CHARACTER(31*BYTE)              :: OT4_DESCRIPTOR    ! Descriptor for rows of OT4 file
       CHARACTER(30*BYTE)              :: REQUEST           ! Text for error message
- 
+
       INTEGER(LONG), INTENT(IN)       :: FEMAP_SET_ID      ! Set ID for FEMAP output
-      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors 
+      INTEGER(LONG), INTENT(IN)       :: ITE               ! Unit number for text files for OTM row descriptors
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Solution vector number
      !INTEGER(LONG), INTENT(INOUT)    :: ITABLE            ! the op2 subtable number, should be -3, -5, ...
       INTEGER(LONG), INTENT(INOUT)    :: OT4_EROW          ! Row number in OT4 file for elem related OTM descriptors
-      INTEGER(LONG)                   :: ELOUT_ELFE        ! If > 0, there are ELFORCE(ENGR) requests for some elems                
+      INTEGER(LONG)                   :: ELOUT_ELFE        ! If > 0, there are ELFORCE(ENGR) requests for some elems
       INTEGER(LONG)                   :: I,J,K,M           ! DO loop indices
       INTEGER(LONG)                   :: IERROR       = 0  ! Local error count
 !xx   INTEGER(LONG)                   :: IROW_MAT          ! Row number in OTM's
@@ -84,7 +84,7 @@
       REAL(DOUBLE)                    :: STRESS_OUT_PCT_ERR(MAX_STRESS_POINTS)
 
       REAL(DOUBLE)                    :: PCT_ERR_MAX       ! Max value from array STRESS_OUT_PCT_ERR
- 
+
       REAL(DOUBLE)                    :: TEL(3,3)          ! Transformation matrix from cartesian local (L) to element (E) coordinates.
                                                            ! Array of values from array STRESS for all stress points
       REAL(DOUBLE)                    :: STRESS_RAW(9,MAX_STRESS_POINTS)
@@ -98,7 +98,7 @@
 
       LOGICAL                         :: WRITE_NEU
       INTRINSIC IAND
-  
+
 ! **********************************************************************************************************************************
 !     Initialize
       TABLE_NAME = "OEF ERR "
@@ -110,20 +110,20 @@
 ! Process element engineering force requests for plate and USERIN elements.
 ! For the MIN3,4 elements, the stiffness matrix has to be generated to get FCONV(3). Therefore, set OPT(4) to 'N' initially, and if
 ! the element being processed is a MIN3 or MIN4, reset OPT(4) to 'Y' in the calculation loop prior to EMG call.
- 
+
       OPT(1) = 'N'                                         ! OPT(1) is for calc of ME
       OPT(2) = 'N'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'Y'                                         ! OPT(3) is for calc of SEi, STEi
       OPT(4) = 'N'                                         ! OPT(4) is for calc of KE-linear
       OPT(5) = 'N'                                         ! OPT(5) is for calc of PPE
       OPT(6) = 'N'                                         ! OPT(6) is for calc of KE-diff stiff
- 
+
       FORCE_ITEM(1) = 'Nxx: Normal x Force '
       FORCE_ITEM(2) = 'Nyy: Normal y Force '
       FORCE_ITEM(3) = 'Nxy: Shear xy Force '
       FORCE_ITEM(4) = 'Mxx: Moment x Plane '
       FORCE_ITEM(5) = 'Myy: Moment y Plane '
-      FORCE_ITEM(6) = 'Mxy: Twist Mom xy   ' 
+      FORCE_ITEM(6) = 'Mxy: Twist Mom xy   '
       FORCE_ITEM(7) = 'Qx : Transv Shear x '
       FORCE_ITEM(8) = 'Qy : Transv Shear y '
 
@@ -131,8 +131,8 @@
 
       DO I=1,METYPE                                        ! Initialize the array containing the number of requests per element
          NELREQ(I) = 0
-      ENDDO 
- 
+      ENDDO
+
       num_pcomp_elems = 0                                  ! Remove lower case code when I fix engr force output for PCOMP's
       DO I=1,METYPE
          DO J=1,NELE
@@ -156,8 +156,8 @@
                   endif
                ENDIF
             ENDIF
-         ENDDO 
-      ENDDO 
+         ENDDO
+      ENDDO
 
 !xx   DO I=1,METYPE                                        ! Engr force requests for ELAS elems not honored. Give message
 !xx      IF ((ELMTYP(I)(1:4) == 'ELAS') .AND. (NELREQ(I) > 0)) THEN
@@ -167,14 +167,14 @@
 !xx            WRITE(F06,9204) NELREQ(I), ELMTYP(I)
 !xx         ENDIF
 !xx      ENDIF
-!xx   ENDDO  
-   
+!xx   ENDDO
+
       DO I=1,MAXREQ
          DO J=1,MOGEL
             OGEL(I,J) = ZERO
-         ENDDO 
-      ENDDO   
- 
+         ENDDO
+      ENDDO
+
 !xx   IROW_MAT = 0
 !xx   IROW_TXT = 0
       OT4_DESCRIPTOR = 'Element engineering force'
@@ -182,7 +182,7 @@ reqs3:DO I=1,METYPE
          IF (NELREQ(I) == 0) CYCLE reqs3
          NUM_OGEL_ROWS = 0
          NUM_OGEL = 0
- 
+
 elems_3: DO J = 1,NELE
             call is_elem_pcomp_props ( j )                 ! Remove lower case code when I fix engr force output for PCOMP's
             if (pcomp_props == 'N') then
@@ -201,23 +201,23 @@ elems_3: DO J = 1,NELE
                            WRT_BUG(K) = 0
                         ENDDO
                         PLY_NUM = 0                        ! 'N' in call to EMG means do not write to BUG file
-                        CALL EMG ( J   , OPT, 'N', SUBR_NAME, 'N' ) 
+                        CALL EMG ( J   , OPT, 'N', SUBR_NAME, 'N' )
                         IF (NUM_EMG_FATAL_ERRS > 0) THEN
                            IERROR = IERROR + 1
                            CYCLE elems_3
                         ENDIF
                         OPT(4) = 'N'
                         CALL ELMDIS
-                        
+
 
                         DO M=1,NUM_PTS(I)                  ! Gauss point stress
                            CALL ELEM_STRE_STRN_ARRAYS ( M )
-                           STRESS_RAW(:,M) = STRESS(:) 
+                           STRESS_RAW(:,M) = STRESS(:)
                         ENDDO
-                                         
+
                         STRESS_OUT(:,1) = STRESS_RAW(:,1)  ! Set STRAIN_OUT for NUM_PTS(I) = 1
 
-                        IF ((FORC_LOC == 'CORNER  ') .OR.                                                                          & 
+                        IF ((FORC_LOC == 'CORNER  ') .OR.                                                                          &
                             (ETYPE(J)(1:5) == 'QUAD8')) THEN
 
                            IF (TYPE(1:5) == 'QUAD4') THEN
@@ -237,20 +237,20 @@ elems_3: DO J = 1,NELE
                                  CALL PLANE_COORD_TRANS_21( SHELL_STR_ANGLE( M ), TEL, '')
                                  CALL TRANSFORM_SHELL_STR( TEL, STRESS_OUT(:,M), ONE)
                               ENDDO
-                              
+
                                                            ! Center stress is the average of corner stress in element coordinates.
                                                            ! In MSC, the center force and moment resultants are the average but
                                                            ! this is equivalent.
                               STRESS_OUT(:,1) = (STRESS_OUT(:,2) + STRESS_OUT(:,3) + STRESS_OUT(:,4) + STRESS_OUT(:,5)) / FOUR
 
                            ENDIF
-                           
+
                         ENDIF
-                        
+
                         DO M=1,NUM_PTS(I)                  ! Calculate forces and moments from stresses
                            STRESS(:) = STRESS_OUT(:,M)
                            CALL SHELL_ENGR_FORCE_OGEL ( NUM_OGEL )
-                           
+
                            NUM_OGEL_ROWS = NUM_OGEL_ROWS + 1
                            EID_OUT_ARRAY(NUM_OGEL_ROWS,1) = EID
                            GID_OUT_ARRAY(NUM_OGEL_ROWS,1) = 0
@@ -260,7 +260,7 @@ elems_3: DO J = 1,NELE
 
                         ENDDO
 
- 
+
                         IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
                            DO K=1,8
                               OT4_EROW = OT4_EROW + 1
@@ -291,7 +291,7 @@ elems_3: DO J = 1,NELE
                      ENDIF
                   ENDIF
                ENDIF
-            ENDIF 
+            ENDIF
          ENDDO elems_3
       ENDDO reqs3
 
@@ -332,7 +332,7 @@ elems_3: DO J = 1,NELE
                FEMAP_EL_VECS(NUM_FROWS,6) = FCONV(2)*STRESS(6)       ! XY Moment
                FEMAP_EL_VECS(NUM_FROWS,7) = FCONV(3)*STRESS(7)       ! X  Transverse Shear
                FEMAP_EL_VECS(NUM_FROWS,8) = FCONV(3)*STRESS(8)       ! Y  Transverse Shear
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'TRIA3K  ', NUM_FROWS, FEMAP_SET_ID )
@@ -368,7 +368,7 @@ elems_3: DO J = 1,NELE
                FEMAP_EL_VECS(NUM_FROWS,6) = FCONV(2)*STRESS(6)       ! XY Moment
                FEMAP_EL_VECS(NUM_FROWS,7) = FCONV(3)*STRESS(7)       ! X  Transverse Shear
                FEMAP_EL_VECS(NUM_FROWS,8) = FCONV(3)*STRESS(8)       ! Y  Transverse Shear
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'TRIA3   ', NUM_FROWS, FEMAP_SET_ID )
@@ -404,7 +404,7 @@ elems_3: DO J = 1,NELE
                FEMAP_EL_VECS(NUM_FROWS,6) = FCONV(2)*STRESS(6)       ! XY Moment
                FEMAP_EL_VECS(NUM_FROWS,7) = FCONV(3)*STRESS(7)       ! X  Transverse Shear
                FEMAP_EL_VECS(NUM_FROWS,8) = FCONV(3)*STRESS(8)       ! Y  Transverse Shear
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'QUAD4K  ', NUM_FROWS, FEMAP_SET_ID )
@@ -440,7 +440,7 @@ elems_3: DO J = 1,NELE
                FEMAP_EL_VECS(NUM_FROWS,6) = FCONV(2)*STRESS(6)       ! XY Moment
                FEMAP_EL_VECS(NUM_FROWS,7) = FCONV(3)*STRESS(7)       ! X  Transverse Shear
                FEMAP_EL_VECS(NUM_FROWS,8) = FCONV(3)*STRESS(8)       ! Y  Transverse Shear
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'QUAD4   ', NUM_FROWS, FEMAP_SET_ID )
@@ -476,7 +476,7 @@ elems_3: DO J = 1,NELE
                FEMAP_EL_VECS(NUM_FROWS,6) = FCONV(2)*STRESS(6)       ! XY Moment
                FEMAP_EL_VECS(NUM_FROWS,7) = FCONV(3)*STRESS(7)       ! X  Transverse Shear
                FEMAP_EL_VECS(NUM_FROWS,8) = FCONV(3)*STRESS(8)       ! Y  Transverse Shear
-            ENDIF            
+            ENDIF
          ENDDO
          IF (NUM_FROWS > 0) THEN
             CALL WRITE_FEMAP_ELFO_VECS ( 'SHEAR   ', NUM_FROWS, FEMAP_SET_ID )

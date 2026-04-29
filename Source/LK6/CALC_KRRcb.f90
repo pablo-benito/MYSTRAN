@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE CALC_KRRcb
- 
+
 ! Calculates the R-set row and col matrix KRRcb in the CB transformation matrix:
 
 !                                  KRRcb = KRR + KRL*DLR
- 
+
 ! For a description of Craig-Bamptom analyses, see Appendix D to the MYSTRAN User's Referance Manual
 
 
@@ -50,9 +50,9 @@
       USE CALC_KRRcb_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CALC_KRRcb'
-      CHARACTER(  1*BYTE)             :: EQUED             ! 'Y' if KRRcb stiff matrix was equilibrated in subr EQUILIBRATE    
+      CHARACTER(  1*BYTE)             :: EQUED             ! 'Y' if KRRcb stiff matrix was equilibrated in subr EQUILIBRATE
       CHARACTER(  1*BYTE)             :: SYM_CRS3          ! Storage format for matrix CRS3 (either 'Y' for sym storage or
 !                                                            'N' for nonsymmetric storage)
 
@@ -62,7 +62,7 @@
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG)                   :: INFO        = -1  ! Input value for subr SYM_MAT_DECOMP_LAPACK (don't quit on sing KRRCB)
 
-      INTEGER(LONG)                   :: NTERM_CRS1        ! Number of terms in matrix CRS1  
+      INTEGER(LONG)                   :: NTERM_CRS1        ! Number of terms in matrix CRS1
       INTEGER(LONG)                   :: NTERM_CRS3        ! Number of terms in matrix CRS3
 
 
@@ -147,13 +147,13 @@
       DO J=1,NTERM_KRRcb
          J_KRRcb(J) = J_KRR(J)
            KRRcb(J) =   KRR(J)
-      ENDDO 
+      ENDDO
 
       ENDIF
 
 ! If DEBUG(104) > 0, check if KRRcb is singular. It should be singular regardless of the number of boundary DOF's.
-! (KRR is singular if NDOFR = 6 and is a determinant set of supports. KRRcb should be singular always)   
-! (CODE ONLY IMPLEMENTED FOR SOLLIB == 'BANDED  ')                                                         
+! (KRR is singular if NDOFR = 6 and is a determinant set of supports. KRRcb should be singular always)
+! (CODE ONLY IMPLEMENTED FOR SOLLIB == 'BANDED  ')
 
       IF (DEBUG(104) > 0) THEN
 
@@ -197,5 +197,5 @@
                            ' USER SHOULD CHECK MODEL TO MAKE SURE IT IS NOT RESTRAINED FROM RIGID BODY MOTION')
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE CALC_KRRcb

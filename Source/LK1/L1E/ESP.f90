@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ESP
- 
+
 ! Element stiffness processor
- 
+
 ! ESP generates the G-set stiffness matrix and puts it into the 1D array STF of nonzero stiffness terms above the
 ! diagonal.
- 
+
 ! ESP processes the elements sequentially to generate element KE matrix using the EMG set of routines. The element
 ! stiffness are transformed from local to basic to global coords for each grid and then merged into the system
 ! stiffness, STF, array. See explanation, with an example, in module STF_ARRAYS
@@ -52,21 +52,21 @@
       USE STF_ARRAYS, ONLY            :  STFKEY, STF3
       USE STF_TEMPLATE_ARRAYS, ONLY   :  CROW, TEMPLATE
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE ESP_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ESP'
       CHARACTER( 1*BYTE)              :: OPT(6)            ! Option flags for subr EMG (to tell it what to calc)
       CHARACTER(24*BYTE)              :: NAME              ! Name for output error purposes
       CHARACTER(FILE_NAM_MAXLEN*BYTE) :: SCRFIL            ! File name
- 
+
       INTEGER(LONG), PARAMETER        :: DEB_NUM   = 46    ! Debug number for output error message
       INTEGER(LONG)                   :: EDOF(MELDOF)      ! A list of the G-set DOF's for an elem
       INTEGER(LONG)                   :: EDOF_ROW_NUM      ! Row number in array EDOF
-      INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept 
+      INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept
       INTEGER(LONG)                   :: I,J,K             ! DO loop indices
       INTEGER(LONG)                   :: I1                ! Intermediate variable resulting from an IAND operation
       INTEGER(LONG)                   :: IDUM              ! Dummy variable used when flipping DOF's
@@ -83,7 +83,7 @@
       INTEGER(LONG)                   :: MAX_NUM           ! MAX of NTERM_KGG/NDOFG (used for DEBUG printout)
       INTEGER(LONG)                   :: NTERM             ! Either NTERM_KGGD (BUCKLING) or NTERM_KGG otherwise
       INTEGER(LONG)                   :: NUM_COMPS         ! 6 if GRID is a physical grid, 1 if a scalar point
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.   
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to.
       INTEGER(LONG)                   :: PKTERM            ! Count of the terms in TEMPLATE for nonzero stiffness terms
       INTEGER(LONG)                   :: REC_NO            ! Record number when reading a file
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
@@ -94,7 +94,7 @@
 
       REAL(DOUBLE)                    :: DQE(MELDOF,NSUB)  ! Dummy array in call to ELEM_TRANSFORM_LBG
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
- 
+
       INTRINSIC                       :: DABS
       INTRINSIC                       :: IAND
       INTRINSIC                       :: MAX
@@ -106,10 +106,10 @@
       NTERM = 0
 
 ! Make units for writing errors the error file and output file
- 
+
       OUNT(1) = ERR
       OUNT(2) = F06
- 
+
 ! Null dummy array DQE used in call to ELEM_TRANSFORM_LBG
 
       DO I=1,MELDOF
@@ -140,7 +140,7 @@
       OPT(2) = 'N'                                         ! OPT(2) is for calc of PTE
       OPT(3) = 'N'                                         ! OPT(3) is for calc of SEi, STEi
       OPT(5) = 'N'                                         ! OPT(5) is for calc of PPE
- 
+
       IF      ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
          OPT(4) = 'N'                                      ! OPT(4) is for calc of KE-linear
          OPT(6) = 'Y'                                      ! OPT(6) is for calc of KE-nonlinear
@@ -153,15 +153,15 @@
       ENDIF
 
 ! Process the elements:
- 
+
       IS  = 0
       ISS = IS
       IF ((DEBUG(10) == 12) .OR. (DEBUG(10) == 13) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
          CALL DUMPSTF ( '0', 0, 0, 0, 0, 0, 0 )
       ENDIF
- 
+
       IERROR = 0
-!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages         
+!xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages
       CALL COUNTER_INIT('     Calculating stiff matrix. Process elem  ', NELE)
       elems:DO I=1,NELE
 
@@ -206,14 +206,14 @@
          IF ((WRT_BUG(4) == 1) .OR. (WRT_BUG(5) == 1)) THEN
             OPT(3) = 'Y'
          ENDIF
- 
+
          PLY_NUM = 0
          CALL EMG ( I   , OPT, 'Y', SUBR_NAME, 'Y' )       ! 'N' means do not write to BUG file
 
          IF (NUM_EMG_FATAL_ERRS /=0) THEN
             IERROR = IERROR + NUM_EMG_FATAL_ERRS
             CYCLE elems
-         ENDIF 
+         ENDIF
 
          I1 = IAND(OELDT,IBIT(ELDT_F23_KE_BIT))           ! Do we need to write elem stiff matrices to F23 files?
          IF (I1 > 0) THEN
@@ -235,9 +235,9 @@
                TDOF_ROW_NUM       = ROW_NUM_START + K - 1
                EDOF_ROW_NUM       = EDOF_ROW_NUM + 1
                EDOF(EDOF_ROW_NUM) = TDOF(TDOF_ROW_NUM, G_SET_COL_NUM)
-            ENDDO 
-         ENDDO 
- 
+            ENDDO
+         ENDDO
+
 ! Write diagonostics on negative diag stiffness before transformation to global
 
          IF ((DEBUG(189) == 1) .OR. (DEBUG(189) == 3)) THEN
@@ -252,7 +252,7 @@
             ELSE
                CALL ELEM_TRANSFORM_LBG ( 'KE' , KE , DQE )
             ENDIF
-         ENDIF 
+         ENDIF
 
 ! Write diagonostics on negative diag stiffness after  transformation to global
 
@@ -260,8 +260,8 @@
             CALL WRITE_NEG_DIAG_STIFFNESS ( 2 )
          ENDIF
 
-! Put the elem stiff matrix, KE, or KED (now in global coords), into STF array. J ranges over rows, K over cols of elem stiff mat 
- 
+! Put the elem stiff matrix, KE, or KED (now in global coords), into STF array. J ranges over rows, K over cols of elem stiff mat
+
 kgg_rows:DO J = 1,ELDOF
             KGG_ROWJ  = EDOF(J)
             IF ((DEBUG(10) == 12) .OR. (DEBUG(10) == 13) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
@@ -286,7 +286,7 @@ kgg_cols:   DO K = KSTART,ELDOF
                      CYCLE kgg_cols
                   ENDIF
                ENDIF
- 
+
                IF (SPARSTOR == 'SYM') THEN                 ! If 'SYM', Flip KGG_COL,KGG_ROW if KGG_COL < KGG_ROW
                   IF (KGG_COL < KGG_ROW) THEN
                      IDUM    = KGG_ROW
@@ -332,14 +332,14 @@ kgg_cols:   DO K = KSTART,ELDOF
                   IF ((DEBUG(10) == 12) .OR. (DEBUG(10) == 13) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
                      CALL DUMPSTF ( 'A', J, K, KGG_ROW, KGG_COL, IS, ISS )
                   ENDIF
- 
+
                ELSE                                        ! STFKEY(KGG_ROW) /= 0 means there are already some terms in row KGG_ROW
 
 stfpnt0:          DO                                       ! so, run this loop until we find a place to put stiff(J,K). If there is
                                                            ! already a term in this row w/ same DOF's as stiff(J,K), loop runs once.
                                                            ! If not, then this loop runs until it finds STFPNT=0, and inserts term.
- 
-                     IF (KGG_COL == STF3(IS)%Col_1) THEN   ! There is a term that exists with same DOF'S as stiff(J,K) so add terms 
+
+                     IF (KGG_COL == STF3(IS)%Col_1) THEN   ! There is a term that exists with same DOF'S as stiff(J,K) so add terms
 
                         IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
                            STF3(IS)%Col_3 = STF3(IS)%Col_3 + KED(J,K)
@@ -362,12 +362,12 @@ stfpnt0:          DO                                       ! so, run this loop u
                         ENDIF
 
                         CYCLE kgg_cols                     ! We have added a term to STF so exit this loop and go to next col of KGG
- 
+
                      ELSE                                  ! This is a new term for row J. Need to cycle until we find STFPNT = 0.
                                                            ! Then we can put KE(J,K), or KED(J,K) in STF
                         ISS = IS
                         IS  = STF3(IS)%Col_2
-                        IF (IS == 0) THEN                  ! We are at end of where terms are in this row, so stiff(J,K) goes here 
+                        IF (IS == 0) THEN                  ! We are at end of where terms are in this row, so stiff(J,K) goes here
                            IF ((DEBUG(10) == 13) .OR. (DEBUG(10) == 33)) THEN
                               IF (ALLOCATED(TEMPLATE)) THEN
                                  TEMPLATE(KGG_ROW,KGG_COL) = .TRUE.
@@ -398,30 +398,30 @@ stfpnt0:          DO                                       ! so, run this loop u
                               CALL DUMPSTF ( 'C', J, K, KGG_ROW, KGG_COL, IS, ISS )
                            ENDIF
 
-                           CYCLE kgg_cols                  ! We put stiff(J,K) into STF so exit this loop and go to next col of KGG 
+                           CYCLE kgg_cols                  ! We put stiff(J,K) into STF so exit this loop and go to next col of KGG
                         ELSE                               ! STFPNT /= 0 so cycle this loop until we get it = 0
                            CYCLE stfpnt0
                         ENDIF
- 
+
                      ENDIF
 
-                  ENDDO stfpnt0 
- 
-               ENDIF
- 
-            ENDDO kgg_cols 
+                  ENDDO stfpnt0
 
-         ENDDO kgg_rows 
+               ENDIF
+
+            ENDDO kgg_cols
+
+         ENDDO kgg_rows
          CALL COUNTER_PROGRESS(I)
-      ENDDO elems 
+      ENDDO elems
       WRITE(SC1,*) CR13
- 
+
 ! Reset subr EMG option flags:
- 
+
       OPT(3) = 'N'
       OPT(4) = 'N'
       OPT(6) = 'N'
- 
+
 ! Quit if IERROR > 0
 
       IF (IERROR > 0) THEN
@@ -432,7 +432,7 @@ stfpnt0:          DO                                       ! so, run this loop u
 
 ! Print out TEMPLATE which shows where the nonzero values are in the upper triangle of the stiffness matrix
 
-      IF ((DEBUG(10) == 13) .OR. (DEBUG(10) == 33)) THEN 
+      IF ((DEBUG(10) == 13) .OR. (DEBUG(10) == 33)) THEN
 
          IF (ALLOCATED(TEMPLATE)) THEN
 
@@ -442,10 +442,10 @@ stfpnt0:          DO                                       ! so, run this loop u
                   IF (TEMPLATE(I,J)) THEN
                      PKTERM = PKTERM + 1
                   ENDIF
-               ENDDO 
+               ENDDO
             ENDDO
 
-            WRITE(F06,14002) PKTERM 
+            WRITE(F06,14002) PKTERM
             WRITE(F06,*)
             DO I=1,NDOFG
                DO J=1,NDOFG
@@ -457,7 +457,7 @@ stfpnt0:          DO                                       ! so, run this loop u
                   ELSE
                      CROW(J) = '_'
                   ENDIF
-               ENDDO 
+               ENDDO
                WRITE(F06,*) (CROW(J),J=1,NDOFG)
             ENDDO
             WRITE(F06,*)
@@ -471,16 +471,16 @@ stfpnt0:          DO                                       ! so, run this loop u
             ENDIF
 
       ENDIF
-   
-! Deallocate TEMPLATE and CROW arrays  
+
+! Deallocate TEMPLATE and CROW arrays
 
       IF ((ALLOCATED(TEMPLATE)) .OR. (ALLOCATED(CROW))) THEN
          CALL DEALLOCATE_TEMPLATE
-      ENDIF 
+      ENDIF
 
 ! Open a scratch file that will be used to write array STF3 so that we can deallocate them and then reallocate them with the exact
 ! amount of memory they need (so we do have wasted memory going into subr SPARSE_KGG)
-  
+
       SCRFIL(1:)  = ' '
       SCRFIL(1:9) = 'SCRATCH-991'
       OPEN (SCR(1),STATUS='SCRATCH',POSITION='REWIND',FORM='UNFORMATTED',ACTION='READWRITE',IOSTAT=IOCHK)
@@ -523,11 +523,11 @@ stfpnt0:          DO                                       ! so, run this loop u
 
 ! **********************************************************************************************************************************
 ! Debug output:
-  
+
       IF((DEBUG(10) == 11) .OR. (DEBUG(10) == 12) .OR. (DEBUG(10) == 13) .OR.                                                     &
          (DEBUG(10) == 31) .OR. (DEBUG(10) == 32) .OR. (DEBUG(10) == 33)) THEN
          WRITE(F06,1260)
-         MAX_NUM = MAX(NTERM,NDOFG) 
+         MAX_NUM = MAX(NTERM,NDOFG)
          DO I=1,MAX_NUM
             IF      (MAX_NUM == NTERM) THEN
                IF (NDOFG >= I) THEN
@@ -542,16 +542,16 @@ stfpnt0:          DO                                       ! so, run this loop u
                   WRITE(F06,1263) I,STFKEY(I)
                ENDIF
             ENDIF
-         ENDDO 
+         ENDDO
          WRITE(F06,*)
       ENDIF
- 
+
 
 
       RETURN
 
 ! **********************************************************************************************************************************
- 1260 FORMAT(/,'            I   STFKEY(I)   STFCOL(I)   STFPNT(I)           STF(I)')      
+ 1260 FORMAT(/,'            I   STFKEY(I)   STFCOL(I)   STFPNT(I)           STF(I)')
 
  1261 FORMAT(1X,I12,I12,I12,I12,3X,1ES21.14)
 
@@ -583,11 +583,11 @@ stfpnt0:          DO                                       ! so, run this loop u
 88773 format(' In ESP #3: J, K, IS, NTERM_KGG, KGG(diagonal term) = ',4i8,1es15.6)
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE DUMPSTF ( WHAT, J, K, KGG_ROW, KGG_COL, IS, ISS )
@@ -607,8 +607,8 @@ stfpnt0:          DO                                       ! so, run this loop u
       INTEGER(LONG)                   :: ISS               ! A particular value of IS
       INTEGER(LONG)    , INTENT(IN)   :: J                 ! Row number of elem stiff matrix term, KE(J,K), or KED(J,K)
       INTEGER(LONG)    , INTENT(IN)   :: K                 ! Col number of elem stiff matrix term, KE(J,K), or KED(J,K)
-      INTEGER(LONG)    , INTENT(IN)   :: KGG_COL           ! Row number of KGG matrix where KE(J,K), or KED(J,K), goes 
-      INTEGER(LONG)    , INTENT(IN)   :: KGG_ROW           ! Col number of KGG matrix where KE(J,K), or KED(J,K), goes 
+      INTEGER(LONG)    , INTENT(IN)   :: KGG_COL           ! Row number of KGG matrix where KE(J,K), or KED(J,K), goes
+      INTEGER(LONG)    , INTENT(IN)   :: KGG_ROW           ! Col number of KGG matrix where KE(J,K), or KED(J,K), goes
 
 ! **********************************************************************************************************************************
       IF      (WHAT == '0') THEN
@@ -689,7 +689,7 @@ stfpnt0:          DO                                       ! so, run this loop u
             MAX_ABS_DIAG = ZE(II,II)
          ENDIF
          IF (ZE(II,II) < 0.D0) THEN
-            NUM_DIAG_NEGS = NUM_DIAG_NEGS + 1               
+            NUM_DIAG_NEGS = NUM_DIAG_NEGS + 1
          ENDIF
       ENDDO
 

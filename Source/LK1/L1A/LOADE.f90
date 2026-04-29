@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE LOADE
- 
+
       ! LOADE reads in the EXEC CONTROL DECK
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, IN1
@@ -38,11 +38,11 @@
       USE OUTPUT4_MATRICES, ONLY      :  ACT_OU4_MYSTRAN_NAMES, ACT_OU4_OUTPUT_NAMES, ALLOW_OU4_MYSTRAN_NAMES,                     &
                                          ALLOW_OU4_OUTPUT_NAMES, OU4_PART_MAT_NAMES, OU4_PART_VEC_NAMES, NUM_OU4_VALID_NAMES
 
- 
+
       USE LOADE_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'LOADE'
       CHARACTER(LEN=EC_ENTRY_LEN)     :: CARD              ! Exec Control deck card
       CHARACTER(LEN=EC_ENTRY_LEN)     :: CARD1             ! CARD shifted to begin in col 1
@@ -53,7 +53,7 @@
       CHARACTER(LEN=EC_ENTRY_LEN)     :: ERRTOK            ! An error message that may be returned from subr STOKEN
       CHARACTER( 3*BYTE)              :: EXCEPT    = 'OFF' ! An input/output variable for subr STOKEN, called herein
 
-                                                           
+
       CHARACTER( 1*BYTE)              :: PRT_OU4_VALID_NAMES! If 'Y', print valid OUTPUT4 matrix names
 
       CHARACTER( 3*BYTE)              :: THRU      = 'OFF' ! An input/output variable for subr STOKEN, called herein
@@ -63,7 +63,7 @@
                                                            ! Proper SOL number
       CHARACTER( 10*BYTE)             :: SOL_NUM_SHOULD_BE = '1, 3 or 31'
       CHARACTER( 1*BYTE)              :: ANY_OU4_NAME_BAD  ! 'Y'/'N' if requested OUTPUT4 matrix name is valid
- 
+
       INTEGER(LONG)                   :: CHAR_COL          ! Column number on CARD where character CHAR is found
       INTEGER(LONG)                   :: EC_OUTPUT4_ERR = 0! Count of errors when readig OUTPUT4 entries
       INTEGER(LONG)                   :: I                 ! DO loop index
@@ -71,12 +71,12 @@
       INTEGER(LONG)                   :: JERR           = 0! Error indicator.
       INTEGER(LONG)                   :: IERROR            ! An error number returned from subr STOKEN
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when reading a Case Control card from unit IN1
-      INTEGER(LONG)                   :: ISTART            ! An input/output for subr STOKEN (where a token begins in CARD) 
+      INTEGER(LONG)                   :: ISTART            ! An input/output for subr STOKEN (where a token begins in CARD)
       INTEGER(LONG)                   :: NTOKEN            ! An output from subr STOKEN (how many tokens were read)
       INTEGER(LONG)                   :: SOL_INT           ! Integer value read from an Exec Control SOL entry
       INTEGER(LONG)                   :: TOKLEN            ! Length of character string sent to subr STOKEN (= LEN(CARD))
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -97,7 +97,7 @@
       ENDDO
 
 ! Process EXECUTIVE CONTROL DECK
- 
+
       DO
          CALL READ_BDF_LINE(IN1, IOCHK, CARD)
 
@@ -121,7 +121,7 @@
          CALL REPLACE_TABS_W_BLANKS ( CARD )               ! Replace all tab characters with a white space
 
          CALL CSHIFT ( CARD, ' ', CARD1, CHAR_COL, IERR )  ! Shift CARD so it begins in col 1
- 
+
          IF (CARD1(1:1) == '$') THEN
             DO I=IACHAR('A'),IACHAR('Z')
                IF (CARD1(2:2) == ACHAR(I)) THEN
@@ -134,10 +134,10 @@
 
          ELSE IF (CARD1(1: 3) == 'APP'       ) THEN
             CONTINUE
- 
+
          ELSE IF (CARD1(1: 4) == 'CEND'      ) THEN
-            EXIT     
- 
+            EXIT
+
          ELSE IF (CARD1(1: 6) == 'CHKPNT'    ) THEN
             CHKPNT = 'Y'
 
@@ -146,10 +146,10 @@
 
          ELSE IF (CARD1(1: 2) == 'ID'        ) THEN
             CONTINUE
- 
+
          ELSE IF (CARD1(1: 3) == 'IN4'       ) THEN
             CALL EC_IN4FIL ( CARD1 )
- 
+
          ELSE IF (CARD1(1: 7) == 'OUTPUT4'   ) THEN
             CALL EC_OUTPUT4 ( CARD1, JERR, ANY_OU4_NAME_BAD )
             EC_OUTPUT4_ERR = EC_OUTPUT4_ERR + JERR
@@ -160,7 +160,7 @@
          ELSE IF (CARD1(1: 5) == 'PARTN'     ) THEN
             CALL EC_PARTN ( CARD1, JERR )
             EC_OUTPUT4_ERR = EC_OUTPUT4_ERR + JERR
- 
+
          ELSE IF (CARD1(1: 7) == 'RESTART'   ) THEN
             RESTART = 'Y'
 
@@ -224,7 +224,7 @@
                      WRITE(ERR,1017) TOKEN(1)
                      WRITE(F06,1017) TOKEN(1)
                      FATAL_ERR = FATAL_ERR + 1
-                     CYCLE               
+                     CYCLE
                   ENDIF
 
                ELSE IF (TOKTYP(1) == 'INTEGER ') THEN      ! TOKEN(1) is the integer SOL_INT value
@@ -265,7 +265,7 @@
                   CYCLE
                ENDIF
             ENDIF
-           
+
          ELSE IF (CARD1(1: 4) == 'TIME'      ) THEN
             CONTINUE
 
@@ -279,7 +279,7 @@
          ENDIF
 
       ENDDO
-  
+
       IF (DOLLAR_WARN == 'Y') THEN
          WARN_ERR = WARN_ERR + 1
          WRITE(ERR,1101) CARD
@@ -289,7 +289,7 @@
       ENDIF
 
 ! Check to make sure that a SOL card was read in EXEC CONTROL.
- 
+
       IF (SOL_NAME(1:) == ' ') THEN
         WRITE(ERR,1016)
         WRITE(F06,1016)
@@ -326,8 +326,8 @@
 
       if (SOL_NAME == 'NLSTATIC') then
          if (debug(202) == 0) then                         ! Use  non-advertised debug(202) /= 0 to continue testing NLSTATIC
-            Write(err,1103) 
-            Write(f06,1103) 
+            Write(err,1103)
+            Write(f06,1103)
             ec_output4_err = ec_output4_err + 1
          endif
       endif
@@ -385,5 +385,5 @@
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE LOADE

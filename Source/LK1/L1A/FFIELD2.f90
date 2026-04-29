@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE FFIELD2 ( CARD1, CARD2, CARD, IERR )
- 
+
 ! Routine to process large field format BD entries (must be fixed field - free field not allowed for large field format:
 
 ! 1) Input 2 physical 80 col cards (read in LOADB) that form one logical entry
- 
-!    a) Card 1 has 
+
+!    a) Card 1 has
 !         i) BD entry name (CARD1_FLD1))
 !        ii) 4 fields of data (CARD1_FLD2 - CARD1_FLD5))
 !       iii) cont entry (CARD1_FLD6)
@@ -58,7 +58,7 @@
 !    j) field 10: CARD2_FLD6 (cont from field 6 of 2nd half of entry)
 
 ! 5) Left justify fields
-  
+
 ! N O TE : each of the 2 physical entries making up 1 logical large field entry has 80 cols in 6 fields (1st and fields are 8 cols
 !          and 2nd - 6th fields are large field format with 16 cols each)
 
@@ -72,7 +72,7 @@
       USE FFIELD2_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'FFIELD2'
       CHARACTER(LEN=*),  INTENT(IN)   :: CARD1             ! 1st physical entry of the large field entry
       CHARACTER(LEN=*),  INTENT(IN)   :: CARD2             ! 2nd physical entry of the large field entry
@@ -81,11 +81,11 @@
       CHARACTER(LEN=JCARD_LEN)        :: JCARD1(6)         !  6 fields of CARD1. Fields 1,6 are 8 cols. Fields 2,3,4,5 are 16 cols
       CHARACTER(LEN=JCARD_LEN)        :: JCARD2(6)         !  6 fields of CARD2. Fields 1,6 are 8 cols. Fields 2,3,4,5 are 16 cols
       CHARACTER(LEN=JCARD_LEN)        :: TJCARD(10)        ! Temporary JCARD's
- 
+
       INTEGER(LONG)                   :: I,J               ! DO loop indices
       INTEGER(LONG), INTENT(OUT)      :: IERR              ! = 1 if a field  is longer than 8 chars on a free field card
 
- 
+
 
 
 ! **********************************************************************************************************************************
@@ -117,17 +117,17 @@
 ! Put fields of CARD1 and CARD2 into 16 col fields of JCARD1(i=1,6), JCARD2(i=1,6)
 
       JCARD1(1)(1: 8) = CARD1( 1: 8)   ;   JCARD1(1)(9:16) = ' '
-      JCARD1(2)(1:16) = CARD1( 9:24) 
-      JCARD1(3)(1:16) = CARD1(25:40) 
-      JCARD1(4)(1:16) = CARD1(41:56) 
-      JCARD1(5)(1:16) = CARD1(57:72) 
+      JCARD1(2)(1:16) = CARD1( 9:24)
+      JCARD1(3)(1:16) = CARD1(25:40)
+      JCARD1(4)(1:16) = CARD1(41:56)
+      JCARD1(5)(1:16) = CARD1(57:72)
       JCARD1(6)(1: 8) = CARD1(73:80)
 
       JCARD2(1)(1: 8) = CARD2( 1: 8)
-      JCARD2(2)(1:16) = CARD2( 9:24) 
-      JCARD2(3)(1:16) = CARD2(25:40) 
-      JCARD2(4)(1:16) = CARD2(41:56) 
-      JCARD2(5)(1:16) = CARD2(57:72) 
+      JCARD2(2)(1:16) = CARD2( 9:24)
+      JCARD2(3)(1:16) = CARD2(25:40)
+      JCARD2(4)(1:16) = CARD2(41:56)
+      JCARD2(5)(1:16) = CARD2(57:72)
       JCARD2(6)(1: 8) = CARD2(73:80)   ;   JCARD2(6)(9:16) = ' '
 
 ! Make sure that CARD2 is the 2nd half of CARD1 (continuation entry from field 6 of CARD1 must match field 1 of CARD2)
@@ -174,23 +174,23 @@
 
       DO I = 2,9                                        ! Left justify fields
          IF (JCARD(I)(1:) == ' ' .OR. JCARD(I)(1:1) /= ' ') THEN
-            TJCARD(I) = JCARD(I)  
+            TJCARD(I) = JCARD(I)
          ELSE
             DO J=1,JCARD_LEN
                IF (JCARD(I)(J:J) /= ' ') THEN
                   TJCARD(I)(1:) = JCARD(I)(J:)
-                  EXIT  
+                  EXIT
                ENDIF
             ENDDO
-         ENDIF   
-      ENDDO   
+         ENDIF
+      ENDDO
       DO I=2,9
          JCARD(I) = TJCARD(I)
-      ENDDO          
+      ENDDO
 
 ! Put left justified fields into CARD
 
-      CALL MKCARD ( JCARD, CARD ) 
+      CALL MKCARD ( JCARD, CARD )
 
 
 
@@ -205,5 +205,5 @@
                     ,/,14X,' THE LAST FIELD OF THE IST ENTRY = "',A,'" AND THE FIRST FIELD OF THE 2ND ENTRY = "',A,'"')
 
 ! ##################################################################################################################################
- 
+
       END SUBROUTINE FFIELD2

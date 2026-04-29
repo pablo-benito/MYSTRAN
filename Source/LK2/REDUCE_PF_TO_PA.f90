@@ -1,65 +1,65 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE REDUCE_PF_TO_PA ( PART_VEC_F_AO, PART_VEC_SUB )
- 
+
 ! Call routines to reduce the PF grid point load matrix from the F-set to the A, O-sets. See Appendix B to the MYSTRAN User's
 ! Reference Manual for the derivation of the reduction equations.
- 
+
 ! NOTE: This subr has code for sparse matrices as well as full matrices, (i.e. Bulk Data PARAM MATSPARS = 'Y' for sparse and 'N'
 ! for full). The code for full matrices was put in originally in order that the sparse code could be thoroughly checked. That task
 ! is complete and the remaining full matrix code has not been maintained since around 2005. In addition, new capability added to
 ! MYSTRAN since that approx time does not have full matrix code.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, SC1, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, KOO_SDIA, NDOFF, NDOFA, NDOFO, NSUB, NTERM_GOA, NTERM_PF,        &
                                          NTERM_PA, NTERM_PO
       USE TIMDAT, ONLY                :  TSEC
-      USE CONSTANTS_1, ONLY           :  ONE 
+      USE CONSTANTS_1, ONLY           :  ONE
       USE PARAMS, ONLY                :  EPSIL, MATSPARS
-      USE SPARSE_MATRICES, ONLY       :  I_PF, J_PF, PF, I_PA, J_PA, PA, I_PO, J_PO, PO, I_GOA, J_GOA, GOA, I_GOAt, J_GOAt, GOAt 
+      USE SPARSE_MATRICES, ONLY       :  I_PF, J_PF, PF, I_PA, J_PA, PA, I_PO, J_PO, PO, I_GOA, J_GOA, GOA, I_GOAt, J_GOAt, GOAt
       USE SPARSE_MATRICES, ONLY       :  SYM_GOA, SYM_PF, SYM_PA, SYM_PO
       USE FULL_MATRICES, ONLY         :  PA_FULL, PO_FULL, GOA_FULL, DUM1, DUM2
       USE SCRATCH_MATRICES
- 
+
       USE REDUCE_PF_TO_PA_USE_IFs
 
       IMPLICIT NONE
-               
+
       CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'REDUCE_PF_TO_PA'
- 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_F_AO(NDOFF)! Partitioning vector (F set into A and O sets) 
-      INTEGER(LONG), INTENT(IN)       :: PART_VEC_SUB(NSUB)  ! Partitioning vector (1's for all subcases) 
+
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_F_AO(NDOFF)! Partitioning vector (F set into A and O sets)
+      INTEGER(LONG), INTENT(IN)       :: PART_VEC_SUB(NSUB)  ! Partitioning vector (1's for all subcases)
       INTEGER(LONG)                   :: AROW_MAX_TERMS      ! Output from MATMULT_SFS_NTERM and input to MATMULT_SFS
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
       INTEGER(LONG), PARAMETER        :: ITRNSPB     = 0     ! Transpose indicator for matrix multiply routine
-      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1  
-      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2  
+      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1
+      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2
       INTEGER(LONG), PARAMETER        :: NUM1        = 1     ! Used in subr's that partition matrices
       INTEGER(LONG), PARAMETER        :: NUM2        = 2     ! Used in subr's that partition matrices
       INTEGER(LONG)                   :: PA_ROW_MAX_TERMS    ! Output from subr PARTITION_SIZE (max terms in any row of matrix)
@@ -81,7 +81,7 @@
       IF (NDOFA > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'PF' , NTERM_PF , NDOFF, NSUB , SYM_PF , I_PF , J_PF      , PART_VEC_F_AO, PART_VEC_SUB,        &
-                                    NUM1, NUM1, PA_ROW_MAX_TERMS, 'PA', NTERM_PA, SYM_PA ) 
+                                    NUM1, NUM1, PA_ROW_MAX_TERMS, 'PA', NTERM_PA, SYM_PA )
 
          CALL ALLOCATE_SPARSE_MAT ( 'PA', NDOFA, NTERM_PA, SUBR_NAME )
 
@@ -89,7 +89,7 @@
             CALL PARTITION_SS ( 'PF' , NTERM_PF , NDOFF, NSUB , SYM_PF , I_PF , J_PF , PF , PART_VEC_F_AO, PART_VEC_SUB,           &
                                  NUM1, NUM1, PA_ROW_MAX_TERMS, 'PA', NTERM_PA , NDOFA, SYM_PA, I_PA , J_PA , PA  )
          ENDIF
-                            
+
       ENDIF
 
 ! Partition PO from PF
@@ -97,7 +97,7 @@
       IF (NDOFO > 0) THEN
 
          CALL PARTITION_SS_NTERM ( 'PF' , NTERM_PF , NDOFF, NSUB , SYM_PF , I_PF , J_PF ,      PART_VEC_F_AO, PART_VEC_SUB,        &
-                                    NUM2, NUM1, PO_ROW_MAX_TERMS, 'PO', NTERM_PO, SYM_PO ) 
+                                    NUM2, NUM1, PO_ROW_MAX_TERMS, 'PO', NTERM_PO, SYM_PO )
 
          CALL ALLOCATE_SPARSE_MAT ( 'PO', NDOFO, NTERM_PO, SUBR_NAME )
 
@@ -156,10 +156,10 @@
 
             NTERM_PA = NTERM_CRS2                          ! Reallocate KAA to be size of CRS2
             WRITE(SC1, * ) '    Reallocate PA '
-      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages         
-            WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PA ', CR13   
+      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages
+            WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PA ', CR13
             CALL DEALLOCATE_SPARSE_MAT ( 'PA' )
-            WRITE(SC1,12345,ADVANCE='NO') '       Allocate   PA ', CR13   
+            WRITE(SC1,12345,ADVANCE='NO') '       Allocate   PA ', CR13
             CALL ALLOCATE_SPARSE_MAT ( 'PA', NDOFA, NTERM_PA, SUBR_NAME )
                                                            ! Set KAA = CRS1
             DO I=1,NDOFA+1
@@ -168,10 +168,10 @@
             DO J=1,NTERM_PA
                J_PA(J) = J_CRS2(J)
                  PA(J) =   CRS2(J)
-            ENDDO 
+            ENDDO
 
             WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
-      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages         
+      !xx   WRITE(SC1, * )                                 ! Advance 1 line for screen messages
             WRITE(SC1,12345,ADVANCE='NO') '       Deallocate GOAt', CR13
             CALL DEALLOCATE_SPARSE_MAT ( 'GOAt' )
             CALL DEALLOCATE_SCR_MAT ( 'CRS2' )             ! Deallocate CRS2 and GOAt
@@ -186,8 +186,8 @@
             CALL SPARSE_CRS_TO_FULL ( 'PA', NTERM_PA, NDOFA, NSUB, SYM_PA, I_PA, J_PA, PA, PA_FULL )
          ENDIF
 
-         IF (NTERM_PO > 0) THEN                            ! Calc GOA(t)*PO and add to partitioned PA to get reduced PA 
-      
+         IF (NTERM_PO > 0) THEN                            ! Calc GOA(t)*PO and add to partitioned PA to get reduced PA
+
             CALL ALLOCATE_FULL_MAT ( 'PO_FULL', NDOFO, NSUB, SUBR_NAME )
             CALL SPARSE_CRS_TO_FULL ( 'PO', NTERM_PO, NDOFO, NSUB, SYM_PO, I_PO, J_PO, PO, PO_FULL )
 
@@ -213,18 +213,18 @@
             CALL DEALLOCATE_FULL_MAT ( 'DUM1' )
             CALL DEALLOCATE_FULL_MAT ( 'DUM2' )
 
-         ENDIF 
+         ENDIF
 
          CALL CNT_NONZ_IN_FULL_MAT ( 'PA_FULL  ', PA_FULL, NDOFA, NSUB, SYM_PA, NTERM_PA, SMALL )
 
          WRITE(SC1, * ) '    Reallocate PA '
-   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages         
+   !xx   WRITE(SC1, * )                                    ! Advance 1 line for screen messages
          WRITE(SC1,12345,ADVANCE='NO') '       Deallocate PA ', CR13  ;  CALL DEALLOCATE_SPARSE_MAT ( 'PA' )
          WRITE(SC1,12345,ADVANCE='NO') '       Allocate   PA ', CR13  ;  CALL ALLOCATE_SPARSE_MAT ('PA', NDOFA, NTERM_PA, SUBR_NAME)
 
          IF (NTERM_PA > 0) THEN                            ! Create new sparse arrays from PA_FULL
 !xx         CALL FULL_TO_SPARSE_CRS ( 'PA_FULL   ', NDOFA, NSUB , PA_FULL,  NTERM_PA,  SYM_PA,  I_PA,  J_PA,  PA  )
-            CALL DEALLOCATE_FULL_MAT ( 'PA_FULL' )      
+            CALL DEALLOCATE_FULL_MAT ( 'PA_FULL' )
          ENDIF
 
       ELSE
@@ -236,12 +236,12 @@
 
       ENDIF
 
-! If there are applied loads on the O-set, solve for UO0 = KOO(-1) x PO which is part of the final solution for UO 
+! If there are applied loads on the O-set, solve for UO0 = KOO(-1) x PO which is part of the final solution for UO
 
       IF (NTERM_PO > 0) THEN
          CALL SOLVE_UO0
-      ENDIF       
- 
+      ENDIF
+
 
 
       RETURN
@@ -254,6 +254,6 @@
 12345 FORMAT(A,10X,A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE REDUCE_PF_TO_PA
 

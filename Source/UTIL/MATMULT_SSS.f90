@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MATMULT_SSS ( MAT_A_NAME, NROW_A, NTERM_A, SYM_A, I_A, J_A, A,                                                    &
                                MAT_B_NAME, NCOL_B, NTERM_B, SYM_B, J_B, I_B, B, AROW_MAX_TERMS, MAT_C_NAME, CONS,                  &
                                                    NTERM_C,        I_C, J_C, C )
- 
+
 !///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ! Subroutine MATMULT_SSS_NTERM must be run before this subroutine to calculate NTERM_C, an input to this subroutine, that is the
 ! number of nonzero terms in C. Then memory can be allocated to C before this subroutine is called
@@ -82,11 +82,11 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
- 
+
       USE MATMULT_SSS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'MATMULT_SSS'
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_A_NAME            ! Name of matrix A
       CHARACTER(LEN=*), INTENT(IN)    :: MAT_B_NAME            ! Name of matrix B
@@ -122,10 +122,10 @@
       INTEGER(LONG)                   :: NHITS                 ! Number of "hits" of terms in a row of A existing where terms in a
 !                                                                col of B exist when a row of A is multiplied by a col of B
       INTEGER(LONG)                   :: NTERM_AROW            ! Number of nonzero terms in AROW (one row of A)
-      INTEGER(LONG)                   :: A_ROW_COLJ_BEG(NROW_A)! jth term is row number in array A where col j nonzeros begin 
+      INTEGER(LONG)                   :: A_ROW_COLJ_BEG(NROW_A)! jth term is row number in array A where col j nonzeros begin
       INTEGER(LONG)                   :: A_ROW_COLJ_END(NROW_A)! jth term is row number in MATIN where col j nonzeros end
 
-       
+
       REAL(DOUBLE) , INTENT(IN )      :: CONS                  ! Constant multiplier in cons*A*B to get C
       REAL(DOUBLE) , INTENT(IN )      :: A(NTERM_A)            ! Nonzero values in matrix A
       REAL(DOUBLE) , INTENT(IN )      :: B(NTERM_B)            ! Nonzero values in matrix B
@@ -146,7 +146,7 @@
          WRITE(ERR,948) SUBR_NAME, MAT_B_NAME, SYM_B
          WRITE(F06,948) SUBR_NAME, MAT_B_NAME, SYM_B
          CALL OUTA_HERE ( 'Y' )
-      ENDIF 
+      ENDIF
 
 ! Initialize outputs
 
@@ -165,10 +165,10 @@
 ! terms for the A matrix that are not explicitly in A. This is done by getting A terms in the column (above the
 ! diagonal of a row) as well as the explicit terms from A that are there from the diagonal out to the end of the row. The two
 ! arrays: A_ROW_COLJ_BEG and A_ROW_COLJ_END are used to aid in getting the terms in the column above the diagonal.
-! A_ROW_COLJ_BEG is an array that gives, for each col of A, the starting row number of nonzero terms in that column.  
+! A_ROW_COLJ_BEG is an array that gives, for each col of A, the starting row number of nonzero terms in that column.
 ! A_ROW_COLJ_END is an array that gives, for each col of A, the ending   row number of nonzero terms in that column.
 ! The span: A_ROW_COLJ_BEG to A_ROW_COLJ_END is used when we search for terms in the columns.
-! We only need A_ROW_COLJ_BEG and A_ROW_COLJ_END when A is input symmetric and MATOUT is not to be output as symmetric  
+! We only need A_ROW_COLJ_BEG and A_ROW_COLJ_END when A is input symmetric and MATOUT is not to be output as symmetric
 
       IF (SYM_A == 'Y') THEN                              ! The number of cols in A is NROW_A (due to SYM_A = 'Y')
 
@@ -187,18 +187,18 @@
 i_do: DO I=1,NROW_A                                        ! Matrix multiply loop. Range over the rows in A
 
          I_C(I+1) = I_C(I)                                 ! End value in I_C for next this row is initially set at beginning value
-         A_NTERM_ROW_I = I_A(I+1) - I_A(I)                 ! Number of terms in matrix A in row I 
-         IF (A_NTERM_ROW_I == 0) CYCLE i_do 
+         A_NTERM_ROW_I = I_A(I+1) - I_A(I)                 ! Number of terms in matrix A in row I
+         IF (A_NTERM_ROW_I == 0) CYCLE i_do
          A_ROW_END = A_ROW_BEG + A_NTERM_ROW_I - 1         ! A_ROW_BEG to A_ROW_END is range of indices of terms in A for row I of A
          IF ((DEBUG(84) == 2) .OR. (DEBUG(84) == 3)) CALL MATMULT_SSS_DEB ( '2', '   ' )
 
          DO K=1,AROW_MAX_TERMS                             ! Null J_AROW and AROW each time we begin a new row of A
             AROW(K)   = ZERO
             J_AROW(K) = 0
-         ENDDO 
+         ENDDO
                                                            ! Build AROW for one row of matrix A
          NTERM_AROW = 0                                    ! 1st, look for terms that would be in this row, but are not, due to SYM
-         IF (SYM_A == 'Y') THEN                            
+         IF (SYM_A == 'Y') THEN
             DO K=1,A_ROW_BEG-1
                IF (J_A(K) == I) THEN
                   NTERM_AROW         = NTERM_AROW + 1
@@ -235,14 +235,14 @@ l_do:          DO L=B_COL_BEG,B_COL_END
                   IF (A_COL_NUM == B_ROW_NUM) THEN
                      NHITS = NHITS + 1
                      DELTA_KTERM_C = 1
-                     CTEMP = CTEMP + CONS*AROW(K)*B(L)     ! This is the nonzero ij-th term in matrix C. 
+                     CTEMP = CTEMP + CONS*AROW(K)*B(L)     ! This is the nonzero ij-th term in matrix C.
                   ENDIF
                ENDDO l_do
             ENDDO k_do
             B_COL_BEG   = B_COL_END + 1
 
             KTERM_C  = KTERM_C + DELTA_KTERM_C             ! Now update sparse CRS representation of C
-            IF (KTERM_C > NTERM_C) CALL ARRAY_SIZE_ERROR_1( SUBR_NAME, NTERM_C, MAT_C_NAME ) 
+            IF (KTERM_C > NTERM_C) CALL ARRAY_SIZE_ERROR_1( SUBR_NAME, NTERM_C, MAT_C_NAME )
              IF (NHITS > 0) THEN
                I_C(I+1) = I_C(I+1) + 1
                J_C(KTERM_C) = J
@@ -264,7 +264,7 @@ l_do:          DO L=B_COL_BEG,B_COL_END
       IF ((DEBUG(84) == 2) .OR. (DEBUG(84) == 3)) CALL MATMULT_SSS_DEB ( '9', '   ' )
 
 
- 
+
       RETURN
 
 ! **********************************************************************************************************************************

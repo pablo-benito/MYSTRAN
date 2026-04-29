@@ -1,36 +1,36 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE WRITE_ROD ( ISUBCASE, NUM, FILL_F06, ITABLE,           &
                              TITLE, SUBTITLE, LABEL,                    &
                              FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_OP2)
- 
+
 ! Routine for writing output to text files F06 for ROD element stresses. Up to 2 elements written per line of output.
 ! Data is first written to character variables and then that character variable is output the F06.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
@@ -41,7 +41,7 @@
       USE WRITE_ROD_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_ROD'
       INTEGER(LONG), INTENT(IN)       :: ISUBCASE          ! the current subcase
       CHARACTER(LEN=*), INTENT(IN)    :: FILL_F06          ! Padding for output format
@@ -76,11 +76,11 @@
       CHARACTER( 14*BYTE)             :: RSTR22            ! Internal file: torsional stress in 2nd CROD
       CHARACTER( 10*BYTE)             :: RMS22             ! Internal file: M.S. for torsional stress in 2nd CROD
       CHARACTER(  1*BYTE)             :: RMSF22            ! Internal file: MSFLAG for torsional M.S. in 2nd CROD
- 
+
       INTEGER(LONG), INTENT(IN)       :: NUM               ! The number of rows of OGEL to write out
       INTEGER(LONG)                   :: I,J               ! DO loop indices
 
- 
+
       REAL(DOUBLE)                    :: ABS_ANS(4)        ! Max ABS for all grids output for each of the 6 disp components
       REAL(DOUBLE)                    :: MAX_ANS(4)        ! Max for all grids output for each of the 6 disp components
       REAL(DOUBLE)                    :: MIN_ANS(4)        ! Min for all grids output for each of the 6 disp components
@@ -95,7 +95,7 @@
       CALL OUTPUT2_WRITE_OES_ROD(ISUBCASE, ELEM_TYPE, NUM, ITABLE, TITLE, SUBTITLE, LABEL, &
                                  FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_OP2)
       DO I=1,NUM,2
- 
+
          RLINE_F06(1:)  = ' '
 
          REID1(1:)  = ' '
@@ -105,7 +105,7 @@
          RSTR12(1:) = ' '
          RMS12(1:)  = ' '
          RMSF12(1:) = ' '
- 
+
          REID2(1:)  = ' '
          RSTR21(1:) = ' '
          RMS21(1:)  = ' '
@@ -113,16 +113,16 @@
          RSTR22(1:) = ' '
          RMS22(1:)  = ' '
          RMSF22(1:) = ' '
- 
+
          RMS31(1:)  = ' '
          RMS32(1:)  = ' '
          RMS41(1:)  = ' '
          RMS42(1:)  = ' '
 
          WRITE(REID1,2201) EID_OUT_ARRAY(I,1)
- 
+
 ! Write axial stress output to a temporary internal file for one element
- 
+
          WRITE(RSTR11,2202) OGEL(I,1)
          MSFLAG = ' '
          IF (MSPRNT(I,1) /= '0') THEN
@@ -135,7 +135,7 @@
          ENDIF
 
 ! Write torsional stress output to a temporary internal file for one element
- 
+
          WRITE(RSTR12,2202) OGEL(I,3)
          MSFLAG = ' '
          IF (MSPRNT(I,2) /= '0') THEN
@@ -146,13 +146,13 @@
             WRITE(RMS32,2213) OGEL(I,4)
             WRITE(RMSF12,2204) MSFLAG
          ENDIF
- 
+
 ! Write axial stress output to a temporary internal file for another element
- 
+
          IF ((I+1) <= NUM) THEN
- 
+
             WRITE(REID2,2201) EID_OUT_ARRAY(I+1,1)
- 
+
             WRITE(RSTR21,2202) OGEL(I+1,1)
             MSFLAG = ' '
             IF (MSPRNT(I+1,1) /= '0') THEN
@@ -163,9 +163,9 @@
                WRITE(RMS41,2213) OGEL(I+1,2)
                WRITE(RMSF21,2204) MSFLAG
             ENDIF
- 
+
 ! Write torsional stress output to a temporary internal file for another element
- 
+
             WRITE(RSTR22,2202) OGEL(I+1,3)
             MSFLAG = ' '
             IF (MSPRNT(I+1,2) /= '0') THEN
@@ -176,17 +176,17 @@
                WRITE(RMS42,2213) OGEL(I+1,4)
                WRITE(RMSF22,2204) MSFLAG
             ENDIF
- 
+
          ENDIF
- 
+
 ! Write a line of output, consisting of stress output for one or two elements, to the output file
-    
+
          RLINE_F06 = REID1//RSTR11//RMS11//RMSF11//RSTR12//RMS12//RMSF12//REID2//RSTR21//RMS21//RMSF21//RSTR22//RMS22//RMSF22
 
          WRITE(F06,2205) FILL_F06, RLINE_F06
- 
-      ENDDO   
- 
+
+      ENDDO
+
       CALL GET_MAX_MIN_ABS ( 1, 4 )
       WRITE(F06,9104) (MAX_ANS(J),J=1,4),(MIN_ANS(J),J=1,4),(ABS_ANS(J),J=1,4)
 
@@ -214,18 +214,18 @@
              1X,'*for output set')
 
 ! **********************************************************************************************************************************
- 
+
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE GET_MAX_MIN_ABS ( BEG_COL, END_COL )
 
       USE PENTIUM_II_KIND, ONLY       :  LONG
       USE CONSTANTS_1, ONLY           :  ZERO
-      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM  
+      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM
 
       IMPLICIT NONE
 
@@ -237,8 +237,8 @@
 ! Get MAX, MIN, ABS values
 
       DO JJ=1,END_COL-BEG_COL+1
-         MAX_ANS(JJ) = -MACH_LARGE_NUM 
-      ENDDO 
+         MAX_ANS(JJ) = -MACH_LARGE_NUM
+      ENDDO
 
       DO II=1,NUM
          KK = 0
@@ -276,7 +276,7 @@
                                        FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_OP2)
 !     writes the CROD/CTUBE/CONROD stress/strain results.
 !     Data is first written to character variables and then that character variable is output the F06.
-!     
+!
 !     Parameters
 !     ==========
 !     ELEM_TYPE : int
@@ -351,7 +351,7 @@
       !        RE2 = REAL(OGEL(I,2), 4)
       !        RE3 = REAL(OGEL(I,3), 4)
       !        RE4 = REAL(OGEL(I,4), 4)
-      !        
+      !
       !        write the axisl_stress, axial_margin, torsional stress, torsional_margin
       !        WRITE(OP2) RE1, RE2, RE3, RE4
       !    ENDDO

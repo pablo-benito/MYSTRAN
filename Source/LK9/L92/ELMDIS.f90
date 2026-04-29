@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE ELMDIS
- 
+
 ! Get displs for one element, one subcase from list of all displ's (in UG_COL). Transform them to local elem coords.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, INT_SC_NUM, meldof, MELGP, NCORD, NGRID
@@ -39,11 +39,11 @@
       USE COL_VECS, ONLY              :  UG_COL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE MODEL_STUF, ONLY            :  EID, AGRID
- 
+
       USE ELMDIS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'ELMDIS'
 
       INTEGER(LONG)                   :: G_SET_COL         ! Col number in TDOF where the G-set DOF's exist
@@ -60,18 +60,18 @@
       INTEGER(LONG), PARAMETER        :: NCOL      = 1     ! An input to subr MATPUT, MATGET called herein
       INTEGER(LONG)                   :: NUM_COMPS         ! Either 6 or 1 depending on whether grid is a physical grid or a SPOINT
       INTEGER(LONG)                   :: PROW              ! An input to subr MATPUT, MATGET called herein
-      INTEGER(LONG), PARAMETER        :: PCOL      = 1     ! An input to subr MATPUT, MATGET called herein 
+      INTEGER(LONG), PARAMETER        :: PCOL      = 1     ! An input to subr MATPUT, MATGET called herein
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
       INTEGER(LONG)                   :: TDOF_ROW          ! Row no. in array TDOF to find GDOF DOF number
 
- 
+
       REAL(DOUBLE)                    :: DXI               ! An offset distance in direction 1
       REAL(DOUBLE)                    :: DYI               ! An offset distance in direction 2
       REAL(DOUBLE)                    :: DZI               ! An offset distance in direction 3
-      REAL(DOUBLE)                    :: T0G(3,3)          ! Coord transformation matrix - basic to global 
+      REAL(DOUBLE)                    :: T0G(3,3)          ! Coord transformation matrix - basic to global
       REAL(DOUBLE)                    :: DUM1(3),DUM2(3)   ! Dummy arrays needed in transforming from global to basic coords
       REAL(DOUBLE)                    :: THETAD,PHID       ! Returns from subr GEN_T0L (not used here)
- 
+
 
 ! **********************************************************************************************************************************
 ! Initialize
@@ -87,7 +87,7 @@
 ! the internal grid point no's for this elem. These are generated in subroutine ELMDAT called by EMG
 ! called by OFP3 prior to this call. The grid point displ's in global coord's are in array UG_COL created in LINK9.
 ! This elems grid point displ's in global coord's, UGG, are gotten from UG_COL.
- 
+
       I2 = 0
       DO I=1,ELGP
 !        CALL CALC_TDOF_ROW_NUM ( AGRID(I), ROW_NUM_START, 'N' )
@@ -112,7 +112,7 @@
          WRITE(F06,5002) ' UGG FOR G.P. ', AGRID(2), ':       ', (UGG(I),I=7,12)
          WRITE(F06,*)
       ENDIF
-                                                           ! For all but ELAS, USERIN there is a 3 step process to get UEL from UGG 
+                                                           ! For all but ELAS, USERIN there is a 3 step process to get UEL from UGG
       IF ((TYPE(1:4) /= 'ELAS') .AND. (TYPE /= 'USERIN  ')) THEN
 
 !        ---------------------------------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@
             DO J=1,NUM_COMPS
                I2 = I2 + 1
                UEG(I2) = UGG(I2)
-            ENDDO   
+            ENDDO
             IF (CAN_ELEM_TYPE_OFFSET == 'Y') THEN
                IF (TYPE /= 'BUSH    ') THEN                !     BUSH local axes are et the grids, not at the BUSH location
                   IF (OFFSET(I) == 'Y') THEN               !     Elem is offset at this node so transform UGG to UEG
@@ -132,14 +132,14 @@
                      PROW = 6*(I-1) + 1
                      UEG(PROW)   = UGG(PROW)                     + DZI*UGG(PROW+4) - DYI*UGG(PROW+5)
                      UEG(PROW+1) = UGG(PROW+1) - DZI*UGG(PROW+3)                   + DXI*UGG(PROW+5)
-                     UEG(PROW+2) = UGG(PROW+2) + DYI*UGG(PROW+3) - DXI*UGG(PROW+4) 
+                     UEG(PROW+2) = UGG(PROW+2) + DYI*UGG(PROW+3) - DXI*UGG(PROW+4)
                      UEG(PROW+3) = UGG(PROW+3)
                      UEG(PROW+4) = UGG(PROW+4)
                      UEG(PROW+5) = UGG(PROW+5)
                   ENDIF
                ENDIF
             ENDIF
-         ENDDO 
+         ENDDO
 
          IF (DEBUG(56) > 0) THEN
             WRITE(F06,5102)
@@ -158,21 +158,21 @@
                      ICORD = J                             !     ICORD is the internal coord. sys. ID corresponding to GLOBAL_CID
                      EXIT
                   ENDIF
-               ENDDO   
+               ENDDO
                CALL GEN_T0L ( BGRID(I), ICORD, THETAD, PHID, T0G )
                DO J=1,2
                   PROW = 6*(I-1) + 1 + 3*(J-1)
                   CALL MATGET ( UEG,  6*MELGP, 1, PROW, PCOL, NROW, NCOL, DUM1 )
                   CALL MATMULT_FFF ( T0G, DUM1, NROWA, NCOLA, NCOLB, DUM2 )
                   CALL MATPUT ( DUM2, 6*MELGP, 1, PROW, PCOL, NROW, NCOL, UEB )
-               ENDDO   
+               ENDDO
                I2 = I2 + NUM_COMPS
             ELSE                                           ! If global is basic, get UEB terms directly from UEG
                CALL GET_GRID_NUM_COMPS ( BGRID(I), NUM_COMPS, SUBR_NAME )
                DO J=1,NUM_COMPS
                   I2 = I2 + 1
                   UEB(I2) = UEG(I2)
-               ENDDO   
+               ENDDO
             ENDIF
          ENDDO
 
@@ -182,14 +182,14 @@
             WRITE(F06,5002) ' UEB for G.P. ', AGRID(2), ':       ', (UEB(I),I=7,12)
             WRITE(F06,*)
          ENDIF
- 
+
 !        ---------------------------------------------------------------------------------------------------------------------------
          DO I=1,2*ELGP                                     ! (3) Transform from basic (UEB) to local (UEL) elem coords at elem nodes
             I1 = 3*I - 2
             UEL(I1)   = TE(1,1)*UEB(I1)+ TE(1,2)*UEB(I1+1)+ TE(1,3)*UEB(I1+2)
             UEL(I1+1) = TE(2,1)*UEB(I1)+ TE(2,2)*UEB(I1+1)+ TE(2,3)*UEB(I1+2)
             UEL(I1+2) = TE(3,1)*UEB(I1)+ TE(3,2)*UEB(I1+1)+ TE(3,3)*UEB(I1+2)
-         ENDDO   
+         ENDDO
 
          IF (DEBUG(56) > 0) THEN
             WRITE(F06,5104)
@@ -226,18 +226,18 @@
  5002 FORMAT(A,I3,A,12ES14.6)
 
  5101 FORMAT(' Displacements at grids in global coords',/,' ---------------------------------------')
- 
+
  5102 FORMAT(' Displacements at elem nodes in global coords',/,' --------------------------------------------')
 
  5103 FORMAT(' Displacements at elem nodes in basic coords',/,' -------------------------------------------')
- 
+
  5104 FORMAT(' Displacements at elem nodes in local elem coords',/,' ------------------------------------------------')
 
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE DEBUG_ELMDIS

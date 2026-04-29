@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE BD_MAT1 ( CARD, LARGE_FLD_INP )
 
@@ -49,7 +49,7 @@
       CHARACTER(LEN(JCARD))           :: JCARD_E           ! The field that contains E (Young's modulus)
       CHARACTER(LEN(JCARD))           :: JCARD_G           ! The field that contains G (shear modulus)
       CHARACTER(LEN(JCARD))           :: JCARD_NU          ! The field that contains NU (Poisson's ratio)
- 
+
       INTEGER(LONG)                   :: ICONT     = 0     ! Indicator of whether a cont card exists. Output from subr NEXTC
       INTEGER(LONG)                   :: IERR      = 0     ! Error indicator returned from subr NEXTC called herein
       INTEGER(LONG)                   :: J                 ! DO loop index
@@ -104,7 +104,7 @@
                WRITE(F06,1145) JCARD(1),MATL_ID
                EXIT
             ENDIF
-         ENDDO 
+         ENDDO
          MATL(NMATL,1) = MATL_ID
          MATL(NMATL,2) = 1                                 ! Type is 1 for MAT1 card
       ENDIF
@@ -132,7 +132,7 @@
 
       DO J=8,MRMATLC                                       ! Null optional data on 2nd, 3rd cards:
          RMATL(NMATL,J) = ZERO
-      ENDDO   
+      ENDDO
 
 ! Optional second card:
 
@@ -169,9 +169,9 @@
 ! **********************************************************************************************************************************
 
 ! ##################################################################################################################################
- 
+
       CONTAINS
- 
+
 ! ##################################################################################################################################
 
       SUBROUTINE MAT1_VALUE_CHECK
@@ -188,7 +188,7 @@
          IF ((RMATL(NMATL,3) < ZERO) .OR. (RMATL(NMATL,3) > HALF)) THEN
             MAT1_WERR(1) = 1
          ENDIF
-      ENDIF   
+      ENDIF
 
 ! If E, G, NU fields are all input, make sure 1-|E/(2*(1+NU)*G)| is greater than .01
 
@@ -230,10 +230,10 @@
 
          IF (JCARD_G(1:) /= ' ') THEN                                        !        G was input
             IF (JCARD_NU(1:) /= ' ') THEN                                    !               NU was input. Calc E
-               RMATL(NMATL,1) = TWO*RMATL(NMATL,2)*(ONE + RMATL(NMATL,3)) 
+               RMATL(NMATL,1) = TWO*RMATL(NMATL,2)*(ONE + RMATL(NMATL,3))
                WRITE(ERR,1385) MATL(NMATL,1),RMATL(NMATL,1)
                WRITE(F06,1385) MATL(NMATL,1),RMATL(NMATL,1)
-            ELSE                                                             !               NU was not input. Set E, NU = 0 
+            ELSE                                                             !               NU was not input. Set E, NU = 0
                RMATL(NMATL,1) = ZERO
                RMATL(NMATL,3) = ZERO
                WRITE(ERR,1386) MATL(NMATL,1),RMATL(NMATL,1),RMATL(NMATL,3)
@@ -241,8 +241,8 @@
             ENDIF
          ELSE                                                                !        G was not input (error: E or G must be input)
             FATAL_ERR = FATAL_ERR + 1
-            WRITE(ERR,1119) MATL(NMATL,1) 
-            WRITE(F06,1119) MATL(NMATL,1) 
+            WRITE(ERR,1119) MATL(NMATL,1)
+            WRITE(F06,1119) MATL(NMATL,1)
          ENDIF
 
       ENDIF

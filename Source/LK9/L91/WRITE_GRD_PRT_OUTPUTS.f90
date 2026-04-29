@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE WRITE_GRD_PRT_OUTPUTS ( JVEC, NUM, WHAT, IHDR, ALL_SAME_CID, WRITE_OGEL )
- 
+
 ! Writes printed output for grid point related quantities (accels, displacements, eigenvectors, applied loads and SPC, MPC forces)
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, PCH
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, INT_SC_NUM, MELGP, MOGEL, NDOFR, NVEC, NUM_CB_DOFS,              &
@@ -38,12 +38,12 @@
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE LINK9_STUFF, ONLY           :  GID_OUT_ARRAY, MAXREQ, OGEL
       USE MODEL_STUF, ONLY            :  LABEL, SCNUM, SUBLOD, STITLE, TITLE
-      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM  
-  
+      USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM
+
       USE WRITE_GRD_PRT_OUTPUTS_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_GRD_PRT_OUTPUTS'
       CHARACTER(LEN=*) , INTENT(IN)   :: IHDR              ! Indicator of whether to write an output header in this use of this subr
       CHARACTER(LEN=*) , INTENT(IN)   :: WHAT              ! Indicator whether to process displ or force output requests
@@ -57,7 +57,7 @@
       CHARACTER(14*BYTE)              :: MAX_ANS_CHAR(6)   ! Character variable that contains the 6 grid max  outputs
       CHARACTER(14*BYTE)              :: MIN_ANS_CHAR(6)   ! Character variable that contains the 6 grid min  outputs
       CHARACTER(14*BYTE)              :: TOTALS_CHAR(6)    ! Character variable that contains the 6 grid tot  outputs
- 
+
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Sol'n vector num. Can be internal subcase number or eigenvector number
       INTEGER(LONG), INTENT(IN)       :: NUM               ! The number of rows of OGEL to write out
       INTEGER(LONG)                   :: BDY_COMP          ! Component (1-6) for a boundary DOF in CB analyses
@@ -114,7 +114,7 @@
 
          ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN   ! Write info on what CB DOF the output is for
 
-            IF ((JVEC <= NDOFR) .OR. (JVEC >= NDOFR+NVEC)) THEN 
+            IF ((JVEC <= NDOFR) .OR. (JVEC >= NDOFR+NVEC)) THEN
                IF (JVEC <= NDOFR) THEN
                   BDY_DOF_NUM = JVEC
                ELSE
@@ -145,7 +145,7 @@
          ENDIF
 
          WRITE(F06,*)
- 
+
          IF (WHAT == 'ACCE') THEN
             IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
                WRITE(F06,9314)
@@ -185,15 +185,15 @@
             ENDIF
          ENDIF
          WRITE(F06,9501)
-        
+
 
       ENDIF
- 
+
 ! Get MAX, MIN, ABS values
 
       DO J=1,6
-         MAX_ANS(J) = -MACH_LARGE_NUM 
-      ENDDO 
+         MAX_ANS(J) = -MACH_LARGE_NUM
+      ENDDO
 
       DO I=1,NUM
          DO J=1,6
@@ -243,11 +243,11 @@
 
 ! Write accels, displ's, applied forces or SPC forces (also calc TOTALS for forces if that is being output)
 ! TOTALS(J) is summation of G.P. values of applied forces, SPC forces, or MFC forces, for each of the J=1,6 components.
-  
+
       DO J=1,6
          TOTALS(J) = ZERO
-      ENDDO   
- 
+      ENDDO
+
       LINES_WRITTEN = 0
       DO I=1,NUM
 
@@ -259,7 +259,7 @@
                ELSE
                   WRITE(TOTALS_CHAR(J),'(1ES14.6)') TOTALS(J)
                ENDIF
-            ENDDO   
+            ENDDO
          ENDIF
 
          IF (WRITE_OGEL(I) == 'Y') THEN
@@ -279,7 +279,7 @@
          ENDIF
 
       ENDDO
- 
+
       IF (LINES_WRITTEN > 2) THEN
          WRITE(F06,9601) (MAX_ANS_CHAR(J),J=1,6), (MIN_ANS_CHAR(J),J=1,6), (ABS_ANS_CHAR(J),J=1,6)
       ENDIF
@@ -289,7 +289,7 @@
       ELSE
          PRINT_TOTALS = 'Y'
       ENDIF
- 
+
       IF (LINES_WRITTEN > 1) THEN
          IF (PRINT_TOTALS == 'Y') THEN
             IF (WHAT == 'OLOAD') THEN
@@ -387,5 +387,5 @@
  9902 FORMAT(6X,2(1X,I8),6A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE WRITE_GRD_PRT_OUTPUTS

@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE WRITE_USERIN_BD_CARDS ( NROWS, X_SET )
 
 ! Write out B.D. CUSERIN card images, created in MYSTRAN for use in INPUT4 for a substructure, if user has requested it via Bulk
-! Data PARAM CUSERIN, 
+! Data PARAM CUSERIN,
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
       USE IOUNT1, ONLY                :  ERR, F06, F06FIL, MOU4, OU4, OU4FIL
@@ -36,7 +36,7 @@
       USE DOF_TABLES, ONLY            :  TDOFI
       USE PARAMS, ONLY                :  CUSERIN_EID, CUSERIN_IN4, CUSERIN_PID, CUSERIN_SPNT_ID, CUSERIN_XSET,                     &
                                          CUSERIN_COMPTYP, SUPWARN
-      USE MODEL_STUF, ONLY            :  CORD, RCORD, GRID_ID, GRID, RGRID 
+      USE MODEL_STUF, ONLY            :  CORD, RCORD, GRID_ID, GRID, RGRID
       USE OUTPUT4_MATRICES, ONLY      :  ACT_OU4_OUTPUT_NAMES, NUM_OU4_REQUESTS, OU4_FILE_UNITS
       USE WRITE_USERIN_BD_CARDS_USE_IFs
 
@@ -147,7 +147,7 @@
             DO J=1,6
                USERIN_COMPS(I)(J:J) = COMPS(J)
             ENDDO
-         ENDIF   
+         ENDIF
 
       ENDDO
 
@@ -176,7 +176,7 @@
             IF (CORD_FND == 'N') THEN
                WARN_ERR = WARN_ERR + 1
                WRITE(ERR,9988) USERIN_CORDS(I,1), SUBR_NAME
-               IF (SUPWARN == 'N') THEN 
+               IF (SUPWARN == 'N') THEN
                   WRITE(F06,9988) USERIN_CORDS(I,1), SUBR_NAME
                ENDIF
             ENDIF
@@ -242,15 +242,15 @@
             WRITE(ICARD(FIRST,J+3),204) RCORD(ICORD,J)        ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,J+3) )
          ENDDO
 
-         WRITE(ICARD(FIRST,7),204) RCORD(ICORD, 6)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,7) )   
-         WRITE(ICARD(FIRST,8),204) RCORD(ICORD, 9)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,8) )   
-         WRITE(ICARD(FIRST,9),204) RCORD(ICORD,12)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,9) )   
+         WRITE(ICARD(FIRST,7),204) RCORD(ICORD, 6)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,7) )
+         WRITE(ICARD(FIRST,8),204) RCORD(ICORD, 9)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,8) )
+         WRITE(ICARD(FIRST,9),204) RCORD(ICORD,12)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,9) )
 
          WRITE(F06,206) (ICARD(FIRST,J),J=2,9)
 
-         WRITE(ICARD(FIRST,2),204) RCORD(ICORD, 4)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,2) )   
-         WRITE(ICARD(FIRST,3),204) RCORD(ICORD, 7)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,3) )   
-         WRITE(ICARD(FIRST,4),204) RCORD(ICORD,10)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,4) )   
+         WRITE(ICARD(FIRST,2),204) RCORD(ICORD, 4)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,2) )
+         WRITE(ICARD(FIRST,3),204) RCORD(ICORD, 7)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,3) )
+         WRITE(ICARD(FIRST,4),204) RCORD(ICORD,10)            ;   CALL LEFT_ADJ_BDFLD ( ICARD(FIRST,4) )
 
          WRITE(F06,207) (ICARD(FIRST,J),J=2,4)
 
@@ -270,13 +270,13 @@
             ENDDO
 
             DO J=1,3
-               WRITE(ICARD(I,J+6),204) RCORD(ICORD,J+9)    ;   CALL LEFT_ADJ_BDFLD ( ICARD(I,J+6) )   
+               WRITE(ICARD(I,J+6),204) RCORD(ICORD,J+9)    ;   CALL LEFT_ADJ_BDFLD ( ICARD(I,J+6) )
             ENDDO
 
             WRITE(F06,206) (ICARD(I,J),J=2,9)
 
             DO J=1,3
-               WRITE(ICARD(I,J+1),204) RCORD(ICORD,J+3)    ;   CALL LEFT_ADJ_BDFLD ( ICARD(I,J+3) )   
+               WRITE(ICARD(I,J+1),204) RCORD(ICORD,J+3)    ;   CALL LEFT_ADJ_BDFLD ( ICARD(I,J+3) )
             ENDDO
 
             WRITE(F06,207) (ICARD(I,J),J=2,4)
@@ -302,7 +302,7 @@
       WRITE(ICARD(5,1),201) NVEC                           ;   CALL LEFT_ADJ_BDFLD ( ICARD(5,1) )
       WRITE(ICARD(6,1),203) CORD_MSG
       WRITE(F06,202) (ICARD(I,1),I=2,6)
-                   
+
       DO I=1,NUM_USERIN_GRIDS                              ! Write CUSERIN cont cards for grids to internal file (ICARD)
          WRITE(ICARD(I,1),201) USERIN_GRIDS(I)             ;   CALL LEFT_ADJ_BDFLD ( ICARD(I,1) )
          WRITE(ICARD(I,2),203) USERIN_COMPS(I)             ;   CALL LEFT_ADJ_BDFLD ( ICARD(I,2) )
@@ -316,14 +316,14 @@
                            ICARD(I+2,1), ICARD(I+2,2), ICARD(I+3,1), ICARD(I+3,2)
             NUM_LEFT = NUM_LEFT - 4
 
-         ELSE IF (NUM_LEFT == 3) THEN 
+         ELSE IF (NUM_LEFT == 3) THEN
             WRITE(F06,223) ICARD(I,1)  , ICARD(I,2)  , ICARD(I+1,1), ICARD(I+1,2),                                                 &
                            ICARD(I+2,1), ICARD(I+2,2)
 
-         ELSE IF (NUM_LEFT == 2) THEN 
+         ELSE IF (NUM_LEFT == 2) THEN
             WRITE(F06,222) ICARD(I,1)  , ICARD(I,2)  , ICARD(I+1,1), ICARD(I+1,2)
 
-         ELSE IF (NUM_LEFT == 1) THEN 
+         ELSE IF (NUM_LEFT == 1) THEN
             WRITE(F06,222) ICARD(I,1)  , ICARD(I,2)
 
          ENDIF
@@ -407,7 +407,7 @@
              '$ written to binary files via Exec Control OUTPUT4 statement(s) in this run'   ,//,                                  &
              '$ Finally, make sure that the real numbers above have enough decimal places to',/,                                   &
              '$ accurately represent the quantities. Otherwise replace them before using them')
-             
+
 
  9988 FORMAT(' *WARNING    : CANNOT FIND COORD SYSTEM ',I8,' IN SUBR ',A)
 

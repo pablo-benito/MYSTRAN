@@ -1,33 +1,33 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
-  
+
+! End MIT license text.
+
       SUBROUTINE ORDER_GAUSS ( KORDER, SSS, HHH )
- 
+
 ! Calculates abscissa and weight coefficients for Gaussian integration of order KORDER = 1 to 10.
- 
+
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MAX_ORDER_GAUSS, MEFE
@@ -35,7 +35,7 @@
       USE CONSTANTS_1, ONLY           :  ZERO, TWO
       USE CONSTANTS_GAUSS, ONLY       :  HHV, SSV
       USE MODEL_STUF, ONLY            :  EMG_IFE, ERR_SUB_NAM, NUM_EMG_FATAL_ERRS
-  
+
       USE ORDER_GAUSS_USE_IFs
 
       IMPLICIT NONE
@@ -52,12 +52,12 @@
       INTEGER(LONG)                   :: NN                   ! A term in a computed index into SSS, HHH arrays
       INTEGER(LONG)                   :: IBEGIN(11) = (/0, 1, 2, 4, 6, 9,12,16,20,25,30/)
 
-  
+
       REAL(DOUBLE) ,INTENT(OUT)       :: SSS(MAX_ORDER_GAUSS) ! Gauss abscissa's
       REAL(DOUBLE) ,INTENT(OUT)       :: HHH(MAX_ORDER_GAUSS) ! Gauss weight coeffs
-  
+
       INTRINSIC MOD
-  
+
 
 
 ! **********************************************************************************************************************************
@@ -73,7 +73,7 @@
       IF ((KORDER >= 1) .AND. (KORDER <= MAX_ORDER_GAUSS)) THEN
 
 ! Abscissa and weight coefficients for Gaussian integ. of order KORDER
-  
+
          IF (KORDER == 1) THEN
             SSS(1) = ZERO
             HHH(1) = TWO
@@ -97,9 +97,9 @@
                HHH(KK) =  HHV(LL)
              ENDDO
          ENDIF
- 
+
       ELSE
-  
+
          NUM_EMG_FATAL_ERRS = NUM_EMG_FATAL_ERRS + 1
          FATAL_ERR = FATAL_ERR + 1
          IF (WRT_ERR > 0) THEN
@@ -113,7 +113,7 @@
             ENDIF
          ENDIF
          CALL OUTA_HERE ( 'Y' )                            ! Coding error, so quit
- 
+
       ENDIF
 
 
@@ -125,5 +125,5 @@
 
 
 ! **********************************************************************************************************************************
-  
+
       END SUBROUTINE ORDER_GAUSS

@@ -1,35 +1,35 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE CALC_MRRcb
- 
+
 ! Calculates the R-set row and col matrix MRRcb in the CB transformation matrix:
 
 !            MRRcb = MRR + MRL*DLR + (MRL*DLR)' + DLR'*MLL*DLR
- 
+
 ! For a description of Craig-Bamptom analyses, see Appendix D to the MYSTRAN User's Referance Manual
 
 
@@ -53,7 +53,7 @@
       USE CALC_MRRcb_USE_IFs
 
       IMPLICIT NONE
- 
+
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CALC_MRRcb'
       CHARACTER(  1*BYTE)             :: SYM_CRS1            ! Storage format for matrix CRS1 (either 'Y' for sym storage or
 !                                                              'N' for nonsymmetric storage)
@@ -62,10 +62,10 @@
 
       INTEGER(LONG)                   :: AROW_MAX_TERMS      ! Output from MATMULT_SFS_NTERM and input to MATMULT_SFS
       INTEGER(LONG)                   :: I,J                 ! DO loop indices
-      INTEGER(LONG)                   :: NTERM_CCS1          ! Number of terms in matrix CCS1  
-      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1  
-      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2  
-      INTEGER(LONG)                   :: NTERM_CRS3          ! Number of terms in matrix CRS3  
+      INTEGER(LONG)                   :: NTERM_CCS1          ! Number of terms in matrix CCS1
+      INTEGER(LONG)                   :: NTERM_CRS1          ! Number of terms in matrix CRS1
+      INTEGER(LONG)                   :: NTERM_CRS2          ! Number of terms in matrix CRS2
+      INTEGER(LONG)                   :: NTERM_CRS3          ! Number of terms in matrix CRS3
       INTEGER(LONG)                   :: NUM_MRRcb_DIAG_0    ! Number of zero diagonal terms in MRRcb
 
 
@@ -87,7 +87,7 @@
       DO J=1,NTERM_MRRcb
          J_MRRcb(J) = J_MRR(J)
            MRRcb(J) =   MRR(J)
-      ENDDO 
+      ENDDO
                                                            ! CCS1 will be sparse CCS format version of sparse CRS matrix DLR
       CALL ALLOCATE_SCR_CCS_MAT ( 'CCS1', NDOFR, NTERM_DLR, SUBR_NAME )
       CALL SPARSE_CRS_SPARSE_CCS ( NDOFL, NDOFR, NTERM_DLR, 'DLR', I_DLR, J_DLR, DLR, 'CCS1', J_CCS1, I_CCS1, CCS1, 'Y' )
@@ -121,7 +121,7 @@
          CALL DEALLOCATE_SCR_MAT ( 'CRS2' )
 
                                                            ! I-6 , CRS3 = (MRL*DLR) + (MRL*DLR)t has all nonzero terms in it.
-         IF      (SPARSTOR == 'SYM   ') THEN               !       If SPARSTOR == 'SYM   ', rewrite CRS3 as sym in CRS1     
+         IF      (SPARSTOR == 'SYM   ') THEN               !       If SPARSTOR == 'SYM   ', rewrite CRS3 as sym in CRS1
 
             CALL SPARSE_CRS_TERM_COUNT ( NDOFR, NTERM_CRS3, '(MRL*DLR) + (MRL*DLR)t', I_CRS3, J_CRS3, NTERM_CRS1 )
             CALL ALLOCATE_SCR_CRS_MAT ( 'CRS1', NDOFR, NTERM_CRS1, SUBR_NAME )
@@ -150,7 +150,7 @@
             CALL OUTA_HERE ( 'Y' )
 
          ENDIF
-                                          
+
          CALL DEALLOCATE_SCR_MAT ( 'CRS3' )                ! 1-7 , Now CRS1 = (MRL*DLR) + (MRL*DLR)t so deallocate CRS3
                                                            ! I-8 , sparse add: CRS3 = MRR + CRS1 = MRR + (MRL*DLR) + (MRL*DLR)t
          CALL MATADD_SSS_NTERM ( NDOFR, 'MRR', NTERM_MRR, I_MRR, J_MRR, SYM_MRR, 'MRL*DLR + (MRL*DLR)t', NTERM_CRS1,               &
@@ -163,16 +163,16 @@
 
          NTERM_MRRcb = NTERM_CRS3                          ! I-10, allocate MRRcb to be size of CRS1
 
-         CALL DEALLOCATE_SPARSE_MAT ( 'MRRcb' )            ! Reset MRRcb to CRS3 = 
+         CALL DEALLOCATE_SPARSE_MAT ( 'MRRcb' )            ! Reset MRRcb to CRS3 =
          CALL ALLOCATE_SPARSE_MAT ( 'MRRcb', NDOFR, NTERM_MRRcb, SUBR_NAME )
                                                            ! I-11, set MRRcb = CRS3 = MRR + (MRL*DLR) + (MRL*DLR)t
-         DO I=1,NDOFR+1 
+         DO I=1,NDOFR+1
             I_MRRcb(I) = I_CRS3(I)
          ENDDO
          DO J=1,NTERM_MRRcb
             J_MRRcb(J) = J_CRS3(J)
               MRRcb(J) =   CRS3(J)
-         ENDDO 
+         ENDDO
 
          CALL DEALLOCATE_SCR_MAT ( 'CRS3' )                ! I-12, deallocate CRS3
 
@@ -214,7 +214,7 @@
          CALL DEALLOCATE_SCR_MAT ( 'CCS1' )                ! II-6 , deallocate CCS1
 
                                                            ! II-7 , CRS1 = DLRt*MLL*DLR has all nonzero terms in it.
-         IF      (SPARSTOR == 'SYM   ') THEN               !        If SPARSTOR == 'SYM   ', rewrite CRS1 as sym in CRS3     
+         IF      (SPARSTOR == 'SYM   ') THEN               !        If SPARSTOR == 'SYM   ', rewrite CRS1 as sym in CRS3
 
             CALL SPARSE_CRS_TERM_COUNT ( NDOFR, NTERM_CRS1, 'DLRt*MLL*DLR all nonzeros', I_CRS1, J_CRS1, NTERM_CRS3 )
             CALL ALLOCATE_SCR_CRS_MAT ( 'CRS3', NDOFR, NTERM_CRS3, SUBR_NAME )
@@ -317,5 +317,5 @@
                     ,/,14X,' PARAMETER SPARSTOR MUST BE EITHER "SYM" OR "NONSYM" BUT VALUE IS ',A)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE CALC_MRRcb

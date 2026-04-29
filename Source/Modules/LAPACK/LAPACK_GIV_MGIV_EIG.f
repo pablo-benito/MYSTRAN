@@ -3,7 +3,7 @@
       MODULE LAPACK_GIV_MGIV_EIG
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  ERR, F06, SC1 
+      USE IOUNT1, ONLY                :  ERR, F06, SC1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, LINKNO
       USE TIMDAT, ONLY                :  TSEC
       USE LAPACK_BLAS_AUX
@@ -12,7 +12,7 @@
       USE OURTIM_Interface
       USE OUTA_HERE_Interface
       USE LINK_MESSAGE_Interface
-      
+
       character(1*byte), parameter      :: cr13_lge = char(13)
 
 ! This is a set of LAPACK routines for solving for all, or some, eigenvalues and, possibly, some eigenvectors of:
@@ -322,7 +322,7 @@
 *
       if (method(1:3) == 'GIV') then
          if (sol_name(1:8) == 'BUCKLING') then
-            CALL LINK_MESSAGE(                                       
+            CALL LINK_MESSAGE(
      $       '  CHOLESKY FACTORIZATION OF DIFFER STIFF MATRIX')
          else
             CALL LINK_MESSAGE(
@@ -358,8 +358,8 @@
      $             WORK( INDE ), Q, LDQ, WORK( INDWRK ), IINFO )
 *
 *     If all eigenvalues are desired and ABSTOL is less than or equal
-*     to zero, then call: 
-!        DSTERF (eigenvalues only) or 
+*     to zero, then call:
+!        DSTERF (eigenvalues only) or
 !        DSTEQR (eigenvalues and eigenvectors).
 !     If this fails for some eigenvalue, then try DSTEBZ.
 *
@@ -434,7 +434,7 @@
      $             WORK( INDD ), WORK( INDE ), mlam, NSPLIT, W,
      $             IWORK( INDIBL ), IWORK( INDISP ), WORK( INDWRK ),
      $             IWORK( INDIWO ), INFO,
-     &             lowest_mode_num, highest_mode_num ) 
+     &             lowest_mode_num, highest_mode_num )
 
 ! /////////////////////////////////////////////////////////////////////B
       if (info > 0) then                 ! Call routine to print message
@@ -552,8 +552,8 @@
 
 99021 format(15x,'BISECTION FAILED TO CONVERGE FOR SOME EIGENVALUES; THE
      &SE EIGENVALUES ARE FLAGGED BY A NEGATIVE BLOCK NUMBER.',/,15X,
-     &'THE EFFECT IS THAT THE EIGENVALUES MAY NOT BE AS ACCURATE AS THE 
-     &ABSOLUTE AND RELATIVE TOLERANCES.',/,15X, 
+     &'THE EFFECT IS THAT THE EIGENVALUES MAY NOT BE AS ACCURATE AS THE
+     &ABSOLUTE AND RELATIVE TOLERANCES.',/,15X,
      &'THIS IS GENERALLY CAUSED BY UNEXPECTEDLY INACCURATE ARITHMETIC.'
      &,/)
 
@@ -564,10 +564,10 @@
      &'CURE : RECALCULATE, REQUESTING ALL EIGENVALUES',/)
 
   803 format(' *ERROR   803: PROGRAMMING ERROR IN SUBROUTINE DSTEBZ.'
-     &,/,15X,'NO EIGENVALUES WERE COMPUTED BY LAPACK SUBROUTINE DSTEBZ. 
+     &,/,15X,'NO EIGENVALUES WERE COMPUTED BY LAPACK SUBROUTINE DSTEBZ.
      &THE GERSHGORIN INTERVAL INITIALLY USED WAS TOO SMALL.',/,15X,
      &'PROBABLE CAUSE: YOUR MACHINE HAS SLOPPY FLOATING-POINT ARITHMETIC
-     &',/,15X,'CURE          : INCREASE THE PARAMETER "FUDGE" IN LAPACK 
+     &',/,15X,'CURE          : INCREASE THE PARAMETER "FUDGE" IN LAPACK
      &SUBROUTINE DSTEBZ, RECOMPILE, AND TRY AGAIN',/)
 
       END SUBROUTINE EIGENVALUE_CONVERGENCE_FAILURE
@@ -1644,7 +1644,7 @@
       phase = 1
   490 CONTINUE
       IF( UPDATE ) THEN
-         write(sc1,12345,advance='no') phase,i,m,cr13_lge 
+         write(sc1,12345,advance='no') phase,i,m,cr13_lge
          I = I + 1
          KBT = MIN( KB, M-I )
          I0 = I + 1
@@ -2219,12 +2219,12 @@
 *     End of DSBGST
 
 ! **********************************************************************************************************************************
-22345 format(5X,'Loop ',i8,': K = ',i8,' of ',i8, a)                 
+22345 format(5X,'Loop ',i8,': K = ',i8,' of ',i8, a)
 
 12345 format(5X,'Phase ',i1,': Updating from index ',i8,' to ',i8, a)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE DSBGST
 
 ! ##################################################################################################################################
@@ -2794,7 +2794,7 @@
 12345 format(5X,'Loop ',i8,' of ',i8, a)
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE DSBTRD
 
 ! ##################################################################################################################################
@@ -3511,15 +3511,15 @@
 
   801 format(' *ERROR   801: ERROR ATTEMPTING TO SOLVE FOR EIGENVALUES',
      &'. IN SUBROUTINE DLAEBZ, (CALLED FROM SUBR ',A,')'
-     &   ,/,14X,' THE LAST ',I8,' INTERVALS DID NOT CONVERGE') 
+     &   ,/,14X,' THE LAST ',I8,' INTERVALS DID NOT CONVERGE')
 
   802 format(' *ERROR   802: ERROR ATTEMPTING TO SOLVE FOR EIGENVALUES',
      &'. IN SUBROUTINE DLAEBZ, (CALLED FROM SUBR ',A,')'
-     &   ,/,14X,' TOO MANY INTERVALS WERE GENERATED. MAX IS ',I8) 
+     &   ,/,14X,' TOO MANY INTERVALS WERE GENERATED. MAX IS ',I8)
 
 
 ! **********************************************************************************************************************************
- 
+
       END SUBROUTINE DSTEBZ
 
 ! ##################################################################################################################################

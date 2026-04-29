@@ -1,31 +1,31 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
- 
+
+! End MIT license text.
+
       SUBROUTINE MYSTRAN_FILES ( START_MONTH, START_DAY, START_YEAR, START_HOUR, START_MINUTE, START_SEC, START_SFRAC)
- 
+
 ! Sets all MYSTRAN file names. Opens all files and closes and deletes them so that no confusion about files if MYSTRAN aborts
 ! Reopen BUG, ERR, F06
 
@@ -63,7 +63,7 @@
                                          L2A_MSG, L2B_MSG, L2C_MSG, L2D_MSG, L2E_MSG, L2F_MSG, L2G_MSG, L2H_MSG, L2I_MSG, L2J_MSG, &
                                          L2K_MSG, L2L_MSG, L2M_MSG, L2N_MSG, L2O_MSG, L2P_MSG, L2Q_MSG, L2R_MSG, L2S_MSG, L2T_MSG, &
                                          L3A_MSG, L4A_MSG, L4B_MSG, L4C_MSG, L4D_MSG, L5A_MSG, L5B_MSG,                            &
-                                         NEU_MSG, F21_MSG, F22_MSG, F23_MSG, F24_MSG, F25_MSG, OP2_MSG, OT4_MSG, OU4_MSG, SPC_MSG 
+                                         NEU_MSG, F21_MSG, F22_MSG, F23_MSG, F24_MSG, F25_MSG, OP2_MSG, OT4_MSG, OU4_MSG, SPC_MSG
 
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, RESTART
       USE TIMDAT, ONLY                :  TSEC, stime
@@ -71,7 +71,7 @@
       USE MYSTRAN_FILES_USE_IFs
 
       IMPLICIT NONE
- 
+
       LOGICAL                         :: FILE_EXIST        ! T/F depending on whether a file exists
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME     = 'MYSTRAN_FILES'
@@ -87,14 +87,14 @@
       INTEGER(LONG), INTENT(IN)       :: START_DAY         ! The day      when MYSTRAN started.
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: I1                ! Filename (less extension) length
-      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr READERR  
- 
+      INTEGER(LONG)                   :: OUNT(2)           ! File units to write messages to. Input to subr READERR
+
 ! **********************************************************************************************************************************
 ! Default units for writing errors the screen (until LINK1A is read) and set filename length
- 
+
       OUNT(1) = SC1
       OUNT(2) = SC1
- 
+
       IF (RESTART == 'Y') THEN
          I1     = LEN_RESTART_FNAME
          FILNAM = RESTART_FILNAM
@@ -316,7 +316,7 @@
             CALL FILE_CLOSE ( OP2, OP2FIL,'DELETE')
          ENDIF
       ENDIF
- 
+
       F21FIL(1:I1)  = FILNAM(1:I1)
       F21FIL(I1+1:) = 'F21'
       INQUIRE ( FILE=F21FIL, EXIST=FILE_EXIST )
@@ -329,7 +329,7 @@
             CALL FILE_CLOSE ( F21, F21FIL,'DELETE')
          ENDIF
       ENDIF
- 
+
       F22FIL(1:I1)  = FILNAM(1:I1)
       F22FIL(I1+1:) = 'F22'
       INQUIRE ( FILE=F22FIL, EXIST=FILE_EXIST )
@@ -342,7 +342,7 @@
             CALL FILE_CLOSE ( F22, F22FIL,'DELETE')
          ENDIF
       ENDIF
- 
+
       F23FIL(1:I1)  = FILNAM(1:I1)
       F23FIL(I1+1:) = 'F23'
       INQUIRE ( FILE=F23FIL, EXIST=FILE_EXIST )
@@ -355,7 +355,7 @@
             CALL FILE_CLOSE ( F23, F23FIL,'DELETE')
          ENDIF
       ENDIF
- 
+
       F24FIL(1:I1)  = FILNAM(1:I1)
       F24FIL(I1+1:) = 'F24'
       INQUIRE ( FILE=F24FIL, EXIST=FILE_EXIST )
@@ -368,7 +368,7 @@
             CALL FILE_CLOSE ( F24, F24FIL,'DELETE')
          ENDIF
       ENDIF
- 
+
       F25FIL(1:I1)  = FILNAM(1:I1)
       F25FIL(I1+1:) = 'F25'
       INQUIRE ( FILE=F25FIL, EXIST=FILE_EXIST )
@@ -381,7 +381,7 @@
             CALL FILE_CLOSE ( F25, F25FIL,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1B(1:I1)  = FILNAM(1:I1)
       LINK1B(I1+1:) = 'L1B'
       INQUIRE ( FILE=LINK1B, EXIST=FILE_EXIST )
@@ -407,7 +407,7 @@
             CALL FILE_CLOSE ( L1C, LINK1C,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1D(1:I1)  = FILNAM(1:I1)
       LINK1D(I1+1:) = 'L1D'
       INQUIRE ( FILE=LINK1D, EXIST=FILE_EXIST )
@@ -420,7 +420,7 @@
             CALL FILE_CLOSE ( L1D, LINK1D,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1E(1:I1)  = FILNAM(1:I1)
       LINK1E(I1+1:) = 'L1E'
       INQUIRE ( FILE=LINK1E, EXIST=FILE_EXIST )
@@ -433,7 +433,7 @@
             CALL FILE_CLOSE ( L1E, LINK1E,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1F(1:I1)  = FILNAM(1:I1)
       LINK1F(I1+1:) = 'L1F'
       INQUIRE ( FILE=LINK1F, EXIST=FILE_EXIST )
@@ -446,7 +446,7 @@
             CALL FILE_CLOSE ( L1F, LINK1F,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1G(1:I1)  = FILNAM(1:I1)
       LINK1G(I1+1:) = 'L1G'
       INQUIRE ( FILE=LINK1G, EXIST=FILE_EXIST )
@@ -459,7 +459,7 @@
             CALL FILE_CLOSE ( L1G, LINK1G,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1H(1:I1)  = FILNAM(1:I1)
       LINK1H(I1+1:) = 'L1H'
       INQUIRE ( FILE=LINK1H, EXIST=FILE_EXIST )
@@ -472,7 +472,7 @@
             CALL FILE_CLOSE ( L1H, LINK1H,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1I(1:I1)  = FILNAM(1:I1)
       LINK1I(I1+1:) = 'L1I'
       INQUIRE ( FILE=LINK1I, EXIST=FILE_EXIST )
@@ -485,7 +485,7 @@
             CALL FILE_CLOSE ( L1I, LINK1I,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1J(1:I1)  = FILNAM(1:I1)
       LINK1J(I1+1:) = 'L1J'
       INQUIRE ( FILE=LINK1J, EXIST=FILE_EXIST )
@@ -498,7 +498,7 @@
             CALL FILE_CLOSE ( L1J, LINK1J,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1K(1:I1)  = FILNAM(1:I1)
       LINK1K(I1+1:) = 'L1K'
       INQUIRE ( FILE=LINK1K, EXIST=FILE_EXIST )
@@ -511,7 +511,7 @@
             CALL FILE_CLOSE ( L1K, LINK1K,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1L(1:I1)  = FILNAM(1:I1)
       LINK1L(I1+1:) = 'L1L'
       INQUIRE ( FILE=LINK1L, EXIST=FILE_EXIST )
@@ -524,7 +524,7 @@
             CALL FILE_CLOSE ( L1L, LINK1L,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1M(1:I1)  = FILNAM(1:I1)
       LINK1M(I1+1:) = 'L1M'
       INQUIRE ( FILE=LINK1M, EXIST=FILE_EXIST )
@@ -537,7 +537,7 @@
             CALL FILE_CLOSE ( L1M, LINK1M,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1N(1:I1)  = FILNAM(1:I1)
       LINK1N(I1+1:) = 'L1N'
       INQUIRE ( FILE=LINK1N, EXIST=FILE_EXIST )
@@ -550,7 +550,7 @@
             CALL FILE_CLOSE ( L1N, LINK1N,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1O(1:I1)  = FILNAM(1:I1)
       LINK1O(I1+1:) = 'L1O'
       INQUIRE ( FILE=LINK1O, EXIST=FILE_EXIST )
@@ -563,7 +563,7 @@
             CALL FILE_CLOSE ( L1O, LINK1O,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1P(1:I1)  = FILNAM(1:I1)
       LINK1P(I1+1:) = 'L1P'
       INQUIRE ( FILE=LINK1P, EXIST=FILE_EXIST )
@@ -576,7 +576,7 @@
             CALL FILE_CLOSE ( L1P, LINK1P,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1Q(1:I1)  = FILNAM(1:I1)
       LINK1Q(I1+1:) = 'L1Q'
       INQUIRE ( FILE=LINK1Q, EXIST=FILE_EXIST )
@@ -589,7 +589,7 @@
             CALL FILE_CLOSE ( L1Q, LINK1Q,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1R(1:I1)  = FILNAM(1:I1)
       LINK1R(I1+1:) = 'L1R'
       INQUIRE ( FILE=LINK1R, EXIST=FILE_EXIST )
@@ -602,7 +602,7 @@
             CALL FILE_CLOSE ( L1R, LINK1R,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1S(1:I1)  = FILNAM(1:I1)
       LINK1S(I1+1:) = 'L1S'
       INQUIRE ( FILE=LINK1S, EXIST=FILE_EXIST )
@@ -615,7 +615,7 @@
             CALL FILE_CLOSE ( L1S, LINK1S,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1T(1:I1)  = FILNAM(1:I1)
       LINK1T(I1+1:) = 'L1T'
       INQUIRE ( FILE=LINK1T, EXIST=FILE_EXIST )
@@ -628,7 +628,7 @@
             CALL FILE_CLOSE ( L1T, LINK1T,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1U(1:I1)  = FILNAM(1:I1)
       LINK1U(I1+1:) = 'L1U'
       INQUIRE ( FILE=LINK1U, EXIST=FILE_EXIST )
@@ -641,7 +641,7 @@
             CALL FILE_CLOSE ( L1U, LINK1U,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1V(1:I1)  = FILNAM(1:I1)
       LINK1V(I1+1:) = 'L1V'
       INQUIRE ( FILE=LINK1V, EXIST=FILE_EXIST )
@@ -654,7 +654,7 @@
             CALL FILE_CLOSE ( L1V, LINK1V,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1W(1:I1)  = FILNAM(1:I1)
       LINK1W(I1+1:) = 'L1W'
       INQUIRE ( FILE=LINK1W, EXIST=FILE_EXIST )
@@ -667,7 +667,7 @@
             CALL FILE_CLOSE ( L1W, LINK1W,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1X(1:I1)  = FILNAM(1:I1)
       LINK1X(I1+1:) = 'L1X'
       INQUIRE ( FILE=LINK1X, EXIST=FILE_EXIST )
@@ -680,7 +680,7 @@
             CALL FILE_CLOSE ( L1X, LINK1X,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1Y(1:I1)  = FILNAM(1:I1)
       LINK1Y(I1+1:) = 'L1Y'
       INQUIRE ( FILE=LINK1Y, EXIST=FILE_EXIST )
@@ -693,7 +693,7 @@
             CALL FILE_CLOSE ( L1Y, LINK1Y,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK1Z(1:I1)  = FILNAM(1:I1)
       LINK1Z(I1+1:) = 'L1Z'
       INQUIRE ( FILE=LINK1Z, EXIST=FILE_EXIST )
@@ -706,7 +706,7 @@
             CALL FILE_CLOSE ( L1Z, LINK1Z,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2A(1:I1)  = FILNAM(1:I1)
       LINK2A(I1+1:) = 'L2A'
       INQUIRE ( FILE=LINK2A, EXIST=FILE_EXIST )
@@ -719,7 +719,7 @@
             CALL FILE_CLOSE ( L2A, LINK2A,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2B(1:I1)  = FILNAM(1:I1)
       LINK2B(I1+1:) = 'L2B'
       INQUIRE ( FILE=LINK2B, EXIST=FILE_EXIST )
@@ -732,7 +732,7 @@
             CALL FILE_CLOSE ( L2B, LINK2B,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2C(1:I1)  = FILNAM(1:I1)
       LINK2C(I1+1:) = 'L2C'
       INQUIRE ( FILE=LINK2C, EXIST=FILE_EXIST )
@@ -745,7 +745,7 @@
             CALL FILE_CLOSE ( L2C, LINK2C,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2D(1:I1)  = FILNAM(1:I1)
       LINK2D(I1+1:) = 'L2D'
       INQUIRE ( FILE=LINK2D, EXIST=FILE_EXIST )
@@ -758,7 +758,7 @@
             CALL FILE_CLOSE ( L2D, LINK2D,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2E(1:I1)  = FILNAM(1:I1)
       LINK2E(I1+1:) = 'L2E'
       INQUIRE ( FILE=LINK2E, EXIST=FILE_EXIST )
@@ -771,7 +771,7 @@
             CALL FILE_CLOSE ( L2E, LINK2E,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2F(1:I1)  = FILNAM(1:I1)
       LINK2F(I1+1:) = 'L2F'
       INQUIRE ( FILE=LINK2F, EXIST=FILE_EXIST )
@@ -784,7 +784,7 @@
             CALL FILE_CLOSE ( L2F, LINK2F,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2G(1:I1)  = FILNAM(1:I1)
       LINK2G(I1+1:) = 'L2G'
       INQUIRE ( FILE=LINK2G, EXIST=FILE_EXIST )
@@ -797,7 +797,7 @@
             CALL FILE_CLOSE ( L2G, LINK2G,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2H(1:I1)  = FILNAM(1:I1)
       LINK2H(I1+1:) = 'L2H'
       INQUIRE ( FILE=LINK2H, EXIST=FILE_EXIST )
@@ -810,7 +810,7 @@
             CALL FILE_CLOSE ( L2H, LINK2H,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2I(1:I1)  = FILNAM(1:I1)
       LINK2I(I1+1:) = 'L2I'
       INQUIRE ( FILE=LINK2I, EXIST=FILE_EXIST )
@@ -823,7 +823,7 @@
             CALL FILE_CLOSE ( L2I, LINK2I,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2J(1:I1)  = FILNAM(1:I1)
       LINK2J(I1+1:) = 'L2J'
       INQUIRE ( FILE=LINK2J, EXIST=FILE_EXIST )
@@ -836,7 +836,7 @@
             CALL FILE_CLOSE ( L2J, LINK2J,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2K(1:I1)  = FILNAM(1:I1)
       LINK2K(I1+1:) = 'L2K'
       INQUIRE ( FILE=LINK2K, EXIST=FILE_EXIST )
@@ -849,7 +849,7 @@
             CALL FILE_CLOSE ( L2K, LINK2K,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2L(1:I1)  = FILNAM(1:I1)
       LINK2L(I1+1:) = 'L2L'
       INQUIRE ( FILE=LINK2L, EXIST=FILE_EXIST )
@@ -862,7 +862,7 @@
             CALL FILE_CLOSE ( L2L, LINK2L,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2M(1:I1)  = FILNAM(1:I1)
       LINK2M(I1+1:) = 'L2M'
       INQUIRE ( FILE=LINK2M, EXIST=FILE_EXIST )
@@ -875,7 +875,7 @@
             CALL FILE_CLOSE ( L2M, LINK2M,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK2N(1:I1)  = FILNAM(1:I1)
       LINK2N(I1+1:) = 'L2N'
       INQUIRE ( FILE=LINK2N, EXIST=FILE_EXIST )
@@ -979,7 +979,7 @@
             CALL FILE_CLOSE ( L3A, LINK3A,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK4A(1:I1)  = FILNAM(1:I1)
       LINK4A(I1+1:) = 'L4A'
       INQUIRE ( FILE=LINK4A, EXIST=FILE_EXIST )
@@ -992,7 +992,7 @@
             CALL FILE_CLOSE ( L4A, LINK4A,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK4B(1:I1)  = FILNAM(1:I1)
       LINK4B(I1+1:) = 'L4B'
       INQUIRE ( FILE=LINK4B, EXIST=FILE_EXIST )
@@ -1005,7 +1005,7 @@
             CALL FILE_CLOSE ( L4B, LINK4B,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK4C(1:I1)  = FILNAM(1:I1)
       LINK4C(I1+1:) = 'L4C'
       INQUIRE ( FILE=LINK4C, EXIST=FILE_EXIST )
@@ -1018,7 +1018,7 @@
             CALL FILE_CLOSE ( L4C, LINK4C,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK4D(1:I1)  = FILNAM(1:I1)
       LINK4D(I1+1:) = 'L4D'
       INQUIRE ( FILE=LINK4D, EXIST=FILE_EXIST )
@@ -1031,7 +1031,7 @@
             CALL FILE_CLOSE ( L4D, LINK4D,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK5A(1:I1)  = FILNAM(1:I1)
       LINK5A(I1+1:) = 'L5A'
       INQUIRE ( FILE=LINK5A, EXIST=FILE_EXIST )
@@ -1044,7 +1044,7 @@
             CALL FILE_CLOSE ( L5A, LINK5A,'DELETE')
          ENDIF
       ENDIF
- 
+
       LINK5B(1:I1)  = FILNAM(1:I1)
       LINK5B(I1+1:) = 'L5B'
       INQUIRE ( FILE=LINK5B, EXIST=FILE_EXIST )
@@ -1057,7 +1057,7 @@
             CALL FILE_CLOSE ( L5B, LINK5B,'DELETE')
          ENDIF
       ENDIF
- 
+
       DO I=1,MOU4
          OU4FIL(I)(1:I1)  = FILNAM(1:I1)
          OU4FIL(I)(I1+1:) = OU4_EXT(I)
@@ -1072,7 +1072,7 @@
             ENDIF
          ENDIF
       ENDDO
- 
+
 
 
       RETURN

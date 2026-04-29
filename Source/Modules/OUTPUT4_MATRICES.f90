@@ -1,44 +1,44 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       MODULE OUTPUT4_MATRICES
-  
+
 ! This module defines the characteristics for matrices that are allowed for OUTPUT4 requests in Case Control. The definition of
 ! the actual matrices (with dimensions) appear in a variety of other modules (with the names listed in ALLOW_OU4_MYSTRAN_NAMES
 ! below. In addition, all of the output transformation matrices related to Craig-Bampton analyses are defined here. Finally, the
 ! allowable OUTPUT4 matrix RBM0 is defined here as a 6x6 rigid body mass matrix relative to the basic origin for the 6 DOF's at the
-! boundary of a Craig-Bampton model 
-  
+! boundary of a Craig-Bampton model
+
       USE PENTIUM_II_KIND, ONLY        :  BYTE, LONG, DOUBLE
       USE SCONTR, ONLY                 :  BLNK_SUB_NAM, TSET_CHR_LEN
 
       IMPLICIT NONE
 
       SAVE
-  
+
       INTEGER(LONG), PARAMETER         :: NUM_OU4_VALID_NAMES = 33                   ! Num of OUTPUT4 matrices defined here
       INTEGER(LONG)                    :: NUM_OU4_REQUESTS    = 0                    ! Number of OUTPUT4 requests in a run
       INTEGER(LONG)                    :: NUM_PARTN_REQUESTS  = 0                    ! Number of PARTN requests in a run
@@ -286,9 +286,9 @@
       REAL(DOUBLE), ALLOCATABLE        :: OTM_STRN(:,:)    ! CB elm strain     OTM for elems req in CC STRESS        = sid entry
 
 ! **********************************************************************************************************************************
-! O T H E R   
+! O T H E R
 
       REAL(DOUBLE)                     :: RBM0(6,6)        ! Rigid body mass matrix rel to basic origin for the 6 DOF's at the
 !                                                            boundary of a Craig-Bampton model
 
-      END MODULE OUTPUT4_MATRICES                                                    
+      END MODULE OUTPUT4_MATRICES

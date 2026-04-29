@@ -1,28 +1,28 @@
 ! ##################################################################################################################################
-! Begin MIT license text.                                                                                    
+! Begin MIT license text.
 ! _______________________________________________________________________________________________________
-                                                                                                         
-! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)                                              
-                                                                                                         
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and      
+
+! Copyright 2022 Dr William R Case, Jr (mystransolver@gmail.com)
+
+! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 ! associated documentation files (the "Software"), to deal in the Software without restriction, including
 ! without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to   
-! the following conditions:                                                                              
-                                                                                                         
-! The above copyright notice and this permission notice shall be included in all copies or substantial   
-! portions of the Software and documentation.                                                                              
-                                                                                                         
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS                                
-! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,                            
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE                            
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER                                 
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,                          
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN                              
-! THE SOFTWARE.                                                                                          
+! copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to
+! the following conditions:
+
+! The above copyright notice and this permission notice shall be included in all copies or substantial
+! portions of the Software and documentation.
+
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+! OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+! THE SOFTWARE.
 ! _______________________________________________________________________________________________________
-                                                                                                        
-! End MIT license text.                                                                                      
+
+! End MIT license text.
 
       SUBROUTINE POLYNOM_FIT_STRE_STRN ( STR_IN, NROW, NCOL, STR_OUT, STR_OUT_PCT_ERR, STR_OUT_ERR_INDEX, PCT_ERR_MAX )
 
@@ -75,7 +75,7 @@
       REAL(DOUBLE)                    :: POLY_PCT_ERR(MAX_STRESS_POINTS)
 
                                                              ! 1st val is zero for center stress (not fitted) and remainder are for
-!                                                              the points fitted (from row 2 to row NCOL; or NCOL-1 values) 
+!                                                              the points fitted (from row 2 to row NCOL; or NCOL-1 values)
       REAL(DOUBLE), INTENT(OUT)       :: STR_OUT_PCT_ERR(MAX_STRESS_POINTS)
 
       REAL(DOUBLE)                    :: PCT_ERR_1STR        ! % error from 1 of the NROW stress/strain values
@@ -111,7 +111,7 @@
          DO I=1,NROW
             STR_OUT(I,J) = STR_IN(I,J)
          ENDDO
-      ENDDO 
+      ENDDO
 
 ! Calc actual coords of the points for which the BEi, SEi matrices were calculated
 
@@ -123,7 +123,7 @@
             FATAL_ERR = FATAL_ERR + 1
             CALL OUTA_HERE ( 'Y' )
          ENDIF
-                                                           ! For the MIN4/MITC4+ QUAD4 and QUAD8. XEP parametric coords 
+                                                           ! For the MIN4/MITC4+ QUAD4 and QUAD8. XEP parametric coords
                                                            ! are the Gauss point coords
          IF ((QUAD4TYP == 'MIN4  ') .OR.                                                                                           &
              (QUAD4TYP == 'MITC4 ') .OR.                                                                                           &
