@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(METIS C)
+set(CMAKE_C_STANDARD 99)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(SHARED FALSE CACHE BOOL "build a shared library")
@@ -21,27 +22,28 @@ endif(SHARED)
 include(./conf/gkbuild.cmake)
 
 # METIS' custom options
-#option(IDX64 "enable 64 bit ints" OFF)
-#option(REAL64 "enable 64 bit floats (i.e., double)" OFF)
-#if(IDX64)
-#  set(METIS_COPTIONS "${METIS_COPTIONS} -DIDXTYPEWIDTH=64")
-#else()
-#  set(METIS_COPTIONS "${METIS_COPTIONS} -DIDXTYPEWIDTH=32")
-#endif(IDX64)
-#if(REAL64)
-#  set(METIS_COPTIONS "${METIS_COPTIONS} -DREALTYPEWIDTH=64")
-#else()
-#  set(METIS_COPTIONS "${METIS_COPTIONS} -DREALTYPEWIDTH=32")
-#endif(REAL64)
-#
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${METIS_COPTIONS}")
+option(IDX64 "enable 64 bit ints" OFF)
+option(REAL64 "enable 64 bit floats (i.e., double)" ON)
 
+if(IDX64)
+  set(_metis_idxwidth 64)
+else()
+  set(_metis_idxwidth 32)
+endif()
 
+if(REAL64)
+  set(_metis_realwidth 64)
+else()
+  set(_metis_realwidth 32)
+endif()
+
+# Generate a metis.h in the build tree that prepends the width defines.
+# Read the source header FIRST so an in-source build cannot corrupt the original.
 set(METIS_GENERATED_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include")
 file(MAKE_DIRECTORY "${METIS_GENERATED_INCLUDE_DIR}")
-file(WRITE "${METIS_GENERATED_INCLUDE_DIR}/metis.h" "#define IDXTYPEWIDTH 32\n#define REALTYPEWIDTH 32\n")
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/include/metis.h" METIS_PUBLIC_HEADER)
-file(APPEND "${METIS_GENERATED_INCLUDE_DIR}/metis.h" "${METIS_PUBLIC_HEADER}")
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/include/metis.h" _metis_public_header)
+file(WRITE "${METIS_GENERATED_INCLUDE_DIR}/metis.h"
+  "#define IDXTYPEWIDTH ${_metis_idxwidth}\n#define REALTYPEWIDTH ${_metis_realwidth}\n${_metis_public_header}")
 
 # Add include directories.
 # i.e., the -I equivalent
@@ -56,6 +58,7 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 # Recursively look for CMakeLists.txt in subdirs.
 add_subdirectory("libmetis")
+
 if(METIS_BUILD_PROGRAMS)
   add_subdirectory("programs")
 endif()
