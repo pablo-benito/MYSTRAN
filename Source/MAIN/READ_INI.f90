@@ -1077,7 +1077,7 @@ j_do:       DO J=1,8                                       ! CYCLE through 8 cha
       ENDIF
 
 ! **********************************************************************************************************************************
- 1001 FORMAT(' Optional Initialization file: ',/,1X,A)
+ 1001 FORMAT(/,/' Optional Initialization file: ',/,1X,A)
 
  2000 FORMAT(1X,A)
 

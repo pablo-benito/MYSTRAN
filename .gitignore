@@ -37,3 +37,6 @@ CMakeDoxy*
 
 # temp unit files
 fort.*
+
+# generated subroutines
+Source/INCLUDE/*.F90.inc

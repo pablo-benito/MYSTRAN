@@ -42,8 +42,21 @@ endif()
 set(METIS_GENERATED_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/include")
 file(MAKE_DIRECTORY "${METIS_GENERATED_INCLUDE_DIR}")
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/include/metis.h" _metis_public_header)
-file(WRITE "${METIS_GENERATED_INCLUDE_DIR}/metis.h"
+set(_metis_generated_header
   "#define IDXTYPEWIDTH ${_metis_idxwidth}\n#define REALTYPEWIDTH ${_metis_realwidth}\n${_metis_public_header}")
+set(_metis_needs_write TRUE)
+
+if(EXISTS "${METIS_GENERATED_INCLUDE_DIR}/metis.h")
+  file(READ "${METIS_GENERATED_INCLUDE_DIR}/metis.h" _metis_existing_header)
+
+  if(_metis_existing_header STREQUAL _metis_generated_header)
+    set(_metis_needs_write FALSE)
+  endif()
+endif()
+
+if(_metis_needs_write)
+  file(WRITE "${METIS_GENERATED_INCLUDE_DIR}/metis.h" "${_metis_generated_header}")
+endif()
 
 # Add include directories.
 # i.e., the -I equivalent
