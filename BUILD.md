@@ -164,17 +164,36 @@ and run the appropriate `cmake` command again.
 
 ### "I'm getting cryptic linker errors related to BLAS!"
 
-SuperLU requires BLAS. Its build script can look for and link against your
-system's installed BLAS implementation (we recommend OpenBLAS). However, your
-install might be lacking the appropriate static (`.a`) library files.
+MYSTRAN and SuperLU both need BLAS. The build system picks one of
+three providers via the `MYSTRAN_BLAS` CMake option:
 
-If you don't know how to fix that and just want to build, you can use the
-integrated BLAS subroutines bundled with the SuperLU source. To do that, run
-the appropriate `cmake` command with the extra option
-`-Denable_internal_blaslib=YES` *before* the `.` argument.
+  - **`AUTO`** (default): try to locate a system BLAS (we recommend
+    OpenBLAS); if it isn't found, fall back to the bundled reference
+    routines.
+  - **`SYSTEM`**: require system BLAS; configuration fails with a
+    clear error if it cannot be found.
+  - **`EMBEDDED`**: ignore the system entirely and always compile in
+    MYSTRAN's bundled reference BLAS plus SuperLU's CBLAS.
 
-Please be aware that the bundled CBLAS might be slow when compared to a proper
-BLAS install. That might have an impact on the time it takes to run larger
+If the auto-detection picks up a BLAS that does not ship a static
+`.a` archive (a common Windows situation), re-run CMake with
+`-DMYSTRAN_BLAS=EMBEDDED` to force the bundled fallback.
+
+On Windows we ship fully static binaries, so when requesting
+`SYSTEM` mode you must have a static OpenBLAS available
+(MSYS2 / MinGW64: `pacman -S mingw-w64-x86_64-openblas`).
+
+The legacy `-Denable_internal_blaslib=YES` flag still works; it is
+mapped to `-DMYSTRAN_BLAS=EMBEDDED` with a deprecation warning.
+
+LAPACK is always provided by MYSTRAN's bundled reference
+implementation under `Source/Modules/LAPACK/`; system LAPACK is not
+yet supported. (See `dev_docs/lapack_unification_prompt.md` for the
+follow-up effort.)
+
+Please be aware that the bundled reference BLAS is considerably
+slower than a tuned implementation like OpenBLAS or MKL. That can
+have a significant impact on the time it takes to run larger
 models.
 
 ---
