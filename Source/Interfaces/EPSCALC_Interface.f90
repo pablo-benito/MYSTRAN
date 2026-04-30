@@ -42,7 +42,6 @@
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL
       USE SPARSE_MATRICES, ONLY       :  SYM_KLL
       USE COL_VECS, ONLY              :  UL_COL, PL_COL
-      USE LAPACK_BLAS_AUX
 
       IMPLICIT NONE
 

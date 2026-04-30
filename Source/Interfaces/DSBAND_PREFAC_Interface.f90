@@ -48,8 +48,6 @@
      &                                   I_KMSMn, J_KMSMn, KMSMn
 
       USE ARPACK_LANCZOS_EIG, ONLY    :  dsaupd, dseupd, cr13_a
-      USE LAPACK_LIN_EQN_DGB
-      USE LAPACK_LIN_EQN_DPB
 
       IMPLICIT NONE
 

@@ -30,12 +30,11 @@
 ! Uses the triangular factor of the matrix, which is called MATIN_FAC.
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR
+      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  ITMAX
       USE TIMDAT, ONLY                :  TSEC
-      USE LAPACK_LIN_EQN_DPB
 
 ! Interface module not needed for subr DPBCON. This is "CONTAIN'ed" in module LAPACK_LIN_EQN_DPB, which is "USE'd" above
 
@@ -73,7 +72,7 @@
 ! in a call to a LAPACK subr.
 
 !xx   WRITE(SC1, * )
-      CALL DPBCON( UPLO, N, KD, MATIN_FAC, KD+1, K_INORM, RCOND, WORK, IWORK, INFO, ITMAX, 'Y' )
+      CALL DPBCON( UPLO, N, KD, MATIN_FAC, KD+1, K_INORM, RCOND, WORK, IWORK, INFO )
 
       CALLED_SUBR = 'DPBCON  '
       IF      (INFO < 0) THEN                              ! LAPACK subr XERBLA should have reported error on an illegal argument

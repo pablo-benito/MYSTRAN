@@ -33,14 +33,13 @@
 ! actual work
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  ERR, F06
+      USE IOUNT1, ONLY                :  ERR, F06, SC1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FACTORED_MATRIX, FATAL_ERR, LINKNO
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE, ONEPP6
       USE PARAMS, ONLY                :  BAILOUT, EPSIL, SUPINFO
       USE LAPACK_DPB_MATRICES, ONLY   :  ABAND, LAPACK_S
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG, NDEBUG
-      USE LAPACK_LIN_EQN_DPB
 
       USE SYM_MAT_DECOMP_LAPACK_USE_IFs
       USE LINK_MESSAGE_Interface
@@ -105,6 +104,8 @@
 !xx   REAL(DOUBLE)                    :: SCOND             ! Ratio of min to max scaling factors, LAPACK_S(i), if MATIN is equil'ed.
 
       LOGICAL                         :: FACTORIZATION_PROBLEM
+
+      REAL(DOUBLE), EXTERNAL          :: DLANSB
 
       INTRINSIC                       :: DABS
 

@@ -41,7 +41,6 @@
       USE SCRATCH_MATRICES, ONLY      :  I_CRS3, J_CRS3, CRS3
       USE SPARSE_MATRICES, ONLY       :  I2_PHIZL1, I_PHIZL1, J_PHIZL1, PHIZL1, I2_PHIZL1t, I_PHIZL1t, J_PHIZL1t, PHIZL1t,         &
                                          I_KLL, I2_KLL, J_KLL, KLL, I_KLLs, I2_KLLs, J_KLLs, KLLs
-      USE LAPACK_LIN_EQN_DPB
 
       IMPLICIT NONE
 

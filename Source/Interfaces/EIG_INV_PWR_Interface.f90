@@ -43,7 +43,6 @@
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL, I_KLLD, J_KLLD, KLLD, I_MLL, J_MLL, MLL,                               &
                                          I_KMSM, I2_KMSM, J_KMSM, KMSM, I_KMSMs, I2_KMSMs, J_KMSMs, KMSMs
       USE SPARSE_MATRICES, ONLY       :  SYM_KLL, SYM_KLLD, SYM_MLL
-      USE LAPACK_LIN_EQN_DPB
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
 
       IMPLICIT NONE

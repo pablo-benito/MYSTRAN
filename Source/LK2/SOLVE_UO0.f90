@@ -29,14 +29,13 @@
 ! Solves KOO*UO0 = PO for matrix UO0
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  ERR, F06, L2F, LINK2F, L2F_MSG
+      USE IOUNT1, ONLY                :  ERR, F06, L2F, LINK2F, L2F_MSG, SC1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FACTORED_MATRIX, FATAL_ERR, KOO_SDIA, NDOFO, NSUB, NTERM_KOO, NTERM_PO
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  PRTUO0, SOLLIB, SPARSE_FLAVOR
       USE SPARSE_MATRICES, ONLY       :  I_PO, J_PO, PO, I_KOO, J_KOO, KOO
       USE COL_VECS, ONLY              :  UO0_COL
-      USE LAPACK_LIN_EQN_DPB
 
 ! Interface module not needed for subr DPBTRS. This is "CONTAIN'ed" in module LAPACK_LIN_EQN_DPB, which is "USE'd" above
 

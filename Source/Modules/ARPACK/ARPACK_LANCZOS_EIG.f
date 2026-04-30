@@ -10,11 +10,6 @@
       USE SuperLU_STUF, ONLY          :  SLU_FACTORS, SLU_INFO
       USE PARAMS, ONLY                :  SOLLIB
       USE ARPACK_UTIL
-      USE LAPACK_BLAS_AUX
-      USE LAPACK_LANCZOS_EIG
-      USE LAPACK_MISCEL                                    ! This contains DSTEQR, used in this module
-      USE LAPACK_LIN_EQN_DGB
-      USE LAPACK_LIN_EQN_DPB
 
       USE OURTIM_Interface
       USE MATMULT_SFF_Interface
@@ -858,13 +853,12 @@ c
                if      (eig_lap_mat_type(1:3) == 'DGB') then
 
                   call dgbtrs ('Notranspose', n, kl, ku, 1, rfac, lda,
-     &                          iwork, workd(ipntr(2)), n, ierr,
-     &                          dtbsv_msg)
+     &                          iwork, workd(ipntr(2)), n, ierr )
 
                else if (eig_lap_mat_type(1:3) == 'DPB') then
 
                   call dpbtrs ( 'U', n, ku, 1, rfac, ku+1,
-     &                          workd(ipntr(2)), n, ierr, 'N' )
+     &                          workd(ipntr(2)), n, ierr )
 
                endif
                IF (EIG_MSGLVL > 0) CALL ARP_DEB(2,N,IDO,IPNTR)
@@ -919,13 +913,12 @@ c
                if      (eig_lap_mat_type(1:3) == 'DGB') then
 
                   call dgbtrs ('Notranspose', n, kl, ku, 1, rfac, lda,
-     &                         iwork, workd(ipntr(2)), n, ierr,
-     &                          dtbsv_msg)
+     &                         iwork, workd(ipntr(2)), n, ierr )
 
                else if (eig_lap_mat_type(1:3) == 'DPB') then
 
                   call dpbtrs ( 'U', n, ku, 1, rfac, ku+1,
-     &                           workd(ipntr(2)), n, ierr, 'N' )
+     &                           workd(ipntr(2)), n, ierr )
                endif
                IF (EIG_MSGLVL > 0) CALL ARP_DEB(2,N,IDO,IPNTR)
 
@@ -983,13 +976,12 @@ c
                if      (eig_lap_mat_type(1:3) == 'DGB') then
 
                   call dgbtrs ('Notranspose', n, kl, ku, 1, rfac, lda,
-     &                          iwork, workd(ipntr(2)), n, ierr,
-     &                          dtbsv_msg)
+     &                          iwork, workd(ipntr(2)), n, ierr )
 
                else if (eig_lap_mat_type(1:3) == 'DPB') then
 
                   call dpbtrs ( 'U', n, ku, 1, rfac, ku+1,
-     &                          workd(ipntr(2)), n, ierr, 'N' )
+     &                          workd(ipntr(2)), n, ierr )
 
                endif
                IF (EIG_MSGLVL > 0) CALL ARP_DEB(2,N,IDO,IPNTR)
@@ -1025,13 +1017,12 @@ c
                if      (eig_lap_mat_type(1:3) == 'DGB') then
 
                   call dgbtrs ('Notranspose', n, kl, ku, 1, rfac, lda,
-     &                          iwork, workd(ipntr(2)), n, ierr,
-     &                          dtbsv_msg)
+     &                          iwork, workd(ipntr(2)), n, ierr )
 
                else if (eig_lap_mat_type(1:3) == 'DPB') then
 
                   call dpbtrs ( 'U', n, ku, 1, rfac, ku+1,
-     &                          workd(ipntr(2)), n, ierr, 'N' )
+     &                          workd(ipntr(2)), n, ierr )
 
                endif
                IF (EIG_MSGLVL > 0) CALL ARP_DEB(2,N,IDO,IPNTR)

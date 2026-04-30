@@ -15,7 +15,6 @@ endif()
 
 # basic compiler and output options
 set(CMAKE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/Source")
-set(BLAS_SOURCE_DIR "${PROJECT_SOURCE_DIR}/BLAS")
 set(PROJECT_BINARY_DIR "${PROJECT_SOURCE_DIR}/Binaries")
 set(CMAKE_FLAGS "-c -fbacktrace")
 
@@ -174,27 +173,31 @@ set(enable_tests OFF FORCE)
 set(enable_doc OFF FORCE)
 
 # -----------------------------------------------------------------------
-# BLAS provider resolution
+# BLAS / LAPACK provider resolution
 #
-# Single user-facing knob `MYSTRAN_BLAS` with three values:
-# AUTO      (default) - try system BLAS; fall back to embedded
-# SYSTEM              - require system BLAS; FATAL_ERROR if missing
-# EMBEDDED            - always use the bundled reference routines
+# Single user-facing knob `MYSTRAN_BLAS_LAPACK` with three values:
+# AUTO      (default) - try system BLAS+LAPACK; fall back to building
+# Reference-LAPACK from the bundled submodule
+# SYSTEM              - require system BLAS+LAPACK; FATAL_ERROR if missing
+# EMBEDDED            - always build Reference-LAPACK + its reference BLAS
+# from the Source/lapack submodule
 #
 # The mode is resolved here, BEFORE add_subdirectory() for SuperLU /
 # SuperLU_MT, so we can forward the result to those subprojects via
 # `TPL_BLAS_LIBRARIES` and `enable_internal_blaslib` and avoid duplicate
 # symbols when statically linking on Windows (no symbol interposition).
 #
-# LAPACK is currently always embedded (Source/Modules/LAPACK/*.f). A
-# follow-up effort will let SYSTEM mode also use a system LAPACK; see
-# dev_docs/lapack_unification_prompt.md.
+# This replaces the older `MYSTRAN_BLAS` knob (which only governed BLAS,
+# while LAPACK was always embedded under Source/Modules/LAPACK/*.f). The
+# embedded LAPACK tree has been deleted; MYSTRAN now always links a real
+# BLAS+LAPACK provider, and the only remaining MYSTRAN-specific routines
+# (the handful of mathematically modified ones) live in
+# Source/Modules/MYSTRAN_LAPACK_EXT/.
 # -----------------------------------------------------------------------
 
-# Backwards-compat: legacy `-Denable_internal_blaslib=...` maps to the new
-# variable on first configure. We use an internal sentinel so the warning
-# only fires when the user explicitly passed it on the command line.
-if(DEFINED enable_internal_blaslib AND NOT _MYSTRAN_BLAS_LEGACY_MAPPED)
+# Backwards-compat: legacy `-Denable_internal_blaslib=...` and
+# `-DMYSTRAN_BLAS=...` map to the new variable on first configure.
+if(DEFINED enable_internal_blaslib AND NOT _MYSTRAN_BLAS_LAPACK_LEGACY_MAPPED)
   if(enable_internal_blaslib)
     set(_LEGACY_MODE "EMBEDDED")
   else()
@@ -203,25 +206,34 @@ if(DEFINED enable_internal_blaslib AND NOT _MYSTRAN_BLAS_LEGACY_MAPPED)
 
   message(DEPRECATION
     "'enable_internal_blaslib' is deprecated; "
-    "use -DMYSTRAN_BLAS=${_LEGACY_MODE} instead.")
-  set(MYSTRAN_BLAS "${_LEGACY_MODE}"
-    CACHE STRING "BLAS provider: AUTO, SYSTEM, or EMBEDDED" FORCE)
-  set(_MYSTRAN_BLAS_LEGACY_MAPPED TRUE CACHE INTERNAL "")
+    "use -DMYSTRAN_BLAS_LAPACK=${_LEGACY_MODE} instead.")
+  set(MYSTRAN_BLAS_LAPACK "${_LEGACY_MODE}"
+    CACHE STRING "BLAS+LAPACK provider: AUTO, SYSTEM, or EMBEDDED" FORCE)
+  set(_MYSTRAN_BLAS_LAPACK_LEGACY_MAPPED TRUE CACHE INTERNAL "")
 endif()
 
-set(MYSTRAN_BLAS "AUTO"
-  CACHE STRING "BLAS provider: AUTO, SYSTEM, or EMBEDDED")
-set_property(CACHE MYSTRAN_BLAS PROPERTY STRINGS AUTO SYSTEM EMBEDDED)
+if(DEFINED MYSTRAN_BLAS AND NOT _MYSTRAN_BLAS_LAPACK_LEGACY_MAPPED)
+  message(DEPRECATION
+    "'MYSTRAN_BLAS' is deprecated; "
+    "use -DMYSTRAN_BLAS_LAPACK=${MYSTRAN_BLAS} instead.")
+  set(MYSTRAN_BLAS_LAPACK "${MYSTRAN_BLAS}"
+    CACHE STRING "BLAS+LAPACK provider: AUTO, SYSTEM, or EMBEDDED" FORCE)
+  set(_MYSTRAN_BLAS_LAPACK_LEGACY_MAPPED TRUE CACHE INTERNAL "")
+endif()
 
-if(NOT MYSTRAN_BLAS MATCHES "^(AUTO|SYSTEM|EMBEDDED)$")
+set(MYSTRAN_BLAS_LAPACK "AUTO"
+  CACHE STRING "BLAS+LAPACK provider: AUTO, SYSTEM, or EMBEDDED")
+set_property(CACHE MYSTRAN_BLAS_LAPACK PROPERTY STRINGS AUTO SYSTEM EMBEDDED)
+
+if(NOT MYSTRAN_BLAS_LAPACK MATCHES "^(AUTO|SYSTEM|EMBEDDED)$")
   message(FATAL_ERROR
-    "MYSTRAN_BLAS must be AUTO, SYSTEM, or EMBEDDED "
-    "(got '${MYSTRAN_BLAS}').")
+    "MYSTRAN_BLAS_LAPACK must be AUTO, SYSTEM, or EMBEDDED "
+    "(got '${MYSTRAN_BLAS_LAPACK}').")
 endif()
 
-set(_MYSTRAN_HAVE_SYSTEM_BLAS FALSE)
+set(_MYSTRAN_HAVE_SYSTEM_BLAS_LAPACK FALSE)
 
-if(NOT MYSTRAN_BLAS STREQUAL "EMBEDDED")
+if(NOT MYSTRAN_BLAS_LAPACK STREQUAL "EMBEDDED")
   if(TPL_BLAS_LIBRARIES)
     set(BLAS_FOUND TRUE)
     set(BLAS_LIBRARIES "${TPL_BLAS_LIBRARIES}")
@@ -230,44 +242,87 @@ if(NOT MYSTRAN_BLAS STREQUAL "EMBEDDED")
   endif()
 
   if(BLAS_FOUND)
-    set(_MYSTRAN_HAVE_SYSTEM_BLAS TRUE)
+    find_package(LAPACK QUIET)
+  endif()
+
+  if(BLAS_FOUND AND LAPACK_FOUND)
+    set(_MYSTRAN_HAVE_SYSTEM_BLAS_LAPACK TRUE)
   endif()
 endif()
 
-if(MYSTRAN_BLAS STREQUAL "SYSTEM" AND NOT _MYSTRAN_HAVE_SYSTEM_BLAS)
+if(MYSTRAN_BLAS_LAPACK STREQUAL "SYSTEM" AND NOT _MYSTRAN_HAVE_SYSTEM_BLAS_LAPACK)
   message(FATAL_ERROR
-    "MYSTRAN_BLAS=SYSTEM was requested but a system BLAS could not be "
-    "located.\n"
+    "MYSTRAN_BLAS_LAPACK=SYSTEM was requested but a system BLAS+LAPACK "
+    "could not be located.\n"
     "Install OpenBLAS (Debian/Ubuntu: 'libopenblas-dev'; "
     "MSYS2/MinGW64: 'mingw-w64-x86_64-openblas') or set TPL_BLAS_LIBRARIES "
-    "manually. Use -DMYSTRAN_BLAS=EMBEDDED to fall back to the bundled "
-    "reference routines.")
+    "manually. Use -DMYSTRAN_BLAS_LAPACK=EMBEDDED to build the bundled "
+    "Reference-LAPACK submodule instead.")
 endif()
 
-if(_MYSTRAN_HAVE_SYSTEM_BLAS)
-  set(_MYSTRAN_BLAS_MODE "SYSTEM")
+if(_MYSTRAN_HAVE_SYSTEM_BLAS_LAPACK)
+  set(_MYSTRAN_BLAS_LAPACK_MODE "SYSTEM")
 else()
-  set(_MYSTRAN_BLAS_MODE "EMBEDDED")
+  set(_MYSTRAN_BLAS_LAPACK_MODE "EMBEDDED")
+endif()
+
+# In EMBEDDED mode, build Reference-LAPACK (BLAS + LAPACK) from the
+# submodule under Source/lapack. Configure it as a quiet, minimal,
+# static-only sub-build before any add_subdirectory() that consumes it.
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "EMBEDDED")
+  set(MYSTRAN_LAPACK_DIR "${PROJECT_SOURCE_DIR}/Source/lapack")
+
+  if(NOT EXISTS "${MYSTRAN_LAPACK_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR
+      "The Reference-LAPACK submodule was not downloaded. "
+      "Run: git submodule update --init --recursive")
+  endif()
+
+  # Only build what MYSTRAN actually uses: double-precision real BLAS
+  # and LAPACK. Everything else off.
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+  set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+  set(BUILD_DEPRECATED OFF CACHE BOOL "" FORCE)
+  set(BUILD_SINGLE OFF CACHE BOOL "" FORCE)
+  set(BUILD_DOUBLE ON CACHE BOOL "" FORCE)
+  set(BUILD_COMPLEX OFF CACHE BOOL "" FORCE)
+  set(BUILD_COMPLEX16 OFF CACHE BOOL "" FORCE)
+  set(LAPACKE OFF CACHE BOOL "" FORCE)
+  set(CBLAS OFF CACHE BOOL "" FORCE)
+  set(USE_OPTIMIZED_BLAS OFF CACHE BOOL "" FORCE)
+  set(USE_OPTIMIZED_LAPACK OFF CACHE BOOL "" FORCE)
+
+  add_subdirectory("${MYSTRAN_LAPACK_DIR}" "${PROJECT_BINARY_DIR}/lapack" EXCLUDE_FROM_ALL)
+
+  set(BLAS_LIBRARIES "blas" CACHE STRING "" FORCE)
+  set(LAPACK_LIBRARIES "lapack" CACHE STRING "" FORCE)
 endif()
 
 # Forward the resolution to SuperLU / SuperLU_MT subprojects. They read
 # `enable_internal_blaslib`, `TPL_ENABLE_INTERNAL_BLASLIB`, and
 # `TPL_BLAS_LIBRARIES` to decide whether to build their bundled CBLAS.
-if(_MYSTRAN_BLAS_MODE STREQUAL "SYSTEM")
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "SYSTEM")
   set(TPL_BLAS_LIBRARIES "${BLAS_LIBRARIES}"
     CACHE FILEPATH "Set from MYSTRAN BLAS resolution." FORCE)
   set(enable_internal_blaslib OFF
     CACHE BOOL "Use system BLAS for SuperLU" FORCE)
   set(TPL_ENABLE_INTERNAL_BLASLIB OFF
     CACHE BOOL "Use system BLAS for SuperLU" FORCE)
-  message(STATUS "MYSTRAN BLAS mode: SYSTEM (${BLAS_LIBRARIES})")
-else()
-  set(enable_internal_blaslib ON
-    CACHE BOOL "Build internal CBLAS for SuperLU" FORCE)
-  set(TPL_ENABLE_INTERNAL_BLASLIB ON
-    CACHE BOOL "Build internal CBLAS for SuperLU" FORCE)
   message(STATUS
-    "MYSTRAN BLAS mode: EMBEDDED (bundled reference routines)")
+    "MYSTRAN BLAS+LAPACK mode: SYSTEM (BLAS=${BLAS_LIBRARIES}, LAPACK=${LAPACK_LIBRARIES})")
+else()
+  # Embedded mode: SuperLU links the Reference-LAPACK `blas` target
+  # (Fortran BLAS only). SuperLU's bundled CBLAS shim is no longer
+  # needed because Reference-LAPACK's blas archive provides every BLAS
+  # symbol SuperLU references.
+  set(enable_internal_blaslib OFF
+    CACHE BOOL "Use embedded Reference-LAPACK BLAS for SuperLU" FORCE)
+  set(TPL_ENABLE_INTERNAL_BLASLIB OFF
+    CACHE BOOL "Use embedded Reference-LAPACK BLAS for SuperLU" FORCE)
+  set(TPL_BLAS_LIBRARIES "blas"
+    CACHE STRING "Set from MYSTRAN BLAS resolution." FORCE)
+  message(STATUS
+    "MYSTRAN BLAS+LAPACK mode: EMBEDDED (Reference-LAPACK submodule)")
 endif()
 
 if(USE_SUPERLU_MT)
@@ -443,52 +498,10 @@ file(GLOB_RECURSE ALL_FORTRAN_FILES
   "${CMAKE_SOURCE_DIR}/*.F03"
 )
 
-# Resolve BLAS linkage for the mystran target. The provider
-# (SYSTEM vs EMBEDDED) was decided up top; here we only act on it.
-if(_MYSTRAN_BLAS_MODE STREQUAL "EMBEDDED")
-  message(STATUS "Probing for missing BLAS routines to bundle locally")
-  list(
-    APPEND blas_fns dgemm dgemv dlamch dlanst dscal dsteqr dsterf dswap dtrsm
-    dtrtri ilaenv lsame xerbla
-  )
-
-  foreach(fname IN LISTS blas_fns)
-    set(CMAKE_REQUIRED_QUIET TRUE)
-    check_function_exists("${fname}" BLAS_FN_EXISTS)
-    unset(CMAKE_REQUIRED_QUIET)
-    set(BLAS_FN_EXISTS CACHE "1" STRING)
-
-    if(NOT BLAS_FN_EXISTS)
-      string(TOUPPER ${fname} fname_upper)
-      list(APPEND missing_blas_src "${BLAS_SOURCE_DIR}/${fname_upper}.f")
-      list(APPEND missing_blas_fns ${fname})
-    endif()
-
-    unset(BLAS_FN_EXISTS CACHE)
-  endforeach()
-
-  list(LENGTH missing_blas_fns MISSING_FNS_TOTAL)
-
-  if(MISSING_FNS_TOTAL GREATER 0)
-    if(MISSING_FNS_TOTAL GREATER 1)
-      message(
-        STATUS
-        "BLAS subrs (${missing_blas_fns}) are absent and will be built locally."
-      )
-    else()
-      message(
-        STATUS
-        "BLAS subr ${missing_blas_fns} is absent and will be built locally."
-      )
-    endif()
-  endif()
-else()
-  # SYSTEM mode: do not bundle any BLAS reference routines. The embedded
-  # LAPACK modules under Source/Modules/LAPACK still build (their public
-  # names are module-mangled and do not collide with system LAPACK).
-  set(missing_blas_src "")
-  set(MISSING_FNS_TOTAL 0)
-endif()
+# Exclude the Reference-LAPACK submodule from the mystran source list.
+# Its Fortran files live under Source/lapack/ but are compiled by the
+# submodule's own CMake project (when EMBEDDED), not by mystran.
+list(FILTER ALL_FORTRAN_FILES EXCLUDE REGEX "${CMAKE_SOURCE_DIR}/lapack/")
 
 # prepare the main executable, linked against the specifics and the m
 # it appears utils used to be a module, but that is no longer the case?
@@ -498,7 +511,6 @@ add_executable(
   mystran
   ${ALL_FORTRAN_FILES}
   ${SLU_DRIVER}
-  ${missing_blas_src}
 )
 
 # determine which superlu variant to link against
@@ -519,11 +531,9 @@ else()
   target_link_libraries(mystran superlu f2c)
 endif()
 
-# In SYSTEM mode, link the system BLAS after the SuperLU/f2c libraries
-# so unresolved BLAS calls from those archives also get satisfied.
-if(_MYSTRAN_BLAS_MODE STREQUAL "SYSTEM")
-  target_link_libraries(mystran ${BLAS_LIBRARIES})
-endif()
+# Link LAPACK first, then BLAS: LAPACK depends on BLAS so the linker
+# must see BLAS symbols last when resolving LAPACK references.
+target_link_libraries(mystran ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
 
 set_target_properties(
   mystran PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
@@ -592,11 +602,13 @@ if(TPL_ENABLE_METISLIB)
   endif()
 endif()
 
-# Local BLAS functions are compiled directly into the binary when the
-# system does not provide them; treat them as a bundled static object
-if(MISSING_FNS_TOTAL GREATER 0)
+# In EMBEDDED mode, the Reference-LAPACK submodule provides static
+# libblas.a and liblapack.a archives that get linked into the binary.
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "EMBEDDED")
   list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_BLAS)
-  list(APPEND _MYSTRAN_STATIC_NAMES libblas_local.a)
+  list(APPEND _MYSTRAN_STATIC_NAMES libblas.a)
+  list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_LAPACK)
+  list(APPEND _MYSTRAN_STATIC_NAMES liblapack.a)
 endif()
 
 # On Windows the -static linker flag pulls in Fortran and C runtimes too
@@ -616,11 +628,7 @@ endforeach()
 list(JOIN _MYSTRAN_STATIC_NAMES ", " _STATIC_NAMES_STR)
 message(STATUS "Static libraries linked in: ${_STATIC_NAMES_STR}")
 
-# force some libraries
-# LAPACK is currently always embedded (Source/Modules/LAPACK/*.f); the
-# follow-up effort tracked in dev_docs/lapack_unification_prompt.md will
-# make this conditional on _MYSTRAN_BLAS_MODE.
-list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_LAPACK)
+# ARPACK is always embedded under Source/Modules/ARPACK.
 list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_ARPACK)
 
 # -----------------------------------------------------------------------
@@ -888,16 +896,17 @@ else()
   set(_SLU_VARIANT "SuperLU (single-threaded)")
 endif()
 
-# BLAS source
-if(_MYSTRAN_BLAS_MODE STREQUAL "SYSTEM")
+# BLAS / LAPACK source
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "SYSTEM")
   set(_BLAS_INFO "System: ${BLAS_LIBRARIES}")
-elseif(MISSING_FNS_TOTAL GREATER 0)
-  set(_BLAS_INFO "Embedded reference (${MISSING_FNS_TOTAL} routine(s) compiled in)")
+  set(_LAPACK_INFO "System: ${LAPACK_LIBRARIES}")
 else()
-  set(_BLAS_INFO "System BLAS (provided by the OS, no routines compiled in)")
+  set(_BLAS_INFO "Embedded Reference-LAPACK submodule (libblas.a)")
+  set(_LAPACK_INFO "Embedded Reference-LAPACK submodule (liblapack.a)")
 endif()
 
 string(REPLACE "'" "''" _BLAS_INFO "${_BLAS_INFO}")
+string(REPLACE "'" "''" _LAPACK_INFO "${_LAPACK_INFO}")
 
 # METIS
 if(TPL_ENABLE_METISLIB)
@@ -930,6 +939,7 @@ string(APPEND _GEN_BLD_CONTENT
   "  WRITE(IUNIT,'(A)') ' '\n"
   "  WRITE(IUNIT,'(A)') '  Sparse solver       : ${_SLU_VARIANT}'\n"
   "  WRITE(IUNIT,'(A)') '  BLAS                : ${_BLAS_INFO}'\n"
+  "  WRITE(IUNIT,'(A)') '  LAPACK              : ${_LAPACK_INFO}'\n"
   "  WRITE(IUNIT,'(A)') '  METIS partitioner   : ${_METIS_INFO}'\n"
   "END SUBROUTINE PRINT_BUILD_CONSTANTS\n"
 )

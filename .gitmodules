@@ -23,3 +23,6 @@
 	ignore = all
 	update = checkout
 	branch = master
+[submodule "Source/lapack"]
+	path = Source/lapack
+	url = https://github.com/Reference-LAPACK/lapack.git

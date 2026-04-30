@@ -43,7 +43,6 @@
       USE LAPACK_DPB_MATRICES, ONLY   :  ABAND, LAPACK_S, RES
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG, NDEBUG
       USE MACHINE_PARAMS, ONLY        :  MACH_EPS, MACH_SFMIN
-      USE LAPACK_LIN_EQN_DPB
 
       USE SYM_MAT_DECOMP_LAPACK_USE_IFs
 
@@ -88,7 +87,7 @@
 ! Calculate the answer via forward/backward substitution. Subr DPBTRS returns the answer in the workspace (INOUT_COL)
 ! for the right-hand side (which, at entry, was INOUT_COL)
 
-      CALL DPBTRS ( UPLO, NROWS, MATIN_SDIA, NUM_COLS, ABAND, MATIN_SDIA+1, INOUT_COL, NROWS, INFO, 'N' )
+      CALL DPBTRS ( UPLO, NROWS, MATIN_SDIA, NUM_COLS, ABAND, MATIN_SDIA+1, INOUT_COL, NROWS, INFO )
 
       CALLED_SUBR = 'DPBTRS'
       IF (INFO < 0) THEN                                   ! LAPACK subr XERBLA should have reported error on an illegal argument

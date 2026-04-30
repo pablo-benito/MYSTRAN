@@ -29,14 +29,13 @@
 ! Use LAPACK function DLAMCH to get machine parameters for the users' computer
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR
+      USE IOUNT1, ONLY                :  WRT_ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ONE
       USE MACHINE_PARAMS, ONLY        :  MACH_BASE, MACH_EMAX, MACH_EMIN, MACH_EPS, MACH_PREC, MACH_RMAX, MACH_RMIN, MACH_RND,     &
                                          MACH_SFMIN, MACH_T, MACH_LARGE_NUM
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
-      USE LAPACK_BLAS_AUX
 
       USE GET_MACHINE_PARAMS_USE_IFs
 

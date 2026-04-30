@@ -121,7 +121,6 @@
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
-      USE LAPACK_STD_EIG_1
 
       IMPLICIT NONE
 

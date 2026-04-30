@@ -162,39 +162,39 @@ and run the appropriate `cmake` command again.
 
 ---
 
-### "I'm getting cryptic linker errors related to BLAS!"
+### "I'm getting cryptic linker errors related to BLAS or LAPACK!"
 
-MYSTRAN and SuperLU both need BLAS. The build system picks one of
-three providers via the `MYSTRAN_BLAS` CMake option:
+MYSTRAN and SuperLU both need BLAS and LAPACK. The build system
+picks one of three providers via the `MYSTRAN_BLAS_LAPACK` CMake
+option:
 
-  - **`AUTO`** (default): try to locate a system BLAS (we recommend
-    OpenBLAS); if it isn't found, fall back to the bundled reference
-    routines.
-  - **`SYSTEM`**: require system BLAS; configuration fails with a
-    clear error if it cannot be found.
-  - **`EMBEDDED`**: ignore the system entirely and always compile in
-    MYSTRAN's bundled reference BLAS plus SuperLU's CBLAS.
+  - **`AUTO`** (default): try to locate a system BLAS and LAPACK (we
+    recommend OpenBLAS); if either isn't found, fall back to the
+    bundled Reference-LAPACK submodule.
+  - **`SYSTEM`**: require system BLAS and LAPACK; configuration
+    fails with a clear error if either cannot be found.
+  - **`EMBEDDED`**: ignore the system entirely and always build the
+    bundled Reference-LAPACK submodule (`Source/lapack/`), which
+    provides both BLAS and LAPACK.
 
-If the auto-detection picks up a BLAS that does not ship a static
+If the auto-detection picks up libraries that do not ship a static
 `.a` archive (a common Windows situation), re-run CMake with
-`-DMYSTRAN_BLAS=EMBEDDED` to force the bundled fallback.
+`-DMYSTRAN_BLAS_LAPACK=EMBEDDED` to force the bundled fallback.
 
 On Windows we ship fully static binaries, so when requesting
 `SYSTEM` mode you must have a static OpenBLAS available
 (MSYS2 / MinGW64: `pacman -S mingw-w64-x86_64-openblas`).
 
-The legacy `-Denable_internal_blaslib=YES` flag still works; it is
-mapped to `-DMYSTRAN_BLAS=EMBEDDED` with a deprecation warning.
+The legacy `-Denable_internal_blaslib=YES` and `-DMYSTRAN_BLAS=...`
+flags still work; they are mapped to `MYSTRAN_BLAS_LAPACK` with a
+deprecation warning.
 
-LAPACK is always provided by MYSTRAN's bundled reference
-implementation under `Source/Modules/LAPACK/`; system LAPACK is not
-yet supported. (See `dev_docs/lapack_unification_prompt.md` for the
-follow-up effort.)
-
-Please be aware that the bundled reference BLAS is considerably
-slower than a tuned implementation like OpenBLAS or MKL. That can
-have a significant impact on the time it takes to run larger
-models.
+The bundled Reference-LAPACK is considerably slower than a tuned
+implementation like OpenBLAS or MKL. That can have a significant
+impact on the time it takes to run larger models. A small set of
+mathematically-deviated routines (kept in
+`Source/Modules/MYSTRAN_LAPACK_EXT/`) is always compiled into
+MYSTRAN regardless of which provider is selected.
 
 ---
 
