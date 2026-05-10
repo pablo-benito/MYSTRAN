@@ -188,16 +188,12 @@
 
       IF (OPT(4) == 'Y') THEN
 
-         DO J=1,6*ELGP
-            DO K=1,6*ELGP
-               KE1(J,K) = KE(J,K)
-            ENDDO
-         ENDDO
+
+      KE1 = KE(:6*ELGP, :6*ELGP)
 
 ! Mult E'*KE*E
-
-         CALL MATMULT_FFF   ( KE1, E     , 6*ELGP, 6*ELGP, 6*ELGP, DUM_KE )
-         CALL MATMULT_FFF_T ( E  , DUM_KE, 6*ELGP, 6*ELGP, 6*ELGP, KE1    )
+      DUM_KE = MATMUL(KE1,E)
+      KE1 = MATMUL(TRANSPOSE(E),DUM_KE)
 
 ! **********************************************************************************************************************************
 ! Add K6ROT stiffness
@@ -300,12 +296,7 @@
 
 
 ! Set KE = KE1 for 6*ELGP by 6*ELGP terms
-
-         DO J=1,6*ELGP
-            DO K=1,6*ELGP
-               KE(J,K) = KE1(J,K)
-            ENDDO
-         ENDDO
+      KE(:6*ELGP, :6*ELGP) = KE1
 
       ENDIF
 

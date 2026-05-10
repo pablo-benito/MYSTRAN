@@ -337,11 +337,9 @@
          IORD_MSG = ' '
          DO I=1,IORD
 
-            DO L=1,6
-               DO M=1,3*ELGP
-                  BI(L,M) = B(L,M,I)
-               ENDDO
-            ENDDO
+
+            BI = B(:,:,I)
+
 
             CALL MATMULT_FFF ( ES, BI, 6, 6, 3*ELGP, DUM4 )
 

@@ -57,9 +57,6 @@
       REAL(DOUBLE) , INTENT(OUT)      :: JACI(3,3)         ! 3 x 3 inverse of JAC
       REAL(DOUBLE)                    :: B(3,3)            ! Array used in calculating inverse of JAC
       REAL(DOUBLE)                    :: EPS1              ! A small number to compare real zero
-      REAL(DOUBLE)                    :: XL(ELGP,3)        ! Array of local element coords for the element (note: cannot use XEL
-!                                                            directly since it is dimensioned MELGP x 3, not ELGP x 3)
-
 
 ! **********************************************************************************************************************************
 ! Initialize outputs
@@ -70,14 +67,7 @@
 
       EPS1 = EPSIL(1)
 
-      DO I=1,ELGP                                          ! Use XL array since XEL is dimensioned MELGP x 3, not ELGP x 3
-         DO J=1,3
-            XL(I,J) = XEL(I,J)
-         ENDDO
-      ENDDO
-
-      CALL MATMULT_FFF ( DPSHG, XL, 3, ELGP, 3, JAC )
-
+      JAC = MATMUL(DPSHG, XEL(:ELGP,1:3))
       B(1,1) = JAC(2,2)*JAC(3,3) - JAC(2,3)*JAC(3,2)
       B(1,2) = JAC(2,1)*JAC(3,3) - JAC(2,3)*JAC(3,1)
       B(1,3) = JAC(2,1)*JAC(3,2) - JAC(2,2)*JAC(3,1)
