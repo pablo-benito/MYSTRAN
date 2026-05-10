@@ -147,19 +147,8 @@
 
 ! Initialize
 
-      DO J=1,6*ELGP
-         DO K=1,6*ELGP
-            E(J,K)   = ZERO
-         ENDDO
-      ENDDO
-
-      DO I=1,ELGP
-         DO J=1,6
-            DO K=1,6
-               Ei(I,J,K) = ZERO
-            ENDDO
-         ENDDO
-      ENDDO
+      E  = ZERO
+      Ei = ZERO
 
       DO I=1,ELGP
 

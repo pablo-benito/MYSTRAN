@@ -648,9 +648,7 @@
             NAME2 = 'AGRID, UEL displs of ' ; NAME3 = ' local elem ' ; WRITE(BUG,2010) NAME2, NAME3, CASE_NUM
             I2 = 0
             DO I=1,ELGP
-               DO J=1,6
-                  OEL(J) = ZERO
-               ENDDO
+               OEL = ZERO
                CALL GET_GRID_NUM_COMPS ( BGRID(I), NUM_COMPS, SUBR_NAME )
                DO J=1,NUM_COMPS
                   I2 = I2 + 1
@@ -664,9 +662,7 @@
             NAME2 = 'AGRID, PEL loads at  ' ; NAME3 = ' local elem ' ; WRITE(BUG,2010) NAME2, NAME3, CASE_NUM
             I2 = 0
             DO I=1,ELGP
-               DO J=1,6
-                  OEL(J) = ZERO
-               ENDDO
+               OEL = ZERO
                CALL GET_GRID_NUM_COMPS ( BGRID(I), NUM_COMPS, SUBR_NAME )
                DO J=1,NUM_COMPS
                   I2 = I2 + 1
@@ -682,9 +678,7 @@
             NAME2 = 'AGRID, UEB displs of ' ; NAME3 = ' basic      ' ; WRITE(BUG,2010) NAME2, NAME3, CASE_NUM
             I2 = 0
             DO I=1,ELGP
-               DO J=1,6
-                  OEL(J) = ZERO
-               ENDDO
+               OEL = ZERO
                CALL GET_GRID_NUM_COMPS ( BGRID(I), NUM_COMPS, SUBR_NAME )
                DO J=1,NUM_COMPS
                   I2 = I2 + 1
@@ -698,9 +692,7 @@
             NAME2 = 'AGRID, PEB loads at  ' ; NAME3 = ' basic      ' ; WRITE(BUG,2010) NAME2, NAME3, CASE_NUM
             I2 = 0
             DO I=1,ELGP
-               DO J=1,6
-                  OEL(J) = ZERO
-               ENDDO
+               OEL = ZERO
                CALL GET_GRID_NUM_COMPS ( BGRID(I), NUM_COMPS, SUBR_NAME )
                DO J=1,NUM_COMPS
                   I2 = I2 + 1
@@ -716,9 +708,7 @@
             NAME2 = 'AGRID, UEG displs of ' ; NAME3 = ' global     ' ; WRITE(BUG,2010) NAME2, NAME3, CASE_NUM
             I2 = 0
             DO I=1,ELGP
-               DO J=1,6
-                  OEL(J) = ZERO
-               ENDDO
+               OEL = ZERO
                CALL GET_GRID_NUM_COMPS ( BGRID(I), NUM_COMPS, SUBR_NAME )
                DO J=1,NUM_COMPS
                   I2 = I2 + 1
@@ -732,9 +722,7 @@
             NAME2 = 'AGRID, PEG loads at  ' ; NAME3 = ' global     ' ; WRITE(BUG,2010) NAME2, NAME3, CASE_NUM
             I2 = 0
             DO I=1,ELGP
-               DO J=1,6
-                  OEL(J) = ZERO
-               ENDDO
+               OEL = ZERO
                CALL GET_GRID_NUM_COMPS ( BGRID(I), NUM_COMPS, SUBR_NAME )
                DO J=1,NUM_COMPS
                   I2 = I2 + 1

@@ -254,13 +254,7 @@
 
        IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6) == 'Y')) THEN
 
-         DO I=1,6
-            DO J=1,3*ELGP
-               DO K=1,IORD*IORD*IORD
-                  B(I,J,K) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         B = ZERO
 
          CALL ORDER_GAUSS ( IORD, SSS, HHH )
          IORD_MSG = 'for 3-D solid strains,           input IORD = '
@@ -380,10 +374,8 @@
 
          DO N=1,NTSUB
 
-            DO L=1,3*ELGP
-               DUM0(L) = ZERO
-               DUM1(L) = ZERO
-            ENDDO
+            DUM0 = ZERO
+            DUM1 = ZERO
 
             IORD_MSG = 'for 3-D solid strains,           input IORD = '
             GAUSS_PT = 0
@@ -450,11 +442,7 @@
               SSI = -1; SSJ = +1; SSK = +1
           END SELECT
 
-          DO K=1,6
-            DO L=1,3*ELGP
-               DUM2(K,L) = ZERO
-            ENDDO
-          ENDDO
+         DUM2 = ZERO
                                                            ! Calc SE1,2,3
           IORD_MSG = 'for 3-D solid strains,                      = '
           CALL SHP3DH ( 0, 0, 0, ELGP, SUBR_NAME, IORD_MSG, 1, SSI, SSJ, SSK, 'N', PSH, DPSHG )
@@ -492,11 +480,7 @@
 
       IF (OPT(4) == 'Y') THEN
 
-         DO I=1,3*ELGP
-            DO J=1,3*ELGP
-               DUM3(I,J) = ZERO
-            ENDDO
-         ENDDO
+         DUM3 = ZERO
 
          IORD_MSG = ' '
          GAUSS_PT = 0
@@ -632,11 +616,7 @@
           KWW(3,1) = KWW(1,3)
           KWW(3,2) = KWW(2,3)
 
-          DO I=1,3*ELGP
-            DO J=1,3*ELGP
-              DUM3(I,J) = ZERO
-            ENDDO
-          ENDDO
+         DUM3 = ZERO
 
                                                            ! KED = int( CBAR^T * KWW * CBAR , dV)
           IORD_MSG = ' '
@@ -691,11 +671,7 @@
           KWW(3,1) = KWW(1,3)
           KWW(3,2) = KWW(2,3)
 
-          DO I=1,ELGP
-            DO J=1,ELGP
-               DUM7(I,J) = ZERO
-            ENDDO
-          ENDDO
+         DUM7 = ZERO
 
                                                            ! KED = int( DPSHX^T * KWW * DPSHX , dV)
           IORD_MSG = ' '
@@ -722,11 +698,7 @@
           ENDDO
 
                                                            ! Initialize KED to zero
-          DO I=1,6*ELGP
-            DO J=1,6*ELGP
-               KED(I,J) = ZERO
-            ENDDO
-          ENDDO
+         KED = ZERO
                                                            ! Copy submatrix into KED for each DOF.
           DO I=1,ELGP
             DO J=1,ELGP

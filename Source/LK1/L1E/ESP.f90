@@ -169,9 +169,7 @@
             WRITE(F06,14001)
          ENDIF
 
-         DO J=0,MBUG-1
-            WRT_BUG(J) = 0
-         ENDDO
+         WRT_BUG = 0
 
          IF (LINKNO == 1) THEN                             ! Only want element stiff matrix, KE, written to BUG file in LINK 1
 

@@ -211,13 +211,7 @@
 ! **********************************************************************************************************************************
 ! Generate B matrices. The B matrix terms for Gauss point k are B(i,j,k)
 
-      DO I=1,6
-         DO J=1,3*ELGP
-            DO K=1,IORD*IORD*IORD
-               B(I,J,K) = ZERO
-            ENDDO
-         ENDDO
-      ENDDO
+      B = ZERO
 
       IORD_MSG = 'for 3-D solid strains,           input IORD = '
       DO I=1,IORD
@@ -245,10 +239,8 @@
 
          DO N=1,NTSUB
 
-            DO L=1,3*ELGP
-               DUM0(L) = ZERO
-               DUM1(L) = ZERO
-            ENDDO
+            DUM0 = ZERO
+            DUM1 = ZERO
 
             IORD_MSG = 'for 3-D solid strains,           input IORD = '
             GAUSS_PT = 0
@@ -301,11 +293,7 @@
               SSI =  0; SSJ =  0; SSK = +1
           END SELECT
 
-          DO K=1,6
-            DO L=1,3*ELGP
-               DUM2(K,L) = ZERO
-            ENDDO
-          ENDDO
+         DUM2 = ZERO
 
           GAUSS_PT = 1                                     ! Calc SE1,2,3
           IORD_MSG = 'for 3-D solid strains,                      = '
@@ -344,11 +332,7 @@
 
       IF (OPT(4) == 'Y') THEN
 
-         DO I=1,3*ELGP
-            DO J=1,3*ELGP
-               DUM3(I,J) = ZERO
-            ENDDO
-         ENDDO
+         DUM3 = ZERO
 
          IORD_MSG = ' '
          DO I=1,IORD

@@ -69,11 +69,7 @@
 
       IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(6) == 'Y')) THEN
 
-         DO I=1,MDT
-            DO J=1,NTSUB
-               DT(I,J) = ZERO
-            ENDDO
-         ENDDO
+         DT = ZERO
 
          IF (NTSUB > 0) THEN
 
@@ -118,11 +114,7 @@
 
          IF (LPDAT > 0) THEN
 
-            DO I=1,MPRESS
-               DO J=1,NSUB
-                  PRESS(I,J) = ZERO
-               ENDDO
-            ENDDO
+            PRESS = ZERO
 
             IF ((TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'QUAD4')) THEN
 
