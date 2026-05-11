@@ -62,13 +62,8 @@
 ! Initialize outputs
 
       DETJ = ZERO
-
-      DO I=1,2
-         DO J=1,2
-            JAC(I,J)  = ZERO
-            JACI(I,J) = ZERO
-         ENDDO
-      ENDDO
+      JAC  = ZERO
+      JACI = ZERO
 
       EPS1 = EPSIL(1)
 
