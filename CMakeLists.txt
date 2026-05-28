@@ -427,78 +427,6 @@ else()
   set(SLU_DRIVER "${SUPERLU_DIR}/FORTRAN/c_fortran_dgssv.c")
 endif()
 
-# f2c stuff
-set(F2C_DIR "${PROJECT_SOURCE_DIR}/f2c")
-set(F2C_INCLUDE_DIR "${F2C_DIR}/include")
-set(F2C_FN "${F2C_DIR}/libf2c.zip")
-set(F2C_URL "https://www.netlib.org/f2c/libf2c.zip")
-
-# download f2c
-if(NOT EXISTS ${F2C_DIR})
-  message(STATUS "Downloading libf2c source from ${F2C_URL}...")
-  make_directory("${F2C_DIR}")
-  file(DOWNLOAD ${F2C_URL} ${F2C_FN} TIMEOUT 60 STATUS DOWNLOAD_STATUS)
-
-  # Check if download was successful.
-  list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
-  list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
-
-  if(${STATUS_CODE} EQUAL 0)
-    message(STATUS "Done downloading libf2c.")
-  else()
-    # Exit CMake if the download failed, printing the error message.
-    file(REMOVE_RECURSE ${F2C_DIR})
-    message(FATAL_ERROR "Error downloading libf2c: ${ERROR_MESSAGE}")
-  endif()
-endif()
-
-# extract libf2c source
-file(ARCHIVE_EXTRACT INPUT ${F2C_FN} DESTINATION ${F2C_DIR})
-
-# prepare libf2c header files
-file(GLOB_RECURSE F2C_PREHEADERS "${F2C_DIR}/*.h0")
-
-foreach(H0 ${F2C_PREHEADERS})
-  string(REGEX REPLACE "[.]h0$" ".h" H0_R ${H0})
-  file(RENAME "${H0}" "${H0_R}")
-  file(COPY "${H0_R}" DESTINATION "${F2C_INCLUDE_DIR}")
-endforeach()
-
-# get a load of this: f2c generates its own "arith.h" on the fly
-# so we gotta compile arithchk and run it
-set(F2C_ARITHCHK_SRC "${F2C_DIR}/arithchk.c")
-set(F2C_ARITHCHK_BIN "${F2C_DIR}/arithchk")
-
-if(WIN32)
-  set(F2C_ARITHCHK_BIN "${F2C_ARITHCHK_BIN}.exe")
-endif()
-
-set(F2C_ARITH_H "${F2C_INCLUDE_DIR}/arith.h")
-set_source_files_properties(
-  ${F2C_ARITHCHK_SRC} PROPERTIES COMPILE_FLAGS "-DNO_LONG_LONG -DNO_FPINIT"
-)
-add_executable(arithchk ${F2C_ARITHCHK_SRC})
-target_link_libraries(arithchk m)
-set_target_properties(
-  arithchk PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${F2C_DIR}
-)
-add_custom_command(
-  OUTPUT ${F2C_ARITH_H}
-  COMMAND ${F2C_ARITHCHK_BIN} > ${F2C_ARITH_H}
-  DEPENDS ${F2C_ARITHCHK_BIN}
-)
-
-# add libf2c to the compilation procedures
-include_directories(${F2C_INCLUDE_DIR})
-file(GLOB_RECURSE F2C_CFILES "${F2C_DIR}/*.c")
-add_definitions(-DINTEGER_STAR_8)
-add_library(f2c ${F2C_CFILES} ${F2C_ARITH_H})
-
-# add some extra win32 flags for libf2c
-if(WIN32)
-  add_definitions(-DUSE_CLOCK -DMSDOS)
-endif()
-
 # set some extra vars for MSYS builds to make the binary portable
 if(WIN32)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
@@ -530,9 +458,9 @@ add_executable(
 if(USE_SUPERLU_MT)
   if(PLAT STREQUAL "_PTHREAD")
     message(WARNING "We recommend using OpenMP, not pthread!")
-    target_link_libraries(mystran superlu_mt_PTHREAD f2c)
+    target_link_libraries(mystran superlu_mt_PTHREAD)
   elseif(PLAT STREQUAL "_OPENMP")
-    target_link_libraries(mystran superlu_mt_OPENMP f2c)
+    target_link_libraries(mystran superlu_mt_OPENMP)
   endif()
 
   target_compile_definitions(mystran PRIVATE USE_SUPERLU_MT)
@@ -541,7 +469,7 @@ if(USE_SUPERLU_MT)
     target_compile_definitions(mystran PRIVATE HAVE_METIS)
   endif()
 else()
-  target_link_libraries(mystran superlu f2c)
+  target_link_libraries(mystran superlu)
 endif()
 
 # Link LAPACK first, then BLAS: LAPACK depends on BLAS so the linker
@@ -568,10 +496,6 @@ endif()
 # -----------------------------------------------------------------------
 set(_MYSTRAN_STATIC_DEFS "")
 set(_MYSTRAN_STATIC_NAMES "")
-
-# f2c is always built and linked as a static archive
-list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_F2C)
-list(APPEND _MYSTRAN_STATIC_NAMES libf2c.a)
 
 if(USE_SUPERLU_MT)
   list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_SUPERLU_MT)
@@ -730,7 +654,6 @@ list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_ARPACK)
 # Add new entries here whenever a new statically-linked library is added.
 # -----------------------------------------------------------------------
 set(_MYSTRAN_LICENSE_MAP
-  "F2C:f2c/Notice:libf2c:Fortran-to-C runtime support library"
   "SUPERLU:submodules/superlu/License.txt:SuperLU:sparse solver"
   "SUPERLU_MT:submodules/superlu_mt/License.txt:SuperLU_MT:multi-threaded sparse solver"
   "METIS:submodules/metis/LICENSE:METIS:graph partitioner for SuperLU"
