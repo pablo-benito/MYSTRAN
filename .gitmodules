@@ -26,3 +26,4 @@
 [submodule "Source/lapack"]
 	path = submodules/lapack
 	url = https://github.com/Reference-LAPACK/lapack.git
+	ignore = all
