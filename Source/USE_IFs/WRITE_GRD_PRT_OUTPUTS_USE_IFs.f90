@@ -31,5 +31,7 @@
       USE OUTA_HERE_Interface
       USE GET_GRID_AND_COMP_Interface
       USE WRT_REAL_TO_CHAR_VAR_Interface
+      USE FMT_ES14_6_Interface
+      USE FMT_I8_RJ_Interface
 
       END MODULE WRITE_GRD_PRT_OUTPUTS_USE_IFs

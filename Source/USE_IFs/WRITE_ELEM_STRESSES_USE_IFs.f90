@@ -34,5 +34,7 @@
       USE GET_MAX_MIN_ABS_STR_Interface
       USE WRITE_ROD_Interface
       USE OUTA_HERE_Interface
+      USE FMT_ES14_6_Interface
+      USE FMT_I8_RJ_Interface
 
       END MODULE WRITE_ELEM_STRESSES_USE_IFs

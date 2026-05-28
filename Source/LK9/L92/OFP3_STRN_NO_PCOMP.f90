@@ -151,11 +151,7 @@
          ENDIF
       ENDDO
 
-      DO I=1,MAXREQ
-         DO J=1,MOGEL
-            OGEL(I,J) = ZERO
-         ENDDO
-      ENDDO
+      OGEL = ZERO
 
 !xx   IROW_MAT = 0
 !xx   IROW_TXT = 0

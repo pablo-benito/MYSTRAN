@@ -24,44 +24,50 @@
 
 ! End MIT license text.
 
-      SUBROUTINE WRT_REAL_TO_CHAR_VAR ( REAL_VAR, NROWS, NCOLS, ROW_NUM, CHAR_VAR )
+      SUBROUTINE FMT_I8_RJ ( V, OUT )
 
-! Writes real values in one row of array REAL_VAR to a character variable, CHAR_VAR. This is done so that we can change real
-! zero's to character values. Then the calling routine that will write REAL_VAR values to the F06 file can have values such as
-! '  0.0         ' written rather than the 1ES14.6 format: 0.000000E+00. This subr is written for word lengths of 14 bytes only
+! Right-justify a signed integer into an 8-character field, padded with spaces. Produces the same output
+! as Fortran's I8 edit descriptor but avoids the internal WRITE machinery. Used in the LK9 output
+! pipeline alongside FMT_ES14_6 to accelerate F06 line assembly. Values with more than 8 significant
+! digits (counting the sign) fall back to a Fortran internal WRITE so the field stays well formed.
 
-      USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  ERR, F06
-      USE SCONTR, ONLY                :  FATAL_ERR
-      USE CONSTANTS_1, ONLY           :  ZERO
+      USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG
 
-      USE WRT_REAL_TO_CHAR_VAR_USE_IFs                        ! Added 2019/07/14
+      USE FMT_I8_RJ_USE_IFs
 
       IMPLICIT NONE
 
-      CHARACTER(14*BYTE), INTENT(OUT) :: CHAR_VAR(NCOLS)      ! Character representation of the real data in one row of REAL_VAR
+      INTEGER(LONG), INTENT(IN)       :: V                    ! Integer value to format
+      CHARACTER(8*BYTE), INTENT(OUT)  :: OUT                  ! 8-char right-justified result
 
-      INTEGER(LONG), INTENT(IN)       :: NCOLS                ! Number of cols in array REAL_VAR
-      INTEGER(LONG), INTENT(IN)       :: NROWS                ! Number of rows in array REAL_VAR
-      INTEGER(LONG), INTENT(IN)       :: ROW_NUM              ! Row number in array REAL_VAR to write
-      INTEGER(LONG)                   :: J                    ! DO loop index
-
-      REAL(DOUBLE) , INTENT(IN)       :: REAL_VAR(NROWS,NCOLS)!
+      INTEGER(LONG)                   :: X, K
+      INTEGER(LONG), PARAMETER        :: ZERO_CHAR = IACHAR('0')
 
 ! **********************************************************************************************************************************
-! FMT_ES14_6 produces the same 14-char output as Fortran's 1ES14.6 edit descriptor but avoids the
-! per-value internal WRITE overhead. Exact zeros are then overwritten with this routine's historical
-! '  0.0         ' substitution so the F06 output stays bit-identical.
-      DO J=1,NCOLS
-         IF (ABS(REAL_VAR(ROW_NUM,J)) == ZERO) THEN
-            CHAR_VAR(J) = '  0.0         '
-         ELSE
-            CALL FMT_ES14_6 ( REAL_VAR(ROW_NUM,J), CHAR_VAR(J) )
-         ENDIF
+      OUT = '        '
+
+      IF (V == 0) THEN
+         OUT(8:8) = '0'
+         RETURN
+      ENDIF
+
+      ! Overflow guard: an I8 field holds at most 8 chars (sign + 7 digits for negatives, 8 digits for non-negatives).
+      IF ((V > 99999999_LONG) .OR. (V < -9999999_LONG)) THEN
+         WRITE(OUT,'(I8)') V
+         RETURN
+      ENDIF
+
+      X = ABS(V)
+      K = 8
+      DO WHILE ((X > 0) .AND. (K >= 1))
+         OUT(K:K) = ACHAR(ZERO_CHAR + MOD(X, 10_LONG))
+         X        = X / 10
+         K        = K - 1
       ENDDO
+      IF ((V < 0) .AND. (K >= 1)) OUT(K:K) = '-'
 
       RETURN
 
 ! **********************************************************************************************************************************
 
-      END SUBROUTINE WRT_REAL_TO_CHAR_VAR
+      END SUBROUTINE FMT_I8_RJ

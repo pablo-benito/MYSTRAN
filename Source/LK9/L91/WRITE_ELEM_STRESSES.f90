@@ -100,6 +100,8 @@
       INTEGER(LONG)                   :: ISUBCASE_INDEX   ! the index into SCNUM
       INTEGER(LONG)                   :: CID              ! coordinate system
       CHARACTER(4*BYTE)               :: CEN_WORD         ! the word "CEN/" (we need to cast the length)
+      CHARACTER(139*BYTE)             :: CLINE_BUF        ! Pre-assembled CENTER line for solid stresses (matches FORMAT 1303)
+      CHARACTER(139*BYTE)             :: GLINE_BUF        ! Pre-assembled GRD    line for solid stresses (matches FORMAT 1306)
 
 
 
@@ -462,15 +464,31 @@
          ENDIF
 
          IF (WRITE_F06) THEN
+            ! Pre-fill the fixed-text positions of the line buffers; variable fields (EID/GID and the
+            ! per-point values) are overwritten in the loop below. Layouts:
+            !   CLINE_BUF: FORMAT 1303 = (1X,I8,2X,'CENTER  ',8X,8(1ES14.6))
+            !   GLINE_BUF: FORMAT 1306 = (1X,A,10X,'GRD',I8,5X,8(1ES14.6)) with A = FILL(1:0) (empty)
+            CLINE_BUF = ' '
+            CLINE_BUF(12:19) = 'CENTER  '
+            GLINE_BUF = ' '
+            GLINE_BUF(12:14) = 'GRD'
             K = 0
             DO I=1,NUM,NUM_PTS
                K = K + 1
                ! Center
-               WRITE(F06,1303) EID_OUT_ARRAY(I,1),(OGEL(K,J),J=1,NCOLS)
+               CALL FMT_I8_RJ ( EID_OUT_ARRAY(I,1), CLINE_BUF(2:9) )
+               DO J=1,NCOLS
+                  CALL FMT_ES14_6 ( OGEL(K,J), CLINE_BUF(28 + (J-1)*14 : 27 + J*14) )
+               ENDDO
+               WRITE(F06,'(A)') CLINE_BUF(1 : 27 + NCOLS*14)
                ! Corner
                DO L=1,NUM_PTS-1
                   K = K + 1
-                  WRITE(F06,1306) FILL(1: 0), GID_OUT_ARRAY(I,L+1),(OGEL(K,J),J=1,NCOLS)
+                  CALL FMT_I8_RJ ( GID_OUT_ARRAY(I,L+1), GLINE_BUF(15:22) )
+                  DO J=1,NCOLS
+                     CALL FMT_ES14_6 ( OGEL(K,J), GLINE_BUF(28 + (J-1)*14 : 27 + J*14) )
+                  ENDDO
+                  WRITE(F06,'(A)') GLINE_BUF(1 : 27 + NCOLS*14)
                ENDDO
             ENDDO
          ENDIF
