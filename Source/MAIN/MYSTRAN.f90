@@ -417,6 +417,8 @@ iters:      DO
       WRITE(BUG,152) MONTH,DAY,YEAR,HOUR,MINUTE,SEC,SFRAC
       WRITE(ERR,152) MONTH,DAY,YEAR,HOUR,MINUTE,SEC,SFRAC
       WRITE(F06,152) MONTH,DAY,YEAR,HOUR,MINUTE,SEC,SFRAC
+      WRITE(F06,*)
+      WRITE(F06,*) "                                         * * * END OF JOB * * *"
 
       IF (( DEBUG(193) == 100) .OR. (DEBUG(193) == 999)) THEN
          CALL FILE_INQUIRE ( 'near end of MAIN' )

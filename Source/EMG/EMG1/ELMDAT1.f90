@@ -168,11 +168,8 @@
 
 ! Obtain the coordinates of the G.P.'s for this element
 
-      DO I=1,MELGP+1
-         DO J=1,3
-            XEB(I,J) = ZERO
-         ENDDO
-      ENDDO
+      XEB = ZERO
+
       DO I=1,ELGP
          XEB(I,1) = RGRID(BGRID(I),1)
          XEB(I,2) = RGRID(BGRID(I),2)
@@ -210,9 +207,7 @@
       GET_VVEC         = 'Y'
       VVEC_DEFINED     = 'N'
       BUSH_VVEC_OR_CID = 'Y'
-      DO J=1,3                                             ! Initialize V vector
-         VV(J) = ZERO
-      ENDDO
+      VV = ZERO
       IF ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ') .OR. (TYPE == 'BUSH    ') .OR. (TYPE == 'USER1   ')) THEN
 
          VVEC_FLAG = 0
@@ -321,9 +316,7 @@
 ! Generate EPROP elem properties for this element. Shell elems with PCOMP props are handled in subr SHELL_ABD_MATRICES.
 ! Note solid elements have no real property data
 
-      DO I=1,MEPROP
-         EPROP(I) = ZERO
-      ENDDO
+      EPROP = ZERO
 
       IF      (TYPE == 'BAR     ') THEN
          DO I=1,MRPBAR
@@ -841,11 +834,7 @@
                          + (XEB(2,3) - XEB(1,3))*(XEB(2,3) - XEB(1,3)) )
       IF (CAN_ELEM_TYPE_OFFSET == 'Y') THEN
 
-         DO I=1,ELGP
-            DO J=1,3
-               OFFDIS(I,J) = ZERO
-            ENDDO
-         ENDDO
+         OFFDIS = ZERO
 
          IF      ((TYPE == 'BAR     ') .OR. (TYPE == 'BEAM    ')) THEN
 

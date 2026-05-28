@@ -77,27 +77,14 @@
       EPS1   = EPSIL(1)
 
 ! **********************************************************************************************************************************
-
 ! Initialize arrays
-
-      DO I=1,3                                             ! Material membrane and bending matrices
-         DO J=1,3
-            EM(I,J) = ZERO
-            EB(I,J) = ZERO
-         ENDDO
-      ENDDO
-
-      DO I=1,2                                             ! Material transverse shear matrix
-         DO J=1,2
-            ET(I,J) = ZERO
-         ENDDO
-      ENDDO
-
-      DO I=1,6                                             ! Vector of CTE's
-         DO J=1,MEMATC
-            ALPVEC(I,J) = ZERO
-         ENDDO
-      ENDDO
+      ! Material membrane and bending matrices
+      EM = ZERO
+      EB = ZERO
+      ! Material transverse shear matrix
+      ET = ZERO
+      ! Vector of CTE's
+      ALPVEC = ZERO
 
 ! **********************************************************************************************************************************
 ! In-plane stress material props.
