@@ -162,15 +162,13 @@ if(BLAS_FOUND)
   string(REPLACE ";" " " BLAS_LIB_STR "${BLAS_LIB}")
   set(BLAS_LIB_EXPORT ${BLAS_LIB_STR})
 else()
-  message("-- Did not find or specify BLAS so configure to build internal CBLAS ...")
-  add_subdirectory(CBLAS)
-  set(BLAS_LIB blas)
-
-  if(BUILD_SHARED_LIBS) # export to be referenced by downstream makefile
-    set(BLAS_LIB_EXPORT ${CMAKE_INSTALL_PREFIX}/CBLAS/libblas.so)
-  else()
-    set(BLAS_LIB_EXPORT ${CMAKE_INSTALL_PREFIX}/CBLAS/libblas.a)
-  endif()
+  # MYSTRAN never lets SuperLU build its own bundled CBLAS: BLAS comes
+  # exclusively from either the system or the Reference-LAPACK submodule,
+  # both forwarded via TPL_BLAS_LIBRARIES from the top-level CMakeLists.
+  message(FATAL_ERROR
+    "SuperLU could not find a BLAS provider. The MYSTRAN build is "
+    "expected to always pass TPL_BLAS_LIBRARIES; building SuperLU's "
+    "internal CBLAS is disabled.")
 endif()
 
 # --------------------- METIS ---------------------

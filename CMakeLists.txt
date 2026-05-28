@@ -81,14 +81,17 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   endif()
 endif()
 
-set(SUPERLU_DIR "${PROJECT_SOURCE_DIR}/superlu")
-set(SUPERLU_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_patches")
-set(SUPERLU_MT_DIR "${PROJECT_SOURCE_DIR}/superlu_mt")
-set(SUPERLU_MT_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_mt_patches")
-set(METIS_DIR "${PROJECT_SOURCE_DIR}/metis/METIS")
-set(GKLIB_DIR "${PROJECT_SOURCE_DIR}/metis/GKlib")
-set(METIS_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/metis_patches")
-set(GKLIB_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/gklib_patches")
+# All git submodules and their patch overlays live under submodules/.
+set(SUBMODULES_DIR "${PROJECT_SOURCE_DIR}/submodules")
+set(SUPERLU_DIR "${SUBMODULES_DIR}/superlu")
+set(SUPERLU_PATCHES_DIR "${SUBMODULES_DIR}/superlu_patches")
+set(SUPERLU_MT_DIR "${SUBMODULES_DIR}/superlu_mt")
+set(SUPERLU_MT_PATCHES_DIR "${SUBMODULES_DIR}/superlu_mt_patches")
+set(METIS_DIR "${SUBMODULES_DIR}/metis")
+set(GKLIB_DIR "${SUBMODULES_DIR}/GKlib")
+set(METIS_PATCHES_DIR "${SUBMODULES_DIR}/metis_patches")
+set(GKLIB_PATCHES_DIR "${SUBMODULES_DIR}/gklib_patches")
+set(MYSTRAN_LAPACK_DIR "${SUBMODULES_DIR}/lapack")
 
 if(NOT DEFINED TPL_ENABLE_METISLIB)
   set(TPL_ENABLE_METISLIB ON CACHE BOOL "Enable METIS for SuperLU")
@@ -270,13 +273,28 @@ endif()
 # submodule under Source/lapack. Configure it as a quiet, minimal,
 # static-only sub-build before any add_subdirectory() that consumes it.
 if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "EMBEDDED")
-  set(MYSTRAN_LAPACK_DIR "${PROJECT_SOURCE_DIR}/Source/lapack")
-
   if(NOT EXISTS "${MYSTRAN_LAPACK_DIR}/CMakeLists.txt")
     message(FATAL_ERROR
       "The Reference-LAPACK submodule was not downloaded. "
       "Run: git submodule update --init --recursive")
   endif()
+
+  set(LAPACK_PATCHES_DIR "${SUBMODULES_DIR}/lapack_patches")
+  message(STATUS "Applying patches to Reference-LAPACK...")
+  file(GLOB_RECURSE LAPACK_PATCH_FILES RELATIVE "${LAPACK_PATCHES_DIR}" "${LAPACK_PATCHES_DIR}/*")
+
+  foreach(file IN LISTS LAPACK_PATCH_FILES)
+    set(src "${LAPACK_PATCHES_DIR}/${file}")
+    set(dst "${MYSTRAN_LAPACK_DIR}/${file}")
+
+    get_filename_component(dst_dir "${dst}" DIRECTORY)
+    file(MAKE_DIRECTORY "${dst_dir}")
+
+    message(STATUS "  Patching: ${file}")
+    file(COPY "${src}" DESTINATION "${dst_dir}")
+  endforeach()
+
+  message(STATUS "Reference-LAPACK patched.")
 
   # Only build what MYSTRAN actually uses: double-precision real BLAS
   # and LAPACK. Everything else off.
@@ -498,11 +516,6 @@ file(GLOB_RECURSE ALL_FORTRAN_FILES
   "${CMAKE_SOURCE_DIR}/*.F03"
 )
 
-# Exclude the Reference-LAPACK submodule from the mystran source list.
-# Its Fortran files live under Source/lapack/ but are compiled by the
-# submodule's own CMake project (when EMBEDDED), not by mystran.
-list(FILTER ALL_FORTRAN_FILES EXCLUDE REGEX "${CMAKE_SOURCE_DIR}/lapack/")
-
 # prepare the main executable, linked against the specifics and the m
 # it appears utils used to be a module, but that is no longer the case?
 # file(GLOB UTIL_FILES "${CMAKE_SOURCE_DIR}/UTIL/*.f*")
@@ -602,13 +615,80 @@ if(TPL_ENABLE_METISLIB)
   endif()
 endif()
 
-# In EMBEDDED mode, the Reference-LAPACK submodule provides static
-# libblas.a and liblapack.a archives that get linked into the binary.
+# BLAS/LAPACK provider tracking.
+#
+# EMBEDDED: the Reference-LAPACK submodule provides static libblas.a
+# and liblapack.a archives, and its own LICENSE is bundled.
+# SYSTEM:   we statically link a system BLAS+LAPACK. We try to detect
+# the vendor (OpenBLAS, MKL, BLIS, ATLAS, Apple Accelerate,
+# Arm Performance Libraries) from BLAS_LIBRARIES/LAPACK_LIBRARIES
+# so the corresponding license text from extra_licenses/ can
+# be embedded in the binary. If detection fails OR the license
+# file is missing, we WARN the user that the resulting binary
+# may not be legally redistributable.
+set(_SYS_BLAS_TAG "")
+set(_SYS_BLAS_LIBNAME "")
+set(_SYS_BLAS_DESC "")
+set(_SYS_BLAS_LICENSE_PATH "")
+
 if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "EMBEDDED")
   list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_BLAS)
   list(APPEND _MYSTRAN_STATIC_NAMES libblas.a)
   list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_LAPACK)
   list(APPEND _MYSTRAN_STATIC_NAMES liblapack.a)
+else()
+  # Use the concatenated link-line strings as the signature to match.
+  string(TOLOWER "${BLAS_LIBRARIES};${LAPACK_LIBRARIES}" _SYS_BLAS_SIG)
+
+  if(_SYS_BLAS_SIG MATCHES "openblas")
+    set(_SYS_BLAS_TAG "OPENBLAS")
+    set(_SYS_BLAS_LIBNAME "OpenBLAS")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/openblas.txt")
+  elseif(_SYS_BLAS_SIG MATCHES "mkl")
+    set(_SYS_BLAS_TAG "MKL")
+    set(_SYS_BLAS_LIBNAME "Intel MKL")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/mkl.txt")
+  elseif(_SYS_BLAS_SIG MATCHES "blis")
+    set(_SYS_BLAS_TAG "BLIS")
+    set(_SYS_BLAS_LIBNAME "BLIS")
+    set(_SYS_BLAS_DESC "system BLAS")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/blis.txt")
+  elseif(_SYS_BLAS_SIG MATCHES "atlas")
+    set(_SYS_BLAS_TAG "ATLAS")
+    set(_SYS_BLAS_LIBNAME "ATLAS")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/atlas.txt")
+  elseif(_SYS_BLAS_SIG MATCHES "blas")
+    # Generic Reference-BLAS / netlib install on the system.
+    set(_SYS_BLAS_TAG "REFBLAS")
+    set(_SYS_BLAS_LIBNAME "Reference BLAS/LAPACK")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK (Reference-LAPACK / netlib)")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/netlib-blas-lapack.txt")
+  endif()
+
+  if(_SYS_BLAS_TAG STREQUAL "")
+    message(WARNING
+      "Could not identify the system BLAS/LAPACK vendor from "
+      "BLAS_LIBRARIES='${BLAS_LIBRARIES}', LAPACK_LIBRARIES='${LAPACK_LIBRARIES}'.\n"
+      "  No license text will be embedded for the BLAS/LAPACK provider, "
+      "which may make the resulting binary legally undistributable.\n"
+      "  Add a matching entry to the system-BLAS detection block in "
+      "CMakeLists.txt and drop the license file under extra_licenses/.")
+  else()
+    list(APPEND _MYSTRAN_STATIC_DEFS "_STATIC_${_SYS_BLAS_TAG}")
+    list(APPEND _MYSTRAN_STATIC_NAMES "${_SYS_BLAS_LIBNAME}")
+
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/${_SYS_BLAS_LICENSE_PATH}")
+      message(WARNING
+        "System BLAS/LAPACK detected as ${_SYS_BLAS_LIBNAME}, but the "
+        "expected license file is missing:\n"
+        "  ${PROJECT_SOURCE_DIR}/${_SYS_BLAS_LICENSE_PATH}\n"
+        "  The binary will be built without an embedded license for "
+        "${_SYS_BLAS_LIBNAME}, which may make it legally undistributable.")
+    endif()
+  endif()
 endif()
 
 # On Windows the -static linker flag pulls in Fortran and C runtimes too
@@ -644,12 +724,10 @@ list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_ARPACK)
 # -----------------------------------------------------------------------
 set(_MYSTRAN_LICENSE_MAP
   "F2C:f2c/Notice:libf2c:Fortran-to-C runtime support library"
-  "SUPERLU:superlu/License.txt:SuperLU:sparse solver"
-  "SUPERLU_MT:superlu_mt/License.txt:SuperLU_MT:multi-threaded sparse solver"
-  "METIS:metis/METIS/LICENSE:METIS:graph partitioner for SuperLU"
-  "GKLIB:metis/GKlib/LICENSE.txt:GKlib:utility library for METIS"
-  "BLAS:extra_licenses/blas-lapack.txt:BLAS:embedded subset of reference BLAS"
-  "LAPACK:extra_licenses/blas-lapack.txt:LAPACK:linear algebra library"
+  "SUPERLU:submodules/superlu/License.txt:SuperLU:sparse solver"
+  "SUPERLU_MT:submodules/superlu_mt/License.txt:SuperLU_MT:multi-threaded sparse solver"
+  "METIS:submodules/metis/LICENSE:METIS:graph partitioner for SuperLU"
+  "GKLIB:submodules/GKlib/LICENSE.txt:GKlib:utility library for METIS"
   "ARPACK:extra_licenses/arpack.txt:ARPACK:Lanczos eigensolver implementation"
   "GOMP:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgomp:GNU OpenMP runtime"
   "GFORTRAN:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgfortran:GNU Fortran runtime"
@@ -658,6 +736,20 @@ set(_MYSTRAN_LICENSE_MAP
   "PTHREAD:extra_licenses/lgpl-2.1.txt:libpthread:POSIX threads, used by SuperLU_MT"
   "REGEX:extra_licenses/lgpl-2.1.txt:libregex:POSIX regexes, used by GKlib"
 )
+
+# BLAS/LAPACK license entry depends on which provider was selected.
+# EMBEDDED -> Reference-LAPACK submodule ships its own LICENSE.
+# SYSTEM   -> use the detected vendor's license file, if known.
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "EMBEDDED")
+  list(APPEND _MYSTRAN_LICENSE_MAP
+    "BLAS:submodules/lapack/LICENSE:BLAS:Reference-LAPACK submodule (embedded BLAS)"
+    "LAPACK:submodules/lapack/LICENSE:LAPACK:Reference-LAPACK submodule (embedded LAPACK)"
+  )
+elseif(NOT _SYS_BLAS_TAG STREQUAL "")
+  list(APPEND _MYSTRAN_LICENSE_MAP
+    "${_SYS_BLAS_TAG}:${_SYS_BLAS_LICENSE_PATH}:${_SYS_BLAS_LIBNAME}:${_SYS_BLAS_DESC}"
+  )
+endif()
 
 # Generate STATIC_LICENSES_GENERATED.F90 in the build directory
 set(_GEN_LIC_FILE "${CMAKE_SOURCE_DIR}/INCLUDE/STATIC_LICENSES_GENERATED.F90.inc")
