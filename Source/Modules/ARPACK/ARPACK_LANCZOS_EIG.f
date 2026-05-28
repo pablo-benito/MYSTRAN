@@ -572,9 +572,9 @@ c     | LAPACK & BLAS routines used |
 c     %-----------------------------%
 c
 !:!   REAL(DOUBLE)
-!:!  &                 ddot, dnrm2, dlapy2
-!:!   external         ddot, dcopy, dgbmv, dgbtrf,
-!:!  &                 dgbtrs, dnrm2, dlapy2, dlacpy
+      REAL(DOUBLE)
+     &                 ddot, dnrm2, dlapy2
+      external         ddot, dnrm2, dlapy2
 c
 c     %-----------------------%
 c     | Executable Statements |
@@ -2301,8 +2301,9 @@ c     | External Functions |
 c     %--------------------%
 c
 !:!   REAL(DOUBLE)
-!:!  &           dnrm2
-!:!   external   dnrm2
+      REAL(DOUBLE)
+     &           dnrm2
+      external   dnrm2
 
       REAL(DOUBLE)
      &           dlamch
@@ -3169,9 +3170,9 @@ c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
-!:!   REAL(DOUBLE)
-!:!  &           ddot, dnrm2
-!:!   external   ddot, dnrm2
+      REAL(DOUBLE)
+     &           ddot, dnrm2
+      external   ddot, dnrm2
 
       REAL(DOUBLE) dlamch
       external     dlamch
@@ -4824,9 +4825,9 @@ c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
-!:!   REAL(DOUBLE)
-!:!  &           ddot, dnrm2
-!:!   external   ddot, dnrm2
+      REAL(DOUBLE)
+     &           ddot, dnrm2
+      external   ddot, dnrm2
 c
 c     %---------------------%
 c     | Intrinsic Functions |
@@ -5359,9 +5360,9 @@ c
       REAL(DOUBLE) dlamch
       external     dlamch
 
-!:!   REAL(DOUBLE)
-!:!  &           ddot, dnrm2
-!:!   external   ddot, dnrm2
+      REAL(DOUBLE)
+     &           ddot, dnrm2
+      external   ddot, dnrm2
 c
 c     %-----------------%
 c     | Data statements |
@@ -6977,10 +6978,10 @@ c     .. local scalars ..
      &                   s, safmax, safmin, ssfmax, ssfmin, tst
 c     ..
 c     .. external functions ..
-!:!   logical            lsame
-!:!   REAL(DOUBLE)
-!:!  &                   dlapy2
-!:!   external           lsame, dlapy2
+      logical            lsame
+      REAL(DOUBLE)
+     &                   dlapy2
+      external           lsame, dlapy2
 
       REAL(DOUBLE)       dlamch, dlanst
       external           dlamch, dlanst
