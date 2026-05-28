@@ -27,3 +27,5 @@
 	path = submodules/lapack
 	url = https://github.com/Reference-LAPACK/lapack.git
 	ignore = all
+	update = checkout
+	branch = master
