@@ -32,7 +32,6 @@
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE TIMDAT, ONLY                :  TSEC
-      USE LAPACK_SYM_MAT_INV
 
       USE INVERT_FF_MAT_USE_IFs
 

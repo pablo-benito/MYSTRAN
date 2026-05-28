@@ -275,7 +275,6 @@
       USE SPARSE_MATRICES, ONLY       :  I_RMN, J_RMN, RMN, I_RMM, J_RMM, RMM, I2_GMN, I_GMN, J_GMN, GMN
       USE SCRATCH_MATRICES, ONLY      :  I_CCS1, J_CCS1, CCS1
       USE FULL_MATRICES, ONLY         :  RMM_FULL
-      USE LAPACK_LIN_EQN_DGE
       USE SuperLU_STUF, ONLY          :  SLU_FACTORS, SLU_INFO
 
 ! Interface module not needed for subr's DGETRF and DGETRS. These are "CONTAIN'ed" in module LAPACK_LIN_EQN_DPB, which

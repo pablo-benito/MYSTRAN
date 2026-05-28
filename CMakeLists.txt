@@ -15,7 +15,6 @@ endif()
 
 # basic compiler and output options
 set(CMAKE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/Source")
-set(BLAS_SOURCE_DIR "${PROJECT_SOURCE_DIR}/BLAS")
 set(PROJECT_BINARY_DIR "${PROJECT_SOURCE_DIR}/Binaries")
 set(CMAKE_FLAGS "-c -fbacktrace")
 
@@ -82,14 +81,17 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   endif()
 endif()
 
-set(SUPERLU_DIR "${PROJECT_SOURCE_DIR}/superlu")
-set(SUPERLU_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_patches")
-set(SUPERLU_MT_DIR "${PROJECT_SOURCE_DIR}/superlu_mt")
-set(SUPERLU_MT_PATCHES_DIR "${PROJECT_SOURCE_DIR}/superlu_mt_patches")
-set(METIS_DIR "${PROJECT_SOURCE_DIR}/metis/METIS")
-set(GKLIB_DIR "${PROJECT_SOURCE_DIR}/metis/GKlib")
-set(METIS_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/metis_patches")
-set(GKLIB_PATCHES_DIR "${PROJECT_SOURCE_DIR}/metis/gklib_patches")
+# All git submodules and their patch overlays live under submodules/.
+set(SUBMODULES_DIR "${PROJECT_SOURCE_DIR}/submodules")
+set(SUPERLU_DIR "${SUBMODULES_DIR}/superlu")
+set(SUPERLU_PATCHES_DIR "${SUBMODULES_DIR}/superlu_patches")
+set(SUPERLU_MT_DIR "${SUBMODULES_DIR}/superlu_mt")
+set(SUPERLU_MT_PATCHES_DIR "${SUBMODULES_DIR}/superlu_mt_patches")
+set(METIS_DIR "${SUBMODULES_DIR}/metis")
+set(GKLIB_DIR "${SUBMODULES_DIR}/GKlib")
+set(METIS_PATCHES_DIR "${SUBMODULES_DIR}/metis_patches")
+set(GKLIB_PATCHES_DIR "${SUBMODULES_DIR}/gklib_patches")
+set(MYSTRAN_LAPACK_DIR "${SUBMODULES_DIR}/lapack")
 
 if(NOT DEFINED TPL_ENABLE_METISLIB)
   set(TPL_ENABLE_METISLIB ON CACHE BOOL "Enable METIS for SuperLU")
@@ -172,6 +174,174 @@ endif()
 set(enable_examples OFF FORCE)
 set(enable_tests OFF FORCE)
 set(enable_doc OFF FORCE)
+
+# -----------------------------------------------------------------------
+# BLAS / LAPACK provider resolution
+#
+# Single user-facing knob `MYSTRAN_BLAS_LAPACK` with three values:
+# AUTO      (default) - try system BLAS+LAPACK; fall back to building
+# Reference-LAPACK from the bundled submodule
+# SYSTEM              - require system BLAS+LAPACK; FATAL_ERROR if missing
+# EMBEDDED            - always build Reference-LAPACK + its reference BLAS
+# from the Source/lapack submodule
+#
+# The mode is resolved here, BEFORE add_subdirectory() for SuperLU /
+# SuperLU_MT, so we can forward the result to those subprojects via
+# `TPL_BLAS_LIBRARIES` and `enable_internal_blaslib` and avoid duplicate
+# symbols when statically linking on Windows (no symbol interposition).
+#
+# This replaces the older `MYSTRAN_BLAS` knob (which only governed BLAS,
+# while LAPACK was always embedded under Source/Modules/LAPACK/*.f). The
+# embedded LAPACK tree has been deleted; MYSTRAN now always links a real
+# BLAS+LAPACK provider, and the only remaining MYSTRAN-specific routines
+# (the handful of mathematically modified ones) live in
+# Source/Modules/MYSTRAN_LAPACK_EXT/.
+# -----------------------------------------------------------------------
+
+# Backwards-compat: legacy `-Denable_internal_blaslib=...` and
+# `-DMYSTRAN_BLAS=...` map to the new variable on first configure.
+if(DEFINED enable_internal_blaslib AND NOT _MYSTRAN_BLAS_LAPACK_LEGACY_MAPPED)
+  if(enable_internal_blaslib)
+    set(_LEGACY_MODE "EMBEDDED")
+  else()
+    set(_LEGACY_MODE "SYSTEM")
+  endif()
+
+  message(DEPRECATION
+    "'enable_internal_blaslib' is deprecated; "
+    "use -DMYSTRAN_BLAS_LAPACK=${_LEGACY_MODE} instead.")
+  set(MYSTRAN_BLAS_LAPACK "${_LEGACY_MODE}"
+    CACHE STRING "BLAS+LAPACK provider: AUTO, SYSTEM, or EMBEDDED" FORCE)
+  set(_MYSTRAN_BLAS_LAPACK_LEGACY_MAPPED TRUE CACHE INTERNAL "")
+endif()
+
+if(DEFINED MYSTRAN_BLAS AND NOT _MYSTRAN_BLAS_LAPACK_LEGACY_MAPPED)
+  message(DEPRECATION
+    "'MYSTRAN_BLAS' is deprecated; "
+    "use -DMYSTRAN_BLAS_LAPACK=${MYSTRAN_BLAS} instead.")
+  set(MYSTRAN_BLAS_LAPACK "${MYSTRAN_BLAS}"
+    CACHE STRING "BLAS+LAPACK provider: AUTO, SYSTEM, or EMBEDDED" FORCE)
+  set(_MYSTRAN_BLAS_LAPACK_LEGACY_MAPPED TRUE CACHE INTERNAL "")
+endif()
+
+set(MYSTRAN_BLAS_LAPACK "AUTO"
+  CACHE STRING "BLAS+LAPACK provider: AUTO, SYSTEM, or EMBEDDED")
+set_property(CACHE MYSTRAN_BLAS_LAPACK PROPERTY STRINGS AUTO SYSTEM EMBEDDED)
+
+if(NOT MYSTRAN_BLAS_LAPACK MATCHES "^(AUTO|SYSTEM|EMBEDDED)$")
+  message(FATAL_ERROR
+    "MYSTRAN_BLAS_LAPACK must be AUTO, SYSTEM, or EMBEDDED "
+    "(got '${MYSTRAN_BLAS_LAPACK}').")
+endif()
+
+set(_MYSTRAN_HAVE_SYSTEM_BLAS_LAPACK FALSE)
+
+if(NOT MYSTRAN_BLAS_LAPACK STREQUAL "EMBEDDED")
+  if(TPL_BLAS_LIBRARIES)
+    set(BLAS_FOUND TRUE)
+    set(BLAS_LIBRARIES "${TPL_BLAS_LIBRARIES}")
+  else()
+    find_package(BLAS QUIET)
+  endif()
+
+  if(BLAS_FOUND)
+    find_package(LAPACK QUIET)
+  endif()
+
+  if(BLAS_FOUND AND LAPACK_FOUND)
+    set(_MYSTRAN_HAVE_SYSTEM_BLAS_LAPACK TRUE)
+  endif()
+endif()
+
+if(MYSTRAN_BLAS_LAPACK STREQUAL "SYSTEM" AND NOT _MYSTRAN_HAVE_SYSTEM_BLAS_LAPACK)
+  message(FATAL_ERROR
+    "MYSTRAN_BLAS_LAPACK=SYSTEM was requested but a system BLAS+LAPACK "
+    "could not be located.\n"
+    "Install OpenBLAS (Debian/Ubuntu: 'libopenblas-dev'; "
+    "MSYS2/MinGW64: 'mingw-w64-x86_64-openblas') or set TPL_BLAS_LIBRARIES "
+    "manually. Use -DMYSTRAN_BLAS_LAPACK=EMBEDDED to build the bundled "
+    "Reference-LAPACK submodule instead.")
+endif()
+
+if(_MYSTRAN_HAVE_SYSTEM_BLAS_LAPACK)
+  set(_MYSTRAN_BLAS_LAPACK_MODE "SYSTEM")
+else()
+  set(_MYSTRAN_BLAS_LAPACK_MODE "EMBEDDED")
+endif()
+
+# In EMBEDDED mode, build Reference-LAPACK (BLAS + LAPACK) from the
+# submodule under Source/lapack. Configure it as a quiet, minimal,
+# static-only sub-build before any add_subdirectory() that consumes it.
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "EMBEDDED")
+  if(NOT EXISTS "${MYSTRAN_LAPACK_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR
+      "The Reference-LAPACK submodule was not downloaded. "
+      "Run: git submodule update --init --recursive")
+  endif()
+
+  set(LAPACK_PATCHES_DIR "${SUBMODULES_DIR}/lapack_patches")
+  message(STATUS "Applying patches to Reference-LAPACK...")
+  file(GLOB_RECURSE LAPACK_PATCH_FILES RELATIVE "${LAPACK_PATCHES_DIR}" "${LAPACK_PATCHES_DIR}/*")
+
+  foreach(file IN LISTS LAPACK_PATCH_FILES)
+    set(src "${LAPACK_PATCHES_DIR}/${file}")
+    set(dst "${MYSTRAN_LAPACK_DIR}/${file}")
+
+    get_filename_component(dst_dir "${dst}" DIRECTORY)
+    file(MAKE_DIRECTORY "${dst_dir}")
+
+    message(STATUS "  Patching: ${file}")
+    file(COPY "${src}" DESTINATION "${dst_dir}")
+  endforeach()
+
+  message(STATUS "Reference-LAPACK patched.")
+
+  # Only build what MYSTRAN actually uses: double-precision real BLAS
+  # and LAPACK. Everything else off.
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+  set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+  set(BUILD_DEPRECATED OFF CACHE BOOL "" FORCE)
+  set(BUILD_SINGLE OFF CACHE BOOL "" FORCE)
+  set(BUILD_DOUBLE ON CACHE BOOL "" FORCE)
+  set(BUILD_COMPLEX OFF CACHE BOOL "" FORCE)
+  set(BUILD_COMPLEX16 OFF CACHE BOOL "" FORCE)
+  set(LAPACKE OFF CACHE BOOL "" FORCE)
+  set(CBLAS OFF CACHE BOOL "" FORCE)
+  set(USE_OPTIMIZED_BLAS OFF CACHE BOOL "" FORCE)
+  set(USE_OPTIMIZED_LAPACK OFF CACHE BOOL "" FORCE)
+
+  add_subdirectory("${MYSTRAN_LAPACK_DIR}" "${PROJECT_BINARY_DIR}/lapack" EXCLUDE_FROM_ALL)
+
+  set(BLAS_LIBRARIES "blas" CACHE STRING "" FORCE)
+  set(LAPACK_LIBRARIES "lapack" CACHE STRING "" FORCE)
+endif()
+
+# Forward the resolution to SuperLU / SuperLU_MT subprojects. They read
+# `enable_internal_blaslib`, `TPL_ENABLE_INTERNAL_BLASLIB`, and
+# `TPL_BLAS_LIBRARIES` to decide whether to build their bundled CBLAS.
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "SYSTEM")
+  set(TPL_BLAS_LIBRARIES "${BLAS_LIBRARIES}"
+    CACHE FILEPATH "Set from MYSTRAN BLAS resolution." FORCE)
+  set(enable_internal_blaslib OFF
+    CACHE BOOL "Use system BLAS for SuperLU" FORCE)
+  set(TPL_ENABLE_INTERNAL_BLASLIB OFF
+    CACHE BOOL "Use system BLAS for SuperLU" FORCE)
+  message(STATUS
+    "MYSTRAN BLAS+LAPACK mode: SYSTEM (BLAS=${BLAS_LIBRARIES}, LAPACK=${LAPACK_LIBRARIES})")
+else()
+  # Embedded mode: SuperLU links the Reference-LAPACK `blas` target
+  # (Fortran BLAS only). SuperLU's bundled CBLAS shim is no longer
+  # needed because Reference-LAPACK's blas archive provides every BLAS
+  # symbol SuperLU references.
+  set(enable_internal_blaslib OFF
+    CACHE BOOL "Use embedded Reference-LAPACK BLAS for SuperLU" FORCE)
+  set(TPL_ENABLE_INTERNAL_BLASLIB OFF
+    CACHE BOOL "Use embedded Reference-LAPACK BLAS for SuperLU" FORCE)
+  set(TPL_BLAS_LIBRARIES "blas"
+    CACHE STRING "Set from MYSTRAN BLAS resolution." FORCE)
+  message(STATUS
+    "MYSTRAN BLAS+LAPACK mode: EMBEDDED (Reference-LAPACK submodule)")
+endif()
 
 if(USE_SUPERLU_MT)
   message(STATUS "Will link against faster SuperLU_MT.")
@@ -257,78 +427,6 @@ else()
   set(SLU_DRIVER "${SUPERLU_DIR}/FORTRAN/c_fortran_dgssv.c")
 endif()
 
-# f2c stuff
-set(F2C_DIR "${PROJECT_SOURCE_DIR}/f2c")
-set(F2C_INCLUDE_DIR "${F2C_DIR}/include")
-set(F2C_FN "${F2C_DIR}/libf2c.zip")
-set(F2C_URL "https://www.netlib.org/f2c/libf2c.zip")
-
-# download f2c
-if(NOT EXISTS ${F2C_DIR})
-  message(STATUS "Downloading libf2c source from ${F2C_URL}...")
-  make_directory("${F2C_DIR}")
-  file(DOWNLOAD ${F2C_URL} ${F2C_FN} TIMEOUT 60 STATUS DOWNLOAD_STATUS)
-
-  # Check if download was successful.
-  list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
-  list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
-
-  if(${STATUS_CODE} EQUAL 0)
-    message(STATUS "Done downloading libf2c.")
-  else()
-    # Exit CMake if the download failed, printing the error message.
-    file(REMOVE_RECURSE ${F2C_DIR})
-    message(FATAL_ERROR "Error downloading libf2c: ${ERROR_MESSAGE}")
-  endif()
-endif()
-
-# extract libf2c source
-file(ARCHIVE_EXTRACT INPUT ${F2C_FN} DESTINATION ${F2C_DIR})
-
-# prepare libf2c header files
-file(GLOB_RECURSE F2C_PREHEADERS "${F2C_DIR}/*.h0")
-
-foreach(H0 ${F2C_PREHEADERS})
-  string(REGEX REPLACE "[.]h0$" ".h" H0_R ${H0})
-  file(RENAME "${H0}" "${H0_R}")
-  file(COPY "${H0_R}" DESTINATION "${F2C_INCLUDE_DIR}")
-endforeach()
-
-# get a load of this: f2c generates its own "arith.h" on the fly
-# so we gotta compile arithchk and run it
-set(F2C_ARITHCHK_SRC "${F2C_DIR}/arithchk.c")
-set(F2C_ARITHCHK_BIN "${F2C_DIR}/arithchk")
-
-if(WIN32)
-  set(F2C_ARITHCHK_BIN "${F2C_ARITHCHK_BIN}.exe")
-endif()
-
-set(F2C_ARITH_H "${F2C_INCLUDE_DIR}/arith.h")
-set_source_files_properties(
-  ${F2C_ARITHCHK_SRC} PROPERTIES COMPILE_FLAGS "-DNO_LONG_LONG -DNO_FPINIT"
-)
-add_executable(arithchk ${F2C_ARITHCHK_SRC})
-target_link_libraries(arithchk m)
-set_target_properties(
-  arithchk PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${F2C_DIR}
-)
-add_custom_command(
-  OUTPUT ${F2C_ARITH_H}
-  COMMAND ${F2C_ARITHCHK_BIN} > ${F2C_ARITH_H}
-  DEPENDS ${F2C_ARITHCHK_BIN}
-)
-
-# add libf2c to the compilation procedures
-include_directories(${F2C_INCLUDE_DIR})
-file(GLOB_RECURSE F2C_CFILES "${F2C_DIR}/*.c")
-add_definitions(-DINTEGER_STAR_8)
-add_library(f2c ${F2C_CFILES} ${F2C_ARITH_H})
-
-# add some extra win32 flags for libf2c
-if(WIN32)
-  add_definitions(-DUSE_CLOCK -DMSDOS)
-endif()
-
 # set some extra vars for MSYS builds to make the binary portable
 if(WIN32)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
@@ -346,64 +444,6 @@ file(GLOB_RECURSE ALL_FORTRAN_FILES
   "${CMAKE_SOURCE_DIR}/*.F03"
 )
 
-# same BLAS-finding subroutine as SuperLU
-if(NOT enable_internal_blaslib)
-  if(TPL_BLAS_LIBRARIES)
-    set(BLAS_FOUND TRUE)
-  else()
-    find_package(BLAS)
-
-    if(BLAS_FOUND)
-      set(TPL_BLAS_LIBRARIES "${BLAS_LIBRARIES}" CACHE FILEPATH
-        "Set from FindBLAS.cmake BLAS_LIBRARIES." FORCE)
-    endif()
-  endif()
-endif()
-
-if(NOT BLAS_FOUND)
-  message(STATUS "BLAS not found, building local BLAS")
-  list(
-    APPEND blas_fns dgemm dgemv dlamch dlanst dscal dsteqr dsterf dswap dtrsm
-    dtrtri ilaenv lsame xerbla
-  )
-
-  foreach(fname IN LISTS blas_fns)
-    # message(STATUS "Checking for BLAS subr ${fname}")
-    set(CMAKE_REQUIRED_QUIET TRUE)
-    check_function_exists("${fname}" BLAS_FN_EXISTS)
-    unset(CMAKE_REQUIRED_QUIET)
-    set(BLAS_FN_EXISTS CACHE "1" STRING)
-
-    if(NOT BLAS_FN_EXISTS)
-      # message(STATUS "BLAS subr ${fname} not found")
-      string(TOUPPER ${fname} fname_upper)
-      list(APPEND missing_blas_src "${BLAS_SOURCE_DIR}/${fname_upper}.f")
-      list(APPEND missing_blas_fns ${fname})
-    endif()
-
-    unset(BLAS_FN_EXISTS CACHE)
-  endforeach()
-
-  # if any subroutines have bene found, create an inner blas library
-  list(LENGTH missing_blas_fns MISSING_FNS_TOTAL)
-
-  if(MISSING_FNS_TOTAL GREATER 0)
-    if(MISSING_FNS_TOTAL GREATER 1)
-      message(
-        STATUS
-        "BLAS subrs (${missing_blas_fns}) are absent and will be built locally."
-      )
-    else()
-      message(
-        STATUS
-        "BLAS subr ${missing_blas_fns} is absent and will be built locally."
-      )
-    endif()
-  endif()
-else()
-  message(STATUS "Using system BLAS (${TPL_BLAS_LIBRARIES})")
-endif()
-
 # prepare the main executable, linked against the specifics and the m
 # it appears utils used to be a module, but that is no longer the case?
 # file(GLOB UTIL_FILES "${CMAKE_SOURCE_DIR}/UTIL/*.f*")
@@ -412,16 +452,15 @@ add_executable(
   mystran
   ${ALL_FORTRAN_FILES}
   ${SLU_DRIVER}
-  ${missing_blas_src}
 )
 
 # determine which superlu variant to link against
 if(USE_SUPERLU_MT)
   if(PLAT STREQUAL "_PTHREAD")
     message(WARNING "We recommend using OpenMP, not pthread!")
-    target_link_libraries(mystran superlu_mt_PTHREAD f2c)
+    target_link_libraries(mystran superlu_mt_PTHREAD)
   elseif(PLAT STREQUAL "_OPENMP")
-    target_link_libraries(mystran superlu_mt_OPENMP f2c)
+    target_link_libraries(mystran superlu_mt_OPENMP)
   endif()
 
   target_compile_definitions(mystran PRIVATE USE_SUPERLU_MT)
@@ -430,8 +469,12 @@ if(USE_SUPERLU_MT)
     target_compile_definitions(mystran PRIVATE HAVE_METIS)
   endif()
 else()
-  target_link_libraries(mystran superlu f2c)
+  target_link_libraries(mystran superlu)
 endif()
+
+# Link LAPACK first, then BLAS: LAPACK depends on BLAS so the linker
+# must see BLAS symbols last when resolving LAPACK references.
+target_link_libraries(mystran ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
 
 set_target_properties(
   mystran PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
@@ -453,10 +496,6 @@ endif()
 # -----------------------------------------------------------------------
 set(_MYSTRAN_STATIC_DEFS "")
 set(_MYSTRAN_STATIC_NAMES "")
-
-# f2c is always built and linked as a static archive
-list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_F2C)
-list(APPEND _MYSTRAN_STATIC_NAMES libf2c.a)
 
 if(USE_SUPERLU_MT)
   list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_SUPERLU_MT)
@@ -500,11 +539,87 @@ if(TPL_ENABLE_METISLIB)
   endif()
 endif()
 
-# Local BLAS functions are compiled directly into the binary when the
-# system does not provide them; treat them as a bundled static object
-if(MISSING_FNS_TOTAL GREATER 0)
+# BLAS/LAPACK provider tracking.
+#
+# EMBEDDED: the Reference-LAPACK submodule provides static libblas.a
+# and liblapack.a archives, and its own LICENSE is bundled.
+# SYSTEM:   we statically link a system BLAS+LAPACK. We try to detect
+# the vendor (OpenBLAS, MKL, BLIS, ATLAS, Apple Accelerate,
+# Arm Performance Libraries) from BLAS_LIBRARIES/LAPACK_LIBRARIES
+# so the corresponding license text from extra_licenses/ can
+# be embedded in the binary. If detection fails OR the license
+# file is missing, we WARN the user that the resulting binary
+# may not be legally redistributable.
+set(_SYS_BLAS_TAG "")
+set(_SYS_BLAS_LIBNAME "")
+set(_SYS_BLAS_DESC "")
+set(_SYS_BLAS_LICENSE_PATH "")
+
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "EMBEDDED")
   list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_BLAS)
-  list(APPEND _MYSTRAN_STATIC_NAMES libblas_local.a)
+  list(APPEND _MYSTRAN_STATIC_NAMES libblas.a)
+  list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_LAPACK)
+  list(APPEND _MYSTRAN_STATIC_NAMES liblapack.a)
+else()
+  # Use the concatenated link-line strings as the signature to match.
+  string(TOLOWER "${BLAS_LIBRARIES};${LAPACK_LIBRARIES}" _SYS_BLAS_SIG)
+
+  if(_SYS_BLAS_SIG MATCHES "openblas")
+    set(_SYS_BLAS_TAG "OPENBLAS")
+    set(_SYS_BLAS_LIBNAME "OpenBLAS")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/openblas.txt")
+  elseif(_SYS_BLAS_SIG MATCHES "mkl")
+    set(_SYS_BLAS_TAG "MKL")
+    set(_SYS_BLAS_LIBNAME "Intel MKL")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/mkl.txt")
+  elseif(_SYS_BLAS_SIG MATCHES "blis")
+    set(_SYS_BLAS_TAG "BLIS")
+    set(_SYS_BLAS_LIBNAME "BLIS")
+    set(_SYS_BLAS_DESC "system BLAS")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/blis.txt")
+  elseif(_SYS_BLAS_SIG MATCHES "atlas")
+    set(_SYS_BLAS_TAG "ATLAS")
+    set(_SYS_BLAS_LIBNAME "ATLAS")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/atlas.txt")
+  elseif(_SYS_BLAS_SIG MATCHES "blas")
+    # Generic Reference-BLAS / netlib install on the system.
+    set(_SYS_BLAS_TAG "REFBLAS")
+    set(_SYS_BLAS_LIBNAME "Reference BLAS/LAPACK")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK (Reference-LAPACK / netlib)")
+    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/netlib-blas-lapack.txt")
+  endif()
+
+  if(_SYS_BLAS_TAG STREQUAL "")
+    message(WARNING
+      "Could not identify the system BLAS/LAPACK vendor from "
+      "BLAS_LIBRARIES='${BLAS_LIBRARIES}', LAPACK_LIBRARIES='${LAPACK_LIBRARIES}'.\n"
+      "  No license text will be embedded for the BLAS/LAPACK provider, "
+      "which may make the resulting binary legally undistributable.\n"
+      "  Add a matching entry to the system-BLAS detection block in "
+      "CMakeLists.txt and drop the license file under extra_licenses/.")
+  else()
+    list(APPEND _MYSTRAN_STATIC_DEFS "_STATIC_${_SYS_BLAS_TAG}")
+    list(APPEND _MYSTRAN_STATIC_NAMES "${_SYS_BLAS_LIBNAME}")
+
+    # Provider-specific runtime hooks (e.g. thread-count limiter in
+    # Source/MAIN/SET_BLAS_THREADS.F03). Defined here so it's only
+    # active when the corresponding BLAS is actually linked.
+    if(_SYS_BLAS_TAG STREQUAL "OPENBLAS")
+      target_compile_definitions(mystran PRIVATE MYSTRAN_USE_OPENBLAS)
+    endif()
+
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/${_SYS_BLAS_LICENSE_PATH}")
+      message(WARNING
+        "System BLAS/LAPACK detected as ${_SYS_BLAS_LIBNAME}, but the "
+        "expected license file is missing:\n"
+        "  ${PROJECT_SOURCE_DIR}/${_SYS_BLAS_LICENSE_PATH}\n"
+        "  The binary will be built without an embedded license for "
+        "${_SYS_BLAS_LIBNAME}, which may make it legally undistributable.")
+    endif()
+  endif()
 endif()
 
 # On Windows the -static linker flag pulls in Fortran and C runtimes too
@@ -524,8 +639,7 @@ endforeach()
 list(JOIN _MYSTRAN_STATIC_NAMES ", " _STATIC_NAMES_STR)
 message(STATUS "Static libraries linked in: ${_STATIC_NAMES_STR}")
 
-# force some libraries
-list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_LAPACK)
+# ARPACK is always embedded under Source/Modules/ARPACK.
 list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_ARPACK)
 
 # -----------------------------------------------------------------------
@@ -540,13 +654,10 @@ list(APPEND _MYSTRAN_STATIC_DEFS _STATIC_ARPACK)
 # Add new entries here whenever a new statically-linked library is added.
 # -----------------------------------------------------------------------
 set(_MYSTRAN_LICENSE_MAP
-  "F2C:f2c/Notice:libf2c:Fortran-to-C runtime support library"
-  "SUPERLU:superlu/License.txt:SuperLU:sparse solver"
-  "SUPERLU_MT:superlu_mt/License.txt:SuperLU_MT:multi-threaded sparse solver"
-  "METIS:metis/METIS/LICENSE:METIS:graph partitioner for SuperLU"
-  "GKLIB:metis/GKlib/LICENSE.txt:GKlib:utility library for METIS"
-  "BLAS:extra_licenses/blas-lapack.txt:BLAS:embedded subset of reference BLAS"
-  "LAPACK:extra_licenses/blas-lapack.txt:LAPACK:linear algebra library"
+  "SUPERLU:submodules/superlu/License.txt:SuperLU:sparse solver"
+  "SUPERLU_MT:submodules/superlu_mt/License.txt:SuperLU_MT:multi-threaded sparse solver"
+  "METIS:submodules/metis/LICENSE:METIS:graph partitioner for SuperLU"
+  "GKLIB:submodules/GKlib/LICENSE.txt:GKlib:utility library for METIS"
   "ARPACK:extra_licenses/arpack.txt:ARPACK:Lanczos eigensolver implementation"
   "GOMP:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgomp:GNU OpenMP runtime"
   "GFORTRAN:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgfortran:GNU Fortran runtime"
@@ -555,6 +666,20 @@ set(_MYSTRAN_LICENSE_MAP
   "PTHREAD:extra_licenses/lgpl-2.1.txt:libpthread:POSIX threads, used by SuperLU_MT"
   "REGEX:extra_licenses/lgpl-2.1.txt:libregex:POSIX regexes, used by GKlib"
 )
+
+# BLAS/LAPACK license entry depends on which provider was selected.
+# EMBEDDED -> Reference-LAPACK submodule ships its own LICENSE.
+# SYSTEM   -> use the detected vendor's license file, if known.
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "EMBEDDED")
+  list(APPEND _MYSTRAN_LICENSE_MAP
+    "BLAS:submodules/lapack/LICENSE:BLAS:Reference-LAPACK submodule (embedded BLAS)"
+    "LAPACK:submodules/lapack/LICENSE:LAPACK:Reference-LAPACK submodule (embedded LAPACK)"
+  )
+elseif(NOT _SYS_BLAS_TAG STREQUAL "")
+  list(APPEND _MYSTRAN_LICENSE_MAP
+    "${_SYS_BLAS_TAG}:${_SYS_BLAS_LICENSE_PATH}:${_SYS_BLAS_LIBNAME}:${_SYS_BLAS_DESC}"
+  )
+endif()
 
 # Generate STATIC_LICENSES_GENERATED.F90 in the build directory
 set(_GEN_LIC_FILE "${CMAKE_SOURCE_DIR}/INCLUDE/STATIC_LICENSES_GENERATED.F90.inc")
@@ -793,15 +918,17 @@ else()
   set(_SLU_VARIANT "SuperLU (single-threaded)")
 endif()
 
-# BLAS source
-if(BLAS_FOUND)
-  set(_BLAS_INFO "System BLAS: ${TPL_BLAS_LIBRARIES}")
-  string(REPLACE "'" "''" _BLAS_INFO "${_BLAS_INFO}")
-elseif(MISSING_FNS_TOTAL GREATER 0)
-  set(_BLAS_INFO "CBLAS + built-in subset (${MISSING_FNS_TOTAL} routine(s) compiled in)")
+# BLAS / LAPACK source
+if(_MYSTRAN_BLAS_LAPACK_MODE STREQUAL "SYSTEM")
+  set(_BLAS_INFO "System: ${BLAS_LIBRARIES}")
+  set(_LAPACK_INFO "System: ${LAPACK_LIBRARIES}")
 else()
-  set(_BLAS_INFO "System BLAS")
+  set(_BLAS_INFO "Embedded Reference-LAPACK submodule (libblas.a)")
+  set(_LAPACK_INFO "Embedded Reference-LAPACK submodule (liblapack.a)")
 endif()
+
+string(REPLACE "'" "''" _BLAS_INFO "${_BLAS_INFO}")
+string(REPLACE "'" "''" _LAPACK_INFO "${_LAPACK_INFO}")
 
 # METIS
 if(TPL_ENABLE_METISLIB)
@@ -834,6 +961,7 @@ string(APPEND _GEN_BLD_CONTENT
   "  WRITE(IUNIT,'(A)') ' '\n"
   "  WRITE(IUNIT,'(A)') '  Sparse solver       : ${_SLU_VARIANT}'\n"
   "  WRITE(IUNIT,'(A)') '  BLAS                : ${_BLAS_INFO}'\n"
+  "  WRITE(IUNIT,'(A)') '  LAPACK              : ${_LAPACK_INFO}'\n"
   "  WRITE(IUNIT,'(A)') '  METIS partitioner   : ${_METIS_INFO}'\n"
   "END SUBROUTINE PRINT_BUILD_CONSTANTS\n"
 )

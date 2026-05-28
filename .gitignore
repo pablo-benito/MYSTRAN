@@ -40,3 +40,6 @@ fort.*
 
 # generated subroutines
 Source/INCLUDE/*.F90.inc
+
+# CPack stuff (for in-source LAPACK builds)
+CPack*.cmake

@@ -134,6 +134,13 @@
 
       OPEN(SC1)
 
+! Cap threads used by the linked BLAS provider (e.g. OpenBLAS). MYSTRAN
+! drives BLAS from its own serial loops, so per-call thread fan-out is
+! pure overhead. This is a no-op unless a recognized threaded BLAS
+! provider was detected at configure time.
+
+      CALL SET_BLAS_THREADS ( 1_LONG )
+
 ! Set time initializing parameters
 
       CALL TIME_INIT

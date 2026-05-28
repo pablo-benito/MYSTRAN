@@ -41,7 +41,6 @@
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL
       USE SPARSE_MATRICES, ONLY       :  SYM_KLL
       USE COL_VECS, ONLY              :  UL_COL, PL_COL
-      USE LAPACK_BLAS_AUX
 
       USE EPSCALC_USE_IFs
 
@@ -58,6 +57,8 @@
       REAL(DOUBLE)                    :: EPSILON           ! The indicator of numerical accuracy of the displ soln, UL
       REAL(DOUBLE)                    :: KU(NDOFL)         ! Result of multiplying KLL and UL_COL
       REAL(DOUBLE)                    :: NUM               ! Numerator in EPSILON calculation
+
+      REAL(DOUBLE), EXTERNAL          :: DDOT              ! BLAS dot-product function
 
       INTRINSIC                       :: DABS
 

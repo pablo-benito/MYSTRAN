@@ -32,7 +32,7 @@
 ! example would be the case if it were grounded - e.g. a cantilevered beam has rigid body modes restrained)
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
+      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, SC1
 
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, NSPOINT, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
@@ -40,7 +40,6 @@
       USE DOF_TABLES, ONLY            :  TDOFI
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE LAPACK_DPB_MATRICES, ONLY   :  ABAND
-      USE LAPACK_BLAS_AUX
       USE PARAMS, ONLY                :  EPSIL, EQCHK_NORM, SUPWARN, SUPINFO
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
 
@@ -179,7 +178,7 @@
                   RBMAT_COL(I) = RBMAT(I,J)
                   PRB_COL(I)   = ZERO
                ENDDO
-               CALL DSBMV ( 'U', NROWS, KIN_SDIA, 1.0D0, ABAND, KIN_SDIA+1, RBMAT_COL, 1, 0.0D0, PRB_COL, 1, J )
+               CALL DSBMV ( 'U', NROWS, KIN_SDIA, 1.0D0, ABAND, KIN_SDIA+1, RBMAT_COL, 1, 0.0D0, PRB_COL, 1 )
                DO I=1,NROWS
                   PRB(I,J) = PRB_COL(I)
                ENDDO

@@ -288,7 +288,6 @@ deb_17:        IF (DEBUG(17) > 0) THEN
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
       USE CONSTANTS_1, ONLY           :  ZERO
-      USE LAPACK_STD_EIG_1
 
       IMPLICIT NONE
 
@@ -375,7 +374,6 @@ deb_17:        IF (DEBUG(17) > 0) THEN
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
-      USE LAPACK_STD_EIG_1
 
       IMPLICIT NONE
 
