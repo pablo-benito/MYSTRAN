@@ -58,5 +58,6 @@
       USE VECTOR_NORM_Interface
       USE PRINT_BUILD_INFO_Interface
       USE READ_CL_Interface
+      USE SET_BLAS_THREADS_Interface
 
       END MODULE MYSTRAN_USE_IFs

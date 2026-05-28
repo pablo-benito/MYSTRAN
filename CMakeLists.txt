@@ -680,6 +680,13 @@ else()
     list(APPEND _MYSTRAN_STATIC_DEFS "_STATIC_${_SYS_BLAS_TAG}")
     list(APPEND _MYSTRAN_STATIC_NAMES "${_SYS_BLAS_LIBNAME}")
 
+    # Provider-specific runtime hooks (e.g. thread-count limiter in
+    # Source/MAIN/SET_BLAS_THREADS.F03). Defined here so it's only
+    # active when the corresponding BLAS is actually linked.
+    if(_SYS_BLAS_TAG STREQUAL "OPENBLAS")
+      target_compile_definitions(mystran PRIVATE MYSTRAN_USE_OPENBLAS)
+    endif()
+
     if(NOT EXISTS "${PROJECT_SOURCE_DIR}/${_SYS_BLAS_LICENSE_PATH}")
       message(WARNING
         "System BLAS/LAPACK detected as ${_SYS_BLAS_LIBNAME}, but the "
