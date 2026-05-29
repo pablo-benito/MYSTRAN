@@ -148,11 +148,7 @@
          ENDDO
       ENDDO
 
-      DO I=1,MAXREQ
-         DO J=1,MOGEL
-            OGEL(I,J) = ZERO
-         ENDDO
-      ENDDO
+      OGEL = ZERO
 
 ! 101  FORMAT("*DEBUG:      ",A,"; ELEMENT_TYPE_INT=",I8,"; TABLE_NAME=",A)
 !xx   IROW_MAT = 0

@@ -11,18 +11,21 @@
 	ignore = all
 	update = checkout
 	branch = master
+
 [submodule "metis/GKlib"]
 	path = submodules/GKlib
 	url = https://github.com/KarypisLab/GKlib.git
 	ignore = all
 	update = checkout
 	branch = master
+
 [submodule "metis/METIS"]
 	path = submodules/metis
 	url = https://github.com/KarypisLab/METIS.git
 	ignore = all
 	update = checkout
 	branch = master
+
 [submodule "Source/lapack"]
 	path = submodules/lapack
 	url = https://github.com/Reference-LAPACK/lapack.git

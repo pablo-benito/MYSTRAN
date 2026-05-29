@@ -1,3 +1,4 @@
+! ###############################################################################################################################
 ! Begin MIT license text.
 ! _______________________________________________________________________________________________________
 
@@ -23,16 +24,21 @@
 
 ! End MIT license text.
 
-      MODULE WRITE_ELEM_STRAINS_USE_IFs
+   MODULE FMT_ES14_6_Interface
 
-! USE Interface statements for all subroutines called by SUBROUTINE WRITE_ELEM_STRAINS
+   INTERFACE
 
-      USE OURTIM_Interface
-      USE GET_ELEM_ONAME_Interface
-      USE GET_GRID_AND_COMP_Interface
-      USE GET_MAX_MIN_ABS_STR_Interface
-      USE OUTA_HERE_Interface
-      USE FMT_ES14_6_Interface
-      USE FMT_I8_RJ_Interface
+      SUBROUTINE FMT_ES14_6 ( V, OUT )
 
-      END MODULE WRITE_ELEM_STRAINS_USE_IFs
+      USE PENTIUM_II_KIND, ONLY       :  BYTE, DOUBLE
+
+      IMPLICIT NONE
+
+      REAL(DOUBLE), INTENT(IN)        :: V                    ! Real value to format
+      CHARACTER(14*BYTE), INTENT(OUT) :: OUT                  ! 14-char formatted result
+
+      END SUBROUTINE FMT_ES14_6
+
+   END INTERFACE
+
+   END MODULE FMT_ES14_6_Interface

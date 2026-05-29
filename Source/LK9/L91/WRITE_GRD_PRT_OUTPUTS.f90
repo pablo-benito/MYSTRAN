@@ -57,6 +57,7 @@
       CHARACTER(14*BYTE)              :: MAX_ANS_CHAR(6)   ! Character variable that contains the 6 grid max  outputs
       CHARACTER(14*BYTE)              :: MIN_ANS_CHAR(6)   ! Character variable that contains the 6 grid min  outputs
       CHARACTER(14*BYTE)              :: TOTALS_CHAR(6)    ! Character variable that contains the 6 grid tot  outputs
+      CHARACTER(108*BYTE)             :: LINE_BUF          ! Pre-assembled per-grid output line (matches FORMAT 9902 layout)
 
       INTEGER(LONG), INTENT(IN)       :: JVEC              ! Sol'n vector num. Can be internal subcase number or eigenvector number
       INTEGER(LONG), INTENT(IN)       :: NUM               ! The number of rows of OGEL to write out
@@ -220,33 +221,31 @@
       ENDDO
 
       DO I=1,6
-
-         IF (ABS_ANS(I) == 0.0) THEN
-            WRITE(ABS_ANS_CHAR(I),'(A)') '  0.0         '
+         IF (ABS(ABS_ANS(I)) == ZERO) THEN
+            ABS_ANS_CHAR(I) = '  0.0         '
          ELSE
-            WRITE(ABS_ANS_CHAR(I),'(1ES14.6)') ABS_ANS(I)
+            CALL FMT_ES14_6 ( ABS_ANS(I), ABS_ANS_CHAR(I) )
          ENDIF
-
-         IF (MAX_ANS(I) == 0.0) THEN
-            WRITE(MAX_ANS_CHAR(I),'(A)') '  0.0         '
+         IF (ABS(MAX_ANS(I)) == ZERO) THEN
+            MAX_ANS_CHAR(I) = '  0.0         '
          ELSE
-            WRITE(MAX_ANS_CHAR(I),'(1ES14.6)') MAX_ANS(I)
+            CALL FMT_ES14_6 ( MAX_ANS(I), MAX_ANS_CHAR(I) )
          ENDIF
-
-         IF (MIN_ANS(I) == 0.0) THEN
-            WRITE(MIN_ANS_CHAR(I),'(A)') '  0.0         '
+         IF (ABS(MIN_ANS(I)) == ZERO) THEN
+            MIN_ANS_CHAR(I) = '  0.0         '
          ELSE
-            WRITE(MIN_ANS_CHAR(I),'(1ES14.6)') MIN_ANS(I)
+            CALL FMT_ES14_6 ( MIN_ANS(I), MIN_ANS_CHAR(I) )
          ENDIF
-
       ENDDO
 
 ! Write accels, displ's, applied forces or SPC forces (also calc TOTALS for forces if that is being output)
 ! TOTALS(J) is summation of G.P. values of applied forces, SPC forces, or MFC forces, for each of the J=1,6 components.
 
-      DO J=1,6
-         TOTALS(J) = ZERO
-      ENDDO
+      TOTALS = ZERO
+
+! Pre-fill the fixed-whitespace positions of LINE_BUF that match FORMAT 9902 = (6X,2(1X,I8),6A).
+! Variable fields (GID, COORD, 6x14-char values) are overwritten per iteration in the loop below.
+      LINE_BUF = ' '
 
       LINES_WRITTEN = 0
       DO I=1,NUM
@@ -254,19 +253,28 @@
          IF ((WHAT == 'OLOAD') .OR. (WHAT == 'SPCF') .OR. (WHAT == 'MPCF')) THEN
             DO J=1,6
                TOTALS(J) = TOTALS(J) + OGEL(I,J)
-               IF (TOTALS(J) == 0.0) THEN
-                  WRITE(TOTALS_CHAR(J),'(A)') '  0.0         '
+               IF (ABS(TOTALS(J)) == ZERO) THEN
+                  TOTALS_CHAR(J) = '  0.0         '
                ELSE
-                  WRITE(TOTALS_CHAR(J),'(1ES14.6)') TOTALS(J)
+                  CALL FMT_ES14_6 ( TOTALS(J), TOTALS_CHAR(J) )
                ENDIF
             ENDDO
          ENDIF
 
          IF (WRITE_OGEL(I) == 'Y') THEN
 
-            CALL WRT_REAL_TO_CHAR_VAR ( OGEL, MAXREQ, MOGEL, I, OGEL_CHAR )
-
-            WRITE(F06,9902) GID_OUT_ARRAY(I,1),GID_OUT_ARRAY(I,2),(OGEL_CHAR(J),J=1,6)
+!           Assemble the per-grid output line directly into LINE_BUF, then emit with a single A-format WRITE.
+!           Layout (matches FORMAT 9902): 6X | 1X | I8 | 1X | I8 | 6 * A14  ==> 108 chars total.
+            CALL FMT_I8_RJ ( GID_OUT_ARRAY(I,1), LINE_BUF( 8:15) )
+            CALL FMT_I8_RJ ( GID_OUT_ARRAY(I,2), LINE_BUF(17:24) )
+            DO J=1,6
+               IF (ABS(OGEL(I,J)) == ZERO) THEN
+                  LINE_BUF(25 + (J-1)*14 : 24 + J*14) = '  0.0         '
+               ELSE
+                  CALL FMT_ES14_6 ( OGEL(I,J), LINE_BUF(25 + (J-1)*14 : 24 + J*14) )
+               ENDIF
+            ENDDO
+            WRITE(F06,'(A)') LINE_BUF
 
             IF (GID_OUT_ARRAY(I,MELGP+1) > 0) THEN
                DO J=1,GID_OUT_ARRAY(I,MELGP+1)

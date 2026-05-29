@@ -92,16 +92,10 @@
 
 
 ! **********************************************************************************************************************************
-      DO I=1,MAXREQ
-         DO J=1,MOGEL
-            OGEL(I,J) = ZERO
-         ENDDO
-      ENDDO
+      OGEL = ZERO
 
       ! Initialize WRITE_OGEL
-      DO I=1,NGRID
-         WRITE_OGEL(I) = 'Y'
-      ENDDO
+      WRITE_OGEL(1:NGRID) = 'Y'
 
 ! ---------------------------------------------------------------------------------------------------------------------------------
 ! Process acceleration output requests for CB sol.

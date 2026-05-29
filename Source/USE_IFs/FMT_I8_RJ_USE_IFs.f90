@@ -1,3 +1,4 @@
+! ##################################################################################################################################
 ! Begin MIT license text.
 ! _______________________________________________________________________________________________________
 
@@ -23,16 +24,9 @@
 
 ! End MIT license text.
 
-      MODULE WRITE_ELEM_STRAINS_USE_IFs
+      MODULE FMT_I8_RJ_USE_IFs
 
-! USE Interface statements for all subroutines called by SUBROUTINE WRITE_ELEM_STRAINS
+! USE Interface statements for all subroutines called by SUBROUTINE FMT_I8_RJ
+! No subrs CALL'd by SUBROUTINE FMT_I8_RJ
 
-      USE OURTIM_Interface
-      USE GET_ELEM_ONAME_Interface
-      USE GET_GRID_AND_COMP_Interface
-      USE GET_MAX_MIN_ABS_STR_Interface
-      USE OUTA_HERE_Interface
-      USE FMT_ES14_6_Interface
-      USE FMT_I8_RJ_Interface
-
-      END MODULE WRITE_ELEM_STRAINS_USE_IFs
+      END MODULE FMT_I8_RJ_USE_IFs

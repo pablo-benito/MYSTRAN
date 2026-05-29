@@ -26,6 +26,7 @@
       MODULE WRT_REAL_TO_CHAR_VAR_USE_IFs
 
 ! USE Interface statements for all subroutines called by SUBROUTINE WRT_REAL_TO_CHAR_VAR
-! No subrs CALL'd by SUBROUTINE WRT_REAL_TO_CHAR_VAR
+
+      USE FMT_ES14_6_Interface
 
       END MODULE WRT_REAL_TO_CHAR_VAR_USE_IFs
