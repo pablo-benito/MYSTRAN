@@ -76,9 +76,6 @@
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
       INTEGER(LONG)                   :: TDOF_ROW          ! Row no. in array TDOF to find GDOF DOF number
 
-
-      INTEGER(SHORT), DIMENSION(1)    :: Udd = (/0220/)    ! 0220 is the 4 digit ASCII code for a capital U double-dot
-
       REAL(DOUBLE)                    :: DUM_KE(MELDOF,MELDOF)
       REAL(DOUBLE)                    :: FG1(6)            ! The 6 vals from FG_COL (grid inertia forces) for 1 grid point
       REAL(DOUBLE)                    :: PG1(6)            ! The 6 vals from PG_COL (grid applied loads) for 1 grid point
@@ -769,7 +766,7 @@ i_do1:   DO I=1,NGRID                                      ! (2) Set initial val
 
  9206 FORMAT(1X,   'MPC FORCE              ',6(1ES14.6))
 
- 9207 FORMAT(1X,   'INERTIA FORCE (-Mgg*Üg)',6(1ES14.6))
+ 9207 FORMAT(1X,   'INERTIA FORCE          ',6(1ES14.6))
 
  9208 FORMAT(1X,   'SUBSTRUCTURE I/F FORCE ',6(1ES14.6))
 
@@ -782,7 +779,7 @@ i_do1:   DO I=1,NGRID                                      ! (2) Set initial val
 
  9310 FORMAT(1X,   'TOTALS                :',6(1ES14.6),13X,/,                                                                     &
              1X,   '(may not be zero since there were OMIT''d DOF''s which can mean that the correct inertia forces at the G-set', &
-                   ' are not -Mgg*Üg)',//)
+                   ' are not -Mgg*a*g)',//)
 
  9799 FORMAT(1X,A)
 
