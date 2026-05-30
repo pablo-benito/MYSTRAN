@@ -666,7 +666,13 @@ i_do1:   DO I=1,NGRID                                      ! (2) Set initial val
           IF (IERR /= 0) THEN
               WRITE(ERR,*) 'GPFORCE_FXYZ_MXYZ DEALLOCATE error'
           ENDIF
+      ELSE
+          ! deallocate the dummy arrays
+          DEALLOCATE (GPFORCE_NID_EID)
+          DEALLOCATE (GPFORCE_ETYPE)
+          DEALLOCATE (GPFORCE_FXYZ_MXYZ)
       ENDIF
+
       FLUSH(OP2)
       FLUSH(F06)
       FLUSH(ERR)
