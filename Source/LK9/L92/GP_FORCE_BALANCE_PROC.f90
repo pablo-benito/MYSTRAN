@@ -44,7 +44,8 @@
       USE COL_VECS, ONLY              :  FG_COL, PG_COL, QGm_COL, QGs_COL, QGr_COL, UG_COL
       USE PARAMS, ONLY                :  EPSIL
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  GPFO_OUT
-
+      USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
+      
       USE GP_FORCE_BALANCE_PROC_USE_IFs
 
       IMPLICIT NONE
@@ -127,11 +128,6 @@
 
 ! **********************************************************************************************************************************
 
-      ! GPFORCE is unsupported for buckling decks
-      IF (SOL_NAME(1:8) == "BUCKLING") THEN
-         RETURN
-      ENDIF
-
       ! Print some summary info for max abs value of GP force balance for each solution vector
       IS_GPFORCE_SUMMARY_INFO = (DEBUG(192) > 0)
 
@@ -183,7 +179,6 @@
             WRITE(F06,*)
             WRITE(F06,*)
          ENDIF
-
          ISUBCASE_INDEX = 0
          IF    (SOL_NAME(1:7) == 'STATICS') THEN
             ISUBCASE_INDEX = JVEC
@@ -191,6 +186,20 @@
             !FIELD5_INT_MODE = 1  ! temp
             FIELD5_INT_MODE = SCNUM(JVEC)
             IF (WRITE_F06)  WRITE(F06,9101) SCNUM(JVEC)
+
+         ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
+
+            ISUBCASE_INDEX = JVEC
+            ANALYSIS_CODE = 1
+            FIELD5_INT_MODE = SCNUM(JVEC)
+            IF (WRITE_F06)  WRITE(F06,9101) SCNUM(JVEC)
+
+         ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
+
+            ISUBCASE_INDEX = 1  ! modes
+            ANALYSIS_CODE = 2
+            FIELD5_INT_MODE = JVEC
+            IF (WRITE_F06)  WRITE(F06,9102) JVEC
 
          ELSE IF (SOL_NAME(1:5) == 'MODES') THEN
             ISUBCASE_INDEX = 1  ! modes
@@ -219,6 +228,7 @@
                  WRITE(F06,9103) JVEC, NUM_CB_DOFS, 'displacement', BNDY_GRID, BNDY_COMP
               ENDIF
             ENDIF
+
          ENDIF
 
          ISUBCASE = SCNUM(ISUBCASE_INDEX)
