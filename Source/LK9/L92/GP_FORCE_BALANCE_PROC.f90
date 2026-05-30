@@ -221,7 +221,7 @@
 
          IF (WRITE_F06) THEN
             IF (TITLEI(1:)  /= ' ') THEN
-               WRITE(F06,9799) TITLE
+               WRITE(F06,9799) TITLEI
             ENDIF
 
             IF (SUBTITLEI(1:) /= ' ') THEN
