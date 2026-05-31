@@ -56,7 +56,8 @@
       USE MODEL_STUF, ONLY            :  ALL_SETS_ARRAY, ONE_SET_ARRAY, SETS_IDS, SC_ACCE, SC_DISP, SC_ELFN, SC_ELFE, SC_GPFO,     &
                                          SC_MPCF, SC_OLOA, SC_SPCF, SC_STRE, SC_STRN, LOAD_SIDS, LOAD_FACS
       USE MODEL_STUF, ONLY            :  ELDT, ELOUT, GROUT, OELOUT, OGROUT, LABEL, SCNUM, STITLE, SUBLOD, TITLE
-      USE MODEL_STUF, ONLY            :  CC_EIGR_SID_SUB, EIG_PARAMS, IS_MODES_SUBCASE, NUM_EIGENS_SUB
+      USE MODEL_STUF, ONLY            :  CC_EIGR_SID_SUB, CC_STATSUB_SUB, EIG_PARAMS, IS_BUCKLING_SUBCASE, IS_MODES_SUBCASE,    &
+                                         NUM_EIGENS_SUB
       USE MODEL_STUF, ONLY            :  SYS_LOAD
       USE MODEL_STUF, ONLY            :  CETEMP, CETEMP_ERR, CGTEMP, CGTEMP_ERR, ETEMP, ETEMP_INIT, GTEMP, GTEMP_INIT, TDATA, TPNT
       USE MODEL_STUF, ONLY            :  RIGID_ELEM_IDS
@@ -297,10 +298,11 @@
             ENDIF
          ENDIF
 
-         ! NOTE: CC_EIGR_SID_SUB, IS_MODES_SUBCASE, NUM_EIGENS_SUB, and EIG_PARAMS are deliberately *not* deallocated
-         ! alongside SCNUM. LINK9 deallocates+reallocates SCNUM at startup, and we need the per-subcase eigen state
-         ! populated by LK1/LK4 to survive that cycle so LINK9 can iterate modes per their owning subcase. The matching
-         ! ALLOCATE_MODEL_STUF('SCNUM') skips them when they are already allocated, so they remain populated.
+         ! NOTE: CC_EIGR_SID_SUB, CC_STATSUB_SUB, IS_MODES_SUBCASE, IS_BUCKLING_SUBCASE, NUM_EIGENS_SUB, and EIG_PARAMS
+         ! are deliberately *not* deallocated alongside SCNUM. LINK9 deallocates+reallocates SCNUM at startup, and we
+         ! need the per-subcase eigen/buckling state populated by LK1/LK4 to survive that cycle so LINK9 can iterate
+         ! modes per their owning subcase. The matching ALLOCATE_MODEL_STUF('SCNUM') skips them when they are already
+         ! allocated, so they remain populated.
 
       ELSE IF (NAME_IN == 'SUBLOD') THEN                   ! Deallocate array SUBLOD
 

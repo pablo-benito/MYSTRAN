@@ -1863,6 +1863,16 @@
       CHARACTER(1*BYTE) , ALLOCATABLE    :: IS_MODES_SUBCASE(:)
 !                                                              'Y' for each modes-subcase (has a resolved METHOD); 'N' otherwise.
 
+      INTEGER(LONG)        , ALLOCATABLE :: CC_STATSUB_SUB(:)   ! Per-subcase STATSUB(PRELOAD) value (0 if subcase has no STATSUB).
+!                                                              Populated by CC_STATSUB; for buckling subcases lacking a STATSUB
+!                                                              card, the deck-default (STATSUB declared above any SUBCASE) is
+!                                                              propagated by the post-parse inheritance pass in LOADC.
+      INTEGER(LONG)                      :: CC_STATSUB_DECK  = 0
+!                                                              STATSUB(PRELOAD) declared above the first SUBCASE card (deck-default).
+      CHARACTER(1*BYTE) , ALLOCATABLE    :: IS_BUCKLING_SUBCASE(:)
+!                                                              'Y' for each buckling-subcase (resolved by LOADC for SOL 105
+!                                                              decks); 'N' otherwise.
+
 ! Per-subcase eigen result tally (allocated alongside EIG_PARAMS by ALLOCATE_MODEL_STUF). The full per-subcase result
 ! buffers live as allocatable components inside EIG_PARAMS(ISUB).
       INTEGER(LONG)     , ALLOCATABLE :: NUM_EIGENS_SUB(:)   ! No. of eigenvalues extracted per modes-subcase

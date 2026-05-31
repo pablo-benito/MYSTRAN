@@ -29,11 +29,12 @@
       ! LOADC reads in the CASE CONTROL DECK
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  BUGOUT, ERR, F06, IN1, WRT_ERR
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_ENTRY_LEN, ENFORCED, FATAL_ERR, WARN_ERR, NSUB, NTSUB, PROG_NAME,        &
-                                         RESTART, SOL_NAME
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_ENTRY_LEN, ENFORCED, FATAL_ERR, WARN_ERR, NSUB, NTSUB, NUM_BUCKLING_SUBS, &
+                                         PROG_NAME, RESTART, SOL_NAME
       USE TIMDAT, ONLY                :  TSEC
       USE PARAMS, ONLY                :  SUPINFO, SUPWARN
-      USE MODEL_STUF, ONLY            :  CC_EIGR_SID, CC_EIGR_SID_SUB, CC_EIGR_SID_DECK, IS_MODES_SUBCASE,                         &
+      USE MODEL_STUF, ONLY            :  CC_EIGR_SID, CC_EIGR_SID_SUB, CC_EIGR_SID_DECK, CC_STATSUB_DECK, CC_STATSUB_SUB,          &
+                                         IS_BUCKLING_SUBCASE, IS_MODES_SUBCASE,                                                    &
                                          MEFFMASS_CALC, MPCSET, MPCSETS, MPFACTOR_CALC, SCNUM, SPCSET, SPCSETS, SUBLOD
       USE MODEL_STUF, ONLY            :  EIG_PARAMS,                                                                               &
                                          EIG_COMP, EIG_CRIT, EIG_FRQ1, EIG_FRQ2, EIG_GRID, EIG_LANCZOS_NEV_DELT, EIG_METH,         &
@@ -189,6 +190,9 @@ inner:         DO
          ELSE IF (CARD1(1:4) == 'SPCF'    ) THEN
             CALL CC_SPCF   ( CARD1 )
 
+         ELSE IF (CARD1(1:7) == 'STATSUB') THEN
+            CALL CC_STATSUB ( CARD1 )
+
          ELSE IF((CARD1(1:4) == 'STRA'    ) .OR.  (CARD1(1:4) == 'STRN'    ) .OR.  (CARD1(1:8) == 'ELSTRAIN')) THEN
             CALL CC_STRN   ( CARD1 )
 
@@ -314,53 +318,100 @@ inner:         DO
          ENDIF
       ENDIF
 
-     ! If SOL is buckling there should be 2 subcases; the first with a load
-     ! and the second with a METH (METH checked above)
-     ! If any load, SPC or MPC is found in the 2nd subcase, make sure it is
-     ! the same as in subcase 1
+     ! For SOL 105 buckling, resolve STATSUB(PRELOAD) references for each buckling subcase. A buckling subcase is one
+     ! that has a resolved METHOD (and therefore IS_MODES_SUBCASE(I)=='Y'). The remaining subcases supply linear-static
+     ! preloads. STATSUB(PRELOAD)=n names the external SUBCASE id of the static subcase whose displacement field is
+     ! used to assemble KGGD for the buckling eigenproblem. If no STATSUB is given anywhere, fall back to the legacy
+     ! behavior: the first non-buckling subcase that carries a LOAD or TEMP request acts as the preload source.
       IF (SOL_NAME == 'BUCKLING') THEN
-         IF (NSUB /= 2) THEN                               ! Check for 2 subcases
-            WRITE(ERR,1101)
-            WRITE(F06,1101)
-            FATAL_ERR = FATAL_ERR + 1
-            IF (NSUB < 2) THEN
-               ! further code will crash if we continue with just one subcase
-               CALL OUTA_HERE ( 'Y' )
-            END IF
-         ENDIF
-         ! Check that subcase 1 has a mechanical or thermal load
-         IF ((SUBLOD(1,1) == 0) .AND. (SUBLOD(1,2) == 0)) THEN
-            WRITE(ERR,1101)
-            WRITE(F06,1101)
-            FATAL_ERR = FATAL_ERR + 1
-         ENDIF
 
-         ! Check the 2 subcases for identical loading (if S/C 2 has any stated)
-         DO I = 1,2
-            IF (SUBLOD(2,I) /= 0) THEN
-               IF (SUBLOD(2,I) /= SUBLOD(1,I)) THEN
-                  WRITE(ERR,1102)
-                  WRITE(F06,1102)
-                  FATAL_ERR = FATAL_ERR + 1
+         ! Tag every modes-subcase as a buckling-subcase, and count them.
+         NUM_BUCKLING_SUBS = 0
+         IF (ALLOCATED(IS_BUCKLING_SUBCASE) .AND. ALLOCATED(IS_MODES_SUBCASE)) THEN
+            DO I = 1, NSUB
+               IF (IS_MODES_SUBCASE(I) == 'Y') THEN
+                  IS_BUCKLING_SUBCASE(I) = 'Y'
+                  NUM_BUCKLING_SUBS = NUM_BUCKLING_SUBS + 1
                ENDIF
-            ENDIF
-         ENDDO
-
-         IF (SPCSETS(2) /= 0) THEN                          ! Check the 2 subcases for identical SPC (if S/C 2 has any stated)
-            IF (SPCSETS(2) /= SPCSETS(1)) THEN
-               WRITE(ERR,1102)
-               WRITE(F06,1102)
-               FATAL_ERR = FATAL_ERR + 1
-            ENDIF
+            ENDDO
          ENDIF
 
-         IF (MPCSETS(2) /= 0) THEN                          ! Check the 2 subcases for identical MPC (if S/C 2 has any stated)
-            IF (MPCSETS(2) /= MPCSETS(1)) THEN
-               WRITE(ERR,1102)
-               WRITE(F06,1102)
+         IF (NUM_BUCKLING_SUBS == 0) THEN                  ! no buckling subcase -> nothing to solve
+            WRITE(ERR,1101)
+            WRITE(F06,1101)
+            FATAL_ERR = FATAL_ERR + 1
+            CALL OUTA_HERE ( 'Y' )
+         ENDIF
+
+         ! Confirm at least one non-buckling subcase carries a load (mechanical or thermal). Without one there is no
+         ! linear-static preload to drive KGGD.
+         BLOCK
+            LOGICAL :: HAS_STATIC_LOAD
+            INTEGER(LONG) :: STATSUB_REQ, RESOLVED_IDX, K
+            HAS_STATIC_LOAD = .FALSE.
+            DO I = 1, NSUB
+               IF ((IS_BUCKLING_SUBCASE(I) == 'N') .AND. ((SUBLOD(I,1) /= 0) .OR. (SUBLOD(I,2) /= 0))) THEN
+                  HAS_STATIC_LOAD = .TRUE.
+                  EXIT
+               ENDIF
+            ENDDO
+            IF (.NOT. HAS_STATIC_LOAD) THEN
+               WRITE(ERR,1101)
+               WRITE(F06,1101)
                FATAL_ERR = FATAL_ERR + 1
             ENDIF
-         ENDIF
+
+            ! Resolve STATSUB(PRELOAD) for each buckling subcase. Per-subcase value beats deck-level which beats the
+            ! legacy fallback (first static subcase that carries a load).
+            DO I = 1, NSUB
+               IF (IS_BUCKLING_SUBCASE(I) /= 'Y') CYCLE
+               STATSUB_REQ = 0
+               IF (ALLOCATED(CC_STATSUB_SUB)) STATSUB_REQ = CC_STATSUB_SUB(I)
+               IF (STATSUB_REQ == 0) STATSUB_REQ = CC_STATSUB_DECK
+
+               RESOLVED_IDX = 0
+               IF (STATSUB_REQ == 0) THEN
+                  ! Legacy fallback: first static subcase with LOAD or TEMP.
+                  DO K = 1, NSUB
+                     IF ((IS_BUCKLING_SUBCASE(K) == 'N') .AND. ((SUBLOD(K,1) /= 0) .OR. (SUBLOD(K,2) /= 0))) THEN
+                        RESOLVED_IDX = K
+                        EXIT
+                     ENDIF
+                  ENDDO
+                  IF (RESOLVED_IDX == 0) THEN
+                     WRITE(ERR,1103) I
+                     WRITE(F06,1103) I
+                     FATAL_ERR = FATAL_ERR + 1
+                  ENDIF
+               ELSE
+                  ! Look up external subcase id (STATSUB_REQ) in SCNUM(:) to find its internal index.
+                  DO K = 1, NSUB
+                     IF (SCNUM(K) == STATSUB_REQ) THEN
+                        RESOLVED_IDX = K
+                        EXIT
+                     ENDIF
+                  ENDDO
+                  IF (RESOLVED_IDX == 0) THEN
+                     WRITE(ERR,1104) STATSUB_REQ, I
+                     WRITE(F06,1104) STATSUB_REQ, I
+                     FATAL_ERR = FATAL_ERR + 1
+                  ELSE IF (IS_BUCKLING_SUBCASE(RESOLVED_IDX) == 'Y') THEN
+                     WRITE(ERR,1105) STATSUB_REQ, I
+                     WRITE(F06,1105) STATSUB_REQ, I
+                     FATAL_ERR = FATAL_ERR + 1
+                     RESOLVED_IDX = 0
+                  ELSE IF ((SUBLOD(RESOLVED_IDX,1) == 0) .AND. (SUBLOD(RESOLVED_IDX,2) == 0)) THEN
+                     WRITE(ERR,1106) STATSUB_REQ, I
+                     WRITE(F06,1106) STATSUB_REQ, I
+                     FATAL_ERR = FATAL_ERR + 1
+                  ENDIF
+               ENDIF
+
+               IF (ALLOCATED(EIG_PARAMS) .AND. (RESOLVED_IDX > 0)) THEN
+                  EIG_PARAMS(I)%STATSUB_REF = RESOLVED_IDX
+               ENDIF
+            ENDDO
+         END BLOCK
 
       ENDIF
 
@@ -424,9 +475,22 @@ inner:         DO
 
  1028 FORMAT(' *ERROR  1028: THERE MUST BE 2 SUBCASES FOR LINEAR BUCKLING ANALYSES BUT NSUB = ',I8)
 
- 1101 FORMAT(' *ERROR  1101: FOR BUCKLING ANALYSES THERE MUST BE 2 SUBCASES WITH A LOAD (AND/OR TEMP) DEFINED IN SUBCASE 1')
+ 1101 FORMAT(' *ERROR  1101: FOR BUCKLING ANALYSES THERE MUST BE AT LEAST ONE SUBCASE WITH A METHOD (BUCKLING EIGENPROBLEM)',     &
+                           ' AND AT LEAST ONE OTHER SUBCASE THAT CARRIES A LOAD (AND/OR TEMP) TO ACT AS THE STATSUB PRELOAD.')
 
  1102 FORMAT(' *ERROR  1102: FOR BUCKLING ANALYSES ANY LOAD, SPS OR MPC IN 2nd SUBCASE MUST BE THE SAME AS THOSE IN 1st SUBCASE')
+
+ 1103 FORMAT(' *ERROR  1103: BUCKLING SUBCASE (INTERNAL #',I8,') HAS NO STATSUB AND NO STATIC SUBCASE WITH A LOAD WAS FOUND',     &
+                           ' TO ACT AS THE LEGACY DEFAULT PRELOAD.')
+
+ 1104 FORMAT(' *ERROR  1104: STATSUB(PRELOAD)=',I8,' ON BUCKLING SUBCASE (INTERNAL #',I8,') REFERENCES A SUBCASE THAT DOES NOT',  &
+                           ' EXIST IN THIS CASE CONTROL DECK.')
+
+ 1105 FORMAT(' *ERROR  1105: STATSUB(PRELOAD)=',I8,' ON BUCKLING SUBCASE (INTERNAL #',I8,') REFERENCES ANOTHER BUCKLING SUBCASE.',&
+                           ' STATSUB MUST POINT TO A LINEAR-STATIC SUBCASE.')
+
+ 1106 FORMAT(' *ERROR  1106: STATSUB(PRELOAD)=',I8,' ON BUCKLING SUBCASE (INTERNAL #',I8,') REFERENCES A SUBCASE THAT CARRIES',   &
+                           ' NEITHER LOAD NOR TEMP.')
 
  1199 FORMAT(' *WARNING    : BE CAREFUL WITH LINES THAT BEGIN WITH A $ SIGN IN COL 1 FOLLOWED BY AN UPPER CASE LETTER IN EXEC OR', &
                            ' CASE CONTROL.'                                                                                        &
