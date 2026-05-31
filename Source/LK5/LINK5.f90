@@ -616,7 +616,7 @@ j_do: DO J = 1,NUM_SOLNS
 ! legacy single-preload behaviour (and to give multi-buckling decks a sensible default until the explicit per-buckling-subcase
 ! preload selection lands in a later phase), we reload UG_COL with the canonical preload subcase's column from L5A.
 ! The canonical choice is the STATSUB_REF resolved for the first buckling subcase. If for some reason none of that information
-! is available (defensive fallback only — LOADC always resolves it for valid decks) we leave UG_COL untouched.
+! is available (defensive fallback only -- LOADC always resolves it for valid decks) we leave UG_COL untouched.
 
       IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
          BUCKLING_PRELOAD_RELOAD : BLOCK

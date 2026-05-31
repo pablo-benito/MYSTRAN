@@ -114,7 +114,7 @@
          ENDIF
          ! Also pick up cards requested by any other modes-subcase via its own METHOD entry, or by deck-default
          ! propagation when a subcase has not declared a METHOD of its own. This lets SOL 103 decks define a
-         ! distinct set of modes per subcase. We do not bump EIGFND in this branch — EIGFND is the legacy guard
+         ! distinct set of modes per subcase. We do not bump EIGFND in this branch -- EIGFND is the legacy guard
          ! against duplicate cards for the *scalar* SID only.
          IF (.NOT. MATCHES_SCALAR) THEN
             IF (ALLOCATED(CC_EIGR_SID_SUB)) THEN
