@@ -59,6 +59,7 @@
 
       USE LINK1_USE_IFs
       USE LINK_MESSAGE_Interface
+      USE BUILD_KGGD_FROM_UG_Interface
 
       IMPLICIT NONE
 
@@ -315,87 +316,108 @@ res19:IF (RESTART == 'N') THEN
 
 ! Estimate LTERM so arrays can be allocated for G-set stiffness matrix
 
-         CALL ESP0
          IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
-            CALL LINK_MESSAGE('CALCULATE ESTIMATE OF KGGD MATRIX SIZE        ')
-            LTERM_NAME = 'LTERM_KGGD'
-            LTERM      =  LTERM_KGGD
+
+! KGGD assembly path: delegated to a re-entrant helper so the Phase 4 multi-buckling-subcase driver can rebuild KGGD
+! once per buckling subcase (each with its own preload UG_COL) without re-entering all of LINK1. For the single-shot legacy
+! path this is behaviorally identical to the previous inline ESP0 / ALLOCATE_STF_ARRAYS / ESP / SPARSE_KGGD sequence.
+
+            CALL BUILD_KGGD_FROM_UG
+
+            IF ((SOL_NAME(1:8) /= 'BUCKLING') .AND. (SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
+               CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
+               CALL DEALLOCATE_MODEL_STUF ( 'ELDT' )
+               CALL DEALLOCATE_MODEL_STUF ( 'TPNT, TDATA' )
+               CALL DEALLOCATE_MODEL_STUF ( 'PPNT, PDATA, PTYPE' )
+               CALL DEALLOCATE_MODEL_STUF ( 'PLOAD4_3D_DATA' )
+               CALL DEALLOCATE_MODEL_STUF ( 'GTEMP' )
+            ENDIF
+
+            INQUIRE ( FILE=F23FIL, EXIST=LEXIST, OPENED=LOPEN )
+            IF (LOPEN) THEN
+               CALL FILE_CLOSE ( F23, F23FIL, 'KEEP' )
+            ELSE
+               CALL FILE_CLOSE ( F23, F23FIL, 'DELETE' )
+            ENDIF
+
+            CALL DEALLOCATE_IN4_FILES ( 'IN4FIL' )
+
+            INQUIRE ( FILE=F24FIL, EXIST=LEXIST, OPENED=LOPEN )
+            IF (LOPEN) THEN
+               CALL FILE_CLOSE ( F24, F24FIL, 'KEEP' )
+            ELSE
+               CALL FILE_CLOSE ( F24, F24FIL, 'DELETE' )
+            ENDIF
+
+            CALL DEALLOCATE_MODEL_STUF ( 'MPC_IND_GRIDS' )
+
          ELSE
+
+            CALL ESP0
             CALL LINK_MESSAGE('CALCULATE ESTIMATE OF KGG MATRIX SIZE         ')
             LTERM_NAME = 'LTERM_KGG'
             LTERM      =  LTERM_KGG
-         ENDIF
 
-         IF (ESP0_PAUSE == 'Y') THEN
-            WRITE(SC1,'(A,A,A,I12)') ' From ESP0: ', LTERM_NAME,' = ',LTERM
-            WRITE(SC1,'(A,A,A)') ' Do you want to change ',LTERM_NAME,' estimate? (Y/N)'
-            READ(*,*) RESPONSE
-            IF ((RESPONSE == 'Y') .OR. (RESPONSE == 'y')) THEN
-               WRITE(SC1,'(A,A)') 'Enter new ', LTERM_NAME
-               WRITE(SC1,*)
-               READ (*,*) LTERM
-               IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
-                  LTERM_KGGD = LTERM
-               ELSE
+            IF (ESP0_PAUSE == 'Y') THEN
+               WRITE(SC1,'(A,A,A,I12)') ' From ESP0: ', LTERM_NAME,' = ',LTERM
+               WRITE(SC1,'(A,A,A)') ' Do you want to change ',LTERM_NAME,' estimate? (Y/N)'
+               READ(*,*) RESPONSE
+               IF ((RESPONSE == 'Y') .OR. (RESPONSE == 'y')) THEN
+                  WRITE(SC1,'(A,A)') 'Enter new ', LTERM_NAME
+                  WRITE(SC1,*)
+                  READ (*,*) LTERM
                   LTERM_KGG  = LTERM
+                  WRITE(SC1,'(A,A,A,I12)') 'New ', LTERM_NAME,' will be = ',LTERM
                ENDIF
-               WRITE(SC1,'(A,A,A,I12)') 'New ', LTERM_NAME,' will be = ',LTERM
             ENDIF
-         ENDIF
 
-         if (setlktk /= 3) then                            ! Subr ESP0 estimated LTERM conservatively. Now allocate this amount
-            CALL LINK_MESSAGE('ALLOCATE MEM FOR STFKEY, STFCOL, STFPNT, STF')
-            CALL ALLOCATE_STF_ARRAYS ( 'STFKEY', SUBR_NAME )
-            CALL ALLOCATE_STF_ARRAYS ( 'STF3', SUBR_NAME )
-         else
-            Write(err,*) '*ERROR     : PROGRAMMING ERROR IN SUBR ',SUBR_NAME,' SETLKTK CANNOT = 3'
-            Write(f06,*) '*ERROR     : PROGRAMMING ERROR IN SUBR ',SUBR_NAME,' SETLKTK CANNOT = 3'
-         endif
+            if (setlktk /= 3) then                            ! Subr ESP0 estimated LTERM conservatively. Now allocate this amount
+               CALL LINK_MESSAGE('ALLOCATE MEM FOR STFKEY, STFCOL, STFPNT, STF')
+               CALL ALLOCATE_STF_ARRAYS ( 'STFKEY', SUBR_NAME )
+               CALL ALLOCATE_STF_ARRAYS ( 'STF3', SUBR_NAME )
+            else
+               Write(err,*) '*ERROR     : PROGRAMMING ERROR IN SUBR ',SUBR_NAME,' SETLKTK CANNOT = 3'
+               Write(f06,*) '*ERROR     : PROGRAMMING ERROR IN SUBR ',SUBR_NAME,' SETLKTK CANNOT = 3'
+            endif
 
 ! Compute element stiffness and merge into system stiffness matrix.
 
-         CALL LINK_MESSAGE('G-SET STIFFNESS MATRIX PROCESSOR            ')
-         CALL ESP
+            CALL LINK_MESSAGE('G-SET STIFFNESS MATRIX PROCESSOR            ')
+            CALL ESP
 
-         IF ((SOL_NAME(1:8) /= 'BUCKLING') .AND. (SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
-            CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
-            CALL DEALLOCATE_MODEL_STUF ( 'ELDT' )
-            CALL DEALLOCATE_MODEL_STUF ( 'TPNT, TDATA' )
-            CALL DEALLOCATE_MODEL_STUF ( 'PPNT, PDATA, PTYPE' )
-            CALL DEALLOCATE_MODEL_STUF ( 'PLOAD4_3D_DATA' )
-            CALL DEALLOCATE_MODEL_STUF ( 'GTEMP' )
-         ENDIF
+            IF ((SOL_NAME(1:8) /= 'BUCKLING') .AND. (SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
+               CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
+               CALL DEALLOCATE_MODEL_STUF ( 'ELDT' )
+               CALL DEALLOCATE_MODEL_STUF ( 'TPNT, TDATA' )
+               CALL DEALLOCATE_MODEL_STUF ( 'PPNT, PDATA, PTYPE' )
+               CALL DEALLOCATE_MODEL_STUF ( 'PLOAD4_3D_DATA' )
+               CALL DEALLOCATE_MODEL_STUF ( 'GTEMP' )
+            ENDIF
 
-         INQUIRE ( FILE=F23FIL, EXIST=LEXIST, OPENED=LOPEN )
-         IF (LOPEN) THEN
-            CALL FILE_CLOSE ( F23, F23FIL, 'KEEP' )
-         ELSE
-            CALL FILE_CLOSE ( F23, F23FIL, 'DELETE' )
-         ENDIF
+            INQUIRE ( FILE=F23FIL, EXIST=LEXIST, OPENED=LOPEN )
+            IF (LOPEN) THEN
+               CALL FILE_CLOSE ( F23, F23FIL, 'KEEP' )
+            ELSE
+               CALL FILE_CLOSE ( F23, F23FIL, 'DELETE' )
+            ENDIF
 
-         CALL DEALLOCATE_IN4_FILES ( 'IN4FIL' )
+            CALL DEALLOCATE_IN4_FILES ( 'IN4FIL' )
 
-         INQUIRE ( FILE=F24FIL, EXIST=LEXIST, OPENED=LOPEN )
-         IF (LOPEN) THEN
-            CALL FILE_CLOSE ( F24, F24FIL, 'KEEP' )
-         ELSE
-            CALL FILE_CLOSE ( F24, F24FIL, 'DELETE' )
-         ENDIF
+            INQUIRE ( FILE=F24FIL, EXIST=LEXIST, OPENED=LOPEN )
+            IF (LOPEN) THEN
+               CALL FILE_CLOSE ( F24, F24FIL, 'KEEP' )
+            ELSE
+               CALL FILE_CLOSE ( F24, F24FIL, 'DELETE' )
+            ENDIF
 
 ! Convert system stiff matrix from linked list format to sparse format (SPARSE_KGG calls grid singularity check subr)
 
-         IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
-            CALL LINK_MESSAGE('SPARSE KGGD PROCESSOR                       ')
-            CALL SPARSE_KGGD
-            CALL DEALLOCATE_MODEL_STUF ( 'MPC_IND_GRIDS' )
-            CALL DEALLOCATE_STF_ARRAYS ( 'STFKEY' )
-            CALL DEALLOCATE_STF_ARRAYS ( 'STF3' )
-         ELSE
             CALL LINK_MESSAGE('SPARSE KGG PROCESSOR                        ')
             CALL SPARSE_KGG
             CALL DEALLOCATE_MODEL_STUF ( 'MPC_IND_GRIDS' )
             CALL DEALLOCATE_STF_ARRAYS ( 'STFKEY' )
             CALL DEALLOCATE_STF_ARRAYS ( 'STF3' )
+
          ENDIF
 
 ! Write DOF tables and deallocate
