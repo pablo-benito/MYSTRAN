@@ -294,6 +294,12 @@
       INTEGER(LONG)            :: NSPOINT             =   0      ! Count of no. of SPOINT's
       INTEGER(LONG)            :: NUM_SPCSIDS         =   0      ! The number of SPC set ID's called for in an execution
       INTEGER(LONG)            :: NSUB                =   0      ! Count of no. of subcases
+      INTEGER(LONG)            :: NUM_MODES_SUBS      =   0      ! Count of subcases that have a resolved METHOD (modes-subcases)
+      INTEGER(LONG)            :: TOTAL_MODES         =   0      ! sum(NUM_EIGENS_SUB(:)) = total eigenvectors across all modes-subs
+      INTEGER(LONG), ALLOCATABLE :: MODE_SUBCASE(:)              ! Length = TOTAL_MODES. Maps each global mode index (the JVEC
+!                                                                  iteration in LINK5/LINK9) to its owning internal subcase index.
+!                                                                  For legacy single-METHOD SOL 103 decks this is just
+!                                                                  MODE_SUBCASE(:) = 1.
       INTEGER(LONG)            :: NTCARD              =   0      ! Count of no. of TEMP/TEMPRB/TEMPP1 cards written to filename.L1K
       INTEGER(LONG)            :: NTDAT               =   0      ! Count of no. of rows that go into array TDATA
       INTEGER(LONG)            :: NTERM_ALL           =   0      ! Count of no. of terms in ALL             matrix

@@ -1808,6 +1808,65 @@
       REAL(DOUBLE)                    :: MAXMIJ              = ZERO
                                                              ! Largest off-diag term in generalized mass matrix.
 ! **********************************************************************************************************************************
+! Per-subcase eigenvalue extraction parameters (Feature A: SOL 103 multi-METHOD).
+!
+! The legacy EIG_* scalars above remain as the "currently active" view used by the eigensolvers (EIG_LANCZOS_ARPACK*,
+! EIG_GIV_MGIV, EIG_INV_PWR, etc.). When more than one modes-subcase exists with distinct METHOD requests, LINK4 loops
+! over the modes-subcases and copies the per-subcase parameters from EIG_PARAMS(isub) into those scalars at the head of
+! each iteration. Results are captured back into the per-subcase arrays at the bottom of the iteration.
+!
+! For legacy single-METHOD decks, EIG_PARAMS(1) holds the same data as the scalars and the loop runs exactly once.
+
+      TYPE EIG_PARAMS_TYPE
+         CHARACTER(LEN=JCARD_LEN)     :: METHOD              = ' '
+         CHARACTER(LEN=JCARD_LEN)     :: NORM                = 'MASS'
+         CHARACTER(LEN=JCARD_LEN)     :: LAP_MAT_TYPE        = 'DPB'
+         CHARACTER(1*BYTE)            :: VECS                = 'Y'
+         INTEGER(LONG)                :: SID                 = 0       ! EIGR/EIGRL set ID resolved from CC METHOD
+         INTEGER(LONG)                :: N1                  = 0
+         INTEGER(LONG)                :: N2                  = 0
+         INTEGER(LONG)                :: COMP                = 0
+         INTEGER(LONG)                :: GRID                = 0
+         INTEGER(LONG)                :: LANCZOS_NEV_DELT    = 2
+         INTEGER(LONG)                :: MODE                = 2
+         INTEGER(LONG)                :: MSGLVL              = 0
+         INTEGER(LONG)                :: NCVFACL             = 3
+         REAL(DOUBLE)                 :: CRIT                = ZERO
+         REAL(DOUBLE)                 :: FRQ1                = ZERO
+         REAL(DOUBLE)                 :: FRQ2                = ZERO
+         REAL(DOUBLE)                 :: SIGMA               = -ONE
+         ! Results captured from the eigensolver run for this subcase:
+         INTEGER(LONG)                :: NUM_EIGENS          = 0       ! No. of eigenvalues actually extracted
+         INTEGER(LONG)                :: NVEC                = 0       ! No. of eigenvectors retained
+         INTEGER(LONG)                :: NUM_FAIL_CRIT       = 0
+         INTEGER(LONG)                :: MIJ_ROW             = 0
+         INTEGER(LONG)                :: MIJ_COL             = 0
+         REAL(DOUBLE)                 :: MAXMIJ              = ZERO
+         ! Per-subcase result buffers, populated by LINK4 inside the modes-subcase loop. They are sized exactly to
+         ! NUM_EIGENS at solve time, so memory is not wasted on subcases that ask for fewer modes than the deck maximum.
+         REAL(DOUBLE)   , ALLOCATABLE :: EIGEN_VAL(:)        ! (NUM_EIGENS)
+         INTEGER(LONG)  , ALLOCATABLE :: MODE_NUM(:)         ! (NUM_EIGENS) extraction order index for each mode
+         REAL(DOUBLE)   , ALLOCATABLE :: GEN_MASS(:)         ! (NUM_EIGENS) generalized masses
+         REAL(DOUBLE)   , ALLOCATABLE :: EIGEN_VEC(:,:)      ! (NDOFL, NVEC)
+         ! Reserved for STATSUB (feature B): static subcase id whose stiffness is used as the prestress source.
+         ! Default 0 = legacy BUCKLING single-prestress mechanism.
+         INTEGER(LONG)                :: STATSUB_REF         = 0
+      END TYPE EIG_PARAMS_TYPE
+
+      TYPE(EIG_PARAMS_TYPE), ALLOCATABLE :: EIG_PARAMS(:)    ! Sized LSUB; index by internal subcase number
+      INTEGER(LONG)        , ALLOCATABLE :: CC_EIGR_SID_SUB(:) ! Per-subcase METHOD set ID (0 if subcase has no METHOD).
+!                                                              Populated by CC_METH; for subcases lacking a METHOD card,
+!                                                              the deck-default (METHOD declared above any SUBCASE) is
+!                                                              propagated by the post-parse inheritance pass.
+      INTEGER(LONG)                      :: CC_EIGR_SID_DECK = 0
+!                                                              METHOD SID declared above the first SUBCASE card (deck-default)
+      CHARACTER(1*BYTE) , ALLOCATABLE    :: IS_MODES_SUBCASE(:)
+!                                                              'Y' for each modes-subcase (has a resolved METHOD); 'N' otherwise.
+
+! Per-subcase eigen result tally (allocated alongside EIG_PARAMS by ALLOCATE_MODEL_STUF). The full per-subcase result
+! buffers live as allocatable components inside EIG_PARAMS(ISUB).
+      INTEGER(LONG)     , ALLOCATABLE :: NUM_EIGENS_SUB(:)   ! No. of eigenvalues extracted per modes-subcase
+! **********************************************************************************************************************************
 ! Rigid element ID's
 
       INTEGER(LONG), ALLOCATABLE      :: RIGID_ELEM_IDS(:)   ! Rigid element ID's

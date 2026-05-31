@@ -33,7 +33,12 @@
                                          RESTART, SOL_NAME
       USE TIMDAT, ONLY                :  TSEC
       USE PARAMS, ONLY                :  SUPINFO, SUPWARN
-      USE MODEL_STUF, ONLY            :  CC_EIGR_SID, MEFFMASS_CALC, MPCSET, MPCSETS, MPFACTOR_CALC, SCNUM, SPCSET, SPCSETS, SUBLOD
+      USE MODEL_STUF, ONLY            :  CC_EIGR_SID, CC_EIGR_SID_SUB, CC_EIGR_SID_DECK, IS_MODES_SUBCASE,                         &
+                                         MEFFMASS_CALC, MPCSET, MPCSETS, MPFACTOR_CALC, SCNUM, SPCSET, SPCSETS, SUBLOD
+      USE MODEL_STUF, ONLY            :  EIG_PARAMS,                                                                               &
+                                         EIG_COMP, EIG_CRIT, EIG_FRQ1, EIG_FRQ2, EIG_GRID, EIG_LANCZOS_NEV_DELT, EIG_METH,         &
+                                         EIG_MSGLVL, EIG_LAP_MAT_TYPE, EIG_MODE, EIG_N1, EIG_N2, EIG_NCVFACL, EIG_NORM, EIG_SID,   &
+                                         EIG_SIGMA, EIG_VECS
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_LOC, STRE_LOC, FORC_LOC
 
       USE LOADC_USE_IFs
@@ -246,6 +251,58 @@ inner:         DO
       IF (NSUB == 0) THEN                                  ! There was no SUBCASE entry in Case Control so set = 1
          NSUB     = 1
          SCNUM(1) = 1
+      ENDIF
+
+      ! Propagate the deck-level METHOD default down to every subcase that does not have its own METHOD.
+      ! This must happen *after* the NSUB==0 -> NSUB=1 fixup above, so that an "implicit" single subcase still picks
+      ! up the METHOD declared at the deck level. The deck default is also recorded as the SID for any subcase that
+      ! omitted METHOD. For SOL types that do not consume eigenvalue extraction the arrays simply stay zero.
+      IF (ALLOCATED(CC_EIGR_SID_SUB)) THEN
+         DO I=1,NSUB
+            IF ((CC_EIGR_SID_SUB(I) == 0) .AND. (CC_EIGR_SID_DECK /= 0)) THEN
+               CC_EIGR_SID_SUB(I)  = CC_EIGR_SID_DECK
+               IS_MODES_SUBCASE(I) = 'Y'
+            ENDIF
+         ENDDO
+         ! Keep the legacy scalar in sync: prefer the deck default; otherwise the first non-zero per-subcase SID.
+         IF (CC_EIGR_SID_DECK /= 0) THEN
+            CC_EIGR_SID = CC_EIGR_SID_DECK
+         ELSE
+            DO I=1,NSUB
+               IF (CC_EIGR_SID_SUB(I) /= 0) THEN
+                  CC_EIGR_SID = CC_EIGR_SID_SUB(I)
+                  EXIT
+               ENDIF
+            ENDDO
+         ENDIF
+
+         ! Final fallback: for any subcase whose EIG_PARAMS slot is still empty (could happen when NSUB was 0 at the
+         ! time BD_EIGR/BD_EIGRL ran -- e.g. a deck with a deck-level METHOD and no SUBCASE cards), copy the values
+         ! from the legacy EIG_* scalars. After BD_EIGR/BD_EIGRL has WRITTEN L1M for the canonical (scalar-match) card,
+         ! those scalars hold that card's data, which is exactly what an inherited subcase should use.
+         IF (ALLOCATED(EIG_PARAMS)) THEN
+            DO I=1,NSUB
+               IF ((CC_EIGR_SID_SUB(I) /= 0) .AND. (EIG_PARAMS(I)%SID == 0)) THEN
+                  EIG_PARAMS(I)%METHOD            = EIG_METH
+                  EIG_PARAMS(I)%NORM              = EIG_NORM
+                  EIG_PARAMS(I)%LAP_MAT_TYPE      = EIG_LAP_MAT_TYPE
+                  EIG_PARAMS(I)%VECS              = EIG_VECS
+                  EIG_PARAMS(I)%SID               = CC_EIGR_SID_SUB(I)
+                  EIG_PARAMS(I)%N1                = EIG_N1
+                  EIG_PARAMS(I)%N2                = EIG_N2
+                  EIG_PARAMS(I)%COMP              = EIG_COMP
+                  EIG_PARAMS(I)%GRID              = EIG_GRID
+                  EIG_PARAMS(I)%LANCZOS_NEV_DELT  = EIG_LANCZOS_NEV_DELT
+                  EIG_PARAMS(I)%MODE              = EIG_MODE
+                  EIG_PARAMS(I)%MSGLVL            = EIG_MSGLVL
+                  EIG_PARAMS(I)%NCVFACL           = EIG_NCVFACL
+                  EIG_PARAMS(I)%CRIT              = EIG_CRIT
+                  EIG_PARAMS(I)%FRQ1              = EIG_FRQ1
+                  EIG_PARAMS(I)%FRQ2              = EIG_FRQ2
+                  EIG_PARAMS(I)%SIGMA             = EIG_SIGMA
+               ENDIF
+            ENDDO
+         ENDIF
       ENDIF
 
       ! If SOL is modes or CB or buckilng, then a METH card should have been found in Case Control
