@@ -1,3 +1,4 @@
+! ###############################################################################################################################
 ! Begin MIT license text.
 ! _______________________________________________________________________________________________________
 
@@ -23,17 +24,15 @@
 
 ! End MIT license text.
 
-      MODULE BUILD_KGGD_FROM_UG_USE_IFs
+      MODULE REBUILD_KLLD_FROM_KGGD_USE_IFs
 
-! USE Interface statements for all subroutines called by SUBROUTINE BUILD_KGGD_FROM_UG
+! USE Interface statements for all subroutines called by SUBROUTINE REBUILD_KLLD_FROM_KGGD
 
-      USE ESP0_Interface
-      USE ESP_Interface
-      USE SPARSE_KGGD_Interface
-      USE ALLOCATE_STF_ARRAYS_Interface
-      USE DEALLOCATE_STF_ARRAYS_Interface
+      USE BUILD_KGGD_FROM_UG_Interface
+      USE REDUCE_G_NM_Interface
+      USE REDUCE_N_FS_Interface
+      USE REDUCE_F_AO_Interface
+      USE REDUCE_A_LR_Interface
       USE DEALLOCATE_SPARSE_MAT_Interface
-      USE ALLOCATE_MODEL_STUF_Interface
-      USE DEALLOCATE_MODEL_STUF_Interface
 
-      END MODULE BUILD_KGGD_FROM_UG_USE_IFs
+      END MODULE REBUILD_KLLD_FROM_KGGD_USE_IFs

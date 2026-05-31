@@ -55,17 +55,17 @@
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_BUG, WRT_ERR, ERR, ERRSTAT, F06, L1M, L3A, SC1
       USE IOUNT1, ONLY                :  LINK1M,  LINK2I,  LINK3A, L1M_MSG, L3A_MSG
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, COMM, FATAL_ERR, LINKNO, MBUG, NDOFL, NSUB,                                 &
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, COMM, FATAL_ERR, LINKNO, MBUG, NDOFG, NDOFL, NSUB,                           &
                                          NTERM_KLL, NTERM_KLLD, NTERM_KLLDn,                                                       &
                                          NTERM_MLL, NTERM_MLLn,                                                                    &
                                          NVEC, NUM_EIGENS, NUM_KLLD_DIAG_ZEROS, NUM_MLL_DIAG_ZEROS, SOL_NAME, WARN_ERR,            &
-                                         MODE_SUBCASE, NUM_MODES_SUBS, TOTAL_MODES
+                                         MODE_SUBCASE, NUM_MODES_SUBS, NUM_BUCKLING_SUBS, TOTAL_MODES
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  EPSIL, SOLLIB, SPARSTOR, SUPINFO
       USE MODEL_STUF, ONLY            :  EIG_COMP, EIG_CRIT, EIG_FRQ1, EIG_FRQ2, EIG_GRID, EIG_METH, EIG_MSGLVL, EIG_LAP_MAT_TYPE, &
                                          EIG_MODE, EIG_N1, EIG_N2, EIG_NCVFACL, EIG_NORM, EIG_SID, EIG_SIGMA, EIG_VECS, MAXMIJ,    &
-                                         MIJ_COL, MIJ_ROW, NUM_FAIL_CRIT, EIG_PARAMS, IS_MODES_SUBCASE, NUM_EIGENS_SUB,            &
-                                         CC_EIGR_SID
+                                         MIJ_COL, MIJ_ROW, NUM_FAIL_CRIT, EIG_PARAMS, IS_MODES_SUBCASE, IS_BUCKLING_SUBCASE,       &
+                                         NUM_EIGENS_SUB, CC_EIGR_SID
 
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL, I_KLLD, J_KLLD, KLLD, I_KLLDn, J_KLLDn, KLLDn,                         &
                                          I_MLL, J_MLL, MLL, I_MLLn, J_MLLn, MLLn
@@ -96,6 +96,12 @@
       INTEGER(LONG), ALLOCATABLE      :: I_KLL_BAK(:)        ! Shadow of I_KLL across solver iterations (eigensolver deallocates KLL)
       INTEGER(LONG), ALLOCATABLE      :: J_KLL_BAK(:)        ! Shadow of J_KLL across solver iterations
       REAL(DOUBLE),  ALLOCATABLE      :: KLL_BAK(:)          ! Shadow of KLL across solver iterations
+
+      ! BUCKLING multi-subcase per-iter preload swap state (SOL 105 with multiple buckling subcases / distinct STATSUBs)
+      LOGICAL                         :: IS_BUCK_MULTI       ! True when SOL 105 with NUM_BUCKLING_SUBS > 1
+      INTEGER(LONG)                   :: CURRENT_PRELOAD_ISUB! Static-subcase ISUB whose UG_COL is currently loaded / whose KLLD is built
+      INTEGER(LONG)                   :: TARGET_PRELOAD      ! EIG_PARAMS(CUR_ISUB)%STATSUB_REF for the iter being solved
+      INTEGER(LONG)                   :: IERR_RELOAD         ! Return status from READ_L5A_UG_FOR_SUBCASE
 
       REAL(DOUBLE)                    :: EPS1                ! Small number to compare variables against zero.
       REAL(DOUBLE)                    :: EIGEN_VEC_COL(NDOFL)! One eigenvector put into a 1-D array.
@@ -278,7 +284,10 @@
       ! so the downstream L3A write and LINK5/LINK9 can see the full mode set with MODE_SUBCASE giving per-mode subcase attribution.
       NUM_MODES_SUBS = 0
       CANONICAL_ISUB = 0
-      IF ((SOL_NAME(1:5) == 'MODES') .AND. ALLOCATED(IS_MODES_SUBCASE)) THEN
+      IS_BUCK_MULTI  = .FALSE.
+      ! For SOL 105 LOADC populates IS_MODES_SUBCASE in lockstep with IS_BUCKLING_SUBCASE, so the same iteration logic
+      ! drives both the modes-multi (SOL 103) and the buckling-multi (SOL 105) paths.
+      IF (((SOL_NAME(1:5) == 'MODES') .OR. (SOL_NAME(1:8) == 'BUCKLING')) .AND. ALLOCATED(IS_MODES_SUBCASE)) THEN
          DO I=1,NSUB
             IF (IS_MODES_SUBCASE(I) == 'Y') THEN
                NUM_MODES_SUBS = NUM_MODES_SUBS + 1
@@ -301,6 +310,16 @@
       IF (CANONICAL_ISUB == 0) CANONICAL_ISUB = 1
 
       N_MODES_ITER = MAX(1, NUM_MODES_SUBS)
+
+      ! Detect SOL 105 multi-buckling-subcase mode. The canonical preload was loaded by LINK5 step 1 (= first buckling subcase's
+      ! STATSUB_REF) so iter 1 will not need to rebuild KLLD; iter 2+ may swap UG_COL and re-run REBUILD_KLLD_FROM_KGGD.
+      IS_BUCK_MULTI = ((SOL_NAME(1:8) == 'BUCKLING') .AND. (NUM_BUCKLING_SUBS > 1))
+      CURRENT_PRELOAD_ISUB = 0
+      IF (IS_BUCK_MULTI) THEN
+         IF (ALLOCATED(EIG_PARAMS) .AND. (CANONICAL_ISUB > 0) .AND. (CANONICAL_ISUB <= NSUB)) THEN
+            CURRENT_PRELOAD_ISUB = EIG_PARAMS(CANONICAL_ISUB)%STATSUB_REF
+         ENDIF
+      ENDIF
 
       ! For multi-iter MODES solves we need to preserve KLL across iterations because EIG_LANCZOS_ARPACK destructively
       ! deallocates KLL mid-solve. Snapshot the CSR triple once here; restore at the head of iterations 2+.
@@ -326,6 +345,61 @@ m_lp: DO ITER = 1, N_MODES_ITER
             I_KLL = I_KLL_BAK
             J_KLL = J_KLL_BAK
             KLL   = KLL_BAK
+         ENDIF
+
+         ! For SOL 105 multi-buckling-subcase, iter>1 needs KLLD/KLLDn rebuilt (the inline KLLD/KLLDn deallocs at the end of
+         ! the previous iter freed them). If the target subcase's STATSUB preload differs from the one currently loaded, also
+         ! reload UG_COL from L5A before rebuilding. CUR_ISUB is determined just below from IS_MODES_SUBCASE / ITER; for the
+         ! SOL 105 path that mapping is identical because LOADC sets IS_MODES_SUBCASE == IS_BUCKLING_SUBCASE.
+         IF (IS_BUCK_MULTI .AND. (ITER > 1)) THEN
+            ! Map ITER -> CUR_ISUB locally so we can resolve TARGET_PRELOAD before the canonical scalar reload below
+            KCNT = 0
+            CUR_ISUB = CANONICAL_ISUB
+            DO I=1,NSUB
+               IF (IS_MODES_SUBCASE(I) == 'Y') THEN
+                  KCNT = KCNT + 1
+                  IF (KCNT == ITER) THEN
+                     CUR_ISUB = I
+                     EXIT
+                  ENDIF
+               ENDIF
+            ENDDO
+            TARGET_PRELOAD = 0
+            IF (ALLOCATED(EIG_PARAMS)) TARGET_PRELOAD = EIG_PARAMS(CUR_ISUB)%STATSUB_REF
+            IF ((TARGET_PRELOAD > 0) .AND. (TARGET_PRELOAD /= CURRENT_PRELOAD_ISUB)) THEN
+               CALL LINK_MESSAGE('RELOAD UG_COL FROM L5A FOR NEXT PRELOAD')
+               CALL DEALLOCATE_COL_VEC ( 'UG_COL' )
+               CALL ALLOCATE_COL_VEC ( 'UG_COL', NDOFG, SUBR_NAME )
+               IERR_RELOAD = 0
+               CALL READ_L5A_UG_FOR_SUBCASE ( TARGET_PRELOAD, IERR_RELOAD )
+               IF (IERR_RELOAD /= 0) THEN
+                  WRITE(ERR,9994) SUBR_NAME, TARGET_PRELOAD, IERR_RELOAD
+                  WRITE(F06,9994) SUBR_NAME, TARGET_PRELOAD, IERR_RELOAD
+                  FATAL_ERR = FATAL_ERR + 1
+                  CALL OUTA_HERE ( 'Y' )
+               ENDIF
+               CURRENT_PRELOAD_ISUB = TARGET_PRELOAD
+            ENDIF
+            CALL LINK_MESSAGE('REBUILD KLLD FROM CURRENT UG_COL (STATSUB)')
+            CALL REBUILD_KLLD_FROM_KGGD
+            ! Redo KLLDn conversion / copy (mirrors the pre-loop SPARSTOR block for BUCKLING)
+            IF      (SPARSTOR == 'SYM   ') THEN
+               CALL SPARSE_MAT_DIAG_ZEROS ( 'KLLD', NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, NUM_KLLD_DIAG_ZEROS )
+               NTERM_KLLDn = 2*NTERM_KLLD - (NDOFL - NUM_KLLD_DIAG_ZEROS)
+               CALL ALLOCATE_SPARSE_MAT ( 'KLLDn', NDOFL, NTERM_KLLDn, SUBR_NAME )
+               CALL CRS_SYM_TO_CRS_NONSYM ( 'KLLD', NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, KLLD, 'KLLDn', NTERM_KLLDn,                  &
+                                            I_KLLDn, J_KLLDn, KLLDn, 'Y' )
+            ELSE IF (SPARSTOR == 'NONSYM') THEN
+               NTERM_KLLDn = NTERM_KLLD
+               CALL ALLOCATE_SPARSE_MAT ( 'KLLDn', NDOFL, NTERM_KLLDn, SUBR_NAME )
+               DO I=1,NDOFL+1
+                  I_KLLDn(I) = I_KLLD(I)
+               ENDDO
+               DO J=1,NTERM_KLLDn
+                  J_KLLDn(J) = J_KLLD(J)
+                    KLLDn(J) =   KLLD(J)
+               ENDDO
+            ENDIF
          ENDIF
 
          ! Determine which subcase this iteration solves
@@ -456,8 +530,13 @@ m_lp: DO ITER = 1, N_MODES_ITER
          IF ((EIG_NORM == 'MASS    ') .OR. (EIG_NORM == 'NONE')) THEN
             CALL LINK_MESSAGE('WRITE EIGENVALUE SUMMARY TO OUTFIL')
             IF (N_MODES_ITER > 1) THEN
-               WRITE(F06,9876) CUR_ISUB, EIG_PARAMS(CUR_ISUB)%SID
-9876           FORMAT(/,' ',79('='),/,' SUBCASE ',I8,'  (METHOD SID = ',I8,')',/,' ',79('='))
+               IF (IS_BUCK_MULTI) THEN
+                  WRITE(F06,9875) CUR_ISUB, EIG_PARAMS(CUR_ISUB)%SID, CURRENT_PRELOAD_ISUB
+9875              FORMAT(/,' ',79('='),/,' SUBCASE ',I8,'  (METHOD SID = ',I8,', STATSUB = ',I8,')',/,' ',79('='))
+               ELSE
+                  WRITE(F06,9876) CUR_ISUB, EIG_PARAMS(CUR_ISUB)%SID
+9876              FORMAT(/,' ',79('='),/,' SUBCASE ',I8,'  (METHOD SID = ',I8,')',/,' ',79('='))
+               ENDIF
             ENDIF
             CALL EIG_SUMMARY
          ENDIF
@@ -531,6 +610,15 @@ m_lp: DO ITER = 1, N_MODES_ITER
          ALLOCATE(MODE_SUBCASE(MAX(1, NUM_EIGENS)))
          MODE_SUBCASE = CANONICAL_ISUB
          TOTAL_MODES  = NUM_EIGENS
+      ENDIF
+
+      ! End-of-loop cleanup for the SOL 105 multi-buckling-subcase path. LINK1 step 2 deferred the MPC_IND_GRIDS dealloc so that
+      ! REBUILD_KLLD_FROM_KGGD / BUILD_KGGD_FROM_UG could be re-invoked per iter. Free it here, plus the residual UG_COL.
+      IF (IS_BUCK_MULTI) THEN
+         CALL DEALLOCATE_MODEL_STUF ( 'MPC_IND_GRIDS' )
+         CALL DEALLOCATE_MODEL_STUF ( 'SINGLE ELEMENT ARRAYS' )
+         CALL DEALLOCATE_MODEL_STUF ( 'SUBLOD' )
+         CALL DEALLOCATE_COL_VEC ( 'UG_COL' )
       ENDIF
 
       ! Restore canonical-subcase EIG_* scalars and write L1M (only once, after the loop, so the file holds the global mode count
@@ -652,6 +740,9 @@ m_lp: DO ITER = 1, N_MODES_ITER
  9102 FORMAT(1X,A,' =  ',I13)
 
  9103 FORMAT(1X,A,' =  ',1ES13.6)
+
+ 9994 FORMAT(' *ERROR  9994: SUBROUTINE ',A,' FAILED TO RELOAD UG_COL FROM FILE L5A FOR PRELOAD SUBCASE ',I8,                     &
+                    ' (IOSTAT = ',I8,').')
 
  9998 FORMAT(' *ERROR  9998: COMM ',I3,' INDICATES UNSUCCESSFUL LINK ',I2,' COMPLETION.'                                           &
                     ,/,14X,' FATAL ERROR - CANNOT START LINK ',I2)

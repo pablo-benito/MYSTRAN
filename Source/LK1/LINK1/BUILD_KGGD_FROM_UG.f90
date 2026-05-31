@@ -49,6 +49,7 @@
       USE PARAMS, ONLY                :  ESP0_PAUSE
       USE SPARSE_MATRICES, ONLY       :  I_KGGD, J_KGGD, KGGD
       USE STF_ARRAYS, ONLY            :  STFKEY, STF3
+      USE MODEL_STUF, ONLY            :  AGRID, BGRID
 
       USE BUILD_KGGD_FROM_UG_USE_IFs
       USE LINK_MESSAGE_Interface
@@ -61,6 +62,7 @@
       CHARACTER( 1*BYTE)              :: RESPONSE          ! Used only if ESP0_PAUSE == 'Y'
 
       INTEGER(LONG)                   :: LTERM             ! Local copy of LTERM_KGGD for optional interactive override
+      LOGICAL                         :: WE_ALLOCD_SINGLE_ELEM_ARRS
 
 
 
@@ -97,6 +99,15 @@
       ENDIF
 
 ! 4) Allocate STF linked-list workspace, run ESP (element-by-element KED merge), then condense to sparse KGGD.
+!    SINGLE ELEMENT ARRAYS (AGRID, BGRID, DT, etc.) may have already been deallocated by LINK1 if we are being
+!    invoked re-entrantly from LINK4 for a multi-buckling-subcase rebuild. Re-allocate them just for this assembly
+!    pass and deallocate again on exit, so the legacy single-shot path's allocation state is preserved.
+
+      WE_ALLOCD_SINGLE_ELEM_ARRS = .FALSE.
+      IF (.NOT. ALLOCATED(AGRID)) THEN
+         CALL ALLOCATE_MODEL_STUF ( 'SINGLE ELEMENT ARRAYS', SUBR_NAME )
+         WE_ALLOCD_SINGLE_ELEM_ARRS = .TRUE.
+      ENDIF
 
       CALL LINK_MESSAGE('ALLOCATE MEM FOR STFKEY, STFCOL, STFPNT, STF')
       CALL ALLOCATE_STF_ARRAYS ( 'STFKEY', SUBR_NAME )
@@ -110,6 +121,10 @@
 
       CALL DEALLOCATE_STF_ARRAYS ( 'STFKEY' )
       CALL DEALLOCATE_STF_ARRAYS ( 'STF3' )
+
+      IF (WE_ALLOCD_SINGLE_ELEM_ARRS) THEN
+         CALL DEALLOCATE_MODEL_STUF ( 'SINGLE ELEMENT ARRAYS' )
+      ENDIF
 
       WRITE(SC1,*) CR13
 

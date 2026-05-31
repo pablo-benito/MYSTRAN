@@ -48,7 +48,8 @@
 
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, COMM, ELDT_F21_P_T_BIT, ELDT_F22_ME_BIT, ELDT_F23_KE_BIT, ELDT_F24_SE_BIT,  &
                                          FATAL_ERR, IBIT, LINKNO, LTERM_KGG, LTERM_KGGD, LTERM_MGGE, NDOFM, NFORCE,                &
-                                         NGRAV, NMPC, NPLOAD, NRFORCE, NRIGEL, NSLOAD, NTERM_RMG, NTSUB, RESTART, SOL_NAME
+                                         NGRAV, NMPC, NPLOAD, NRFORCE, NRIGEL, NSLOAD, NTERM_RMG, NTSUB, NUM_BUCKLING_SUBS,        &
+                                         RESTART, SOL_NAME
 
       USE DOF_TABLES, ONLY            :  TDOFI
 
@@ -349,7 +350,11 @@ res19:IF (RESTART == 'N') THEN
                CALL FILE_CLOSE ( F24, F24FIL, 'DELETE' )
             ENDIF
 
-            CALL DEALLOCATE_MODEL_STUF ( 'MPC_IND_GRIDS' )
+            ! For SOL 105 multi-buckling decks LINK4 will iterate per buckling subcase, re-invoking BUILD_KGGD_FROM_UG
+            ! (via REBUILD_KLLD_FROM_KGGD) which requires MPC_IND_GRIDS to stay alive. LINK4 frees it after its loop.
+            IF (.NOT. ((SOL_NAME(1:8) == 'BUCKLING') .AND. (NUM_BUCKLING_SUBS > 1))) THEN
+               CALL DEALLOCATE_MODEL_STUF ( 'MPC_IND_GRIDS' )
+            ENDIF
 
          ELSE
 
@@ -452,10 +457,16 @@ res19:IF (RESTART == 'N') THEN
       ENDIF res19
 
 ! Deallocate
+!
+! For multi-buckling-subcase SOL 105 we defer these dealloc's so the LK4 multi-statsub driver can re-enter
+! the LK1/LK2 reduction chain (via REBUILD_KLLD_FROM_KGGD -> BUILD_KGGD_FROM_UG -> ESP) without crashing on
+! freed AGRID/BGRID/SUBLOD/etc. LK4 (or LK9) cleans them up after the buckling loop is done.
 
-      CALL DEALLOCATE_MODEL_STUF ( 'SINGLE ELEMENT ARRAYS' )
-      IF ((SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
-         CALL DEALLOCATE_MODEL_STUF ( 'SUBLOD' )
+      IF (.NOT. ((SOL_NAME(1:8) == 'BUCKLING') .AND. (NUM_BUCKLING_SUBS > 1) .AND. (LOAD_ISTEP == 2))) THEN
+         CALL DEALLOCATE_MODEL_STUF ( 'SINGLE ELEMENT ARRAYS' )
+         IF ((SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
+            CALL DEALLOCATE_MODEL_STUF ( 'SUBLOD' )
+         ENDIF
       ENDIF
 
 ! Check allocation status of allocatable arrays, if requested
