@@ -455,6 +455,10 @@ m_lp: DO ITER = 1, N_MODES_ITER
          ! Write eigenvalue analysis summary to output file (per-subcase summary in the multi-METHOD case)
          IF ((EIG_NORM == 'MASS    ') .OR. (EIG_NORM == 'NONE')) THEN
             CALL LINK_MESSAGE('WRITE EIGENVALUE SUMMARY TO OUTFIL')
+            IF (N_MODES_ITER > 1) THEN
+               WRITE(F06,9876) CUR_ISUB, EIG_PARAMS(CUR_ISUB)%SID
+9876           FORMAT(/,' ',79('='),/,' SUBCASE ',I8,'  (METHOD SID = ',I8,')',/,' ',79('='))
+            ENDIF
             CALL EIG_SUMMARY
          ENDIF
 
