@@ -38,7 +38,7 @@
       USE IOUNT1, ONLY                :  ERRSTAT, L1HSTAT, L2ESTAT, L2FSTAT, L3ASTAT
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, COMM, FATAL_ERR, LINKNO, MBUG, NDOFA, NDOFF, NDOFG, NDOFL, NDOFM,           &
                                          NDOFN, NDOFO, NDOFR, NDOFS, NDOFSE, NGRID, NSUB, NTERM_GMN, NTERM_GOA, NTERM_PO,          &
-                                         NUM_CB_DOFS, NUM_EIGENS, NVEC, SOL_NAME, WARN_ERR
+                                         NUM_CB_DOFS, NUM_EIGENS, NVEC, SOL_NAME, WARN_ERR, MODE_SUBCASE
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  EIGNORM2, SUPINFO, SUPWARN
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
@@ -50,7 +50,8 @@
       USE COL_VECS, ONLY              :  UG_COL, YSe, UO0_COL, UL_COL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE DOF_TABLES, ONLY            :  TDOF, TDOFI
-      USE MODEL_STUF, ONLY            :  GRID, GRID_ID, INV_GRID_SEQ, EIG_COMP, EIG_GRID, EIG_NORM, MAXMIJ, MIJ_COL, MIJ_ROW
+      USE MODEL_STUF, ONLY            :  GRID, GRID_ID, INV_GRID_SEQ, EIG_COMP, EIG_GRID, EIG_NORM, MAXMIJ, MIJ_COL, MIJ_ROW,      &
+                                         EIG_PARAMS
 
       USE LINK5_USE_IFs
       USE LINK_MESSAGE_Interface
@@ -443,6 +444,34 @@ j_do: DO J = 1,NUM_SOLNS
             WRITE(ERR,9995) LINKNO,IERROR
             WRITE(F06,9995) LINKNO,IERROR
             CALL OUTA_HERE ( 'Y' )
+         ENDIF
+
+         ! Multi-METHOD MODES: switch EIG_NORM / EIG_GRID / EIG_COMP and recompute EIG_NORM_GSET_DOF to this mode's
+         ! owning subcase before the per-mode renorm call below. For legacy single-METHOD this is a no-op (EIG_PARAMS
+         ! entries all reference the canonical subcase's params). Nested IFs avoid evaluating SIZE/index on
+         ! MODE_SUBCASE when it is unallocated (gfortran does not guarantee short-circuit evaluation of .AND.).
+         IF (SOL_NAME(1:5) == 'MODES') THEN
+            IF (ALLOCATED(MODE_SUBCASE)) THEN
+               IF (J <= SIZE(MODE_SUBCASE)) THEN
+                  IF ((MODE_SUBCASE(J) >= 1) .AND. ALLOCATED(EIG_PARAMS)) THEN
+                     IF (EIG_PARAMS(MODE_SUBCASE(J))%SID /= 0) THEN
+                        EIG_NORM = EIG_PARAMS(MODE_SUBCASE(J))%NORM
+                        EIG_GRID = EIG_PARAMS(MODE_SUBCASE(J))%GRID
+                        EIG_COMP = EIG_PARAMS(MODE_SUBCASE(J))%COMP
+                        IF (EIG_NORM == 'POINT   ') THEN
+                           EIG_NORM_GSET_DOF = 0
+                           CALL TDOF_COL_NUM ( 'G ',  G_SET_COL )
+                           DO I=1,NDOFG
+                              IF (TDOF(I,1) == EIG_GRID) THEN
+                                 EIG_NORM_GSET_DOF = TDOF(I,G_SET_COL) + EIG_COMP - 1
+                                 EXIT
+                              ENDIF
+                           ENDDO
+                        ENDIF
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ENDIF
          ENDIF
                                                            ! Build UA from UL and UR
          CALL ALLOCATE_COL_VEC ( 'UA_COL', NDOFA, SUBR_NAME )

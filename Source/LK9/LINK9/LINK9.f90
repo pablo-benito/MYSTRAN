@@ -678,10 +678,9 @@ j_do: DO JVEC=1,NUM_SOLNS
          ELSE IF (SOL_NAME(1: 5) == 'MODES') THEN
             ! Each mode is attributed to its owning subcase via MODE_SUBCASE (populated in LINK4). For legacy single-METHOD
             ! decks MODE_SUBCASE is uniformly the canonical subcase, so behaviour matches the original INT_SC_NUM=1 fallback.
-            IF (ALLOCATED(MODE_SUBCASE) .AND. (JVEC <= SIZE(MODE_SUBCASE))) THEN
-               INT_SC_NUM = MODE_SUBCASE(JVEC)
-            ELSE
-               INT_SC_NUM = 1
+            INT_SC_NUM = 1
+            IF (ALLOCATED(MODE_SUBCASE)) THEN
+               IF (JVEC <= SIZE(MODE_SUBCASE)) INT_SC_NUM = MODE_SUBCASE(JVEC)
             ENDIF
             FEMAP_SET_ID = JVEC
 
