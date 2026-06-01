@@ -43,7 +43,8 @@
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_LOC, STRE_LOC, FORC_LOC
 
       USE LOADC_USE_IFs
-
+      USE TO_UPPER_Interface
+      
       IMPLICIT NONE
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME   = 'LOADC'
@@ -169,7 +170,7 @@ outer:DO
                ! so read all entries up to BEGIN BULK and then exit loop for CC entries
 inner:         DO
                   READ(IN1,101) CARD
-                  CALL TO_UPPER_LINE(CARD)
+                  CARD = TO_UPPER(CARD)
                   IF (CARD(1:10) == 'BEGIN BULK') THEN
                      WRITE(F06,101) CARD
                      EXIT outer
