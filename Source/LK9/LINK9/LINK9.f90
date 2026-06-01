@@ -54,7 +54,8 @@
                                          NROWS_OTM_ACCE, NROWS_OTM_DISP, NROWS_OTM_MPCF, NROWS_OTM_SPCF,                           &
                                          NROWS_OTM_ELFE, NROWS_OTM_ELFN, NROWS_OTM_STRE, NROWS_OTM_STRN,                           &
                                          NROWS_TXT_ACCE, NROWS_TXT_DISP, NROWS_TXT_MPCF, NROWS_TXT_SPCF,                           &
-                                         NROWS_TXT_ELFE, NROWS_TXT_ELFN, NROWS_TXT_STRE, NROWS_TXT_STRN, RESTART, SOL_NAME, WARN_ERR
+                                         NROWS_TXT_ELFE, NROWS_TXT_ELFN, NROWS_TXT_STRE, NROWS_TXT_STRN, RESTART, SOL_NAME, WARN_ERR, &
+                                         MODE_SUBCASE
 
       USE SCONTR, ONLY                :  GROUT_ACCE_BIT, GROUT_DISP_BIT, GROUT_OLOA_BIT, GROUT_SPCF_BIT, GROUT_MPCF_BIT,           &
                                          GROUT_GPFO_BIT, ELOUT_ELFN_BIT, ELOUT_ELFE_BIT, ELOUT_STRE_BIT, ELOUT_STRN_BIT,           &
@@ -675,7 +676,12 @@ j_do: DO JVEC=1,NUM_SOLNS
             FEMAP_SET_ID = LK9_PROC_NUM
 
          ELSE IF (SOL_NAME(1: 5) == 'MODES') THEN
-            INT_SC_NUM   = 1
+            ! Each mode is attributed to its owning subcase via MODE_SUBCASE (populated in LINK4). For legacy single-METHOD
+            ! decks MODE_SUBCASE is uniformly the canonical subcase, so behaviour matches the original INT_SC_NUM=1 fallback.
+            INT_SC_NUM = 1
+            IF (ALLOCATED(MODE_SUBCASE)) THEN
+               IF (JVEC <= SIZE(MODE_SUBCASE)) INT_SC_NUM = MODE_SUBCASE(JVEC)
+            ENDIF
             FEMAP_SET_ID = JVEC
 
          ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN

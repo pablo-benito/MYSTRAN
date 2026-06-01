@@ -29,7 +29,7 @@
 ! Call routines to reduce the KFFD differential stiffness matrix from the F-set to the A, O-sets
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  ERR, F06, L2E, LINK2E, L2E_MSG, SC1, WRT_ERR
+      USE IOUNT1, ONLY                :  ERR, F06, L2E, L2ESTAT, LINK2E, L2E_MSG, SC1, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FACTORED_MATRIX, FATAL_ERR, NDOFF, NDOFA, NDOFO, NTERM_KFFD, NTERM_KAAD,    &
                                          NTERM_KAOD, NTERM_KOOD, NTERM_KOODs, NTERM_GOA
       USE PARAMS, ONLY                :  EPSIL, KOORAT, SPARSTOR, RCONDK
@@ -122,6 +122,11 @@
 
          IF (NTERM_KAOD > 0) THEN                          ! Calc KAOD*GOA & add it orig KAAD
 
+            IF (.NOT. ALLOCATED(GOA)) THEN                 ! Self-load GOA from L2E if not in memory (needed for re-entrant call)
+               CALL ALLOCATE_SPARSE_MAT ( 'GOA', NDOFO, NTERM_GOA, SUBR_NAME )
+               CALL READ_MATRIX_1 ( LINK2E, L2E, 'N', 'Y', 'KEEP', L2E_MSG,                                                        &
+                                    'GOA', NTERM_GOA, 'Y', NDOFO, I_GOA, J_GOA, GOA )
+            ENDIF
 
                                                            ! CCS1 will be sparse CCS format version of sparse CRS matrix GOA
             CALL ALLOCATE_SCR_CCS_MAT ( 'CCS1', NDOFA, NTERM_GOA, SUBR_NAME )

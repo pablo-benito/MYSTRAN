@@ -46,6 +46,8 @@
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL, I_KLLD, J_KLLD, KLLD, I_MLL, J_MLL, MLL, SYM_KLL, SYM_KLLD, SYM_MLL,   &
                                          I_KMSM, J_KMSM, KMSM, I_KMSMn, J_KMSMn, KMSMn, I_KMSMs, J_KMSMs, KMSMs
 
+      USE SuperLU_STUF, ONLY          :  SLU_FACTORS, SLU_INFO
+
       USE ARPACK_LANCZOS_EIG
       USE MYSTRAN_LAPACK_EXT
 
@@ -420,6 +422,16 @@
 
       NVEC       = IPARAM(5)                               ! With HOWMNY = 'A' we are calc'ing eigenvecs for all eigenvalues found
       NUM_EIGENS = IPARAM(5)
+
+      ! Free SuperLU factorization stored in SLU_FACTORS by SYM_MAT_DECOMP_SUPRLU inside DSBAND (SPARSE solver).
+      ! Required to avoid leaking the factor across multi-METHOD MODES iterations.
+      IF (SOLLIB(1:6) == 'SPARSE') THEN
+         BLOCK
+            REAL(DOUBLE) :: DUM_COL(1)
+            DUM_COL(1) = ZERO
+            CALL C_FORTRAN_DGSSV ( 3, NDOFL, NTERM_KMSMn, 1, KMSMn, J_KMSMn, I_KMSMn, DUM_COL, NDOFL, SLU_FACTORS, SLU_INFO )
+         END BLOCK
+      ENDIF
 
 !xx   WRITE(SC1, * ) '     DEALLOCATE SOME ARRAYS'
 !xx   WRITE(SC1, * )                                       ! Advance 1 line for screen messages

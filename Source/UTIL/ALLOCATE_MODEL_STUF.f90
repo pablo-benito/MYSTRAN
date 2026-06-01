@@ -70,6 +70,8 @@
       USE MODEL_STUF, ONLY            :  ALL_SETS_ARRAY, ONE_SET_ARRAY, SETS_IDS, SC_ACCE, SC_DISP, SC_ELFN, SC_ELFE, SC_GPFO,     &
                                          SC_MPCF, SC_OLOA, SC_SPCF, SC_STRE, SC_STRN, LOAD_SIDS, LOAD_FACS
       USE MODEL_STUF, ONLY            :  ELDT, ELOUT, GROUT, OELOUT, OGROUT, LABEL, SCNUM, STITLE, SUBLOD, TITLE
+      USE MODEL_STUF, ONLY            :  CC_EIGR_SID_SUB, CC_STATSUB_SUB, EIG_PARAMS, EIG_PARAMS_TYPE, IS_BUCKLING_SUBCASE,    &
+                                         IS_MODES_SUBCASE, NUM_EIGENS_SUB
       USE MODEL_STUF, ONLY            :  SYS_LOAD
       USE MODEL_STUF, ONLY            :  CETEMP, CETEMP_ERR, CGTEMP, CGTEMP_ERR, ETEMP, ETEMP_INIT, GTEMP, GTEMP_INIT, TDATA, TPNT
       USE MODEL_STUF, ONLY            :  RIGID_ELEM_IDS
@@ -528,6 +530,90 @@
                FATAL_ERR = FATAL_ERR + 1
                JERR = JERR + 1
             ENDIF
+         ENDIF
+
+         ! Piggy-back the per-subcase METHOD/eigen-parameter arrays on SCNUM. Their lifetime exactly matches SCNUM's,
+         ! and any code path that allocates SCNUM needs these too. The per-mode result arrays (EIGEN_VAL_SUB, etc.)
+         ! are allocated separately by LINK4 once NDOFL and the per-subcase mode counts are known.
+         IF (.NOT. ALLOCATED(CC_EIGR_SID_SUB)) THEN
+            ALLOCATE (CC_EIGR_SID_SUB(LSUB), STAT=IERR)
+            IF (IERR == 0) THEN
+               DO I=1,LSUB
+                  CC_EIGR_SID_SUB(I) = 0
+               ENDDO
+            ELSE
+               WRITE(ERR,991) 0.0D0, 'CC_EIGR_SID_SUB', SUBR_NAME, IERR
+               WRITE(F06,991) 0.0D0, 'CC_EIGR_SID_SUB', SUBR_NAME, IERR
+               FATAL_ERR = FATAL_ERR + 1
+               JERR = JERR + 1
+            ENDIF
+         ENDIF
+
+         IF (.NOT. ALLOCATED(IS_MODES_SUBCASE)) THEN
+            ALLOCATE (IS_MODES_SUBCASE(LSUB), STAT=IERR)
+            IF (IERR == 0) THEN
+               DO I=1,LSUB
+                  IS_MODES_SUBCASE(I) = 'N'
+               ENDDO
+            ELSE
+               WRITE(ERR,991) 0.0D0, 'IS_MODES_SUBCASE', SUBR_NAME, IERR
+               WRITE(F06,991) 0.0D0, 'IS_MODES_SUBCASE', SUBR_NAME, IERR
+               FATAL_ERR = FATAL_ERR + 1
+               JERR = JERR + 1
+            ENDIF
+         ENDIF
+
+         IF (.NOT. ALLOCATED(CC_STATSUB_SUB)) THEN
+            ALLOCATE (CC_STATSUB_SUB(LSUB), STAT=IERR)
+            IF (IERR == 0) THEN
+               DO I=1,LSUB
+                  CC_STATSUB_SUB(I) = 0
+               ENDDO
+            ELSE
+               WRITE(ERR,991) 0.0D0, 'CC_STATSUB_SUB', SUBR_NAME, IERR
+               WRITE(F06,991) 0.0D0, 'CC_STATSUB_SUB', SUBR_NAME, IERR
+               FATAL_ERR = FATAL_ERR + 1
+               JERR = JERR + 1
+            ENDIF
+         ENDIF
+
+         IF (.NOT. ALLOCATED(IS_BUCKLING_SUBCASE)) THEN
+            ALLOCATE (IS_BUCKLING_SUBCASE(LSUB), STAT=IERR)
+            IF (IERR == 0) THEN
+               DO I=1,LSUB
+                  IS_BUCKLING_SUBCASE(I) = 'N'
+               ENDDO
+            ELSE
+               WRITE(ERR,991) 0.0D0, 'IS_BUCKLING_SUBCASE', SUBR_NAME, IERR
+               WRITE(F06,991) 0.0D0, 'IS_BUCKLING_SUBCASE', SUBR_NAME, IERR
+               FATAL_ERR = FATAL_ERR + 1
+               JERR = JERR + 1
+            ENDIF
+         ENDIF
+
+         IF (.NOT. ALLOCATED(NUM_EIGENS_SUB)) THEN
+            ALLOCATE (NUM_EIGENS_SUB(LSUB), STAT=IERR)
+            IF (IERR == 0) THEN
+               DO I=1,LSUB
+                  NUM_EIGENS_SUB(I) = 0
+               ENDDO
+            ELSE
+               WRITE(ERR,991) 0.0D0, 'NUM_EIGENS_SUB', SUBR_NAME, IERR
+               WRITE(F06,991) 0.0D0, 'NUM_EIGENS_SUB', SUBR_NAME, IERR
+               FATAL_ERR = FATAL_ERR + 1
+               JERR = JERR + 1
+            ENDIF
+         ENDIF
+
+         IF (.NOT. ALLOCATED(EIG_PARAMS)) THEN
+            ALLOCATE (EIG_PARAMS(LSUB), STAT=IERR)
+            IF (IERR /= 0) THEN
+               WRITE(ERR,991) 0.0D0, 'EIG_PARAMS', SUBR_NAME, IERR
+               WRITE(F06,991) 0.0D0, 'EIG_PARAMS', SUBR_NAME, IERR
+               FATAL_ERR = FATAL_ERR + 1
+               JERR = JERR + 1
+            ENDIF
+            ! Defaults from EIG_PARAMS_TYPE component initializers are applied automatically.
          ENDIF
 
       ELSE IF (NAME_IN == 'SUBLOD') THEN                      ! Allocate array SUBLOD

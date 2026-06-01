@@ -33,7 +33,7 @@
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, OP2, SC1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, GROUT_GPFO_BIT, IBIT, INT_SC_NUM, JTSUB, NDOFG, NDOFM, MELDOF, NDOFO, NDOFR,&
-                                         NELE, NGRID, NUM_CB_DOFS, NVEC, SOL_NAME
+                                         NELE, NGRID, NUM_CB_DOFS, NVEC, SOL_NAME, MODE_SUBCASE
       USE CONSTANTS_1, ONLY           :  ZERO, ONE_HUNDRED
       USE DOF_TABLES, ONLY            :  TDOF, TDOF_ROW_START
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
@@ -42,7 +42,7 @@
       USE COL_VECS, ONLY              :  FG_COL, PG_COL, QGm_COL, QGs_COL, QGr_COL, UG_COL
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  GPFO_OUT
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
-      
+
       USE GP_FORCE_BALANCE_PROC_USE_IFs
 
       IMPLICIT NONE
@@ -183,7 +183,11 @@
             IF (WRITE_F06)  WRITE(F06,9102) JVEC
 
          ELSE IF (SOL_NAME(1:5) == 'MODES') THEN
-            ISUBCASE_INDEX = 1  ! modes
+            ! Per-mode subcase attribution (LINK4 populates MODE_SUBCASE). Falls back to 1 for legacy single-METHOD paths.
+            ISUBCASE_INDEX = 1
+            IF (ALLOCATED(MODE_SUBCASE)) THEN
+               IF (JVEC <= SIZE(MODE_SUBCASE)) ISUBCASE_INDEX = MODE_SUBCASE(JVEC)
+            ENDIF
             ANALYSIS_CODE = 2
             FIELD5_INT_MODE = JVEC
             IF (WRITE_F06)  WRITE(F06,9102) JVEC

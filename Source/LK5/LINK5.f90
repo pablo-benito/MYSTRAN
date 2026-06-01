@@ -38,7 +38,7 @@
       USE IOUNT1, ONLY                :  ERRSTAT, L1HSTAT, L2ESTAT, L2FSTAT, L3ASTAT
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, COMM, FATAL_ERR, LINKNO, MBUG, NDOFA, NDOFF, NDOFG, NDOFL, NDOFM,           &
                                          NDOFN, NDOFO, NDOFR, NDOFS, NDOFSE, NGRID, NSUB, NTERM_GMN, NTERM_GOA, NTERM_PO,          &
-                                         NUM_CB_DOFS, NUM_EIGENS, NVEC, SOL_NAME, WARN_ERR
+                                         NUM_CB_DOFS, NUM_EIGENS, NVEC, SOL_NAME, WARN_ERR, MODE_SUBCASE
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  EIGNORM2, SUPINFO, SUPWARN
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
@@ -50,10 +50,12 @@
       USE COL_VECS, ONLY              :  UG_COL, YSe, UO0_COL, UL_COL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE DOF_TABLES, ONLY            :  TDOF, TDOFI
-      USE MODEL_STUF, ONLY            :  GRID, GRID_ID, INV_GRID_SEQ, EIG_COMP, EIG_GRID, EIG_NORM, MAXMIJ, MIJ_COL, MIJ_ROW
+      USE MODEL_STUF, ONLY            :  GRID, GRID_ID, INV_GRID_SEQ, EIG_COMP, EIG_GRID, EIG_NORM, MAXMIJ, MIJ_COL, MIJ_ROW,      &
+                                         EIG_PARAMS, IS_BUCKLING_SUBCASE
 
       USE LINK5_USE_IFs
       USE LINK_MESSAGE_Interface
+      USE READ_L5A_UG_FOR_SUBCASE_Interface
 
       IMPLICIT NONE
 
@@ -321,7 +323,10 @@
          NUM_SOLNS = NVEC
       ELSE IF (SOL_NAME(1:8) == 'BUCKLING') THEN
          IF (LOAD_ISTEP == 1) THEN
-            NUM_SOLNS = 1
+            ! Process every subcase's static solution so file LINK5A holds one full UG_COL per subcase.
+            ! The step-2 KGGD assembly (and any per-buckling-subcase preload selection done via STATSUB) seeks into
+            ! L5A by subcase index and reads back the appropriate preload UG, so we must have all NSUB columns on disk.
+            NUM_SOLNS = NSUB
          ELSE IF (LOAD_ISTEP == 2) THEN
             NUM_SOLNS = NVEC
          ENDIF
@@ -443,6 +448,34 @@ j_do: DO J = 1,NUM_SOLNS
             WRITE(ERR,9995) LINKNO,IERROR
             WRITE(F06,9995) LINKNO,IERROR
             CALL OUTA_HERE ( 'Y' )
+         ENDIF
+
+         ! Multi-METHOD MODES: switch EIG_NORM / EIG_GRID / EIG_COMP and recompute EIG_NORM_GSET_DOF to this mode's
+         ! owning subcase before the per-mode renorm call below. For legacy single-METHOD this is a no-op (EIG_PARAMS
+         ! entries all reference the canonical subcase's params). Nested IFs avoid evaluating SIZE/index on
+         ! MODE_SUBCASE when it is unallocated (gfortran does not guarantee short-circuit evaluation of .AND.).
+         IF (SOL_NAME(1:5) == 'MODES') THEN
+            IF (ALLOCATED(MODE_SUBCASE)) THEN
+               IF (J <= SIZE(MODE_SUBCASE)) THEN
+                  IF ((MODE_SUBCASE(J) >= 1) .AND. ALLOCATED(EIG_PARAMS)) THEN
+                     IF (EIG_PARAMS(MODE_SUBCASE(J))%SID /= 0) THEN
+                        EIG_NORM = EIG_PARAMS(MODE_SUBCASE(J))%NORM
+                        EIG_GRID = EIG_PARAMS(MODE_SUBCASE(J))%GRID
+                        EIG_COMP = EIG_PARAMS(MODE_SUBCASE(J))%COMP
+                        IF (EIG_NORM == 'POINT   ') THEN
+                           EIG_NORM_GSET_DOF = 0
+                           CALL TDOF_COL_NUM ( 'G ',  G_SET_COL )
+                           DO I=1,NDOFG
+                              IF (TDOF(I,1) == EIG_GRID) THEN
+                                 EIG_NORM_GSET_DOF = TDOF(I,G_SET_COL) + EIG_COMP - 1
+                                 EXIT
+                              ENDIF
+                           ENDDO
+                        ENDIF
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ENDIF
          ENDIF
                                                            ! Build UA from UL and UR
          CALL ALLOCATE_COL_VEC ( 'UA_COL', NDOFA, SUBR_NAME )
@@ -576,6 +609,42 @@ j_do: DO J = 1,NUM_SOLNS
          ENDDO
 
       ENDDO j_do                                           ! End of loop on NUM_SOLNS
+
+! For SOL 105 step 1, the j_do loop above iterates over every subcase, including the buckling subcases (which carry no load,
+! so their UG_COL is zero). Without intervention the UG_COL left in memory after the loop is whichever subcase happened to be
+! processed last. The step-2 LINK1 ESP path uses that residual UG_COL to assemble the differential stiffness KGGD. To preserve
+! legacy single-preload behaviour (and to give multi-buckling decks a sensible default until the explicit per-buckling-subcase
+! preload selection lands in a later phase), we reload UG_COL with the canonical preload subcase's column from L5A.
+! The canonical choice is the STATSUB_REF resolved for the first buckling subcase. If for some reason none of that information
+! is available (defensive fallback only -- LOADC always resolves it for valid decks) we leave UG_COL untouched.
+
+      IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
+         BUCKLING_PRELOAD_RELOAD : BLOCK
+            INTEGER(LONG) :: I_BUCK, ISUB_PRELOAD, IERR_RELOAD
+            ISUB_PRELOAD = 0
+            IF (ALLOCATED(IS_BUCKLING_SUBCASE) .AND. ALLOCATED(EIG_PARAMS)) THEN
+               DO I_BUCK = 1, NSUB
+                  IF (IS_BUCKLING_SUBCASE(I_BUCK) == 'Y') THEN
+                     IF (EIG_PARAMS(I_BUCK)%STATSUB_REF > 0) THEN
+                        ISUB_PRELOAD = EIG_PARAMS(I_BUCK)%STATSUB_REF
+                        EXIT
+                     ENDIF
+                  ENDIF
+               ENDDO
+            ENDIF
+            IF (ISUB_PRELOAD > 0) THEN
+               CALL DEALLOCATE_COL_VEC ( 'UG_COL' )
+               CALL ALLOCATE_COL_VEC ( 'UG_COL', NDOFG, SUBR_NAME )
+               IERR_RELOAD = 0
+               CALL READ_L5A_UG_FOR_SUBCASE ( ISUB_PRELOAD, IERR_RELOAD )
+               IF (IERR_RELOAD /= 0) THEN
+                  WRITE(ERR,9995) LINKNO, IERR_RELOAD
+                  WRITE(F06,9995) LINKNO, IERR_RELOAD
+                  CALL OUTA_HERE ( 'Y' )
+               ENDIF
+            ENDIF
+         END BLOCK BUCKLING_PRELOAD_RELOAD
+      ENDIF
 
 ! If CB soln, expand PHIXA to G-set size and write to file unit L5B
 
