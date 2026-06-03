@@ -23,13 +23,9 @@
 
 ! End MIT license text.
 
-      MODULE WRITE_PLY_STRESSES_USE_IFs
+      MODULE WRITE_SUBCASE_EIGENVEC_HEADER_USE_IFs
 
-! USE Interface statements for all subroutines called by SUBROUTINE WRITE_PLY_STRESSES
+! USE Interface statements for all subroutines called by SUBROUTINE WRITE_SUBCASE_EIGENVEC_HEADER
+! (none - this subroutine only writes to F06 directly)
 
-      USE OURTIM_Interface
-      USE GET_ELEM_ONAME_Interface
-      USE GET_GRID_AND_COMP_Interface
-      USE WRITE_SUBCASE_EIGENVEC_HEADER_Interface
-
-      END MODULE WRITE_PLY_STRESSES_USE_IFs
+      END MODULE WRITE_SUBCASE_EIGENVEC_HEADER_USE_IFs

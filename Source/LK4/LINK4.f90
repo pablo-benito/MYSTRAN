@@ -529,11 +529,7 @@ m_lp: DO ITER = 1, N_MODES_ITER
          ! Write eigenvalue analysis summary to output file (per-subcase summary in the multi-METHOD case)
          IF ((EIG_NORM == 'MASS    ') .OR. (EIG_NORM == 'NONE')) THEN
             CALL LINK_MESSAGE('WRITE EIGENVALUE SUMMARY TO OUTFIL')
-            ! only print the subcase if there's at least one subcase card
-            IF (NUM_SUBC_CARDS > 0) THEN
-               WRITE(F06, 101) SCNUM(CUR_ISUB)
-            ENDIF
-            CALL EIG_SUMMARY
+            CALL EIG_SUMMARY(CUR_ISUB)
          ENDIF
 
          ! If more iterations remain, free scratch eigen arrays and Lanczos workspaces so the next iteration can re-allocate cleanly
@@ -714,8 +710,6 @@ m_lp: DO ITER = 1, N_MODES_ITER
       RETURN
 
 ! **********************************************************************************************************************************
-  101 FORMAT(' OUTPUT FOR SUBCASE ',I8)
-
   150 FORMAT(/,' >> LINK',I3,' BEGIN',/)
 
   151 FORMAT(/,' >> LINK',I3,' END',/)

@@ -45,7 +45,7 @@
                                          L2J_MSG, L2R_MSG, L2S_MSG, L5A_MSG, L5B_MSG, NEU_MSG, PCH_MSG,                            &
                                          OT4_MSG, OU4_MSG, OT4_GRD_OTM, OT4_ELM_OTM, OU4_GRD_OTM, OU4_ELM_OTM
 
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_ENTRY_LEN, COMM, IBIT, INT_SC_NUM, JTSUB, FATAL_ERR,                     &
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_ENTRY_LEN, COMM, IBIT, INT_EIG_NUM, INT_SC_NUM, JTSUB, FATAL_ERR,          &
                                          FEMAP_VERSION, LINKNO, MBUG,                                                              &
                                          NDOFF, NDOFG, NDOFL, NDOFM, NDOFN, ndofo, NDOFR, NDOFS, NDOFSA, NGRID, NSUB, NVEC,        &
                                          NTERM_IF_LTM, NTERM_GMN, NTERM_HMN, NTERM_KFS, NTERM_KFSD, NTERM_LMN, NTERM_MFS,          &
@@ -158,6 +158,8 @@
       INTEGER(LONG)                   :: SC_STRE_OUTPUT    ! = 1 if requests for output of elem stresses in a particular S/C
       INTEGER(LONG)                   :: SC_STRN_OUTPUT    ! = 1 if requests for output of elem strains  in a particular S/C
       INTEGER(LONG)                   :: XTIME             ! Time stamp read from an unformatted file
+      INTEGER(LONG)                   :: PREV_SC_NUM   = 0 ! Tracks previous INT_SC_NUM to detect subcase transitions for INT_EIG_NUM
+      INTEGER(LONG)                   :: SC_VEC_COUNT  = 0 ! Running per-subcase eigenvector counter; reset on each subcase change
 
 
       REAL(DOUBLE)                    :: EPS1              ! Small number to compare against zero
@@ -690,6 +692,20 @@ j_do: DO JVEC=1,NUM_SOLNS
 
          ENDIF
 
+         ! Compute per-subcase local eigenvector index for eigen solutions (MODES or BUCKLING step 2).
+         ! INT_EIG_NUM is reset to 1 whenever INT_SC_NUM changes (new subcase), and counts up within a subcase.
+         ! For non-eigen solutions (STATICS, NLSTATIC, BUCKLING step 1, GEN CB MODEL) INT_EIG_NUM is set to 0.
+         IF ((SOL_NAME(1:5) == 'MODES') .OR. ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2))) THEN
+            IF (INT_SC_NUM /= PREV_SC_NUM) THEN
+               SC_VEC_COUNT = 0
+               PREV_SC_NUM  = INT_SC_NUM
+            ENDIF
+            SC_VEC_COUNT = SC_VEC_COUNT + 1
+            INT_EIG_NUM  = SC_VEC_COUNT
+         ELSE
+            INT_EIG_NUM = 0
+         ENDIF
+
          IF (WRITE_NEU) THEN
             FEMAP_BLK = '   450'
             CALL CONCATENATE_TITLES
@@ -1209,8 +1225,9 @@ j_do: DO JVEC=1,NUM_SOLNS
       IF ((SOL_NAME(1:8) /= 'BUCKLING') .OR. (LOAD_ISTEP == 2)) THEN
          ! gotta make SCNUM survive past the 1st run because we use it in LINK4
          CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
+         ! titles too, for use in block labels during link4/5
+         CALL DEALLOCATE_MODEL_STUF ( 'TITLES' )
       END IF
-      CALL DEALLOCATE_MODEL_STUF ( 'TITLES' )
       CALL DEALLOCATE_MODEL_STUF ( 'GROUT, ELOUT' )
                                                            ! Deallocate data in file LINK1G (except ETYPE, EDAT, EPNT
       CALL DEALLOCATE_MODEL_STUF ( 'ESORT1' )

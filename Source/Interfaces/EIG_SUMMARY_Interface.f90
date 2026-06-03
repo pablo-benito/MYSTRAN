@@ -28,7 +28,7 @@
 
    INTERFACE
 
-      SUBROUTINE EIG_SUMMARY
+      SUBROUTINE EIG_SUMMARY ( ISUB )
 
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
@@ -45,6 +45,8 @@
 
       IMPLICIT NONE
 
+      INTEGER(LONG), INTENT(IN)       :: ISUB
+
       CHARACTER( 1*BYTE)              :: ASTERISK = '*'    ! Used for denoting negative eigenvalues
 
 
@@ -54,4 +56,3 @@
    END INTERFACE
 
    END MODULE EIG_SUMMARY_Interface
-
