@@ -674,8 +674,17 @@ j_do: DO JVEC=1,NUM_SOLNS
             FEMAP_SET_ID = SCNUM(JVEC)
 
          ELSE IF (SOL_NAME(1: 8) == 'BUCKLING') THEN
-            INT_SC_NUM   = LK9_PROC_NUM
-            FEMAP_SET_ID = LK9_PROC_NUM
+            IF (LOAD_ISTEP == 2) THEN
+               ! Each eigenvector is attributed to its owning buckling subcase via MODE_SUBCASE (same as MODES)
+               INT_SC_NUM = 1
+               IF (ALLOCATED(MODE_SUBCASE)) THEN
+                  IF (JVEC <= SIZE(MODE_SUBCASE)) INT_SC_NUM = MODE_SUBCASE(JVEC)
+               ENDIF
+               FEMAP_SET_ID = JVEC
+            ELSE
+               INT_SC_NUM   = LK9_PROC_NUM
+               FEMAP_SET_ID = LK9_PROC_NUM
+            ENDIF
 
          ELSE IF (SOL_NAME(1: 5) == 'MODES') THEN
             ! Each mode is attributed to its owning subcase via MODE_SUBCASE (populated in LINK4). For legacy single-METHOD
@@ -727,7 +736,7 @@ j_do: DO JVEC=1,NUM_SOLNS
 
          IF ((SOL_NAME(1:8) == 'BUCKLING') .OR. (SOL_NAME(1:8) == 'DIFFEREN')) THEN
             JTSUB = 1
-            INT_SC_NUM = 1
+            IF (.NOT. ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2))) INT_SC_NUM = 1
          ELSE
             IF (SUBLOD(INT_SC_NUM,2) > 0) THEN                ! JTSUB must only be used in the subrs called if this SUBLOD > 0
                JTSUB = JTSUB + 1

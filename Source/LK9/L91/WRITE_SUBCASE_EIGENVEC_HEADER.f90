@@ -85,7 +85,7 @@
          WRITE(F06,9011) SCNUM(INT_SC_NUM)
          WRITE(F06,9012) INT_EIG_NUM
 
-      ! GEN CB MODEL: caller must write the CB DOF line — just emit the blank lines (done above) and return
+      ! GEN CB MODEL: caller must write the CB DOF line -- just emit the blank lines (done above) and return
       ENDIF
 
       IF (TITLE(INT_SC_NUM)(1:)   /= ' ') WRITE(F06,9013) TITLE(INT_SC_NUM)
