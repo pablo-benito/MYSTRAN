@@ -24,7 +24,7 @@
 
 ! End MIT license text.
 
-      SUBROUTINE LINK4
+   SUBROUTINE LINK4
 
 ! Calculates system eigenvalues, eigenvectors. There are 4 eigenvalue extraction methods in MYSTRAN, none of which seem suited to
 ! very large eigenvalue problems for one reason or another:
@@ -59,13 +59,13 @@
                                          NTERM_KLL, NTERM_KLLD, NTERM_KLLDn,                                                       &
                                          NTERM_MLL, NTERM_MLLn,                                                                    &
                                          NVEC, NUM_EIGENS, NUM_KLLD_DIAG_ZEROS, NUM_MLL_DIAG_ZEROS, SOL_NAME, WARN_ERR,            &
-                                         MODE_SUBCASE, NUM_MODES_SUBS, NUM_BUCKLING_SUBS, TOTAL_MODES
+                                         MODE_SUBCASE, NUM_MODES_SUBS, NUM_BUCKLING_SUBS, TOTAL_MODES, NUM_SUBC_CARDS
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  EPSIL, SOLLIB, SPARSTOR, SUPINFO
       USE MODEL_STUF, ONLY            :  EIG_COMP, EIG_CRIT, EIG_FRQ1, EIG_FRQ2, EIG_GRID, EIG_METH, EIG_MSGLVL, EIG_LAP_MAT_TYPE, &
                                          EIG_MODE, EIG_N1, EIG_N2, EIG_NCVFACL, EIG_NORM, EIG_SID, EIG_SIGMA, EIG_VECS, MAXMIJ,    &
                                          MIJ_COL, MIJ_ROW, NUM_FAIL_CRIT, EIG_PARAMS, IS_MODES_SUBCASE, IS_BUCKLING_SUBCASE,       &
-                                         NUM_EIGENS_SUB, CC_EIGR_SID
+                                         NUM_EIGENS_SUB, CC_EIGR_SID, SCNUM
 
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL, I_KLLD, J_KLLD, KLLD, I_KLLDn, J_KLLDn, KLLDn,                         &
                                          I_MLL, J_MLL, MLL, I_MLLn, J_MLLn, MLLn
@@ -529,14 +529,9 @@ m_lp: DO ITER = 1, N_MODES_ITER
          ! Write eigenvalue analysis summary to output file (per-subcase summary in the multi-METHOD case)
          IF ((EIG_NORM == 'MASS    ') .OR. (EIG_NORM == 'NONE')) THEN
             CALL LINK_MESSAGE('WRITE EIGENVALUE SUMMARY TO OUTFIL')
-            IF (N_MODES_ITER > 1) THEN
-               IF (IS_BUCK_MULTI) THEN
-                  WRITE(F06,9875) CUR_ISUB, EIG_PARAMS(CUR_ISUB)%SID, CURRENT_PRELOAD_ISUB
-9875              FORMAT(/,' ',79('='),/,' SUBCASE ',I8,'  (METHOD SID = ',I8,', STATSUB = ',I8,')',/,' ',79('='))
-               ELSE
-                  WRITE(F06,9876) CUR_ISUB, EIG_PARAMS(CUR_ISUB)%SID
-9876              FORMAT(/,' ',79('='),/,' SUBCASE ',I8,'  (METHOD SID = ',I8,')',/,' ',79('='))
-               ENDIF
+            ! only print the subcase if there's at least one subcase card
+            IF (NUM_SUBC_CARDS > 0) THEN
+               WRITE(F06, 101) SCNUM(CUR_ISUB)
             ENDIF
             CALL EIG_SUMMARY
          ENDIF
@@ -719,6 +714,8 @@ m_lp: DO ITER = 1, N_MODES_ITER
       RETURN
 
 ! **********************************************************************************************************************************
+  101 FORMAT(' OUTPUT FOR SUBCASE ',I8)
+
   150 FORMAT(/,' >> LINK',I3,' BEGIN',/)
 
   151 FORMAT(/,' >> LINK',I3,' END',/)
@@ -753,4 +750,4 @@ m_lp: DO ITER = 1, N_MODES_ITER
 
 ! **********************************************************************************************************************************
 
-      END SUBROUTINE LINK4
+   END SUBROUTINE LINK4

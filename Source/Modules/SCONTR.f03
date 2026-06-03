@@ -580,6 +580,7 @@
       INTEGER(LONG)            :: COUNTER_LIMITER     = ZERO     ! Counter updates this second
       CHARACTER(:), ALLOCATABLE :: COUNTER_PREFIX
       CHARACTER(LEN=20) :: COUNTER_FMT
+      INTEGER(LONG)            :: NUM_SUBC_CARDS      = ZERO     ! Number of subcase CARDS.
 
 !   Notes:
 !    (1) The max limits are only used to check that the dimensions of arrays have been set high enough

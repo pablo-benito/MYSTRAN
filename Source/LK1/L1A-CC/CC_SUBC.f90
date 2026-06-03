@@ -30,7 +30,7 @@
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
-      USE SCONTR, ONLY                :  CC_ENTRY_LEN, FATAL_ERR, LSUB, NSUB, BLNK_SUB_NAM
+      USE SCONTR, ONLY                :  CC_ENTRY_LEN, FATAL_ERR, LSUB, NSUB, BLNK_SUB_NAM, NUM_SUBC_CARDS
       USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  SCNUM
 
@@ -54,7 +54,7 @@
 
 ! **********************************************************************************************************************************
 ! Process SUBCASE cards
-
+      NUM_SUBC_CARDS = NUM_SUBC_CARDS + 1
       NSUB = NSUB + 1
       IF (NSUB > LSUB) THEN
          FATAL_ERR = FATAL_ERR + 1

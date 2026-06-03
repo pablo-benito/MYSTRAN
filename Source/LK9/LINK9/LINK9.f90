@@ -1206,7 +1206,10 @@ j_do: DO JVEC=1,NUM_SOLNS
 
       CALL DEALLOCATE_IN4_FILES  ( 'IN4FIL' )
                                                            ! Deallocate data in file LINK1D
-      CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
+      IF ((SOL_NAME(1:8) /= 'BUCKLING') .OR. (LOAD_ISTEP == 2)) THEN
+         ! gotta make SCNUM survive past the 1st run because we use it in LINK4
+         CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
+      END IF
       CALL DEALLOCATE_MODEL_STUF ( 'TITLES' )
       CALL DEALLOCATE_MODEL_STUF ( 'GROUT, ELOUT' )
                                                            ! Deallocate data in file LINK1G (except ETYPE, EDAT, EPNT
