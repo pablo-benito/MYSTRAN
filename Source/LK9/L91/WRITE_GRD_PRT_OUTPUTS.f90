@@ -37,7 +37,7 @@
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE LINK9_STUFF, ONLY           :  GID_OUT_ARRAY, MAXREQ, OGEL
-      USE MODEL_STUF, ONLY            :  LABEL, SCNUM, SUBLOD, STITLE, TITLE
+      USE MODEL_STUF, ONLY            :  SCNUM, SUBLOD
       USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM
 
       USE WRITE_GRD_PRT_OUTPUTS_USE_IFs
@@ -95,25 +95,8 @@
 
       IF (IHDR == 'Y') THEN
 
-         WRITE(F06,*)
-         WRITE(F06,*)
-         IF    ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC')) THEN
-
-            WRITE(F06,9011) SCNUM(JVEC)
-
-         ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
-
-            WRITE(F06,9011) SCNUM(JVEC)
-
-         ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
-
-            WRITE(F06,9012) JVEC
-
-         ELSE IF (SOL_NAME(1:5) == 'MODES') THEN
-
-            WRITE(F06,9012) JVEC
-
-         ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN   ! Write info on what CB DOF the output is for
+         CALL WRITE_SUBCASE_EIGENVEC_HEADER(JVEC, .TRUE.)
+         IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN   ! Write info on what CB DOF the output is for
 
             IF ((JVEC <= NDOFR) .OR. (JVEC >= NDOFR+NVEC)) THEN
                IF (JVEC <= NDOFR) THEN
@@ -132,20 +115,6 @@
                   WRITE(F06,9013) JVEC, NUM_CB_DOFS, 'displacement', BDY_GRID, BDY_COMP
                ENDIF
          ENDIF
-
-         IF (TITLE(INT_SC_NUM)(1:)  /= ' ') THEN
-            WRITE(F06,9009) TITLE(INT_SC_NUM)
-         ENDIF
-
-         IF (STITLE(INT_SC_NUM)(1:) /= ' ') THEN
-            WRITE(F06,9009) STITLE(INT_SC_NUM)
-         ENDIF
-
-         IF (LABEL(INT_SC_NUM)(1:)  /= ' ') THEN
-            WRITE(F06,9009) LABEL(INT_SC_NUM)
-         ENDIF
-
-         WRITE(F06,*)
 
          IF (WHAT == 'ACCE') THEN
             IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN

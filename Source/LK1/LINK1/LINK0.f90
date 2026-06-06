@@ -618,7 +618,7 @@ res14:IF (RESTART == 'N') THEN
       CALL SUBCASE_PROC
       CALL DEALLOCATE_MODEL_STUF ( 'GROUT, ELOUT' )
       CALL DEALLOCATE_MODEL_STUF ( 'SETS ARRAYS' )
-      CALL DEALLOCATE_MODEL_STUF ( 'TITLES' )
+      !CALL DEALLOCATE_MODEL_STUF ( 'TITLES' )
       CALL DEALLOCATE_MODEL_STUF ( 'SC_xxxx' )
       CALL FILE_CLOSE ( L1D, LINK1D, 'KEEP' )
                                                            ! If we will be writing data to the F2i disk files open them now

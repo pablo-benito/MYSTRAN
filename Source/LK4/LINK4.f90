@@ -24,7 +24,7 @@
 
 ! End MIT license text.
 
-      SUBROUTINE LINK4
+   SUBROUTINE LINK4
 
 ! Calculates system eigenvalues, eigenvectors. There are 4 eigenvalue extraction methods in MYSTRAN, none of which seem suited to
 ! very large eigenvalue problems for one reason or another:
@@ -59,13 +59,13 @@
                                          NTERM_KLL, NTERM_KLLD, NTERM_KLLDn,                                                       &
                                          NTERM_MLL, NTERM_MLLn,                                                                    &
                                          NVEC, NUM_EIGENS, NUM_KLLD_DIAG_ZEROS, NUM_MLL_DIAG_ZEROS, SOL_NAME, WARN_ERR,            &
-                                         MODE_SUBCASE, NUM_MODES_SUBS, NUM_BUCKLING_SUBS, TOTAL_MODES
+                                         MODE_SUBCASE, NUM_MODES_SUBS, NUM_BUCKLING_SUBS, TOTAL_MODES, NUM_SUBC_CARDS
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  EPSIL, SOLLIB, SPARSTOR, SUPINFO
       USE MODEL_STUF, ONLY            :  EIG_COMP, EIG_CRIT, EIG_FRQ1, EIG_FRQ2, EIG_GRID, EIG_METH, EIG_MSGLVL, EIG_LAP_MAT_TYPE, &
                                          EIG_MODE, EIG_N1, EIG_N2, EIG_NCVFACL, EIG_NORM, EIG_SID, EIG_SIGMA, EIG_VECS, MAXMIJ,    &
                                          MIJ_COL, MIJ_ROW, NUM_FAIL_CRIT, EIG_PARAMS, IS_MODES_SUBCASE, IS_BUCKLING_SUBCASE,       &
-                                         NUM_EIGENS_SUB, CC_EIGR_SID
+                                         NUM_EIGENS_SUB, CC_EIGR_SID, SCNUM
 
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL, I_KLLD, J_KLLD, KLLD, I_KLLDn, J_KLLDn, KLLDn,                         &
                                          I_MLL, J_MLL, MLL, I_MLLn, J_MLLn, MLLn
@@ -314,12 +314,10 @@
       ! Detect SOL 105 multi-buckling-subcase mode. The canonical preload was loaded by LINK5 step 1 (= first buckling subcase's
       ! STATSUB_REF) so iter 1 will not need to rebuild KLLD; iter 2+ may swap UG_COL and re-run REBUILD_KLLD_FROM_KGGD.
       IS_BUCK_MULTI = ((SOL_NAME(1:8) == 'BUCKLING') .AND. (NUM_BUCKLING_SUBS > 1))
+      ! Initialize to 0 (unknown) so ITER=1 always reloads UG_COL from L5A. We cannot assume UG_COL holds the canonical
+      ! preload here because LINK9 (LOAD_ISTEP=1) may have advanced past multiple preload vectors, leaving UG_COL pointing
+      ! at the last one. LINK2 (LOAD_ISTEP=2) then built KLLD from that wrong UG_COL; ITER=1 must correct it.
       CURRENT_PRELOAD_ISUB = 0
-      IF (IS_BUCK_MULTI) THEN
-         IF (ALLOCATED(EIG_PARAMS) .AND. (CANONICAL_ISUB > 0) .AND. (CANONICAL_ISUB <= NSUB)) THEN
-            CURRENT_PRELOAD_ISUB = EIG_PARAMS(CANONICAL_ISUB)%STATSUB_REF
-         ENDIF
-      ENDIF
 
       ! For multi-iter MODES solves we need to preserve KLL across iterations because EIG_LANCZOS_ARPACK destructively
       ! deallocates KLL mid-solve. Snapshot the CSR triple once here; restore at the head of iterations 2+.
@@ -351,7 +349,9 @@ m_lp: DO ITER = 1, N_MODES_ITER
          ! the previous iter freed them). If the target subcase's STATSUB preload differs from the one currently loaded, also
          ! reload UG_COL from L5A before rebuilding. CUR_ISUB is determined just below from IS_MODES_SUBCASE / ITER; for the
          ! SOL 105 path that mapping is identical because LOADC sets IS_MODES_SUBCASE == IS_BUCKLING_SUBCASE.
-         IF (IS_BUCK_MULTI .AND. (ITER > 1)) THEN
+         ! NOTE: ITER==1 also does an explicit reload so that LINK9 advancing past multiple static preload vectors in L5A
+         !       cannot leave UG_COL pointing at the wrong preload for the first buckling subcase.
+         IF (IS_BUCK_MULTI) THEN
             ! Map ITER -> CUR_ISUB locally so we can resolve TARGET_PRELOAD before the canonical scalar reload below
             KCNT = 0
             CUR_ISUB = CANONICAL_ISUB
@@ -379,26 +379,51 @@ m_lp: DO ITER = 1, N_MODES_ITER
                   CALL OUTA_HERE ( 'Y' )
                ENDIF
                CURRENT_PRELOAD_ISUB = TARGET_PRELOAD
+               ! For ITER=1 the preload changed: need to rebuild KLLD (LINK2 built it from the wrong UG_COL)
+               IF (ITER == 1) THEN
+                  CALL LINK_MESSAGE('REBUILD KLLD FROM CORRECTED UG_COL (STATSUB ITER=1)')
+                  CALL DEALLOCATE_SPARSE_MAT ( 'KLLDn' )  ! LINK2 left KLLDn allocated; free before REBUILD+realloc
+                  CALL REBUILD_KLLD_FROM_KGGD
+                  IF      (SPARSTOR == 'SYM   ') THEN
+                     CALL SPARSE_MAT_DIAG_ZEROS ( 'KLLD', NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, NUM_KLLD_DIAG_ZEROS )
+                     NTERM_KLLDn = 2*NTERM_KLLD - (NDOFL - NUM_KLLD_DIAG_ZEROS)
+                     CALL ALLOCATE_SPARSE_MAT ( 'KLLDn', NDOFL, NTERM_KLLDn, SUBR_NAME )
+                     CALL CRS_SYM_TO_CRS_NONSYM ( 'KLLD', NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, KLLD, 'KLLDn', NTERM_KLLDn,          &
+                                                  I_KLLDn, J_KLLDn, KLLDn, 'Y' )
+                  ELSE IF (SPARSTOR == 'NONSYM') THEN
+                     NTERM_KLLDn = NTERM_KLLD
+                     CALL ALLOCATE_SPARSE_MAT ( 'KLLDn', NDOFL, NTERM_KLLDn, SUBR_NAME )
+                     DO I=1,NDOFL+1
+                        I_KLLDn(I) = I_KLLD(I)
+                     ENDDO
+                     DO J=1,NTERM_KLLDn
+                        J_KLLDn(J) = J_KLLD(J)
+                          KLLDn(J) =   KLLD(J)
+                     ENDDO
+                  ENDIF
+               ENDIF
             ENDIF
-            CALL LINK_MESSAGE('REBUILD KLLD FROM CURRENT UG_COL (STATSUB)')
-            CALL REBUILD_KLLD_FROM_KGGD
-            ! Redo KLLDn conversion / copy (mirrors the pre-loop SPARSTOR block for BUCKLING)
-            IF      (SPARSTOR == 'SYM   ') THEN
-               CALL SPARSE_MAT_DIAG_ZEROS ( 'KLLD', NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, NUM_KLLD_DIAG_ZEROS )
-               NTERM_KLLDn = 2*NTERM_KLLD - (NDOFL - NUM_KLLD_DIAG_ZEROS)
-               CALL ALLOCATE_SPARSE_MAT ( 'KLLDn', NDOFL, NTERM_KLLDn, SUBR_NAME )
-               CALL CRS_SYM_TO_CRS_NONSYM ( 'KLLD', NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, KLLD, 'KLLDn', NTERM_KLLDn,                  &
-                                            I_KLLDn, J_KLLDn, KLLDn, 'Y' )
-            ELSE IF (SPARSTOR == 'NONSYM') THEN
-               NTERM_KLLDn = NTERM_KLLD
-               CALL ALLOCATE_SPARSE_MAT ( 'KLLDn', NDOFL, NTERM_KLLDn, SUBR_NAME )
-               DO I=1,NDOFL+1
-                  I_KLLDn(I) = I_KLLD(I)
-               ENDDO
-               DO J=1,NTERM_KLLDn
-                  J_KLLDn(J) = J_KLLD(J)
-                    KLLDn(J) =   KLLD(J)
-               ENDDO
+            IF (ITER > 1) THEN
+               CALL LINK_MESSAGE('REBUILD KLLD FROM CURRENT UG_COL (STATSUB)')
+               CALL REBUILD_KLLD_FROM_KGGD
+               ! Redo KLLDn conversion / copy (mirrors the pre-loop SPARSTOR block for BUCKLING)
+               IF      (SPARSTOR == 'SYM   ') THEN
+                  CALL SPARSE_MAT_DIAG_ZEROS ( 'KLLD', NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, NUM_KLLD_DIAG_ZEROS )
+                  NTERM_KLLDn = 2*NTERM_KLLD - (NDOFL - NUM_KLLD_DIAG_ZEROS)
+                  CALL ALLOCATE_SPARSE_MAT ( 'KLLDn', NDOFL, NTERM_KLLDn, SUBR_NAME )
+                  CALL CRS_SYM_TO_CRS_NONSYM ( 'KLLD', NDOFL, NTERM_KLLD, I_KLLD, J_KLLD, KLLD, 'KLLDn', NTERM_KLLDn,             &
+                                               I_KLLDn, J_KLLDn, KLLDn, 'Y' )
+               ELSE IF (SPARSTOR == 'NONSYM') THEN
+                  NTERM_KLLDn = NTERM_KLLD
+                  CALL ALLOCATE_SPARSE_MAT ( 'KLLDn', NDOFL, NTERM_KLLDn, SUBR_NAME )
+                  DO I=1,NDOFL+1
+                     I_KLLDn(I) = I_KLLD(I)
+                  ENDDO
+                  DO J=1,NTERM_KLLDn
+                     J_KLLDn(J) = J_KLLD(J)
+                       KLLDn(J) =   KLLD(J)
+                  ENDDO
+               ENDIF
             ENDIF
          ENDIF
 
@@ -529,16 +554,7 @@ m_lp: DO ITER = 1, N_MODES_ITER
          ! Write eigenvalue analysis summary to output file (per-subcase summary in the multi-METHOD case)
          IF ((EIG_NORM == 'MASS    ') .OR. (EIG_NORM == 'NONE')) THEN
             CALL LINK_MESSAGE('WRITE EIGENVALUE SUMMARY TO OUTFIL')
-            IF (N_MODES_ITER > 1) THEN
-               IF (IS_BUCK_MULTI) THEN
-                  WRITE(F06,9875) CUR_ISUB, EIG_PARAMS(CUR_ISUB)%SID, CURRENT_PRELOAD_ISUB
-9875              FORMAT(/,' ',79('='),/,' SUBCASE ',I8,'  (METHOD SID = ',I8,', STATSUB = ',I8,')',/,' ',79('='))
-               ELSE
-                  WRITE(F06,9876) CUR_ISUB, EIG_PARAMS(CUR_ISUB)%SID
-9876              FORMAT(/,' ',79('='),/,' SUBCASE ',I8,'  (METHOD SID = ',I8,')',/,' ',79('='))
-               ENDIF
-            ENDIF
-            CALL EIG_SUMMARY
+            CALL EIG_SUMMARY(CUR_ISUB)
          ENDIF
 
          ! If more iterations remain, free scratch eigen arrays and Lanczos workspaces so the next iteration can re-allocate cleanly
@@ -753,4 +769,4 @@ m_lp: DO ITER = 1, N_MODES_ITER
 
 ! **********************************************************************************************************************************
 
-      END SUBROUTINE LINK4
+   END SUBROUTINE LINK4

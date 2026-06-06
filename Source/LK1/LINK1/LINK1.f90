@@ -325,14 +325,14 @@ res19:IF (RESTART == 'N') THEN
 
             CALL BUILD_KGGD_FROM_UG
 
-            IF ((SOL_NAME(1:8) /= 'BUCKLING') .AND. (SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
-               CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
-               CALL DEALLOCATE_MODEL_STUF ( 'ELDT' )
-               CALL DEALLOCATE_MODEL_STUF ( 'TPNT, TDATA' )
-               CALL DEALLOCATE_MODEL_STUF ( 'PPNT, PDATA, PTYPE' )
-               CALL DEALLOCATE_MODEL_STUF ( 'PLOAD4_3D_DATA' )
-               CALL DEALLOCATE_MODEL_STUF ( 'GTEMP' )
-            ENDIF
+            ! IF ((SOL_NAME(1:8) /= 'BUCKLING') .AND. (SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
+            !    CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
+            !    CALL DEALLOCATE_MODEL_STUF ( 'ELDT' )
+            !    CALL DEALLOCATE_MODEL_STUF ( 'TPNT, TDATA' )
+            !    CALL DEALLOCATE_MODEL_STUF ( 'PPNT, PDATA, PTYPE' )
+            !    CALL DEALLOCATE_MODEL_STUF ( 'PLOAD4_3D_DATA' )
+            !    CALL DEALLOCATE_MODEL_STUF ( 'GTEMP' )
+            ! ENDIF
 
             INQUIRE ( FILE=F23FIL, EXIST=LEXIST, OPENED=LOPEN )
             IF (LOPEN) THEN
@@ -391,7 +391,7 @@ res19:IF (RESTART == 'N') THEN
             CALL ESP
 
             IF ((SOL_NAME(1:8) /= 'BUCKLING') .AND. (SOL_NAME(1:8) /= 'NLSTATIC') .AND. (SOL_NAME(1:8) /= 'DIFFEREN')) THEN
-               CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
+               ! CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
                CALL DEALLOCATE_MODEL_STUF ( 'ELDT' )
                CALL DEALLOCATE_MODEL_STUF ( 'TPNT, TDATA' )
                CALL DEALLOCATE_MODEL_STUF ( 'PPNT, PDATA, PTYPE' )

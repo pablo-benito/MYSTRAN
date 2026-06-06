@@ -1,3 +1,4 @@
+! ###############################################################################################################################
 ! Begin MIT license text.
 ! _______________________________________________________________________________________________________
 
@@ -23,13 +24,25 @@
 
 ! End MIT license text.
 
-      MODULE WRITE_PLY_STRESSES_USE_IFs
+   MODULE WRITE_SUBCASE_EIGENVEC_HEADER_Interface
 
-! USE Interface statements for all subroutines called by SUBROUTINE WRITE_PLY_STRESSES
+   INTERFACE
 
-      USE OURTIM_Interface
-      USE GET_ELEM_ONAME_Interface
-      USE GET_GRID_AND_COMP_Interface
-      USE WRITE_SUBCASE_EIGENVEC_HEADER_Interface
+      SUBROUTINE WRITE_SUBCASE_EIGENVEC_HEADER ( JSUB, WRITE_F06 )
 
-      END MODULE WRITE_PLY_STRESSES_USE_IFs
+      USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
+      USE IOUNT1, ONLY                :  F06
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, INT_EIG_NUM, INT_SC_NUM, NDOFR, NUM_CB_DOFS, NVEC, SOL_NAME
+      USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
+      USE MODEL_STUF, ONLY            :  LABEL, SCNUM, STITLE, TITLE
+
+      IMPLICIT NONE
+
+      INTEGER(LONG), INTENT(IN)       :: JSUB
+      LOGICAL,       INTENT(IN)       :: WRITE_F06
+
+      END SUBROUTINE WRITE_SUBCASE_EIGENVEC_HEADER
+
+   END INTERFACE
+
+   END MODULE WRITE_SUBCASE_EIGENVEC_HEADER_Interface

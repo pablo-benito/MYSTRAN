@@ -51,7 +51,7 @@
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE DOF_TABLES, ONLY            :  TDOF, TDOFI
       USE MODEL_STUF, ONLY            :  GRID, GRID_ID, INV_GRID_SEQ, EIG_COMP, EIG_GRID, EIG_NORM, MAXMIJ, MIJ_COL, MIJ_ROW,      &
-                                         EIG_PARAMS, IS_BUCKLING_SUBCASE
+                                         EIG_PARAMS, IS_BUCKLING_SUBCASE, IS_MODES_SUBCASE
 
       USE LINK5_USE_IFs
       USE LINK_MESSAGE_Interface
@@ -77,6 +77,7 @@
       INTEGER(LONG)                   :: EIGNORM2_ERR        ! Error indicator for reading param EIGNORM2 data
       INTEGER(LONG)                   :: G_SET_COL         ! Col number in TDOF, TDOFI where G-set DOF's exist
       INTEGER(LONG)                   :: I,J,K,L           ! DO loop indices
+      INTEGER(LONG)                   :: I_ESUB            ! Subcase loop index for EIG_SUMMARY header writes
       INTEGER(LONG)                   :: IERROR            ! Error count
       INTEGER(LONG)                   :: IGRID             ! Internal grid numbER for EIG_GRID
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when opening/reading a file
@@ -707,7 +708,35 @@ j_do: DO J = 1,NUM_SOLNS
                ENDIF
             ENDIF
 
-            CALL EIG_SUMMARY
+            IF (SOL_NAME(1:5) == 'MODES') THEN
+               IF (ALLOCATED(EIG_PARAMS) .AND. ALLOCATED(IS_MODES_SUBCASE)) THEN
+                  DO I_ESUB = 1, NSUB
+                     IF (IS_MODES_SUBCASE(I_ESUB) == 'Y') THEN
+                        IF ((EIG_PARAMS(I_ESUB)%NORM == 'POINT   ') .OR.                           &
+                            (EIG_PARAMS(I_ESUB)%NORM == 'MAX     ')) THEN
+                           CALL EIG_SUMMARY(I_ESUB)
+                        ENDIF
+                     ENDIF
+                  ENDDO
+               ELSE
+                  CALL EIG_SUMMARY(1)
+               ENDIF
+            ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
+               IF (ALLOCATED(EIG_PARAMS) .AND. ALLOCATED(IS_BUCKLING_SUBCASE)) THEN
+                  DO I_ESUB = 1, NSUB
+                     IF (IS_BUCKLING_SUBCASE(I_ESUB) == 'Y') THEN
+                        IF ((EIG_PARAMS(I_ESUB)%NORM == 'POINT   ') .OR.                           &
+                            (EIG_PARAMS(I_ESUB)%NORM == 'MAX     ')) THEN
+                           CALL EIG_SUMMARY(I_ESUB)
+                        ENDIF
+                     ENDIF
+                  ENDDO
+               ELSE
+                  CALL EIG_SUMMARY(1)
+               ENDIF
+            ELSE
+               CALL EIG_SUMMARY(1)                       ! GEN CB MODEL: no subcase cards
+            ENDIF
          ENDIF
       ENDIF
 

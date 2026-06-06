@@ -156,31 +156,24 @@
       ! Write output headers.
       ANALYSIS_CODE = -1
       IF (IHEADER == 'Y') THEN   ! should we write the header?
-         IF (WRITE_F06) THEN
-            WRITE(F06,*)
-            WRITE(F06,*)
-         ENDIF
+         CALL WRITE_SUBCASE_EIGENVEC_HEADER(JVEC, WRITE_F06)
          ISUBCASE_INDEX = 0
          IF    (SOL_NAME(1:7) == 'STATICS') THEN
             ISUBCASE_INDEX = JVEC
             ANALYSIS_CODE = 1
-            !FIELD5_INT_MODE = 1  ! temp
             FIELD5_INT_MODE = SCNUM(JVEC)
-            IF (WRITE_F06)  WRITE(F06,9101) SCNUM(JVEC)
 
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
 
             ISUBCASE_INDEX = JVEC
             ANALYSIS_CODE = 1
             FIELD5_INT_MODE = SCNUM(JVEC)
-            IF (WRITE_F06)  WRITE(F06,9101) SCNUM(JVEC)
 
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
 
             ISUBCASE_INDEX = 1  ! modes
             ANALYSIS_CODE = 2
             FIELD5_INT_MODE = JVEC
-            IF (WRITE_F06)  WRITE(F06,9102) JVEC
 
          ELSE IF (SOL_NAME(1:5) == 'MODES') THEN
             ! Per-mode subcase attribution (LINK4 populates MODE_SUBCASE). Falls back to 1 for legacy single-METHOD paths.
@@ -190,7 +183,6 @@
             ENDIF
             ANALYSIS_CODE = 2
             FIELD5_INT_MODE = JVEC
-            IF (WRITE_F06)  WRITE(F06,9102) JVEC
 
          ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN  ! Write info on what CB DOF the output is for
             ISUBCASE_INDEX = 1  ! modes
@@ -224,19 +216,6 @@
          LABELI = LABEL(INT_SC_NUM)
 
          IF (WRITE_F06) THEN
-            IF (TITLEI(1:)  /= ' ') THEN
-               WRITE(F06,9799) TITLEI
-            ENDIF
-
-            IF (SUBTITLEI(1:) /= ' ') THEN
-               WRITE(F06,9799) SUBTITLEI
-            ENDIF
-
-            IF (LABELI(1:)  /= ' ') THEN
-               WRITE(F06,9799) LABELI
-            ENDIF
-
-            WRITE(F06,*)
 
             ! write f06 header
             IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN

@@ -140,42 +140,33 @@
       WRITE_OP2 = (STRN_OUT(2:2) == 'Y')
 
       IF (IHDR == 'Y') THEN
-         IF (WRITE_F06) WRITE(F06,*)
-         IF (WRITE_F06) WRITE(F06,*)
-
          ! -- F06 header: OUTPUT FOR SUBCASE, EIGENVECTOR or CRAIG-BAMPTON DOF
+         CALL WRITE_SUBCASE_EIGENVEC_HEADER(JSUB, WRITE_F06)
          ISUBCASE_INDEX = 0
          IF    (SOL_NAME(1:7) == 'STATICS') THEN
             ISUBCASE_INDEX = JSUB
             ANALYSIS_CODE = 1
             FIELD5_INT_MODE = 1  ! temp
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF (WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
          ELSE IF (SOL_NAME(1:8) == 'NLSTATIC') THEN
             ISUBCASE_INDEX = 1  ! statics
             ANALYSIS_CODE = 10
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF (WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
 
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
             ISUBCASE_INDEX = 1  ! statics
             ANALYSIS_CODE = 1
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF (WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
 
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
             ISUBCASE_INDEX = 2  ! modes
             ANALYSIS_CODE = 7
             FIELD5_INT_MODE = JSUB
-            ! FIELD6_EIGENVALUE = ????
-            IF (WRITE_F06) WRITE(F06,102) JSUB
 
          ELSE IF (SOL_NAME(1:5) == 'MODES') THEN
             ISUBCASE_INDEX = 1  ! modes
             ANALYSIS_CODE = 2
             FIELD5_INT_MODE = JSUB
-            ! FIELD6_EIGENVALUE = ????
-            IF (WRITE_F06) WRITE(F06,102) JSUB
 
          ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
             ISUBCASE_INDEX = 1  ! modes
@@ -201,24 +192,11 @@
          ENDIF
          ISUBCASE = SCNUM(ISUBCASE_INDEX)
 
-         ! -- F06 header for TITLE, SUBTITLE, LABEL (but only to F06)
          TITLEI = TITLE(INT_SC_NUM)
          STITLEI = STITLE(INT_SC_NUM)
          LABELI = LABEL(INT_SC_NUM)
 
          IF (WRITE_F06) THEN
-             IF (TITLE(INT_SC_NUM)(1:)  /= ' ') THEN
-                WRITE(F06,201) TITLE(INT_SC_NUM)
-             ENDIF
-
-             IF (STITLE(INT_SC_NUM)(1:) /= ' ') THEN
-                WRITE(F06,201) STITLE(INT_SC_NUM)
-             ENDIF
-
-             IF (LABEL(INT_SC_NUM)(1:)  /= ' ') THEN
-                WRITE(F06,201) LABEL(INT_SC_NUM)
-             ENDIF
-             WRITE(F06,*)
 
             ! -- F06 1st 2 header lines for strain output description
             IF (TYPE(1:4) == 'ELAS') THEN

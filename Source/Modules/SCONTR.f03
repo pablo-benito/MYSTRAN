@@ -83,6 +83,7 @@
       INTEGER(LONG)            :: WARN_ERR            =   0      ! Warn err count from input (Exec & Case Control, Bulk Data)
 
       INTEGER(LONG)            :: INT_SC_NUM          =   0      ! Internal subcase number
+      INTEGER(LONG)            :: INT_EIG_NUM         =   0      ! Per-subcase local eigenvector index (resets to 1 at each subcase)
       INTEGER(LONG)            :: JTSUB               =   0      ! Internal thermal array col no. corresponding to INT_SC_NUM
 
       INTEGER(LONG)            :: KLL_SDIA            =   0      ! Number of super-diagonals in matrix KLL
@@ -580,6 +581,7 @@
       INTEGER(LONG)            :: COUNTER_LIMITER     = ZERO     ! Counter updates this second
       CHARACTER(:), ALLOCATABLE :: COUNTER_PREFIX
       CHARACTER(LEN=20) :: COUNTER_FMT
+      INTEGER(LONG)            :: NUM_SUBC_CARDS      = ZERO     ! Number of subcase CARDS.
 
 !   Notes:
 !    (1) The max limits are only used to check that the dimensions of arrays have been set high enough
