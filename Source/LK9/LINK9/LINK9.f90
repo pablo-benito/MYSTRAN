@@ -738,8 +738,8 @@ j_do: DO JVEC=1,NUM_SOLNS
          IF (SOL_NAME(1:8) == 'DIFFEREN') THEN
             JTSUB = 1
             INT_SC_NUM = 1
-         ELSE IF (SOL_NAME(1:8) == 'BUCKLING') THEN
-            JTSUB = 1                                      ! thermal load col index (unchanged from original)
+         ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
+            JTSUB = 1                                      ! eigenvectors: buckling subcases carry no thermal loads
             ! INT_SC_NUM was already set correctly in the j_do init block above; do not override
          ELSE
             IF (SUBLOD(INT_SC_NUM,2) > 0) THEN                ! JTSUB must only be used in the subrs called if this SUBLOD > 0
