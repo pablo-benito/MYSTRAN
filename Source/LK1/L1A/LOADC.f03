@@ -58,7 +58,7 @@
       INTEGER(LONG)                   :: IERR              ! Error indicator. If CHAR not found, IERR set to 1
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when reading a Case Control card from unit IN1
 
-      CHARACTER(LEN(CC_CMD_DESCRIBERS)) :: QUAD_LOC
+      CHARACTER(LEN(CC_CMD_DESCRIBERS)) :: QUAD4_LOC
 
 
 ! **********************************************************************************************************************************
@@ -234,21 +234,22 @@ inner:         DO
 
                                                            ! Assign the same CENTER/CORNER location to all of FORCE,
                                                            ! STRESS, and STRAIN outputs according to the priority rules.
-                                                           ! Warning. Because NONE is stored as 0 in SC_STRE, etc., this
-                                                           ! treats STRESS(CORNER) = NONE as if STRESS wasn't defined at
-                                                           ! all and defaults to CENTER. That might not be correct.
+                                                           ! Because NONE is stored as 0 in SC_STRE, etc., this treats 
+                                                           ! STRESS(CORNER) = NONE as if STRESS wasn't defined at
+                                                           ! all and defaults to CENTER.
       IF       (SC_STRE(1) /= 0) THEN
-         QUAD_LOC = STRE_LOC
+         QUAD4_LOC = STRE_LOC
       ELSE IF  (SC_STRN(1) /= 0) THEN
-         QUAD_LOC = STRN_LOC
+         QUAD4_LOC = STRN_LOC
       ELSE IF  (SC_ELFE(1) /= 0 .OR. SC_ELFN(1) /= 0) THEN
-         QUAD_LOC = FORC_LOC
+         QUAD4_LOC = FORC_LOC
       ELSE
-         QUAD_LOC = 'CENTER'
+         QUAD4_LOC = 'CENTER'
       ENDIF
-      STRE_LOC = QUAD_LOC
-      STRN_LOC = QUAD_LOC
-      FORC_LOC = QUAD_LOC
+      STRE_LOC = QUAD4_LOC
+      STRN_LOC = QUAD4_LOC
+      FORC_LOC = QUAD4_LOC
+                                                           ! From here on, STRE_LOC = STRN_LOC = FORC_LOC.
 
       IF (STRN_LOC /= 'CENTER  ') THEN
          WRITE(ERR,1016) STRN_LOC, 'STRAIN'
@@ -487,8 +488,7 @@ inner:         DO
 
  1015 FORMAT(' *WARNING    : GRID POINT FORCE BALANCE ONLY ALLOWED IN ',A,' SOLUTION. ABOVE ENTRY IGNORED')
 
- 1016 FORMAT(' *INFORMATION: ALL SUBCASES WILL USE "',A,'" AS THE LOCATION OF ',A,' OUTPUTS FOR PSHELL QUAD4 ELEMENTS'             &
-                    ,/,14X,' SINCE THIS WAS THE FIRST REQUEST, OTHER THAN DEFAULT "CENTER  ", DETECTED')
+ 1016 FORMAT(' *INFORMATION: ALL SUBCASES WILL USE "',A,'" AS THE LOCATION OF ',A,' OUTPUTS FOR PSHELL QUAD4 ELEMENTS')
 
  1028 FORMAT(' *ERROR  1028: THERE MUST BE 2 SUBCASES FOR LINEAR BUCKLING ANALYSES BUT NSUB = ',I8)
 
