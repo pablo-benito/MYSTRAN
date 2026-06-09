@@ -29,13 +29,13 @@
       ! LOADC reads in the CASE CONTROL DECK
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  BUGOUT, ERR, F06, IN1, WRT_ERR
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_ENTRY_LEN, ENFORCED, FATAL_ERR, WARN_ERR, NSUB, NTSUB, NUM_BUCKLING_SUBS, &
-                                         PROG_NAME, RESTART, SOL_NAME
-      USE TIMDAT, ONLY                :  TSEC
+      USE SCONTR, ONLY                :  CC_ENTRY_LEN, ENFORCED, FATAL_ERR, WARN_ERR, NSUB, NTSUB,                                 &
+                                         NUM_BUCKLING_SUBS, PROG_NAME, RESTART, SOL_NAME, CC_CMD_DESCRIBERS
       USE PARAMS, ONLY                :  SUPINFO, SUPWARN
       USE MODEL_STUF, ONLY            :  CC_EIGR_SID, CC_EIGR_SID_SUB, CC_EIGR_SID_DECK, CC_STATSUB_DECK, CC_STATSUB_SUB,          &
                                          IS_BUCKLING_SUBCASE, IS_MODES_SUBCASE,                                                    &
-                                         MEFFMASS_CALC, MPCSET, MPCSETS, MPFACTOR_CALC, SCNUM, SPCSET, SPCSETS, SUBLOD
+                                         MEFFMASS_CALC, MPCSET, MPCSETS, MPFACTOR_CALC, SCNUM, SPCSET, SPCSETS, SUBLOD,            &
+                                         SC_STRE, SC_STRN, SC_ELFE, SC_ELFN
       USE MODEL_STUF, ONLY            :  EIG_PARAMS,                                                                               &
                                          EIG_COMP, EIG_CRIT, EIG_FRQ1, EIG_FRQ2, EIG_GRID, EIG_LANCZOS_NEV_DELT, EIG_METH,         &
                                          EIG_MSGLVL, EIG_LAP_MAT_TYPE, EIG_MODE, EIG_N1, EIG_N2, EIG_NCVFACL, EIG_NORM, EIG_SID,   &
@@ -46,8 +46,6 @@
       USE TO_UPPER_Interface
       
       IMPLICIT NONE
-
-      CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME   = 'LOADC'
 
       CHARACTER( 1*BYTE)              :: DOLLAR_WARN       ! Indicator of whether there was a $ sign in col 1
       CHARACTER(LEN=CC_ENTRY_LEN)     :: CARD              ! Case Control card
@@ -60,7 +58,7 @@
       INTEGER(LONG)                   :: IERR              ! Error indicator. If CHAR not found, IERR set to 1
       INTEGER(LONG)                   :: IOCHK             ! IOSTAT error number when reading a Case Control card from unit IN1
 
-
+      CHARACTER(LEN(CC_CMD_DESCRIBERS)) :: QUAD_LOC
 
 
 ! **********************************************************************************************************************************
@@ -233,6 +231,24 @@ inner:         DO
          ENDIF
 
       ENDDO outer
+
+                                                           ! Assign the same CENTER/CORNER location to all of FORCE,
+                                                           ! STRESS, and STRAIN outputs according to the priority rules.
+                                                           ! Warning. Because NONE is stored as 0 in SC_STRE, etc., this
+                                                           ! treats STRESS(CORNER) = NONE as if STRESS wasn't defined at
+                                                           ! all and defaults to CENTER. That might not be correct.
+      IF       (SC_STRE(1) /= 0) THEN
+         QUAD_LOC = STRE_LOC
+      ELSE IF  (SC_STRN(1) /= 0) THEN
+         QUAD_LOC = STRN_LOC
+      ELSE IF  (SC_ELFE(1) /= 0 .OR. SC_ELFN(1) /= 0) THEN
+         QUAD_LOC = FORC_LOC
+      ELSE
+         QUAD_LOC = 'CENTER'
+      ENDIF
+      STRE_LOC = QUAD_LOC
+      STRN_LOC = QUAD_LOC
+      FORC_LOC = QUAD_LOC
 
       IF (STRN_LOC /= 'CENTER  ') THEN
          WRITE(ERR,1016) STRN_LOC, 'STRAIN'
