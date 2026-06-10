@@ -389,7 +389,7 @@
              NNODES = 7
          ENDIF
          NUM_WIDE = 4 + 21 * NNODES
-         NVALUES = NUM_WIDE * NUM
+         NVALUES = NUM_WIDE * NUM / NNODES
 
          IF (WRITE_OP2) THEN
            !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
@@ -424,14 +424,14 @@
                         ! 21
                        (GID_OUT_ARRAY(I,J),                                                    &
                         ! oxx             txy                s1                  a1  a2  a3
-                       REAL(OGEL(I,1),4), REAL(OGEL(I,4),4), REAL(OGEL(I,9), 4), 0., 0., 0.,   &
+                       REAL(OGEL(I+J-1,1),4), REAL(OGEL(I+J-1,4),4), REAL(OGEL(I+J-1,9), 4), 0., 0., 0.,   &
                         ! p                   ovm
-                       REAL(OGEL(I,12),4), REAL(OGEL(I,7),4),  &
+                       REAL(OGEL(I+J-1,12),4), REAL(OGEL(I+J-1,7),4),  &
                         ! syy             tyz                s2                  b1  b2  b3
-                       REAL(OGEL(I,2),4), REAL(OGEL(I,5),4), REAL(OGEL(I,10),4), 0., 0., 0.,   &
+                       REAL(OGEL(I+J-1,2),4), REAL(OGEL(I+J-1,5),4), REAL(OGEL(I+J-1,10),4), 0., 0., 0.,   &
                         ! szz             txz                s3                  c1  c2  c3
-                       REAL(OGEL(I,3),4), REAL(OGEL(I,6),4), REAL(OGEL(I,11),4), 0., 0., 0.,   &
-                       J=1,NNODES), I=1,NUM)
+                       REAL(OGEL(I+J-1,3),4), REAL(OGEL(I+J-1,6),4), REAL(OGEL(I+J-1,11),4), 0., 0., 0.,   &
+                       J=1,NNODES), I=1,NUM,NNODES)
          ENDIF  ! end of op2
 
          IF (STRE_OPT == 'VONMISES') THEN
