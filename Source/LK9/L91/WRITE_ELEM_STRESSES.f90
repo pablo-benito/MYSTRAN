@@ -374,73 +374,72 @@
          IF(WRITE_F06) WRITE(F06,1103) (FILL(1:1), EID_OUT_ARRAY(I,1), OGEL(I,1),I=1,NUM)
 
       ELSE IF((TYPE(1:4) == 'HEXA') .OR. (TYPE(1:5) == 'PENTA') .OR. (TYPE(1:5) == 'TETRA')) THEN
-         !       12345
-         ! 39 : CTETRA
-         ! 67 : CHEXA
-         ! 68 : CPENTA
-         IF (TYPE(1:4) == "HEXA") THEN
-             ELEMENT_TYPE = 67
-             NNODES = 9
-         ELSE IF (TYPE(1:5) == "TETRA") THEN
-             ELEMENT_TYPE = 39
-             NNODES = 5
-         ELSE IF (TYPE(1:5) == "PENTA") THEN
-             ELEMENT_TYPE = 68
-             NNODES = 7
-         ENDIF
-         NUM_WIDE = 4 + 21 * NNODES
-         NVALUES = NUM_WIDE * NUM
 
          IF (WRITE_OP2) THEN
-           !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
-           CALL GET_STRESS_CODE( STRESS_CODE, 1,            0,         0)
-           CALL WRITE_OES3_STATIC(ITABLE, ISUBCASE, DEVICE_CODE, ELEMENT_TYPE, NUM_WIDE, STRESS_CODE, &
+
+            IF (TYPE(1:4) == "HEXA") THEN
+                ELEMENT_TYPE = 67
+                NNODES = 9
+            ELSE IF (TYPE(1:5) == "TETRA") THEN
+                ELEMENT_TYPE = 39
+                NNODES = 5
+            ELSE IF (TYPE(1:5) == "PENTA") THEN
+                ELEMENT_TYPE = 68
+                NNODES = 7
+            ENDIF
+
+            NUM_WIDE = 4 + 21 * NNODES
+            NVALUES = NUM_WIDE * NUM / NNODES
+
+            !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
+            CALL GET_STRESS_CODE( STRESS_CODE, 1,            0,         0)
+            CALL WRITE_OES3_STATIC(ITABLE, ISUBCASE, DEVICE_CODE, ELEMENT_TYPE, NUM_WIDE, STRESS_CODE, &
                                   TITLEI, STITLEI, LABELI, FIELD5_INT_MODE, FIELD6_EIGENVALUE)
-           WRITE(OP2) NVALUES
-           CEN_WORD = "CEN/"
+            WRITE(OP2) NVALUES
+            CEN_WORD = "CEN/"
 
-          ! See the CHEXA, CPENTA, or CTETRA entry for the definition of the element coordinate systems.
-          ! The material coordinate system (CORDM) may be the basic system (0 or blank), any defined system
-          ! (Integer > 0), or the standard internal coordinate system of the element designated as:
-          ! -1: element coordinate system (-1)
-          ! -2: element system based on eigenvalue techniques to insure non bias in the element formulation.
+            ! See the CHEXA, CPENTA, or CTETRA entry for the definition of the element coordinate systems.
+            ! The material coordinate system (CORDM) may be the basic system (0 or blank), any defined system
+            ! (Integer > 0), or the standard internal coordinate system of the element designated as:
+            ! -1: element coordinate system (-1)
+            ! -2: element system based on eigenvalue techniques to insure non bias in the element formulation.
 
-          ! TODO hardcoded
-           CID = -1
+            ! TODO hardcoded
+            CID = -1
 
-          ! setting:
-          !  - CTETRA: [element_device, cid, 'CEN/', 4]
-          !  - CPYRAM: [element_device, cid, 'CEN/', 5]
-          !  - CPENTA: [element_device, cid, 'CEN/', 6]
-          !  - CHEXA:  [element_device, cid, 'CEN/', 8]
+            ! setting:
+            !  - CTETRA: [element_device, cid, 'CEN/', 4]
+            !  - CPYRAM: [element_device, cid, 'CEN/', 5]
+            !  - CPENTA: [element_device, cid, 'CEN/', 6]
+            !  - CHEXA:  [element_device, cid, 'CEN/', 8]
 
-           !                 1             2             3            4            5               6             7
-           !  Element    Sigma-xx      Sigma-yy      Sigma-zz       Tau-xy        Tau-yz        Tau-zx      von Mises
-           !     ID
+            !                 1             2             3            4            5               6             7
+            !  Element    Sigma-xx      Sigma-yy      Sigma-zz       Tau-xy        Tau-yz        Tau-zx      von Mises
+            !     ID
 
-           ! TODO: we repeat the center node N times because the corner results have not been calculated
-           WRITE(OP2) (EID_OUT_ARRAY(I,1)*10+DEVICE_CODE, CID, CEN_WORD, NNODES-1,             &
-                        ! grid_id
-                        ! 21
-                       (GID_OUT_ARRAY(I,J),                                                    &
-                        ! oxx             txy                s1                  a1  a2  a3
-                       REAL(OGEL(I,1),4), REAL(OGEL(I,4),4), REAL(OGEL(I,9), 4), 0., 0., 0.,   &
-                        ! p                   ovm
-                       REAL(OGEL(I,12),4), REAL(OGEL(I,7),4),  &
-                        ! syy             tyz                s2                  b1  b2  b3
-                       REAL(OGEL(I,2),4), REAL(OGEL(I,5),4), REAL(OGEL(I,10),4), 0., 0., 0.,   &
-                        ! szz             txz                s3                  c1  c2  c3
-                       REAL(OGEL(I,3),4), REAL(OGEL(I,6),4), REAL(OGEL(I,11),4), 0., 0., 0.,   &
-                       J=1,NNODES), I=1,NUM)
+            WRITE(OP2) (EID_OUT_ARRAY(I,1)*10+DEVICE_CODE, CID, CEN_WORD, NNODES-1,                      &
+                     !grid_id
+                     (GID_OUT_ARRAY(I,J),                                                                &
+                     !    oxx                     txy                    s1                 a1  a2  a3
+                     REAL(OGEL(I+J-1,1),4),  REAL(OGEL(I+J-1,4),4), REAL(OGEL(I+J-1,9), 4), 0., 0., 0.,  &
+                     !    p                       ovm
+                     REAL(OGEL(I+J-1,12),4), REAL(OGEL(I+J-1,7),4),                                      &
+                      !   syy                     tyz                    s2                 b1  b2  b3
+                     REAL(OGEL(I+J-1,2),4),  REAL(OGEL(I+J-1,5),4), REAL(OGEL(I+J-1,10),4), 0., 0., 0.,  &
+                      !   szz                     txz                    s3                 c1  c2  c3
+                     REAL(OGEL(I+J-1,3),4),  REAL(OGEL(I+J-1,6),4), REAL(OGEL(I+J-1,11),4), 0., 0., 0.,  &
+                     J=1,NNODES), I=1,NUM,NNODES)
+
          ENDIF  ! end of op2
 
-         IF (STRE_OPT == 'VONMISES') THEN
-            NCOLS = 7
-         ELSE
-            NCOLS = 8
-         ENDIF
-
          IF (WRITE_F06) THEN
+
+            IF (STRE_OPT == 'VONMISES') THEN
+               NCOLS = 7
+            ELSE
+               NCOLS = 8
+            ENDIF
+
             ! Pre-fill the fixed-text positions of the line buffers; variable fields (EID/GID and the
             ! per-point values) are overwritten in the loop below. Layouts:
             !   CLINE_BUF: FORMAT 1303 = (1X,I8,2X,'CENTER  ',8X,8(1ES14.6))
@@ -468,16 +467,15 @@
                   WRITE(F06,'(A)') GLINE_BUF(1 : 27 + NCOLS*14)
                ENDDO
             ENDDO
-         ENDIF
 
-         CALL GET_MAX_MIN_ABS_STR ( NUM, NCOLS, 'N', MAX_ANS, MIN_ANS, ABS_ANS )
+            CALL GET_MAX_MIN_ABS_STR ( NUM, NCOLS, 'N', MAX_ANS, MIN_ANS, ABS_ANS )
 
-         IF (WRITE_F06) THEN
             IF (STRE_OPT == 'VONMISES') THEN
                WRITE(F06,1304) (MAX_ANS(J),J=1,7), (MIN_ANS(J),J=1,7), (ABS_ANS(J),J=1,7)
             ELSE
                WRITE(F06,1305) (MAX_ANS(J),J=1,8), (MIN_ANS(J),J=1,8), (ABS_ANS(J),J=1,8)
             ENDIF
+
          ENDIF
 
       ELSE IF ((TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'QUAD8')) THEN
