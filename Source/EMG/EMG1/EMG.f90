@@ -58,6 +58,7 @@
 
       USE EMG_USE_IFs
       USE MITC8_Interface
+      USE CALC_K6ROT_Interface
 
       IMPLICIT NONE
 
@@ -398,9 +399,11 @@
 
 ! **********************************************************************************************************************************
 ! For plate elements, process offsets (since they are specified in local element coordinates)
+! Then add drilling stiffness at the the grid points.
 
       IF ((TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'QUAD4')) THEN
          CALL ELMOFF ( OPT, WRITE_WARN )
+         CALL CALC_K6ROT()
       ENDIF
 
 ! **********************************************************************************************************************************

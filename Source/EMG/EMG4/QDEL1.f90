@@ -47,7 +47,6 @@
       USE MODEL_STUF, ONLY            :  BENSUM, SHRSUM, PHI_SQ, PSI_HAT
 
       USE QDEL1_USE_IFs
-      USE CALC_K6ROT_Interface
 
       IMPLICIT NONE
 
@@ -265,9 +264,6 @@
 
       ENDIF
 
-      IF (OPT(4) == 'Y') THEN
-         CALL CALC_K6ROT()
-      ENDIF
 
 ! **********************************************************************************************************************************
 ! Calc BM'*SHELL_B*BB (and its transpose) and add to KE. Only do this if this is a composite element with nonsym layup
