@@ -402,8 +402,13 @@
 ! Then add drilling stiffness at the the grid points.
 
       IF ((TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'QUAD4')) THEN
+
          CALL ELMOFF ( OPT, WRITE_WARN )
-         CALL CALC_K6ROT()
+
+         IF (OPT(4) == 'Y') THEN
+            CALL CALC_K6ROT()
+         ENDIF
+
       ENDIF
 
 ! **********************************************************************************************************************************
