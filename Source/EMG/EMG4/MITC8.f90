@@ -54,6 +54,7 @@
       USE MITC8_CARTESIAN_LOCAL_BASIS_Interface
       USE MITC8_ELEMENT_CS_BASIS_Interface
       USE MITC_ELASTICITY_Interface
+      USE CALC_K6ROT_Interface
 
       IMPLICIT NONE
 
@@ -310,7 +311,8 @@
             ENDDO
          ENDDO
 
-
+         ! todo KE is in basic coordinates but K6ROT assumes element coordinates so we can't use it yet.
+         ! CALL CALC_K6ROT()
 
       ENDIF
 

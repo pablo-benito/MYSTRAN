@@ -1,3 +1,4 @@
+! ###############################################################################################################################
 ! Begin MIT license text.
 ! _______________________________________________________________________________________________________
 
@@ -23,13 +24,17 @@
 
 ! End MIT license text.
 
-      MODULE ELMOFF_USE_IFs
+   MODULE CALC_K6ROT_Interface
 
-! USE Interface statements for all subroutines called by SUBROUTINE ELMOFF
+   INTERFACE
 
-      USE OURTIM_Interface
-      USE OUTA_HERE_Interface
-      USE MATMULT_FFF_Interface
-      USE MATMULT_FFF_T_Interface
+      SUBROUTINE CALC_K6ROT ()
 
-      END MODULE ELMOFF_USE_IFs
+      IMPLICIT NONE
+
+      END SUBROUTINE CALC_K6ROT
+
+   END INTERFACE
+
+   END MODULE CALC_K6ROT_Interface
+

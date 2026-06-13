@@ -46,6 +46,7 @@
       USE MODEL_STUF, ONLY            :  BENSUM, SHRSUM, PHI_SQ, PSI_HAT, XTB, XTL
 
       USE TREL1_USE_IFs
+      USE CALC_K6ROT_Interface
 
       IMPLICIT NONE
 
@@ -185,6 +186,10 @@
             ENDIF
          ENDIF
 
+      ENDIF
+
+      IF (OPT(4) == 'Y') THEN
+         CALL CALC_K6ROT()
       ENDIF
 
 ! **********************************************************************************************************************************

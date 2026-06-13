@@ -61,6 +61,7 @@
       USE MITC_SHAPE_FUNCTIONS_Interface
       USE MITC_COVARIANT_BASIS_Interface
       USE EXPAND_MASS_DOFS_Interface
+      USE CALC_K6ROT_Interface
 
       IMPLICIT NONE
 
@@ -570,9 +571,7 @@
             ENDDO
          ENDDO
 
-
-
-
+         CALL CALC_K6ROT()
 
       ENDIF
 
