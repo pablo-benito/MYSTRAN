@@ -30,33 +30,39 @@
 
       USE PENTIUM_II_KIND, ONLY       :  LONG, DOUBLE
       USE MODEL_STUF, ONLY            :  TYPE, ELGP, INTL_MID, XEL, SHELL_A, KE
-      USE MITC_STUF, ONLY             :  DIRECTOR
-      USE PARAMS, ONLY                :  K6ROT, QUAD4TYP
+      USE PARAMS, ONLY                :  K6ROT
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE SCONTR, ONLY                :  MAX_ORDER_GAUSS
+      USE CROSS_Interface
+      USE MATMULT_FFF_T_Interface
 
       IMPLICIT NONE
 
-      REAL(DOUBLE)                    :: K6_DIR(3,ELGP)       ! Normalized direction of the singular DOF (spring x axis).
-      REAL(DOUBLE)                    :: T(3,3)               ! Transformation matrix for spring.
-      REAL(DOUBLE)                    :: KROT(3,3)            ! Stiff matrix for spring.
+      REAL(DOUBLE)                    :: KROT(6*ELGP,6*ELGP)  ! Stifness matrix of K6ROT.
+      REAL(DOUBLE)                    :: N(3)                 ! Normal at one grid point
+      REAL(DOUBLE)                    :: X_PREV(3)            ! Coordinates of the previous grid point (n-1)
+      REAL(DOUBLE)                    :: X_NEXT(3)            ! Coordinates of the next grid point (n+1)
+      REAL(DOUBLE)                    :: TERM_PREV(3)
+      REAL(DOUBLE)                    :: TERM_NEXT(3)
+      REAL(DOUBLE)                    :: B(6*ELGP)            ! Strain-displacement matrix for one grid point's K6ROT spring "element"
+      REAL(DOUBLE)                    :: STIFFNESS            ! Spring stiffness of one grid point's K6ROT "element"
       REAL(DOUBLE)                    :: AREA                 ! Elem area
       REAL(DOUBLE)                    :: DETJ                 ! An output from subr JAC2D4, called herein. Determinant of JAC
-      INTEGER(LONG)                   :: I,J,K
+      INTEGER(LONG)                   :: I,J
+      INTEGER(LONG)                   :: GP                   ! Element grid point number (1 to ELGP).
+      INTEGER(LONG)                   :: GP_PREV
+      INTEGER(LONG)                   :: GP_NEXT
       REAL(DOUBLE)                    :: JAC(2,2)             ! An output from subr JAC2D4, called herein. 2 x 2 Jacobian matrix.
       REAL(DOUBLE)                    :: JACI(2,2)            ! An output from subr JAC2D4, called herein. 2 x 2 Jacobian inverse.
-      REAL(DOUBLE)                    :: Ksita             ! virtual rotational stiffness derived from K6ROT
-      REAL(DOUBLE)                    :: X2E               ! x coord of elem node 2
-      REAL(DOUBLE)                    :: Y3E               ! y coord of elem node 3
+      REAL(DOUBLE)                    :: X2E                  ! x coord of elem node 2
+      REAL(DOUBLE)                    :: Y3E                  ! y coord of elem node 3
       REAL(DOUBLE)                    :: XSD(4)               ! Diffs in x coords of quad sides in local coords
       REAL(DOUBLE)                    :: YSD(4)               ! Diffs in y coords of quad sides in local coords
       REAL(DOUBLE)                    :: HHH(MAX_ORDER_GAUSS) ! An output from subr ORDER, called herein.  Gauss weights.
       REAL(DOUBLE)                    :: SSS(MAX_ORDER_GAUSS) ! An output from subr ORDER, called herein. Gauss abscissa's.
 
-! **********************************************************************************************************************************
 
 ! **********************************************************************************************************************************
-! Add K6ROT stiffness
 
 
                                                      ! No K6ROT for shells that only use MID1.
@@ -94,63 +100,84 @@
 
          ENDIF
 
-         ! Drilling spring stiffness = K6ROT * 10^-6 * G12 * thickness * area
-         !                           = K6ROT * 10^-6 * A(3,3) * area
-         Ksita = 10.0**(-6.0) * SHELL_A(3,3) * ABS(AREA) * K6ROT
 
-         ! Find the direction of the singularity DOF (SNORM) in the element coordinate system.
-         IF ((TYPE == 'QUAD4   ') .AND. ((QUAD4TYP == 'MITC4 ') .OR. (QUAD4TYP == 'MITC4+'))) THEN
-                                                     ! This is currently the director vector
-                                                     ! but it won't be if SNORM is implemented
-                                                     ! without changing the geometry of the element.
-            K6_DIR(:,1:ELGP) = DIRECTOR(:,1:ELGP)
-         ELSEIF (((TYPE == 'QUAD4   ') .AND. ((QUAD4TYP == 'MIN4  ') .OR. (QUAD4TYP == 'MIN4T ')))                           &
-           .OR.   (TYPE == 'TRIA3   ')) THEN
-                                                     ! Spring axis is simply the element z axis.
-            K6_DIR(1,:) = ZERO
-            K6_DIR(2,:) = ZERO
-            K6_DIR(3,:) = ONE
-         ENDIF
+         !According to:
+         !https://www.dynalook.com/conferences/9th-european-ls-dyna-conference/drilling-rota
+         !tion-constraint-for-shell-elements-in-implicit-and-explicit-analyses
+         !but scaled to match MSC Nastran.
 
-         DO J=1,ELGP
+         ! SHELL_A(3,3) is membrane shear modulus times thickness
+         STIFFNESS = 10.0**(-6.0) * K6ROT * SHELL_A(3,3) * ABS(AREA)
 
-            ! Spring stiffness matrix where stiffness is in the spring x direction
-            !
-            !        [ Ksita   0     0  ]
-            ! KROT = [   0     0     0  ]
-            !        [   0     0     0  ]
-            KROT(:,:) = ZERO
-            KROT(1,1) = Ksita
+         ! Use the uniform element normal at all grid points.
+         ! This might be supposed to be the shell normal but it hardly seems to make a difference and this way is simpler.
+         N = [ZERO, ZERO, ONE]
 
-            ! Transformation matrix from spring coordinates to element coordinates
-            ! Spring x is the singularity axis
-            T(:,1) = K6_DIR(:,J)
-            ! Spring y is orthogonal to both spring x and element x
-            CALL CROSS(T(:,1), (/ ONE, ZERO, ZERO /), T(:,2))
-            ! Normalize spring y
-            T(:,2) = T(:,2) / DSQRT(DOT_PRODUCT(T(:,2), T(:,2)))
-            ! Spring z is mutually orthogonal
-            CALL CROSS(T(:,1), T(:,2), T(:,3))
+         DO GP=1,ELGP
 
-            ! Transform the spring stiffness matrix to element coordinates.
-            ! T * K * T'
-            KROT = MATMUL(MATMUL(T, KROT), TRANSPOSE(T))
+            B = ZERO
+            
+            ! The spring at one grid point is effectively a 3-node element with nodes and DOFs of:
+            ! Node n:          tx, ty, tz, rx, ry, rz
+            ! Node n+1 (next): tx, ty, tz
+            ! Node n-1 (prev): tx, ty, tz
+            
+            GP_PREV = GP - 1
+            IF (GP_PREV < 1) THEN
+               GP_PREV = ELGP
+            ENDIF
 
-            ! Add the 3x3 spring stiffness matrix to the element stiffness matrix
-            K = (J-1) * 6
-            KE(K+4:K+6,K+4:K+6) = KE(K+4:K+6,K+4:K+6) + KROT(:,:)
+            GP_NEXT = GP + 1
+            IF (GP_NEXT > ELGP) THEN
+               GP_NEXT = 1
+            ENDIF
+            
+            X_PREV = XEL(GP_PREV,1:3) - XEL(GP,1:3)
+            X_NEXT = XEL(GP_NEXT,1:3) - XEL(GP,1:3)
+         
+            !Contribution of previous node's displacement
+            !        - n × (x_n-1 - x_n)
+            !ε_n  =  ------------------- * u_n-1
+            !        2 * |x_n-1 - x_n|^2
+            CALL CROSS(N, X_PREV, TERM_PREV)
+            TERM_PREV = TERM_PREV * 1 / (2 * (X_PREV(1)**2 + X_PREV(2)**2 + X_PREV(3)**2) )
+           
+            B((GP_PREV - 1) * 6 + 1) = -TERM_PREV(1)
+            B((GP_PREV - 1) * 6 + 2) = -TERM_PREV(2)
+            B((GP_PREV - 1) * 6 + 3) = -TERM_PREV(3)
 
-            ! todo remove.
-            ! Spring axis is element coordinate z axis. Only correct for flat elements without SNORM.
-            ! KE(6*J,6*J) = KE(6*J,6*J) + Ksita
+            !Contribution of next node's displacement
+            !        - n × (x_n+1 - x_n)
+            !ε_n += ------------------- * u_n+1
+            !        2 * |x_n+1 - x_n|^2
+            CALL CROSS(N, X_NEXT, TERM_NEXT)
+            TERM_NEXT = TERM_NEXT * 1 / (2 * (X_NEXT(1)**2 + X_NEXT(2)**2 + X_NEXT(3)**2) )
+           
+            B((GP_NEXT - 1) * 6 + 1) = -TERM_NEXT(1)
+            B((GP_NEXT - 1) * 6 + 2) = -TERM_NEXT(2)
+            B((GP_NEXT - 1) * 6 + 3) = -TERM_NEXT(3)
+         
+            !Contribution of current node's displacement and rotation
+            !          n × (x_n-1 - x_n)     n × (x_n+1 - x_n)
+            !ε_n += ( ------------------- + ------------------- ) * u_n  +  n · r_n
+            !         2 * |x_n-1 - x_n|^2   2 * |x_n+1 - x_n|^2
+            B((GP - 1) * 6 + 1) = TERM_PREV(1) + TERM_NEXT(1)
+            B((GP - 1) * 6 + 2) = TERM_PREV(2) + TERM_NEXT(2)
+            B((GP - 1) * 6 + 3) = TERM_PREV(3) + TERM_NEXT(3)
+            B((GP - 1) * 6 + 4) = N(1)
+            B((GP - 1) * 6 + 5) = N(2)
+            B((GP - 1) * 6 + 6) = N(3)
+                     
+            ! stiffness * B' * B
+            CALL MATMULT_FFF_T(B, B, 1, 6*ELGP, 6*ELGP, KROT)
+            KROT = KROT * STIFFNESS
 
+            KE(1:6*ELGP, 1:6*ELGP) = KE(1:6*ELGP, 1:6*ELGP) + KROT(1:6*ELGP, 1:6*ELGP)
+         
          ENDDO
 
       ENDIF
     
-
-! **********************************************************************************************************************************
-
 
 ! **********************************************************************************************************************************
 
