@@ -45,7 +45,6 @@
       REAL(DOUBLE)                    :: TERM_PREV(3)
       REAL(DOUBLE)                    :: TERM_NEXT(3)
       REAL(DOUBLE)                    :: B(6*ELGP)            ! Strain-displacement matrix for one grid point's K6ROT spring "element"
-      !todo make B for the whole shell's 3-4 K6ROT spring "elements"
       REAL(DOUBLE)                    :: STIFFNESS            ! Spring stiffness of one grid point's K6ROT "element"
       REAL(DOUBLE)                    :: AREA                 ! Elem area
       REAL(DOUBLE)                    :: DETJ                 ! An output from subr JAC2D4, called herein. Determinant of JAC
@@ -55,17 +54,15 @@
       INTEGER(LONG)                   :: GP_NEXT
       REAL(DOUBLE)                    :: JAC(2,2)             ! An output from subr JAC2D4, called herein. 2 x 2 Jacobian matrix.
       REAL(DOUBLE)                    :: JACI(2,2)            ! An output from subr JAC2D4, called herein. 2 x 2 Jacobian inverse.
-      REAL(DOUBLE)                    :: X2E               ! x coord of elem node 2
-      REAL(DOUBLE)                    :: Y3E               ! y coord of elem node 3
+      REAL(DOUBLE)                    :: X2E                  ! x coord of elem node 2
+      REAL(DOUBLE)                    :: Y3E                  ! y coord of elem node 3
       REAL(DOUBLE)                    :: XSD(4)               ! Diffs in x coords of quad sides in local coords
       REAL(DOUBLE)                    :: YSD(4)               ! Diffs in y coords of quad sides in local coords
       REAL(DOUBLE)                    :: HHH(MAX_ORDER_GAUSS) ! An output from subr ORDER, called herein.  Gauss weights.
       REAL(DOUBLE)                    :: SSS(MAX_ORDER_GAUSS) ! An output from subr ORDER, called herein. Gauss abscissa's.
 
-! **********************************************************************************************************************************
 
 ! **********************************************************************************************************************************
-! Add K6ROT stiffness
 
 
                                                      ! No K6ROT for shells that only use MID1.
@@ -179,13 +176,8 @@
          
          ENDDO
 
-         ! todo accumualte each node's spring into a single B then do matrix multiply on that and add to K.
-
       ENDIF
     
-
-! **********************************************************************************************************************************
-
 
 ! **********************************************************************************************************************************
 
