@@ -29,30 +29,28 @@
    INTERFACE
 
       SUBROUTINE WRITE_ROD ( ISUBCASE, NUM, FILL_F06, ITABLE, TITLE, SUBTITLE, LABEL, &
-                             FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_OP2 )
+                             FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_F06, WRITE_OP2)
 
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM
-      USE TIMDAT, ONLY                :  TSEC
+      USE IOUNT1, ONLY                :  ERR, F06
       USE CONSTANTS_1, ONLY           :  ZERO
-      USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, MSPRNT, OGEL
 
       IMPLICIT NONE
 
       INTEGER(LONG), INTENT(IN)       :: ISUBCASE          ! the current subcase
       CHARACTER(LEN=*), INTENT(IN)    :: FILL_F06          ! Padding for output format
-      CHARACTER(LEN=128), INTENT(IN) :: TITLE              ! the model TITLE
-      CHARACTER(LEN=128), INTENT(IN) :: SUBTITLE           ! the subcase SUBTITLE
-      CHARACTER(LEN=128), INTENT(IN) :: LABEL              ! the subcase LABEL
-      LOGICAL, INTENT(IN)            :: WRITE_OP2          ! writes the op2
+      CHARACTER(LEN=128), INTENT(IN)  :: TITLE             ! the model TITLE
+      CHARACTER(LEN=128), INTENT(IN)  :: SUBTITLE          ! the subcase SUBTITLE
+      CHARACTER(LEN=128), INTENT(IN)  :: LABEL             ! the subcase LABEL
+      LOGICAL, INTENT(IN)             :: WRITE_OP2         ! writes the op2
+      LOGICAL, INTENT(IN)             :: WRITE_F06         ! write the f06
 
       INTEGER(LONG), INTENT(IN)       :: NUM               ! The number of rows of OGEL to write out
       INTEGER(LONG), INTENT(IN)       :: ITABLE            ! the current op2 subtable, should be -3, -5, ...
-      INTEGER(LONG), INTENT(IN) :: FIELD5_INT_MODE
-      REAL(DOUBLE),  INTENT(IN) :: FIELD6_EIGENVALUE
+      INTEGER(LONG), INTENT(IN)       :: FIELD5_INT_MODE
+      REAL(DOUBLE),  INTENT(IN)       :: FIELD6_EIGENVALUE
 
 
 

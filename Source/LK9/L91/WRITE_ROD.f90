@@ -26,32 +26,29 @@
 
       SUBROUTINE WRITE_ROD ( ISUBCASE, NUM, FILL_F06, ITABLE,           &
                              TITLE, SUBTITLE, LABEL,                    &
-                             FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_OP2)
+                             FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_F06, WRITE_OP2)
 
 ! Routine for writing output to text files F06 for ROD element stresses. Up to 2 elements written per line of output.
 ! Data is first written to character variables and then that character variable is output the F06.
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM
-      USE TIMDAT, ONLY                :  TSEC
+      USE IOUNT1, ONLY                :  ERR, F06
       USE CONSTANTS_1, ONLY           :  ZERO
-      USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, MSPRNT, OGEL
       USE WRITE_ROD_USE_IFs
 
       IMPLICIT NONE
 
-      CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'WRITE_ROD'
       INTEGER(LONG), INTENT(IN)       :: ISUBCASE          ! the current subcase
       CHARACTER(LEN=*), INTENT(IN)    :: FILL_F06          ! Padding for output format
       INTEGER(LONG), INTENT(IN)       :: ITABLE            ! the current op2 subtable, should be -3, -5, ...
-      CHARACTER(LEN=128), INTENT(IN) :: TITLE              ! the model TITLE
-      CHARACTER(LEN=128), INTENT(IN) :: SUBTITLE           ! the subcase SUBTITLE
-      CHARACTER(LEN=128), INTENT(IN) :: LABEL              ! the subcase LABEL
-      INTEGER(LONG), INTENT(IN) :: FIELD5_INT_MODE
-      REAL(DOUBLE),  INTENT(IN) :: FIELD6_EIGENVALUE
+      CHARACTER(LEN=128), INTENT(IN)  :: TITLE             ! the model TITLE
+      CHARACTER(LEN=128), INTENT(IN)  :: SUBTITLE          ! the subcase SUBTITLE
+      CHARACTER(LEN=128), INTENT(IN)  :: LABEL             ! the subcase LABEL
+      INTEGER(LONG), INTENT(IN)       :: FIELD5_INT_MODE
+      REAL(DOUBLE),  INTENT(IN)       :: FIELD6_EIGENVALUE
       LOGICAL, INTENT(IN)             :: WRITE_OP2         ! write the op2
+      LOGICAL, INTENT(IN)             :: WRITE_F06         ! write the f06
 
       CHARACTER(  1*BYTE)             :: MSFLAG            ! If margin is negative, MSFLAG is an *
       CHARACTER(118*BYTE)             :: RLINE_F06         ! Result of concatenating char. variables below to make a line of
@@ -179,17 +176,19 @@
 
          ENDIF
 
-! Write a line of output, consisting of stress output for one or two elements, to the output file
-
-         RLINE_F06 = REID1//RSTR11//RMS11//RMSF11//RSTR12//RMS12//RMSF12//REID2//RSTR21//RMS21//RMSF21//RSTR22//RMS22//RMSF22
-
-         WRITE(F06,2205) FILL_F06, RLINE_F06
-
+         IF (WRITE_F06) THEN
+                                                           ! Write a line of output, consisting of stress output for one 
+                                                           ! or two elements, to the output file
+            RLINE_F06 = REID1//RSTR11//RMS11//RMSF11//RSTR12//RMS12//RMSF12//REID2//RSTR21//RMS21//RMSF21//RSTR22//RMS22//RMSF22
+            WRITE(F06,2205) FILL_F06, RLINE_F06
+         ENDIF
+         
       ENDDO
 
-      CALL GET_MAX_MIN_ABS ( 1, 4 )
-      WRITE(F06,9104) (MAX_ANS(J),J=1,4),(MIN_ANS(J),J=1,4),(ABS_ANS(J),J=1,4)
-
+      IF (WRITE_F06) THEN
+         CALL GET_MAX_MIN_ABS ( 1, 4 )
+         WRITE(F06,9104) (MAX_ANS(J),J=1,4),(MIN_ANS(J),J=1,4),(ABS_ANS(J),J=1,4)
+      ENDIF
 
 
       RETURN
