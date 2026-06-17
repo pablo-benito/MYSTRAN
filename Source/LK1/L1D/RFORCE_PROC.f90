@@ -498,8 +498,6 @@ l_do_2214:     DO L = 1,6
 
       IMPLICIT NONE
 
-      INTEGER(LONG)                   :: II                ! DO loop index
-
       REAL(DOUBLE)                    :: DUM1(3)           ! Intermediate vector in cross product
       REAL(DOUBLE)                    :: DUM2(3)           ! Intermediate vector in cross product
       REAL(DOUBLE)                    :: DUM3(3)           ! Intermediate vector in cross product
@@ -511,18 +509,14 @@ l_do_2214:     DO L = 1,6
       CALL CROSS ( ANG_ACC, DRI , DUM3 )
       
       ! DUM3 is the component of linear accleration due to angular acceleration.
-      ! However, in Nastran, the applied force due to angular acceleration is 
+      ! However, in Nastran, the applied force due to angular acceleration is
       ! defined to be in the same direction as the acceleration so we negate
       ! it here for compatibility with F=-MA later.
 
       ! DUM2 is centripetal acceleration which is already consistent with F=-MA.
 
-      DO II = 1,3
-         ACCEL_I_T1(II) = DUM2(II) - DUM3(II)
-      ENDDO
-      DO II = 1,3
-         ACCEL_I_R1(II) = -DUM3(II)
-      ENDDO
+      ACCEL_I_T1 = DUM2 - DUM3
+      ACCEL_I_R1 = -ANG_ACC
 
 
 ! **********************************************************************************************************************************
