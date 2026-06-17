@@ -28,7 +28,7 @@
 
 ! RFORCE load processor. Forces on grids for an RFORCE are:
 
-!           Fi = Mi*[W x (W x (Ri - Ra)) + A x (Ri - Ra)]
+!           Fi = -Mi*[W x (W x (Ri - Ra)) - A x (Ri - Ra)]
 
 ! where x means a vector cross product and:
 
@@ -46,8 +46,8 @@
 !               SETID         = Load set ID
 !               ACID_L        = Local coord sys ID that RFORCE load is given in
 !               RFORCE_GRID   = ID of grid that rotational (components 4, 5, 6) RFORCE velocity/accels are about
-!               SCALEF_AV     = Scale factor for angular velocity
-!               SCALEF_AA     = Scale factor for angular accel
+!               SCALEF_AV     = Scale factor for angular velocity in revolutions per unit time.
+!               SCALEF_AA     = Scale factor for angular accel in revolutions per unit time squared.
 !               VEC(1-3)      = 3 components of the vector for the velocity and/or accel
 
 ! The process in creating array SYS_LOAD from this information is as follows:
@@ -104,7 +104,7 @@
       USE IOUNT1, ONLY                :  ERR, F06, FILE_NAM_MAXLEN, L1U, LINK1U, L1U_MSG, SC1, SCR, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, LLOADC, NCORD, NRFORCE, NGRID, NLOAD, NSUB, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
-      USE CONSTANTS_1, ONLY           :  ZERO, ONE
+      USE CONSTANTS_1, ONLY           :  ZERO, ONE, PI
       USE PARAMS, ONLY                :  SUPWARN
       USE DOF_TABLES, ONLY            :  TDOF, TDOF_ROW_START
       USE MODEL_STUF, ONLY            :  CORD, GRID, GRID_ID, LOAD_FACS, LOAD_SIDS, RCORD, RGRID, SYS_LOAD, SUBLOD
@@ -154,8 +154,8 @@
       REAL(DOUBLE)                    :: ACCEL_I_T2(3)     ! 3 transl components of accel due to RFORCE at a grid in global coords
       REAL(DOUBLE)                    :: ACCEL_I_R1(3)     ! 3 rotat  components of accel due to RFORCE at a grid in basic  coords
       REAL(DOUBLE)                    :: ACCEL_I_R2(3)     ! 3 rotat  components of accel due to RFORCE at a grid in global coords
-      REAL(DOUBLE)                    :: ANG_ACC(3)        ! Angular acceleration (SCALEF_AA*VEC(I))
-      REAL(DOUBLE)                    :: ANG_VEL(3)        ! Angular velocity     (SCALEF_AV*VEC(I))
+      REAL(DOUBLE)                    :: ANG_ACC(3)        ! Angular acceleration in units of radian per unit time squared.
+      REAL(DOUBLE)                    :: ANG_VEL(3)        ! Angular velocity in units of radian per unit time.
       REAL(DOUBLE)                    :: DRI(3)            ! Components of the vector formed by RI - RA
       REAL(DOUBLE)                    :: FORCE_I(6)        ! 6 forces at a grid due to the RFORCE loading
       REAL(DOUBLE)                    :: GRID_MGG(6,6)     ! 6 X 6 mass matrix for one grid point
@@ -343,8 +343,8 @@ k_do221:    DO K = 1,NSID                                  ! There is a match; w
                   SCALE = RSID(K)
                   FOUND = 'Y'
                   DO L=1,3
-                     ANG_ACC(L) = SCALE*SCALEF_AA*VEC(L)   ! Ang accel and vel of model due to RFORCE angular vel, accel entries
-                     ANG_VEL(L) = SCALE*SCALEF_AV*VEC(L)
+                     ANG_ACC(L) = 2*PI*SCALE*SCALEF_AA*VEC(L)   ! Ang accel and vel of model
+                     ANG_VEL(L) = 2*PI*SCALE*SCALEF_AV*VEC(L)
                   ENDDO
                   EXIT k_do221
                ENDIF
@@ -368,6 +368,7 @@ k_do221:    DO K = 1,NSID                                  ! There is a match; w
 
 
                CALL GET_GRID_ANG_ACCEL
+
 
                IF (ACID_G /= 0) THEN                       ! ACID_G is not basic so transform coords to global
 l_do_2211:        DO L=1,NCORD
@@ -423,6 +424,9 @@ l_do_2211:        DO L=1,NCORD
                   NROWA  = 6
                   NCOLA  = 6
                   NCOLB  = 1
+                  !F = -M A. Negative sign because thes are inertia forces are in 
+                  !the accelerating reference frame. Eg. a centripetal acceleration 
+                  !causes a centrifugal inertia force.
                   CALL MATMULT_FFF ( GRID_MGG, -ACCEL_I, NROWA, NCOLA, NCOLB, FORCE_I )
                ENDIF
 
@@ -505,14 +509,20 @@ l_do_2214:     DO L = 1,6
       CALL CROSS ( ANG_VEL, DRI , DUM1 )
       CALL CROSS ( ANG_VEL, DUM1, DUM2 )
       CALL CROSS ( ANG_ACC, DRI , DUM3 )
+      
+      ! DUM3 is the component of linear accleration due to angular acceleration.
+      ! However, in Nastran, the applied force due to angular acceleration is 
+      ! defined to be in the same direction as the acceleration so we negate
+      ! it here for compatibility with F=-MA later.
+
+      ! DUM2 is centripetal acceleration which is already consistent with F=-MA.
+
       DO II = 1,3
-         ACCEL_I_T1(II) = DUM2(II) + DUM3(II)
+         ACCEL_I_T1(II) = DUM2(II) - DUM3(II)
       ENDDO
       DO II = 1,3
-         ACCEL_I_R1(II) = DUM3(II)
+         ACCEL_I_R1(II) = -DUM3(II)
       ENDDO
-
-
 
 
 ! **********************************************************************************************************************************
