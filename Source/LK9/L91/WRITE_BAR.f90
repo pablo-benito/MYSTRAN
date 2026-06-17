@@ -29,11 +29,9 @@
                             FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_F06 )
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, OP2
+      USE IOUNT1, ONLY                :  ERR, F06, OP2
       USE SCONTR, ONLY                :  BARTOR, BLNK_SUB_NAM, MOGEL
-      USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
-      USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, MAXREQ, MSPRNT, OGEL
 
       USE WRITE_BAR_USE_IFs
@@ -183,28 +181,29 @@
          ENDIF
 
          ! Write the two lines of stress output for one element to F06
-         IF (WRITE_F06) WRITE(F06,*)
-         IF (BARTOR == 'Y') THEN
-            BLINE1A = BOUT1//BMS1//BMSF1//BTOR
-            BLINE2A = BOUT2//BMS2//BMSF2//BMS3//BMSF3
-            IF (WRITE_F06) WRITE(F06,9031) BLINE1A
-            IF (WRITE_F06) WRITE(F06,9031) BLINE2A
-         ELSE
-            BLINE1B = BOUT1//BMS1//BMSF1
-            BLINE2B = BOUT2//BMS2//BMSF2
-            IF (WRITE_F06) WRITE(F06,9031) BLINE1B
-            IF (WRITE_F06) WRITE(F06,9031) BLINE2B
+         IF (WRITE_F06) THEN
+            WRITE(F06,*)
+            IF (BARTOR == 'Y') THEN
+               BLINE1A = BOUT1//BMS1//BMSF1//BTOR
+               BLINE2A = BOUT2//BMS2//BMSF2//BMS3//BMSF3
+               WRITE(F06,9031) BLINE1A
+               WRITE(F06,9031) BLINE2A
+            ELSE
+               BLINE1B = BOUT1//BMS1//BMSF1
+               BLINE2B = BOUT2//BMS2//BMSF2
+               WRITE(F06,9031) BLINE1B
+               WRITE(F06,9031) BLINE2B
+            ENDIF
          ENDIF
-
+         
       ENDDO
 
-      CALL GET_MAX_MIN_ABS ( 1, 8 )
       IF (WRITE_F06) THEN
+         CALL GET_MAX_MIN_ABS ( 1, 8 )
          WRITE(F06,9108) (MAX_ANS_CHAR(J),J=1,7), MAX_ANS(8), (MAX_ANS_CHAR(J),J=9,15), MAX_ANS(16),                               &
                          (MIN_ANS_CHAR(J),J=1,7), MIN_ANS(8), (MIN_ANS_CHAR(J),J=9,15), MIN_ANS(16),                               &
                          (ABS_ANS_CHAR(J),J=1,7), ABS_ANS(8), (ABS_ANS_CHAR(J),J=9,15), ABS_ANS(16)
       ENDIF
-
 
 
       RETURN
