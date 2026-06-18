@@ -208,23 +208,6 @@ i_do1:DO I=1,NRFORCE
             READ_ERR = READ_ERR + 1                        ! Increment READ_ERR and go back to read another RFORCE card
             CYCLE i_do1
          ENDIF
-
-         DO J=1,3
-            RA(J) = ZERO
-         ENDDO
-         IF (RFORCE_GRD > 0) THEN
-            CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, RFORCE_GRD, RFORCE_GRD_ROW_NUM )
-            IF (RFORCE_GRD_ROW_NUM == -1) THEN
-               WRITE(ERR,1822) 'GRID ', RFORCE_GRD, NAME, SETID
-               WRITE(F06,1822) 'GRID ', RFORCE_GRD, NAME, SETID
-               GID_ERR = GID_ERR + 1
-               FATAL_ERR = FATAL_ERR + 1
-            ELSE
-               RA(1) = RGRID(RFORCE_GRD_ROW_NUM,1)
-               RA(2) = RGRID(RFORCE_GRD_ROW_NUM,2)
-               RA(3) = RGRID(RFORCE_GRD_ROW_NUM,3)
-            ENDIF
-         ENDIF
                                                            ! The local system that RFORCE is defined in is ACID_L.
          DO J=1,3
             VEC_LOCAL(J) = VEC(J)
@@ -337,6 +320,23 @@ j_do_22: DO J = 1,NRFORCE                                  ! Process RFORCE card
                CALL OUTA_HERE ( 'Y' )                      ! Coding error, so quit
             ENDIF
 
+                                                           ! Find the location of the axis from the grid point ID.
+            RA = ZERO
+            IF (RFORCE_GRD > 0) THEN
+               CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, RFORCE_GRD, RFORCE_GRD_ROW_NUM )
+               IF (RFORCE_GRD_ROW_NUM == -1) THEN
+                  WRITE(ERR,1822) 'GRID ', RFORCE_GRD, NAME, SETID
+                  WRITE(F06,1822) 'GRID ', RFORCE_GRD, NAME, SETID
+                  GID_ERR = GID_ERR + 1
+                  FATAL_ERR = FATAL_ERR + 1
+                  CYCLE j_do_22                            ! Don't apply this faulty RFORCE. Proceed to the next one.
+               ELSE
+                  RA(1) = RGRID(RFORCE_GRD_ROW_NUM,1)
+                  RA(2) = RGRID(RFORCE_GRD_ROW_NUM,2)
+                  RA(3) = RGRID(RFORCE_GRD_ROW_NUM,3)
+               ENDIF
+            ENDIF
+
             FOUND = 'N'                                    ! (2-b- ii). Scan through LSID to find set that matches SETID read.
 k_do221:    DO K = 1,NSID                                  ! There is a match; we made sure all requested loads were in B.D. deck
                IF (SETID == LSID(K)) THEN                  ! We start with K = 1 to cover the case of no LOAD B.D cards
@@ -443,7 +443,14 @@ l_do_2214:     DO L = 1,6
             ENDDO
 
          ENDDO j_do_22
-         REWIND (SCR(1))                                       ! Need to read all of the RFORCE records again for the next S/C
+
+         IF (GID_ERR > 0) THEN
+            WRITE(ERR,1599) SUBR_NAME,GID_ERR
+            WRITE(F06,1599) SUBR_NAME,GID_ERR
+            CALL OUTA_HERE ( 'Y' )                         ! Errors from reading RFORCE data, so quit
+         ENDIF
+
+         REWIND (SCR(1))                                   ! Need to read all of the RFORCE records again for the next S/C
 
       ENDDO i_do2
 
@@ -466,21 +473,6 @@ l_do_2214:     DO L = 1,6
  9901 FORMAT(' *WARNING    : NO RFORCE LOAD IS BEING PROCESSED FOR GRID ',I8,' SINCE IT IS A SCALAR POINT (SPOINT)')
 
 12345 FORMAT(5X,'Proc grid ',I8,' of ',I8,', subcase ',I8, A)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 99910 format(' In RFORCE_PROC: Rigid body angular velocity     = ',3(1es14.6))
 
