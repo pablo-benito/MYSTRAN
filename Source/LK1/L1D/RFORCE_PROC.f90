@@ -142,6 +142,8 @@
       INTEGER(LONG)                   :: ROW_NUM           ! Row no. in array TDOF corresponding to GDOF
       INTEGER(LONG)                   :: ROW_NUM_START     ! DOF number where TDOF data begins for a grid
       INTEGER(LONG)                   :: SETID             ! Load set ID read from record in file LINK1U
+      INTEGER(LONG)                   :: SETIDS(NRFORCE)
+      INTEGER(LONG)                   :: RFORCE_GRDS(NRFORCE)
 
       REAL(DOUBLE)                    :: ACCEL_I(6)        ! 6 components of accel due to gravity at a grid
       REAL(DOUBLE)                    :: ACCEL_I_T1(3)     ! 3 transl components of accel due to RFORCE at a grid in basic  coords
@@ -161,20 +163,15 @@
       REAL(DOUBLE)                    :: SCALEF_AA         ! Magnitude of the RFORCE angular acceleration
       REAL(DOUBLE)                    :: SCALEF_AV         ! Magnitude of the RFORCE angular velocity
       REAL(DOUBLE)                    :: T12(3,3)          ! Coord transformation matrix
-      REAL(DOUBLE)                    :: VEC(3)            ! 3 components of RFORCE vector at RFORCE_GRD in any coords
       REAL(DOUBLE)                    :: VEC_LOCAL(3)      ! 3 components of RFORCE vector at RFORCE_GRD in local coords, ACID_L
       REAL(DOUBLE)                    :: VEC_BASIC(3)      ! 3 components of RFORCE vector at RFORCE_GRD in basic coords, ACID_0
       REAL(DOUBLE)                    :: DUM1(3)           ! Intermediate vector in cross product
       REAL(DOUBLE)                    :: DUM2(3)           ! Intermediate vector in cross product
       REAL(DOUBLE)                    :: DUM3(3)           ! Intermediate vector in cross product
-      INTEGER(LONG)                   :: SETIDS(NRFORCE)
-      INTEGER(LONG)                   :: RFORCE_GRDS(NRFORCE)
       REAL(DOUBLE)                    :: SCALEF_AVS(NRFORCE)
       REAL(DOUBLE)                    :: SCALEF_AAS(NRFORCE)
-      REAL(DOUBLE)                    :: VECS(3,NRFORCE)
+      REAL(DOUBLE)                    :: VECS_BASIC(3,NRFORCE)
       
-      INTRINSIC                       :: DABS
-
 
 
 ! **********************************************************************************************************************************
@@ -190,7 +187,7 @@
 
 i_do1:DO IRFORCE=1,NRFORCE
                                                            ! Read a record from L1U
-         READ(L1U,IOSTAT=IOCHK) SETID, ACID_L, RFORCE_GRD, SCALEF_AV, SCALEF_AA, (VEC(J),J=1,3)
+         READ(L1U,IOSTAT=IOCHK) SETID, ACID_L, RFORCE_GRD, SCALEF_AV, SCALEF_AA, (VEC_LOCAL(J),J=1,3)
          IF (IOCHK /= 0) THEN
             REC_NO = IRFORCE
             CALL READERR ( IOCHK, LINK1U, L1U_MSG, REC_NO, OUNT )
@@ -198,7 +195,6 @@ i_do1:DO IRFORCE=1,NRFORCE
             CYCLE i_do1
          ENDIF
                                                            ! The local system that RFORCE is defined in is ACID_L.
-         VEC_LOCAL = VEC
          IF (ACID_L /= 0) THEN                             ! ACID_L is not basic, so find it and transform coords
             FOUND = 'N'
 j_do12:     DO J=1,NCORD
@@ -222,11 +218,8 @@ j_do12:     DO J=1,NCORD
                   T12(J,K) = RCORD(ICID,L)
                ENDDO
             ENDDO
-
-            NROWA  = 3                                     ! Transform coordinates
-            NCOLA  = 3
-            NCOLB  = 1
-            CALL MATMULT_FFF ( T12, VEC_LOCAL, NROWA, NCOLA, NCOLB, VEC_BASIC )
+                                                           ! Transform coordinates
+            CALL MATMULT_FFF ( T12, VEC_LOCAL, 3, 3, 1, VEC_BASIC )
          ELSE                                              ! No transformation needed since ACID_L is basic
             VEC_BASIC = VEC_LOCAL
          ENDIF
@@ -236,7 +229,7 @@ j_do12:     DO J=1,NCORD
          RFORCE_GRDS(IRFORCE) = RFORCE_GRD
          SCALEF_AVS(IRFORCE) = SCALEF_AV
          SCALEF_AAS(IRFORCE) = SCALEF_AA
-         VECS(:,IRFORCE) = VEC_BASIC
+         VECS_BASIC(:,IRFORCE) = VEC_BASIC
 
       ENDDO i_do1
 
@@ -250,10 +243,9 @@ j_do12:     DO J=1,NCORD
 ! **********************************************************************************************************************************
 ! Now process RFORCE loads into SYS_LOAD
 
-      DO I=1,LLOADC                                         ! Initialize LSID, RSID arrays
-         LSID(I) = 0
-         RSID(I) = ZERO
-      ENDDO
+                                                          ! Initialize LSID, RSID arrays
+      LSID(1:LLOADC) = 0
+      RSID(1:LLOADC) = ZERO
 
       WRITE(SC1, * )
       IERRT = 0
@@ -286,9 +278,6 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
 
             SETID = SETIDS(IRFORCE)
             RFORCE_GRD = RFORCE_GRDS(IRFORCE)
-            SCALEF_AV = SCALEF_AVS(IRFORCE)
-            SCALEF_AA = SCALEF_AAS(IRFORCE)
-            VEC = VECS(:,IRFORCE)
 
                                                            ! Find the location of the axis from the grid point ID.
             RA = ZERO
@@ -310,8 +299,9 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
                IF (SETID == LSID(K)) THEN                  ! We start with K = 1 to cover the case of no LOAD B.D cards
                   SCALE = RSID(K)
                   FOUND = 'Y'
-                  ANG_ACC = 2*PI*SCALE*SCALEF_AA*VEC       ! Ang accel and vel of model
-                  ANG_VEL = 2*PI*SCALE*SCALEF_AV*VEC
+                                                           ! Ang accel and vel of model
+                  ANG_ACC = 2*PI*SCALE*SCALEF_AAS(IRFORCE)*VECS_BASIC(:,IRFORCE)
+                  ANG_VEL = 2*PI*SCALE*SCALEF_AVS(IRFORCE)*VECS_BASIC(:,IRFORCE)
                   EXIT
                ENDIF
             ENDDO
@@ -320,12 +310,10 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
                CYCLE j_do_22
             ENDIF
 
-            DO K = 1,NGRID
-               WRITE(SC1,12345,ADVANCE='NO') K, NGRID, ISUB, CR13
+            DO IGRID = 1,NGRID
+               WRITE(SC1,12345,ADVANCE='NO') IGRID, NGRID, ISUB, CR13
 
-               ACID_G = GRID(K,3)                          ! The global coord sys for this grid is ACID_G
-
-               RI  = RGRID(K,1:3)
+               RI  = RGRID(IGRID,1:3)
                DRI = RI - RA
 
                CALL CROSS ( ANG_VEL, DRI , DUM1 )
@@ -342,6 +330,7 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
                ACCEL_I_T1 = DUM2 - DUM3
                ACCEL_I_R1 = -ANG_ACC
 
+               ACID_G = GRID(IGRID,3)                          ! The global coord sys for this grid is ACID_G
                IF (ACID_G /= 0) THEN                       ! ACID_G is not basic so transform coords to global
                   DO L=1,NCORD
                      IF (CORD(L,2) == ACID_G) THEN
@@ -351,7 +340,7 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
                   ENDDO
                                                            ! T12 is coord transf matrix that would transf a global vector to basic
 !                                                            and its transpose will transform a basic coord sys vector to global
-                  CALL GEN_T0L ( K, ICID, THETAD, PHID, T12 )
+                  CALL GEN_T0L ( IGRID, ICID, THETAD, PHID, T12 )
 
                   CALL MATMULT_FFF_T ( T12, ACCEL_I_T1, 3, 3, 1, ACCEL_I_T2 )
                   CALL MATMULT_FFF_T ( T12, ACCEL_I_R1, 3, 3, 1, ACCEL_I_R2 )
@@ -362,23 +351,16 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
                   ACCEL_I(4:6) = ACCEL_I_R1
                ENDIF
 
-               CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, GRID_ID(K), IGRID )
-               IF (IGRID == -1) THEN
-                  IERRT     = IERRT + 1
-                  FATAL_ERR = FATAL_ERR + 1
-                  WRITE(ERR,1822) 'GRID ', GRID_ID(K), NAME, SETID
-                  WRITE(F06,1822) 'GRID ', GRID_ID(K), NAME, SETID
-               ENDIF
                IF (GRID(IGRID,6) == 1) THEN                ! Scalar point so do not generate grav load on it. Give warn, not fatal
                   IERRT = IERRT + 1
                   WARN_ERR = WARN_ERR + 1
-                  WRITE(ERR,9901) GRID_ID(K)
+                  WRITE(ERR,9901) GRID_ID(IGRID)
                   IF (SUPWARN == 'N') THEN
-                     WRITE(ERR,9901) GRID_ID(K)
+                     WRITE(ERR,9901) GRID_ID(IGRID)
                   ENDIF
                ENDIF
                IF (IERRT == 0) THEN
-                  CALL GET_GRID_6X6_MASS ( GRID_ID(K), IGRID, GRID_MGG_FND, GRID_MGG )
+                  CALL GET_GRID_6X6_MASS ( GRID_ID(IGRID), IGRID, GRID_MGG_FND, GRID_MGG )
                ENDIF
 
                FORCE_I = ZERO
@@ -390,7 +372,6 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
                   CALL MATMULT_FFF ( GRID_MGG, -ACCEL_I, 6, 6, 1, FORCE_I )
                ENDIF
 
-               CALL GET_ARRAY_ROW_NUM ( 'GRID_ID', SUBR_NAME, NGRID, GRID_ID, GRID(K,1), IGRID )
                ROW_NUM_START = TDOF_ROW_START(IGRID)
                DO L = 1,6
                   CALL TDOF_COL_NUM ( 'G ', G_SET_COL_NUM )
