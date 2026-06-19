@@ -99,7 +99,7 @@
 !          ( vi) Load the RFORCE forces into the SYS_LOAD (systems load) array
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  ERR, F06, L1U, LINK1U, L1U_MSG, SC1
+      USE IOUNT1, ONLY                :  ERR, F06, L1U, LINK1U, L1U_MSG
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, LLOADC, NCORD, NRFORCE, NGRID, NLOAD, NSUB, WARN_ERR
       USE CONSTANTS_1, ONLY           :  ZERO, ONE, PI
       USE PARAMS, ONLY                :  SUPWARN
@@ -110,7 +110,6 @@
 
       IMPLICIT NONE
 
-      CHARACTER, PARAMETER            :: CR13 = CHAR(13)   ! This causes a carriage return simulating the "+" action in a FORMAT
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'RFORCE_PROC'
       CHARACTER( 1*BYTE)              :: FOUND             ! Indicator on whether we found something we were looking for
       CHARACTER( 1*BYTE)              :: GRID_MGG_FND      ! Indicator on whether a mass matrix was found in MGG for a given grid
@@ -122,7 +121,7 @@
       INTEGER(LONG)                   :: GID_ERR   = 0     ! Count of grids undefined
       INTEGER(LONG)                   :: GDOF              ! G-set DOF number for a grid
       INTEGER(LONG)                   :: G_SET_COL_NUM     ! Col no. in array TDOF where G-set DOF's are kept
-      INTEGER(LONG)                   :: I,J,K,L,m         ! DO loop indices
+      INTEGER(LONG)                   :: J,K,L           ! DO loop indices
       INTEGER(LONG)                   :: ISUB              ! Subcase index
       INTEGER(LONG)                   :: IRFORCE           ! RFORCE index
       INTEGER(LONG)                   :: ICID              ! Internal coordinate system ID for ACID_L or ACID_G
@@ -160,8 +159,6 @@
       REAL(DOUBLE)                    :: RA(3)             ! Vector components, in basic coords, of GID
       REAL(DOUBLE)                    :: RI(3)             ! Vector components, in basic coords, of grid i
       REAL(DOUBLE)                    :: SCALE             ! Scale factor for a load (on a LOAD Bulk Data entry)
-      REAL(DOUBLE)                    :: SCALEF_AA         ! Magnitude of the RFORCE angular acceleration
-      REAL(DOUBLE)                    :: SCALEF_AV         ! Magnitude of the RFORCE angular velocity
       REAL(DOUBLE)                    :: T12(3,3)          ! Coord transformation matrix
       REAL(DOUBLE)                    :: VEC_LOCAL(3)      ! 3 components of RFORCE vector at RFORCE_GRD in local coords, ACID_L
       REAL(DOUBLE)                    :: VEC_BASIC(3)      ! 3 components of RFORCE vector at RFORCE_GRD in basic coords, ACID_0
@@ -187,7 +184,13 @@
 
 i_do1:DO IRFORCE=1,NRFORCE
                                                            ! Read a record from L1U
-         READ(L1U,IOSTAT=IOCHK) SETID, ACID_L, RFORCE_GRD, SCALEF_AV, SCALEF_AA, (VEC_LOCAL(J),J=1,3)
+         READ(L1U,IOSTAT=IOCHK) SETID,                                                                                             &
+                                ACID_L,                                                                                            &
+                                RFORCE_GRDS(IRFORCE),                                                                              &
+                                SCALEF_AVS(IRFORCE),                                                                               &
+                                SCALEF_AAS(IRFORCE),                                                                               &
+                                (VEC_LOCAL(J),J=1,3)
+
          IF (IOCHK /= 0) THEN
             REC_NO = IRFORCE
             CALL READERR ( IOCHK, LINK1U, L1U_MSG, REC_NO, OUNT )
@@ -214,8 +217,7 @@ j_do12:     DO J=1,NCORD
 
             DO J=1,3                                       ! Get coord transf matrix (don't need GEN_T0L since ICID is rect.)
                DO K=1,3
-                  L = 3 + 3*(J-1) + K
-                  T12(J,K) = RCORD(ICID,L)
+                  T12(J,K) = RCORD(ICID, 3 + 3*(J-1) + K)
                ENDDO
             ENDDO
                                                            ! Transform coordinates
@@ -226,9 +228,6 @@ j_do12:     DO J=1,NCORD
 
                                                            ! Store data. RFORCE vec now in basic coords
          SETIDS(IRFORCE) = SETID
-         RFORCE_GRDS(IRFORCE) = RFORCE_GRD
-         SCALEF_AVS(IRFORCE) = SCALEF_AV
-         SCALEF_AAS(IRFORCE) = SCALEF_AA
          VECS_BASIC(:,IRFORCE) = VEC_BASIC
 
       ENDDO i_do1
@@ -247,7 +246,6 @@ j_do12:     DO J=1,NCORD
       LSID(1:LLOADC) = 0
       RSID(1:LLOADC) = ZERO
 
-      WRITE(SC1, * )
       IERRT = 0
 i_do2:DO ISUB = 1,NSUB                                     ! Loop through the S/C's
 
@@ -311,7 +309,6 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
             ENDIF
 
             DO IGRID = 1,NGRID
-               WRITE(SC1,12345,ADVANCE='NO') IGRID, NGRID, ISUB, CR13
 
                RI  = RGRID(IGRID,1:3)
                DRI = RI - RA
@@ -392,8 +389,6 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
 
       ENDDO i_do2
 
-      WRITE(SC1,*) CR13
-
       RETURN
 
 ! **********************************************************************************************************************************
@@ -403,8 +398,6 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
  1822 FORMAT(' *ERROR  1822: ',A,I8,' ON ',A,I8,' IS UNDEFINED')
 
  9901 FORMAT(' *WARNING    : NO RFORCE LOAD IS BEING PROCESSED FOR GRID ',I8,' SINCE IT IS A SCALAR POINT (SPOINT)')
-
-12345 FORMAT(5X,'Proc grid ',I8,' of ',I8,', subcase ',I8, A)
 
 99910 format(' In RFORCE_PROC: Rigid body angular velocity     = ',3(1es14.6))
 
