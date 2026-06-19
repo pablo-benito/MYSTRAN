@@ -184,7 +184,7 @@
 
 i_do1:DO IRFORCE=1,NRFORCE
                                                            ! Read a record from L1U
-         READ(L1U,IOSTAT=IOCHK) SETID,                                                                                             &
+         READ(L1U,IOSTAT=IOCHK) SETIDS(IRFORCE),                                                                                             &
                                 ACID_L,                                                                                            &
                                 RFORCE_GRDS(IRFORCE),                                                                              &
                                 SCALEF_AVS(IRFORCE),                                                                               &
@@ -208,8 +208,8 @@ j_do12:     DO J=1,NCORD
                ENDIF
             ENDDO j_do12
             IF (FOUND == 'N') THEN
-               WRITE(ERR,1822) 'COORD SYSTEM ', ACID_L, NAME, SETID
-               WRITE(F06,1822) 'COORD SYSTEM ', ACID_L, NAME, SETID
+               WRITE(ERR,1822) 'COORD SYSTEM ', ACID_L, NAME, SETIDS(IRFORCE)
+               WRITE(F06,1822) 'COORD SYSTEM ', ACID_L, NAME, SETIDS(IRFORCE)
                CID_ERR = CID_ERR + 1                       ! Increment READ_ERR and go back to read another RFORCE card
                FATAL_ERR = FATAL_ERR + 1
                CYCLE i_do1
@@ -227,7 +227,6 @@ j_do12:     DO J=1,NCORD
          ENDIF
 
                                                            ! Store data. RFORCE vec now in basic coords
-         SETIDS(IRFORCE) = SETID
          VECS_BASIC(:,IRFORCE) = VEC_BASIC
 
       ENDDO i_do1
@@ -327,7 +326,7 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
                ACCEL_I_T1 = DUM2 - DUM3
                ACCEL_I_R1 = -ANG_ACC
 
-               ACID_G = GRID(IGRID,3)                          ! The global coord sys for this grid is ACID_G
+               ACID_G = GRID(IGRID,3)                      ! The global coord sys for this grid is ACID_G
                IF (ACID_G /= 0) THEN                       ! ACID_G is not basic so transform coords to global
                   DO L=1,NCORD
                      IF (CORD(L,2) == ACID_G) THEN
@@ -398,10 +397,6 @@ j_do_22: DO IRFORCE = 1,NRFORCE                            ! Process RFORCE card
  1822 FORMAT(' *ERROR  1822: ',A,I8,' ON ',A,I8,' IS UNDEFINED')
 
  9901 FORMAT(' *WARNING    : NO RFORCE LOAD IS BEING PROCESSED FOR GRID ',I8,' SINCE IT IS A SCALAR POINT (SPOINT)')
-
-99910 format(' In RFORCE_PROC: Rigid body angular velocity     = ',3(1es14.6))
-
-99911 format(' In RFORCE_PROC: Rigid body angular acceleration = ',3(1es14.6))
 
 ! **********************************************************************************************************************************
 
