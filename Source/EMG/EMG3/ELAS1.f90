@@ -32,10 +32,8 @@
 !  2) KE   = Element stiffness matrix in element coord's if OPT(4) = 'Y'
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM
-      USE TIMDAT, ONLY                :  TSEC
-      USE MODEL_STUF, ONLY            :  AGRID, BGRID, ELAS_COMP, EID, EPROP, FCONV, KE, SE1, TYPE
+      USE MODEL_STUF, ONLY            :  BGRID, ELAS_COMP, EPROP, FCONV, KE, SE1, TYPE
 
       USE ELAS1_USE_IFs
 
@@ -51,15 +49,12 @@
 
 
       REAL(DOUBLE)                    :: K                 ! Spring stiffness
-      REAL(DOUBLE)                    :: GE                ! Material damping coeff
-
 
 
 ! **********************************************************************************************************************************
 ! Set element property and material constants
 
       K        = EPROP(1)
-      GE       = EPROP(2)
       IF ((TYPE(1:5) == 'ELAS1') .OR. (TYPE(1:5) == 'ELAS3')) THEN
          FCONV(1) = EPROP(3)
       ELSE
@@ -83,8 +78,8 @@
 ! Calculate SE1 matrix for stress recovery.
 
       IF (OPT(3) == 'Y') THEN
-         SE1(1,I2,1) =  K*FCONV(1)
-         SE1(1,I1,1) = -SE1(1,I2,1)
+         SE1(1,I1,1) =  K*FCONV(1)
+         SE1(1,I2,1) = -K*FCONV(1)
       ENDIF
 
 
