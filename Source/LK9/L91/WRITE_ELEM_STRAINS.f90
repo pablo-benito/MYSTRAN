@@ -66,6 +66,7 @@
       INTEGER(LONG)                   :: I,J,L             ! DO loop indices
       INTEGER(LONG)                   :: K                 ! Counter
       INTEGER(LONG)                   :: NCOLS             ! Num of cols to write out
+      INTEGER(LONG)                   :: IS_FIBER_DISTANCE
       CHARACTER(139*BYTE)             :: CLINE_BUF        ! Pre-assembled CENTER line for solid strains (matches FORMAT 1303)
       CHARACTER(139*BYTE)             :: GLINE_BUF        ! Pre-assembled GRD    line for solid strains (matches FORMAT 1306)
 
@@ -102,7 +103,6 @@
       CHARACTER(4*BYTE)               :: CEN_WORD     ! the word "CEN/" (we need to cast the length)
 
 
-
 ! **********************************************************************************************************************************
       ! Initialize
       DEVICE_CODE = 1  ! PLOT
@@ -136,6 +136,18 @@
       FIELD6_EIGENVALUE = 0.0
       WRITE_F06 = (STRN_OUT(1:1) == 'Y')
       WRITE_OP2 = (STRN_OUT(2:2) == 'Y')
+
+      IF      (STRN_CUR == 'STRCUR') THEN
+         IS_FIBER_DISTANCE = 0
+      ELSE IF (STRN_CUR == 'FIBER') THEN
+         IS_FIBER_DISTANCE = 1
+      ELSE
+         WRITE(ERR,9301) SUBR_NAME
+         WRITE(F06,9301) SUBR_NAME
+         FATAL_ERR = FATAL_ERR + 1
+         CALL OUTA_HERE ( 'Y' )
+      ENDIF
+
 
       IF (IHDR == 'Y') THEN
          ! -- F06 header: OUTPUT FOR SUBCASE, EIGENVECTOR or CRAIG-BAMPTON DOF
@@ -466,7 +478,7 @@
            !CALL WRITE_OST_CQUAD4 ( NUM, FILL, ISUBCASE, ITABLE, TITLEI, STITLEI, LABELI )
 
            !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
-           CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         1)
+           CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         IS_FIBER_DISTANCE)
             IF ((STRN_LOC == 'CENTER  ') .AND. (TYPE(1:5) /= 'QUAD8')) THEN
                ! CQUAD4-33
                !(eid_device,
@@ -824,6 +836,8 @@
  9300 FORMAT(' *ERROR  9300: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' NO OUTPUT FORMAT AVAILABLE FOR ELEMENT TYPE = ',A)
 
+ 9301 FORMAT(' *ERROR  9301: PROGRAMMING ERROR IN SUBROUTINE ',A)
+
 ! **********************************************************************************************************************************
       END SUBROUTINE WRITE_ELEM_STRAINS
 !==============================================================================
@@ -983,7 +997,7 @@
           WRITE(ERR,100) ITABLE,NUM,NVALUES,NTOTAL
 
           !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
-          CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         1)
+          CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         IS_FIBER_DISTANCE)
           CALL WRITE_OES3_STATIC(ITABLE, ISUBCASE, DEVICE_CODE, ELEMENT_TYPE, NUM_WIDE, STRESS_CODE, &
                                  TITLE, SUBTITLE, LABEL, FIELD5_INT_MODE, FIELD6_EIGENVALUE)
           WRITE(OP2) NVALUES

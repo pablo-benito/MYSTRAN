@@ -67,6 +67,7 @@
       REAL(DOUBLE)                    :: SXZ,SYZ            ! Transverse shear strains in plate elements
       REAL(DOUBLE)                    :: SXYMAX             ! Max shear strain in plate elems (calc'd in subr PRINCIPAL_2D)
       REAL(DOUBLE)                    :: VONMISES           ! von Mises strain
+      REAL(DOUBLE)                    :: FIBER_Z            ! Value for the fiber distance or strain curvature column.
       LOGICAL                         :: WRITE_NEU
 
       INTRINSIC DMAX1,DMIN1
@@ -177,16 +178,18 @@
 
             DO I=1,NUM_ROWS
                IF      (STRN_CUR == 'STRCUR') THEN
+                  FIBER_Z = 1 - I                          ! 0 for membrane strain row and -1 for curvature row.
                   SX  = STRAIN(1 + 3 * (I - 1))
                   SY  = STRAIN(2 + 3 * (I - 1))
                   SXY = STRAIN(3 + 3 * (I - 1))
                ELSE IF (STRN_CUR == 'FIBER') THEN
+                  FIBER_Z = ZS(I)
                   SX  = STRAIN(1) + ZS(I)*STRAIN(4)
                   SY  = STRAIN(2) + ZS(I)*STRAIN(5)
                   SXY = STRAIN(3) + ZS(I)*STRAIN(6)
                ELSE
-                  WRITE(ERR,9206) SUBR_NAME,STRN_CUR
-                  WRITE(F06,9206) SUBR_NAME,STRN_CUR
+                  WRITE(ERR,9206) SUBR_NAME
+                  WRITE(F06,9206) SUBR_NAME
                   FATAL_ERR = FATAL_ERR + 1
                   CALL OUTA_HERE ( 'Y' )
                ENDIF
@@ -209,7 +212,7 @@
                         OGEL(NUM1,J) = ZERO
                      ENDDO
                   ELSE
-                     OGEL(NUM1, 1) = ZS(I)
+                     OGEL(NUM1, 1) = FIBER_Z
                      OGEL(NUM1, 2) = SX
                      OGEL(NUM1, 3) = SY
                      OGEL(NUM1, 4) = SXY
@@ -303,8 +306,7 @@
  9205 FORMAT(' *ERROR  9205: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' INVALID ',A,' FAILURE THEORY = ',A,'. VALID ONES ARE: ',A)
 
- 9206 FORMAT(' *ERROR  9206: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' INVALID ',A,'.')
+ 9206 FORMAT(' *ERROR  9206: PROGRAMMING ERROR IN SUBROUTINE ',A)
 
 
 ! **********************************************************************************************************************************
