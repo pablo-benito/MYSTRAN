@@ -38,7 +38,7 @@
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, GID_OUT_ARRAY, OGEL, POLY_FIT_ERR, POLY_FIT_ERR_INDEX
       USE MODEL_STUF, ONLY            :  ELEM_ONAME, ELMTYP, LABEL, SCNUM, STITLE, TITLE, TYPE
-      USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_LOC, STRN_OPT, STRN_OUT
+      USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_LOC, STRN_OPT, STRN_OUT, STRN_CUR
 
       USE WRITE_ELEM_STRAINS_USE_IFs
 
@@ -633,7 +633,7 @@
       ELSE IF (TYPE(1:5) == 'TRIA3') THEN
          CALL WRITE_OST_CTRIA3 (NUM, FILL, ISUBCASE, ITABLE, TITLEI, STITLEI, LABELI, &
                                 FIELD5_INT_MODE, FIELD6_EIGENVALUE,                   &
-                                WRITE_F06, WRITE_OP2)
+                                WRITE_F06, WRITE_OP2, IS_FIBER_DISTANCE)
 
       ELSE IF (TYPE == 'BUSH    ') THEN
          IF (WRITE_OP2) THEN
@@ -949,7 +949,7 @@
 !==============================================================================
       SUBROUTINE WRITE_OST_CTRIA3(NUM, FILL, ISUBCASE, ITABLE, TITLE, SUBTITLE, LABEL, &
                                   FIELD5_INT_MODE, FIELD6_EIGENVALUE,                  &
-                                  WRITE_F06, WRITE_OP2)
+                                  WRITE_F06, WRITE_OP2, IS_FIBER_DISTANCE)
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, OP2
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, OGEL
@@ -962,6 +962,7 @@
       CHARACTER(LEN=128), INTENT(IN)  :: SUBTITLE          ! the subcase SUBTITLE
       CHARACTER(LEN=128), INTENT(IN)  :: LABEL             ! the subcase LABEL
       LOGICAL, INTENT(IN)             :: WRITE_F06, WRITE_OP2
+      INTEGER(LONG), INTENT(IN)       :: IS_FIBER_DISTANCE
 
       CHARACTER(119*BYTE)             :: FILL              ! Padding for output format
 
