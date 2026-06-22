@@ -35,7 +35,7 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  ANY_FAILURE_THEORY, FAILURE_THEORY, PCOMP_PROPS, STRAIN, STRESS, TYPE, ZS
-      USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_OPT
+      USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_OPT, STRN_CUR
       USE LINK9_STUFF, ONLY           :  FTNAME, OGEL
       USE FEMAP_ARRAYS, ONLY          :  FEMAP_EL_VECS
       USE PARAMS, ONLY                :  PRTNEU
@@ -176,9 +176,20 @@
             ENDIF
 
             DO I=1,NUM_ROWS
-               SX  = STRAIN(1) + ZS(I)*STRAIN(4)
-               SY  = STRAIN(2) + ZS(I)*STRAIN(5)
-               SXY = STRAIN(3) + ZS(I)*STRAIN(6)
+               IF      (STRN_CUR == 'STRCUR') THEN
+                  SX  = STRAIN(1 + 3 * (I - 1))
+                  SY  = STRAIN(2 + 3 * (I - 1))
+                  SXY = STRAIN(3 + 3 * (I - 1))
+               ELSE IF (STRN_CUR == 'FIBER') THEN
+                  SX  = STRAIN(1) + ZS(I)*STRAIN(4)
+                  SY  = STRAIN(2) + ZS(I)*STRAIN(5)
+                  SXY = STRAIN(3) + ZS(I)*STRAIN(6)
+               ELSE
+                  WRITE(ERR,9206) SUBR_NAME,STRN_CUR
+                  WRITE(F06,9206) SUBR_NAME,STRN_CUR
+                  FATAL_ERR = FATAL_ERR + 1
+                  CALL OUTA_HERE ( 'Y' )
+               ENDIF
                SXZ = STRAIN(7)
                SYZ = STRAIN(8)
                CALL PRINCIPAL_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
@@ -292,6 +303,8 @@
  9205 FORMAT(' *ERROR  9205: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' INVALID ',A,' FAILURE THEORY = ',A,'. VALID ONES ARE: ',A)
 
+ 9206 FORMAT(' *ERROR  9206: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
+                    ,/,14X,' INVALID ',A,'.')
 
 
 ! **********************************************************************************************************************************

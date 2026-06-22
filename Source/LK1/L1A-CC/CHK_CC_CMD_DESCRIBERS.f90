@@ -34,7 +34,7 @@
       USE IOUNT1, ONLY                 :  WRT_ERR, ERR, F06
       USE SCONTR, ONLY                 :  BLNK_SUB_NAM, CC_CMD_DESCRIBERS, ECHO, FATAL_ERR, WARN_ERR, NSUB
       USE TIMDAT, ONLY                 :  TSEC
-      USE CC_OUTPUT_DESCRIBERS, ONLY   :  STRN_LOC, STRN_OPT, STRE_LOC, STRE_OPT, FORC_LOC
+      USE CC_OUTPUT_DESCRIBERS, ONLY   :  STRN_LOC, STRN_OPT, STRN_CUR, STRE_LOC, STRE_OPT, FORC_LOC
       USE PARAMS, ONLY                 :  SUPWARN
 
       USE CHK_CC_CMD_DESCRIBERS_USE_IFs
@@ -336,6 +336,12 @@ jdo_1:   DO J=1,NUM_POSS_CCD
                STRN_OPT = 'MAXS'
             ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'SHEAR'   ) THEN
                STRN_OPT = 'SHEAR'
+            ENDIF
+
+            IF      (CC_CMD_DESCRIBERS(I)(1:6) == 'STRCUR'  ) THEN
+               STRN_CUR = 'STRCUR'
+            ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'FIBER'   ) THEN
+               STRN_CUR = 'FIBER'
             ENDIF
 
          ENDDO
