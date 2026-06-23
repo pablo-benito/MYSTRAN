@@ -177,21 +177,16 @@
             ENDIF
 
             DO I=1,NUM_ROWS
-               IF      (STRN_CUR == 'STRCUR') THEN
-                  FIBER_Z = 1 - I                          ! 0 for membrane strain row and -1 for curvature row.
-                  SX  = STRAIN(1 + 3 * (I - 1))
-                  SY  = STRAIN(2 + 3 * (I - 1))
-                  SXY = STRAIN(3 + 3 * (I - 1))
-               ELSE IF (STRN_CUR == 'FIBER') THEN
+               IF      (STRN_CUR == 'FIBER') THEN
                   FIBER_Z = ZS(I)
                   SX  = STRAIN(1) + ZS(I)*STRAIN(4)
                   SY  = STRAIN(2) + ZS(I)*STRAIN(5)
                   SXY = STRAIN(3) + ZS(I)*STRAIN(6)
                ELSE
-                  WRITE(ERR,9206) SUBR_NAME
-                  WRITE(F06,9206) SUBR_NAME
-                  FATAL_ERR = FATAL_ERR + 1
-                  CALL OUTA_HERE ( 'Y' )
+                  FIBER_Z = 1 - I                          ! 0 for membrane strain row and -1 for curvature row.
+                  SX  = STRAIN(1 + 3 * (I - 1))
+                  SY  = STRAIN(2 + 3 * (I - 1))
+                  SXY = STRAIN(3 + 3 * (I - 1))
                ENDIF
                SXZ = STRAIN(7)
                SYZ = STRAIN(8)
@@ -305,8 +300,6 @@
 
  9205 FORMAT(' *ERROR  9205: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' INVALID ',A,' FAILURE THEORY = ',A,'. VALID ONES ARE: ',A)
-
- 9206 FORMAT(' *ERROR  9206: PROGRAMMING ERROR IN SUBROUTINE ',A)
 
 
 ! **********************************************************************************************************************************
