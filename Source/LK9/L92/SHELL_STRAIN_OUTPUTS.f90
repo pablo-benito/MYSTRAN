@@ -184,9 +184,9 @@
                   SXY = STRAIN(3) + ZS(I)*STRAIN(6)
                ELSE
                   FIBER_Z = 1 - I                          ! 0 for membrane strain row and -1 for curvature row.
-                  SX  = STRAIN(1 + 3 * (I - 1))
-                  SY  = STRAIN(2 + 3 * (I - 1))
-                  SXY = STRAIN(3 + 3 * (I - 1))
+                  SX  = (FIBER_Z + 1) * STRAIN(1) + FIBER_Z * STRAIN(4)
+                  SY  = (FIBER_Z + 1) * STRAIN(2) + FIBER_Z * STRAIN(5)
+                  SXY = (FIBER_Z + 1) * STRAIN(3) + FIBER_Z * STRAIN(6)
                ENDIF
                SXZ = STRAIN(7)
                SYZ = STRAIN(8)
