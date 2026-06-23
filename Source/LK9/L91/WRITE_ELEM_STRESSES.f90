@@ -54,6 +54,8 @@
 
                                                            ! Indicators of whether to write note on indices of POLY_FIT_ERR
       CHARACTER( 1*BYTE)              :: WRT_ERR_INDEX_NOTE(MAX_NUM_STR)
+      CHARACTER( 6*BYTE)              :: OPT_HDR_1
+      CHARACTER( 9*BYTE)              :: OPT_HDR_2
 
       INTEGER(LONG), INTENT(IN)       :: JSUB              ! Solution vector number
       INTEGER(LONG), INTENT(IN)       :: NUM               ! The number of rows of OGEL to write out
@@ -199,6 +201,14 @@
 
          IF (WRITE_F06) THEN
 
+            IF (STRE_OPT == 'VONMISES') THEN
+               OPT_HDR_1 = ''
+               OPT_HDR_2 = 'von Mises'
+            ELSE
+               OPT_HDR_1 = 'Max'
+               OPT_HDR_2 = 'Shear-XY'
+            ENDIF
+
            ! -- F06 1st 2 header lines for stress output description
             IF     ((TYPE(1:3) == 'BAR') .OR. (TYPE(1:4) == 'BEAM')) THEN
                IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
@@ -309,11 +319,7 @@
                ENDIF
 
             ELSE IF ((TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'QUAD8')) THEN
-               IF (STRE_OPT == 'VONMISES') THEN
-                  WRITE(F06,1401) FILL(1: 1), FILL(1: 1), FILL(1: 1)
-               ELSE
-                  WRITE(F06,1402) FILL(1: 1), FILL(1: 1)
-               ENDIF
+               WRITE(F06,1400) 'Fiber', 'Stresses', 'Stresses', OPT_HDR_1, 'Distance', OPT_HDR_2
 
             ELSE IF  (TYPE == 'ROD     ') THEN
                WRITE(F06,1501) FILL(1: 1), FILL(1: 1)
@@ -322,11 +328,7 @@
                WRITE(F06,1601) FILL(1: 1), FILL(1: 1)
 
             ELSE IF (TYPE(1:5) == 'TRIA3') THEN
-               IF (STRE_OPT == 'VONMISES') THEN
-                  WRITE(F06,1701) FILL(1: 1), FILL(1: 1), FILL(1: 1)
-               ELSE
-                  WRITE(F06,1702) FILL(1: 1), FILL(1: 1)
-               ENDIF
+               WRITE(F06,1700) 'Fiber', 'Stresses', 'Stresses', OPT_HDR_1, 'Distance', OPT_HDR_2
 
             ELSE IF  (TYPE == 'BUSH    ') THEN
                WRITE(F06,1801) FILL(1: 1), FILL(1: 1)
@@ -755,15 +757,12 @@
  1306 FORMAT(1X,A,10X,'GRD',I8,5X,8(1ES14.6))
 
 ! QUAD4 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 1401 FORMAT(1X,A,'  Elem  Location       Fibre       Stresses In Element Coord System     Principal Stresses (Zero Shear)',       &
-  '               Transverse   Transverse   % Poly',/,1X,A,                                                                        &
-  '   ID                 Distance    Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor      von Mises',          &
-  '    Shear-XZ     Shear-YZ    Fit Err',/,1X,A,119X,'(max through thickness)')
-
- 1402 FORMAT(1X,A,'Elem  Location         Fibre       Stresses In Element Coord System     Principal Stresses (Zero Shear)',       &
-  '       Max     Transverse   Transverse   % Poly',/,1X,A,                                                                        &
-  ' ID                   Distance    Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor      Shear-XY',           &
-  '     Shear-XZ     Shear-YZ    Fit Err',/,1X,A,119X,'(max through thickness)')
+ 1400 FORMAT(                                                                                                                      &
+  '    Elem  Location       ',A6,'      ', A8, ' In Element Coord System     Principal ', A8, ' (Zero Shear)',                     &
+  '      ',A6,'    Transverse   Transverse   % Poly',/,                                                                            &
+  '     ID                 ', A9,  '   Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor  ',                     &
+  '    ', A9,  '    Shear-XZ     Shear-YZ    Fit Err',/,                                                                           &
+  121X,'(max through thickness)')
 
  1403 FORMAT(1X,A,I8,2X,'CENTER  ',3X,1ES11.3,3(1ES13.5),0PF8.2,5(1ES13.5))
 
@@ -799,16 +798,12 @@
 
 
 ! TRIA3 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 1701 FORMAT(1X,A,'Element    Location      Fibre        Stresses In Element Coord System       Principal Stresses (Zero Shear)',  &
-                '               Transverse   Transverse'                                                                           &
-          ,/,1X,A,'   ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor'      &
-          ,'      von Mises     Shear-XZ     Shear-YZ'                                                                             &
-          ,/,1X,A,123X,'(max through thickness)')
-
- 1702 FORMAT(1X,A,'Element    Location      Fibre        Stresses In Element Coord System       Principal Stresses (Zero Shear)',  &
-  '      Max      Transverse   Transverse'                                                                                         &
-          ,/,1X,A,'   ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor',     &
-          '      Shear-XY     Shear-XZ     Shear-YZ',/,1X,123X,'(max through thickness)')
+ 1700 FORMAT(                                                                                                                      &
+  '  Element    Location      ',A6,'       ', A8, ' In Element Coord System      Principal ', A8, ' (Zero Shear)',                 &
+  '      ',A6,'    Transverse   Transverse',/,                                                                                     &
+  '     ID                   ', A9,  '    Normal-X     Normal-Y     Shear-XY      Angle     Major        Minor  ',                 &
+  '    ', A9,  '    Shear-XZ     Shear-YZ',/,                                                                                      &
+  125X,'(max through thickness)')
 
  1703 FORMAT(1X,I8,4X,'Anywhere',2X,4(1ES13.5),0PF9.3,5(1ES13.5))
 

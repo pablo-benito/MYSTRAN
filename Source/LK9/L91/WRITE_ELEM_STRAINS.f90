@@ -69,7 +69,10 @@
       INTEGER(LONG)                   :: IS_FIBER_DISTANCE
       CHARACTER(139*BYTE)             :: CLINE_BUF        ! Pre-assembled CENTER line for solid strains (matches FORMAT 1303)
       CHARACTER(139*BYTE)             :: GLINE_BUF        ! Pre-assembled GRD    line for solid strains (matches FORMAT 1306)
-
+      CHARACTER( 6*BYTE)              :: FIBER_HDR_1
+      CHARACTER( 9*BYTE)              :: FIBER_HDR_2
+      CHARACTER( 6*BYTE)              :: OPT_HDR_1
+      CHARACTER( 9*BYTE)              :: OPT_HDR_2
       REAL(DOUBLE)                    :: ABS_ANS(11)       ! Max ABS for all element output
       REAL(DOUBLE)                    :: MAX_ANS(11)       ! Max for all element output
       REAL(DOUBLE)                    :: MIN_ANS(11)       ! Min for all element output
@@ -137,15 +140,10 @@
       WRITE_F06 = (STRN_OUT(1:1) == 'Y')
       WRITE_OP2 = (STRN_OUT(2:2) == 'Y')
 
-      IF      (STRN_CUR == 'STRCUR') THEN
-         IS_FIBER_DISTANCE = 0
-      ELSE IF (STRN_CUR == 'FIBER') THEN
+      IF (STRN_CUR == 'FIBER') THEN
          IS_FIBER_DISTANCE = 1
       ELSE
-         WRITE(ERR,9301) SUBR_NAME
-         WRITE(F06,9301) SUBR_NAME
-         FATAL_ERR = FATAL_ERR + 1
-         CALL OUTA_HERE ( 'Y' )
+         IS_FIBER_DISTANCE = 0
       ENDIF
 
 
@@ -207,6 +205,22 @@
          LABELI = LABEL(INT_SC_NUM)
 
          IF (WRITE_F06) THEN
+
+            IF (STRN_CUR == 'FIBER') THEN
+               FIBER_HDR_1 = 'Fiber'
+               FIBER_HDR_2 = 'Distance'
+            ELSE
+               FIBER_HDR_1 = 'Strain'
+               FIBER_HDR_2 = 'Curvature'
+            ENDIF
+
+            IF (STRN_OPT == 'VONMISES') THEN
+               OPT_HDR_1 = ''
+               OPT_HDR_2 = 'von Mises'
+            ELSE
+               OPT_HDR_1 = 'Max'
+               OPT_HDR_2 = 'Shear-XY'
+            ENDIF
 
             ! -- F06 1st 2 header lines for strain output description
             IF (TYPE(1:4) == 'ELAS') THEN
@@ -306,27 +320,15 @@
                   WRITE(F06,1302) FILL(1: 1), FILL(1: 1)
                ENDIF
             ELSE IF ((TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'QUAD8')) THEN
-               IF (STRN_OPT == 'VONMISES') THEN
-                  WRITE(F06,1401) FILL(1: 1), FILL(1: 1), FILL(1: 1)
-               ELSE
-                  WRITE(F06,1402) FILL(1: 1), FILL(1: 1)
-               ENDIF
-
+               WRITE(F06,1400) FIBER_HDR_1, ' Strains', ' Strains', OPT_HDR_1, FIBER_HDR_2, OPT_HDR_2
             ELSE IF  (TYPE == 'ROD     ') THEN
                WRITE(F06,1501) FILL(1: 1), FILL(1: 1)
-
             ELSE IF (TYPE(1:5) == 'SHEAR') THEN
                WRITE(F06,1601) FILL(1: 1), FILL(1: 1)
             ELSE IF (TYPE(1:5) == 'TRIA3') THEN
-               IF (STRN_OPT == 'VONMISES') THEN
-                  WRITE(F06,1701) FILL(1: 1), FILL(1: 1), FILL(1: 1)
-               ELSE
-                  WRITE(F06,1702) FILL(1: 1), FILL(1: 1)
-               ENDIF
-
+               WRITE(F06,1700) FIBER_HDR_1, ' Strains', ' Strains', OPT_HDR_1, FIBER_HDR_2, OPT_HDR_2
             ELSE IF  (TYPE == 'BUSH    ') THEN
                WRITE(F06,1801) FILL(1:  1), FILL(1:  1)
-
             ELSE IF  (TYPE == 'USERIN  ') THEN
                WRITE(F06,1901) FILL(1:  1), FILL(1:  1)
             ELSE
@@ -726,19 +728,6 @@
 
  1303 FORMAT(1X,I8,2X,'CENTER  ',8X,8(1ES14.6))
 
-
- ! 1301 FORMAT(A,'Element   Epsilon-xx    Epsilon-yy    Epsilon-zz     Gamma-xy      Gamma-yz      Gamma-zx     von Mises'           &
-          ! ,/,A,'   ID')
-
- ! 1302 FORMAT(A,'Element   Epsilon-xx    Epsilon-yy    Epsilon-zz     Gamma-xy      Gamma-yz      Gamma-zx        ',                &
-             ! 'Octahedral Strain'                                                                                                   &
-          ! ,/,A,'   ID',91X,'Direct        Shear')
-
- ! 1303 FORMAT(19X,I8,8(1ES14.6))
-
-
-
-
  1304 FORMAT(28X,'------------- ------------- ------------- ------------- ------------- ------------- -------------',/,            &
              16X,'MAX* :     ',7(ES14.6),/,                                                                                        &
              16X,'MIN* :     ',7(ES14.6),//,                                                                                       &
@@ -755,15 +744,11 @@
  1306 FORMAT(1X,A,10X,'GRD',I8,5X,8(1ES14.6))
 
 ! QUAD4 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 1401 FORMAT(1X,A,'Elem  Location         Fibre      Strains In Element Coord System       Principal Strains (Zero Shear)',        &
-  '                 Transverse   Transverse   % Poly',/,1X,A,                                                                      &
-  ' ID                   Distance   Normal-X     Normal-Y     Shear-XY     Angle      Major        Minor      von Mises',          &
-  '    Shear-XZ     Shear-YZ    Fit Err',A)
-
- 1402 FORMAT(1X,A,'Elem  Location         Fibre      Strains In Element Coord System       Principal Strains (Zero Shear)',        &
-  '       Max     Transverse   Transverse   % Poly',/,1X,A,                                                                        &
-  ' ID                     Distance    Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor      Shear-XY',         &
-  '     Shear-XZ     Shear-YZ   Fit Err',A)
+ 1400 FORMAT(                                                                                                                      &
+  '    Elem  Location       ',A6,'      ', A8, ' In Element Coord System     Principal ', A8, ' (Zero Shear)',                     &
+  '      ',A6,'    Transverse   Transverse   % Poly',/,                                                                            &
+  '     ID                 ', A9,  '   Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor  ',                     &
+  '    ', A9,  '    Shear-XZ     Shear-YZ    Fit Err')
 
  1403 FORMAT(1X,A,I8,2X,'CENTER  ',3X,1ES11.3,3(1ES13.5),0PF8.2,5(1ES13.5))
 
@@ -799,15 +784,11 @@
 
 
 ! TRIA3 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 1701 FORMAT(1X,A,'Element    Location      Fibre        Strains In Element Coord System       Principal Strains (Zero Shear)',    &
-                '                 Transverse   Transverse'                                                                         &
-          ,/,1X,A,'   ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor'      &
-          ,'      von Mises    Shear-XZ     Shear-YZ',A)
-
- 1702 FORMAT(1X,A,'Element    Location      Fibre        Strains In Element Coord System       Principal Strains (Zero Shear)',    &
-  '      Max        Transverse   Transverse'                                                                                       &
-          ,/,1X,A,'   ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor',     &
-          '      Shear-XY    Shear-XZ     Shear-YZ',A)
+ 1700 FORMAT(                                                                                                                      &
+  '  Element    Location      ',A6,'       ', A8, ' In Element Coord System      Principal ', A8, ' (Zero Shear)',                 &
+  '      ',A6,'    Transverse   Transverse',/,                                                                                     &
+  '     ID                   ', A9,  '    Normal-X     Normal-Y     Shear-XY      Angle     Major        Minor  ',                 &
+  '    ', A9,  '    Shear-XZ     Shear-YZ')
 
  1703 FORMAT(1X,I8,4X,'Anywhere',2X,4(1ES13.5),0PF9.3,5(1ES13.5))
 
@@ -835,8 +816,6 @@
 ! >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  9300 FORMAT(' *ERROR  9300: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' NO OUTPUT FORMAT AVAILABLE FOR ELEMENT TYPE = ',A)
-
- 9301 FORMAT(' *ERROR  9301: PROGRAMMING ERROR IN SUBROUTINE ',A)
 
 ! **********************************************************************************************************************************
       END SUBROUTINE WRITE_ELEM_STRAINS
