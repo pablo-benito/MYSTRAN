@@ -1,3 +1,4 @@
+! ###############################################################################################################################
 ! Begin MIT license text.
 ! _______________________________________________________________________________________________________
 
@@ -23,10 +24,29 @@
 
 ! End MIT license text.
 
-      MODULE PRINCIPAL_2D_USE_IFs
+   MODULE PRINCIPAL_STRESS_2D_Interface
 
-! USE Interface statements for all subroutines called by SUBROUTINE PRINCIPAL_2D
+   INTERFACE
 
-      USE OURTIM_Interface
+      SUBROUTINE PRINCIPAL_STRESS_2D ( SX, SY, SXY, ANGLE, SMAJOR, SMINOR, SXYMAX, MEAN, VONMISES )
 
-      END MODULE PRINCIPAL_2D_USE_IFs
+      USE PENTIUM_II_KIND, ONLY       :  DOUBLE
+
+      IMPLICIT NONE
+
+      REAL(DOUBLE), INTENT(IN)        :: SX                 ! Normal x stress
+      REAL(DOUBLE), INTENT(IN)        :: SY                 ! Normal y stress
+      REAL(DOUBLE), INTENT(IN)        :: SXY                ! Shear stress
+      REAL(DOUBLE), INTENT(OUT)       :: ANGLE              ! Angle of principal stresses
+      REAL(DOUBLE), INTENT(OUT)       :: MEAN               ! Mean stresses
+      REAL(DOUBLE), INTENT(OUT)       :: SMAJOR             ! Major principal stress
+      REAL(DOUBLE), INTENT(OUT)       :: SMINOR             ! Minor principal stress
+      REAL(DOUBLE), INTENT(OUT)       :: SXYMAX             ! Max shear stress
+      REAL(DOUBLE), INTENT(OUT)       :: VONMISES           ! von Mises stress
+
+      END SUBROUTINE PRINCIPAL_STRESS_2D
+
+   END INTERFACE
+
+   END MODULE PRINCIPAL_STRESS_2D_Interface
+

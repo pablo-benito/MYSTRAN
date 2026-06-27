@@ -1,3 +1,4 @@
+! ###############################################################################################################################
 ! Begin MIT license text.
 ! _______________________________________________________________________________________________________
 
@@ -23,15 +24,29 @@
 
 ! End MIT license text.
 
-      MODULE SHELL_STRESS_OUTPUTS_USE_IFs
+   MODULE PRINCIPAL_STRAIN_2D_Interface
 
-! USE Interface statements for all subroutines called by SUBROUTINE SHELL_STRESS_OUTPUTS
+   INTERFACE
 
-      USE OURTIM_Interface
-      USE PRINCIPAL_2D_Interface
-      USE OUTA_HERE_Interface
-      USE GET_COMP_SHELL_ALLOWS_Interface
-      USE POLY_FAILURE_INDEX_Interface
-      USE INDEP_FAILURE_INDEX_Interface
+      SUBROUTINE PRINCIPAL_STRAIN_2D ( SX, SY, SXY, ANGLE, SMAJOR, SMINOR, SXYMAX, MEAN, VONMISES )
 
-      END MODULE SHELL_STRESS_OUTPUTS_USE_IFs
+      USE PENTIUM_II_KIND, ONLY       :  DOUBLE
+
+      IMPLICIT NONE
+
+      REAL(DOUBLE), INTENT(IN)        :: SX                 ! Normal x strain
+      REAL(DOUBLE), INTENT(IN)        :: SY                 ! Normal y strain
+      REAL(DOUBLE), INTENT(IN)        :: SXY                ! Shear strain
+      REAL(DOUBLE), INTENT(OUT)       :: ANGLE              ! Angle of principal strain
+      REAL(DOUBLE), INTENT(OUT)       :: MEAN               ! Mean stresses strain
+      REAL(DOUBLE), INTENT(OUT)       :: SMAJOR             ! Major principal strain
+      REAL(DOUBLE), INTENT(OUT)       :: SMINOR             ! Minor principal strain
+      REAL(DOUBLE), INTENT(OUT)       :: SXYMAX             ! Max shear strain
+      REAL(DOUBLE), INTENT(OUT)       :: VONMISES           ! von Mises strain
+
+      END SUBROUTINE PRINCIPAL_STRAIN_2D
+
+   END INTERFACE
+
+   END MODULE PRINCIPAL_STRAIN_2D_Interface
+

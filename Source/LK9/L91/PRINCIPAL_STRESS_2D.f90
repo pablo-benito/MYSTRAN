@@ -24,37 +24,24 @@
 
 ! End MIT license text.
 
-      SUBROUTINE PRINCIPAL_2D ( SX, SY, SXY, ANGLE, SMAJOR, SMINOR, SXYMAX, MEAN, VONMISES )
+      SUBROUTINE PRINCIPAL_STRESS_2D ( SX, SY, SXY, ANGLE, SMAJOR, SMINOR, SXYMAX, MEAN, VONMISES )
 
-! Calculates principal stresses or strains for 2-D shell elems:
+! Calculates principal stresses for 2-D shell elems:
 
-!     (a) If SX, SY, SXY inputs are stress then outputs are stress.
-!     (b) If SX, SY, SXY inputs are strain then outputs are strain
-
-
-      USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM
-      USE TIMDAT, ONLY                :  TSEC
-      USE CONSTANTS_1, ONLY           :  ZERO, QUARTER, HALF, TWO, ONEPM6, CONV_RAD_DEG
-
-      USE PRINCIPAL_2D_USE_IFs
+      USE PENTIUM_II_KIND, ONLY       :  DOUBLE
+      USE CONSTANTS_1, ONLY           :  ZERO, QUARTER, HALF, TWO, CONV_RAD_DEG
 
       IMPLICIT NONE
 
-      CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'PRINCIPAL_2D'
-
-
-
-      REAL(DOUBLE), INTENT(IN)        :: SX                 ! Normal x stress or strain
-      REAL(DOUBLE), INTENT(IN)        :: SY                 ! Normal y stress or strain
-      REAL(DOUBLE), INTENT(IN)        :: SXY                ! Shear stress or strain
-      REAL(DOUBLE), INTENT(OUT)       :: ANGLE              ! Angle of principal stresses or strain
-      REAL(DOUBLE), INTENT(OUT)       :: MEAN               ! Mean stresses or strain
-      REAL(DOUBLE), INTENT(OUT)       :: SMAJOR             ! Major principal stress or strain
-      REAL(DOUBLE), INTENT(OUT)       :: SMINOR             ! Minor principal stress or strain
-      REAL(DOUBLE), INTENT(OUT)       :: SXYMAX             ! Max shear stress or strain
-      REAL(DOUBLE), INTENT(OUT)       :: VONMISES           ! von Mises stress or strain
+      REAL(DOUBLE), INTENT(IN)        :: SX                 ! Normal x stress
+      REAL(DOUBLE), INTENT(IN)        :: SY                 ! Normal y stress
+      REAL(DOUBLE), INTENT(IN)        :: SXY                ! Shear stress
+      REAL(DOUBLE), INTENT(OUT)       :: ANGLE              ! Angle of principal stresses
+      REAL(DOUBLE), INTENT(OUT)       :: MEAN               ! Mean stresses
+      REAL(DOUBLE), INTENT(OUT)       :: SMAJOR             ! Major principal stress
+      REAL(DOUBLE), INTENT(OUT)       :: SMINOR             ! Minor principal stress
+      REAL(DOUBLE), INTENT(OUT)       :: SXYMAX             ! Max shear stress
+      REAL(DOUBLE), INTENT(OUT)       :: VONMISES           ! von Mises stress
       REAL(DOUBLE)                    :: DENR               ! Denominator in arctan calculation of ANGLE
       REAL(DOUBLE)                    :: SAVG               ! Average of SX and SY
       REAL(DOUBLE)                    :: NUMR               ! Numerator in arctan calculation of ANGLE
@@ -91,10 +78,8 @@
       MEAN     = HALF*(SMAJOR + SMINOR)
       VONMISES = DSQRT( SMAJOR*SMAJOR - SMAJOR*SMINOR + SMINOR*SMINOR)
 
-
-
       RETURN
 
 ! **********************************************************************************************************************************
 
-      END SUBROUTINE PRINCIPAL_2D
+      END SUBROUTINE PRINCIPAL_STRESS_2D
