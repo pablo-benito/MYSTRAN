@@ -29,7 +29,7 @@
 ! Calculates principal strains for 2-D shell elems:
 
       USE PENTIUM_II_KIND, ONLY       :  DOUBLE
-      USE CONSTANTS_1, ONLY           :  ZERO, QUARTER, HALF, TWO, CONV_RAD_DEG
+      USE CONSTANTS_1, ONLY           :  HALF, CONV_RAD_DEG
 
       IMPLICIT NONE
 
@@ -42,41 +42,20 @@
       REAL(DOUBLE), INTENT(OUT)       :: SMINOR             ! Minor principal strain
       REAL(DOUBLE), INTENT(OUT)       :: SXYMAX             ! Max shear strain
       REAL(DOUBLE), INTENT(OUT)       :: VONMISES           ! von Mises strain
-      REAL(DOUBLE)                    :: DENR               ! Denominator in arctan calculation of ANGLE
       REAL(DOUBLE)                    :: SAVG               ! Average of SX and SY
-      REAL(DOUBLE)                    :: NUMR               ! Numerator in arctan calculation of ANGLE
 
       INTRINSIC                       :: DATAN2, DSQRT
 
 
-
 ! **********************************************************************************************************************************
-! Initialize outputs
 
-      ANGLE  = ZERO
-      SMINOR = ZERO
-      SXYMAX = ZERO
-
-! Calc outputs
-
-      DENR     = SX - SY
-      NUMR     = TWO*SXY
-
-! Calculate angle for principal axes.
-
-      ANGLE = (HALF*DATAN2(NUMR,DENR))*CONV_RAD_DEG
-
-! Calculate the principal stresses and max shear
-
-      SXYMAX = DSQRT(QUARTER*DENR*DENR + SXY*SXY)
+      ANGLE = (HALF*DATAN2(SXY,SX - SY))*CONV_RAD_DEG
+      SXYMAX = DSQRT((SX - SY)**2 + SXY**2)
       SAVG   = HALF*(SX + SY)
-      SMAJOR = SAVG + SXYMAX
-      SMINOR = SAVG - SXYMAX
-
-! Calculate mean andvon Mises stress for 2D stress state
-
+      SMAJOR = SAVG + SXYMAX / 2
+      SMINOR = SAVG - SXYMAX / 2
       MEAN     = HALF*(SMAJOR + SMINOR)
-      VONMISES = DSQRT( SMAJOR*SMAJOR - SMAJOR*SMINOR + SMINOR*SMINOR)
+      VONMISES = DSQRT(4.0 / 9.0 * (SX**2 + SY**2 -SX*SY) + 1.0/3.0 * SXY**2)
 
       RETURN
 
