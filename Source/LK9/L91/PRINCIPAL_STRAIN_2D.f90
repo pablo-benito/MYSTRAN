@@ -42,7 +42,6 @@
       REAL(DOUBLE), INTENT(OUT)       :: SMINOR             ! Minor principal strain
       REAL(DOUBLE), INTENT(OUT)       :: SXYMAX             ! Max shear strain
       REAL(DOUBLE), INTENT(OUT)       :: VONMISES           ! von Mises strain
-      REAL(DOUBLE)                    :: SAVG               ! Average of SX and SY
 
       INTRINSIC                       :: DATAN2, DSQRT
 
@@ -51,10 +50,9 @@
 
       ANGLE = (HALF*DATAN2(SXY,SX - SY))*CONV_RAD_DEG
       SXYMAX = DSQRT((SX - SY)**2 + SXY**2)
-      SAVG   = HALF*(SX + SY)
-      SMAJOR = SAVG + SXYMAX / 2
-      SMINOR = SAVG - SXYMAX / 2
-      MEAN     = HALF*(SMAJOR + SMINOR)
+      MEAN   = HALF*(SX + SY)
+      SMAJOR = MEAN + SXYMAX / 2
+      SMINOR = MEAN - SXYMAX / 2
       VONMISES = DSQRT(4.0 / 9.0 * (SX**2 + SY**2 -SX*SY) + 1.0/3.0 * SXY**2)
 
       RETURN
