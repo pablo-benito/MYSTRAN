@@ -45,7 +45,7 @@ NASTRAN. It is an independent program written in modern Fortran 95.
 - Linear Elastic Buckling Analysis
 - Full Suite of 1D, 2D, and 3D elements
 - Support for Classical Laminated Plate Theory
-- OP2 Support
+- OP2 Supports
 
 # Get EXE or Make Binary
 
@@ -60,7 +60,7 @@ straightforward.
 The end user documentation is located the [MYSTRAN_Documentation](https://github.com/MYSTRANsolver/MYSTRAN_Documentation) repository.
 This includes a Quick Setup Guide, User Manual, and Theory Manual.
 
-# Four Repositories
+# Five Repositories
 
 The MYSTRAN project consists of five repositories.
 
@@ -72,6 +72,8 @@ The MYSTRAN project consists of five repositories.
 It also contains information and files related to pre- and post-processors relevant to MYSTRAN.
 
 4 - The [MYSTRAN_Benchmark](https://github.com/MYSTRANsolver/MYSTRAN_Benchmark) repository contains the test cases and utilities used to verify that a new build produces results consistent with prior builds and models that have been verified.
+
+5 - The [MYSTRAN_Validation](https://github.com/MystranSolver/MYSTRAN_Validation) repository contains models with verified results and code to automatically check a MYSTRAN binary against the expected results; this keeps track of our validation effort and prevents regressions.
 
 
 # Developmental Goals
