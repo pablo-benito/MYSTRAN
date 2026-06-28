@@ -487,7 +487,11 @@
                ! fd1, sx1, sy1, txy1, angle1, major1, minor1, vm1,
                ! fd2, sx2, sy2, txy2, angle2, major2, minor2, vm2,) = out; n=17
                NUM_WIDE = 17
-               ELEMENT_TYPE = 33
+               IF (TYPE(1:5) == 'QUAD4') THEN
+                  ELEMENT_TYPE = 33
+               ELSE
+                  ELEMENT_TYPE = 64 ! QUAD8
+               END IF
                NVALUES = NUM_WIDE * NUM
                CALL WRITE_OES3_STATIC(ITABLE, ISUBCASE, DEVICE_CODE, ELEMENT_TYPE, NUM_WIDE, STRESS_CODE, &
                                       TITLEI, STITLEI, LABELI, FIELD5_INT_MODE, FIELD6_EIGENVALUE)

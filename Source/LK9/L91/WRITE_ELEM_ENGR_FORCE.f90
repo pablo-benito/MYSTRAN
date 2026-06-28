@@ -380,6 +380,8 @@ headr:IF (IHDR == 'Y') THEN
               ELEMENT_TYPE = 74
           ELSE IF (TYPE == 'QUAD4   ') THEN
               ELEMENT_TYPE = 33  ! todo: verify no ELEMENT_TYPE=144
+          ELSE IF (TYPE == 'QUAD8   ') THEN
+              ELEMENT_TYPE = 64
           !ELSE
           !   error
           ENDIF
