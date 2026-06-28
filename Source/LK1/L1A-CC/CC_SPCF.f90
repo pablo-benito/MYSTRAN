@@ -41,11 +41,6 @@
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CC_SPCF'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
-      CHARACTER( 1*BYTE)              :: FOUND_PRINT       ! CC_CMD_DESCRIBERS has request for "PRINT"
-      CHARACTER( 1*BYTE)              :: FOUND_PLOT        ! CC_CMD_DESCRIBERS has request for "PLOT"
-      CHARACTER( 1*BYTE)              :: FOUND_PUNCH       ! CC_CMD_DESCRIBERS has request for "PUNCH"
-      CHARACTER( 1*BYTE)              :: FOUND_NEU         ! CC_CMD_DESCRIBERS has request for "NEU"
-      CHARACTER( 1*BYTE)              :: FOUND_CSV         ! CC_CMD_DESCRIBERS has request for "CSV"
 
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: SETID             ! Set ID on this Case Control card
@@ -58,26 +53,7 @@
       ! (they all have some common code so it is put there)
       CALL CC_OUTPUTS ( CARD, 'SPCF', SETID )
 
-      ! Check to see if PLOT, PRINT, PUNCH, NEU, CSV were in the request
-      FOUND_PRINT = 'N'
-      FOUND_PLOT  = 'N'
-      FOUND_PUNCH = 'N'
-      FOUND_NEU   = 'N'
-      FOUND_CSV   = 'N'
-      DO I=1,NCCCD
-         IF (CC_CMD_DESCRIBERS(I)(1:5) == 'PRINT') FOUND_PRINT = 'Y'
-         IF (CC_CMD_DESCRIBERS(I)(1:4) == 'PLOT')  FOUND_PLOT  = 'Y'
-         IF (CC_CMD_DESCRIBERS(I)(1:5) == 'PUNCH') FOUND_PUNCH = 'Y'
-         IF (CC_CMD_DESCRIBERS(I)(1:3) == 'NEU')   FOUND_NEU   = 'Y'
-         IF (CC_CMD_DESCRIBERS(I)(1:3) == 'CSV')   FOUND_CSV   = 'Y'
-      ENDDO
-      ! concatenate the strings
-      SPCF_OUT = TRIM(FOUND_PRINT) // TRIM(FOUND_PLOT) // TRIM(FOUND_PUNCH) // TRIM(FOUND_NEU) // TRIM(FOUND_CSV)
-
-      ! default to print
-      IF (SPCF_OUT(1:5) == 'NNNNN') THEN
-        SPCF_OUT = 'YNNNN'
-      ENDIF
+      CALL COMPUTE_OUTPUT_TARGETS(SPCF_OUT)
 
 
       ! Set CASE CONTROL output request variable to SETID

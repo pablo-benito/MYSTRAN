@@ -41,8 +41,6 @@
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'CC_ACCE'
       CHARACTER(LEN=*), INTENT(IN)    :: CARD              ! A Bulk Data card
-      CHARACTER( 1*BYTE)              :: FOUND_PRINT       ! CC_CMD_DESCRIBERS has request for "PRINT"
-      CHARACTER( 1*BYTE)              :: FOUND_PUNCH       ! CC_CMD_DESCRIBERS has request for "PUNCH"
 
       INTEGER(LONG)                   :: I                 ! DO loop index
       INTEGER(LONG)                   :: SETID             ! Set ID on this Case Control card
@@ -57,18 +55,7 @@
 
 ! Check to see if BOTH, ENGR or NODE were in the ELFO request
 
-      FOUND_PRINT = 'N'
-      FOUND_PUNCH = 'N'
-      DO I=1,NCCCD
-         IF (CC_CMD_DESCRIBERS(I)(1:5) == 'PRINT') FOUND_PRINT = 'Y'
-         IF (CC_CMD_DESCRIBERS(I)(1:5) == 'PUNCH') FOUND_PUNCH = 'Y'
-      ENDDO
-
-      ACCE_OUT(1:) = ' '
-      IF ((FOUND_PRINT == 'Y') .AND. (FOUND_PUNCH == 'N')) ACCE_OUT(1:5) = 'PRINT'
-      IF ((FOUND_PRINT == 'N') .AND. (FOUND_PUNCH == 'Y')) ACCE_OUT(1:5) = 'PUNCH'  ;  PCHSTAT = 'KEEP    '
-      IF ((FOUND_PRINT == 'Y') .AND. (FOUND_PUNCH == 'Y')) ACCE_OUT(1:4) = 'BOTH'   ;  PCHSTAT = 'KEEP    '
-      IF ( ACCE_OUT(1:) == ' ') ACCE_OUT(1:5) = 'PRINT'    ! Neither PRINT or PUNCH found so default to PRINT
+      CALL COMPUTE_OUTPUT_TARGETS(ACCE_OUT)
 
 ! Set CASE CONTROL output request variable to SETID
 

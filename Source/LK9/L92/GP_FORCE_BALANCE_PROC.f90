@@ -125,8 +125,8 @@
       IS_THERMAL = (SUBLOD(INT_SC_NUM,2) > 0)
       IS_MODES = ((SOL_NAME(1:5) == 'MODES') .OR. (SOL_NAME(1:12) == 'GEN CB MODEL'))
 
-      WRITE_F06 = (GPFO_OUT(1:1) == 'Y')
-      WRITE_OP2 = (GPFO_OUT(2:2) == 'Y')
+      WRITE_F06 = GPFO_OUT%WRITE_F06
+      WRITE_OP2 = GPFO_OUT%WRITE_OP2
 
       ! OP2: Write output headers if this is not the first use of this subr.
       ANALYSIS_CODE = -1

@@ -156,9 +156,9 @@
                ENDDO
                IF ((NUM == NREQ) .AND. (SC_OUT_REQ > 0)) THEN
 
-                  WRITE_F06 = (ACCE_OUT(1:1) == 'Y')
-                  WRITE_OP2 = (ACCE_OUT(2:2) == 'Y')
-                  WRITE_PCH = (ACCE_OUT(3:3) == 'Y')
+                  WRITE_F06 = ACCE_OUT%WRITE_F06
+                  WRITE_OP2 = ACCE_OUT%WRITE_OP2
+                  WRITE_PCH = ACCE_OUT%WRITE_PCH
                   IF (WRITE_OP2) THEN
                      CALL WRITE_GRD_OP2_OUTPUTS ( JVEC, NUM, WHAT, ITABLE, NEW_RESULT )
                   ENDIF
@@ -244,9 +244,9 @@
                ENDDO
                IF ((NUM == NREQ) .AND. (SC_OUT_REQ > 0)) THEN
 
-                  WRITE_F06 = (DISP_OUT(1:1) == 'Y')
-                  WRITE_OP2 = (DISP_OUT(2:2) == 'Y')
-                  WRITE_PCH = (DISP_OUT(3:3) == 'Y')
+                  WRITE_F06 = DISP_OUT%WRITE_F06
+                  WRITE_OP2 = DISP_OUT%WRITE_OP2
+                  WRITE_PCH = DISP_OUT%WRITE_PCH
                   IF (WRITE_OP2) THEN
                      CALL WRITE_GRD_OP2_OUTPUTS ( JVEC, NUM, WHAT, ITABLE, NEW_RESULT )
                   ENDIF
@@ -325,9 +325,9 @@
                ENDDO
 
                IF (NUM == NREQ) THEN
-                  WRITE_F06 = (OLOA_OUT(1:1) == 'Y')
-                  WRITE_OP2 = (OLOA_OUT(2:2) == 'Y')
-                  WRITE_PCH = (OLOA_OUT(3:3) == 'Y')
+                  WRITE_F06 = OLOA_OUT%WRITE_F06
+                  WRITE_OP2 = OLOA_OUT%WRITE_OP2
+                  WRITE_PCH = OLOA_OUT%WRITE_PCH
                   IF (WRITE_OP2) THEN
                      CALL WRITE_GRD_OP2_OUTPUTS ( JVEC, NUM, WHAT, ITABLE, NEW_RESULT )
                   ENDIF
