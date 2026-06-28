@@ -658,7 +658,7 @@ set(_MYSTRAN_LICENSE_MAP
   "SUPERLU_MT:submodules/superlu_mt/License.txt:SuperLU_MT:multi-threaded sparse solver"
   "METIS:submodules/metis/LICENSE:METIS:graph partitioner for SuperLU"
   "GKLIB:submodules/GKlib/LICENSE.txt:GKlib:utility library for METIS"
-  "ARPACK:dependencies_licenses/arpack.txt:ARPACK:Lanczos eigensolver implementation"
+  "ARPACK:dependencies_licenses/arpack.txt:ARPACK:Lanczos eigensolver"
   "GOMP:dependencies_licenses/gpl-3.0-with-gcc-exception.txt:libgomp:GNU OpenMP runtime"
   "GFORTRAN:dependencies_licenses/gpl-3.0-with-gcc-exception.txt:libgfortran:GNU Fortran runtime"
   "GCC:dependencies_licenses/gpl-3.0-with-gcc-exception.txt:libgcc:GNU C runtime"
