@@ -546,7 +546,7 @@ endif()
 # SYSTEM:   we statically link a system BLAS+LAPACK. We try to detect
 # the vendor (OpenBLAS, MKL, BLIS, ATLAS, Apple Accelerate,
 # Arm Performance Libraries) from BLAS_LIBRARIES/LAPACK_LIBRARIES
-# so the corresponding license text from extra_licenses/ can
+# so the corresponding license text from dependencies_licenses/ can
 # be embedded in the binary. If detection fails OR the license
 # file is missing, we WARN the user that the resulting binary
 # may not be legally redistributable.
@@ -568,28 +568,28 @@ else()
     set(_SYS_BLAS_TAG "OPENBLAS")
     set(_SYS_BLAS_LIBNAME "OpenBLAS")
     set(_SYS_BLAS_DESC "system BLAS+LAPACK")
-    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/openblas.txt")
+    set(_SYS_BLAS_LICENSE_PATH "dependencies_licenses/openblas.txt")
   elseif(_SYS_BLAS_SIG MATCHES "mkl")
     set(_SYS_BLAS_TAG "MKL")
     set(_SYS_BLAS_LIBNAME "Intel MKL")
     set(_SYS_BLAS_DESC "system BLAS+LAPACK")
-    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/mkl.txt")
+    set(_SYS_BLAS_LICENSE_PATH "dependencies_licenses/mkl.txt")
   elseif(_SYS_BLAS_SIG MATCHES "blis")
     set(_SYS_BLAS_TAG "BLIS")
     set(_SYS_BLAS_LIBNAME "BLIS")
     set(_SYS_BLAS_DESC "system BLAS")
-    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/blis.txt")
+    set(_SYS_BLAS_LICENSE_PATH "dependencies_licenses/blis.txt")
   elseif(_SYS_BLAS_SIG MATCHES "atlas")
     set(_SYS_BLAS_TAG "ATLAS")
     set(_SYS_BLAS_LIBNAME "ATLAS")
     set(_SYS_BLAS_DESC "system BLAS+LAPACK")
-    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/atlas.txt")
+    set(_SYS_BLAS_LICENSE_PATH "dependencies_licenses/atlas.txt")
   elseif(_SYS_BLAS_SIG MATCHES "blas")
     # Generic Reference-BLAS / netlib install on the system.
     set(_SYS_BLAS_TAG "REFBLAS")
-    set(_SYS_BLAS_LIBNAME "Reference BLAS/LAPACK")
-    set(_SYS_BLAS_DESC "system BLAS+LAPACK (Reference-LAPACK / netlib)")
-    set(_SYS_BLAS_LICENSE_PATH "extra_licenses/netlib-blas-lapack.txt")
+    set(_SYS_BLAS_LIBNAME "Netlib LAPACK")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK")
+    set(_SYS_BLAS_LICENSE_PATH "dependencies_licenses/netlib-blas-lapack.txt")
   endif()
 
   if(_SYS_BLAS_TAG STREQUAL "")
@@ -599,7 +599,7 @@ else()
       "  No license text will be embedded for the BLAS/LAPACK provider, "
       "which may make the resulting binary legally undistributable.\n"
       "  Add a matching entry to the system-BLAS detection block in "
-      "CMakeLists.txt and drop the license file under extra_licenses/.")
+      "CMakeLists.txt and drop the license file under dependencies_licenses/.")
   else()
     list(APPEND _MYSTRAN_STATIC_DEFS "_STATIC_${_SYS_BLAS_TAG}")
     list(APPEND _MYSTRAN_STATIC_NAMES "${_SYS_BLAS_LIBNAME}")
@@ -658,13 +658,13 @@ set(_MYSTRAN_LICENSE_MAP
   "SUPERLU_MT:submodules/superlu_mt/License.txt:SuperLU_MT:multi-threaded sparse solver"
   "METIS:submodules/metis/LICENSE:METIS:graph partitioner for SuperLU"
   "GKLIB:submodules/GKlib/LICENSE.txt:GKlib:utility library for METIS"
-  "ARPACK:extra_licenses/arpack.txt:ARPACK:Lanczos eigensolver implementation"
-  "GOMP:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgomp:GNU OpenMP runtime"
-  "GFORTRAN:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgfortran:GNU Fortran runtime"
-  "GCC:extra_licenses/gpl-3.0-with-gcc-exception.txt:libgcc:GNU C runtime"
-  "WINPTHREAD:extra_licenses/libwinpthread.txt:libwinpthread:Windows POSIX threads, used by SuperLU_MT"
-  "PTHREAD:extra_licenses/lgpl-2.1.txt:libpthread:POSIX threads, used by SuperLU_MT"
-  "REGEX:extra_licenses/lgpl-2.1.txt:libregex:POSIX regexes, used by GKlib"
+  "ARPACK:dependencies_licenses/arpack.txt:ARPACK:Lanczos eigensolver"
+  "GOMP:dependencies_licenses/gpl-3.0-with-gcc-exception.txt:libgomp:GNU OpenMP runtime"
+  "GFORTRAN:dependencies_licenses/gpl-3.0-with-gcc-exception.txt:libgfortran:GNU Fortran runtime"
+  "GCC:dependencies_licenses/gpl-3.0-with-gcc-exception.txt:libgcc:GNU C runtime"
+  "WINPTHREAD:dependencies_licenses/libwinpthread.txt:libwinpthread:Windows POSIX threads, used by SuperLU_MT"
+  "PTHREAD:dependencies_licenses/lgpl-2.1.txt:libpthread:POSIX threads, used by SuperLU_MT"
+  "REGEX:dependencies_licenses/lgpl-2.1.txt:libregex:POSIX regexes, used by GKlib"
 )
 
 # BLAS/LAPACK license entry depends on which provider was selected.
