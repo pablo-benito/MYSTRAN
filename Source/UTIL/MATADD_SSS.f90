@@ -121,7 +121,7 @@
                C(CNT) = BETA * B(P_B)
                J_C(CNT) = COL_B
                P_B = P_B + 1
-            ELSE                                           ! Both have an entry — add
+            ELSE                                           ! Both have an entry -- add
                V = ALPHA * A(P_A) + BETA * B(P_B)
                CNT = CNT + 1
                C(CNT) = V

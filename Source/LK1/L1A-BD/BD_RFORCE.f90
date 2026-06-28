@@ -33,9 +33,8 @@
 !   SETID, CID, ACCEL(1-6)
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, L1U
+      USE IOUNT1, ONLY                :  ERR, F06, L1U
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, IERRFL, JCARD_LEN, JF, LRFORCE, LSUB, NRFORCE, NSUB
-      USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  RFORCE_SIDS, SUBLOD
 
@@ -148,13 +147,7 @@
          CONT_COUNT = 1
          CALL R8FLD ( JCARD(2), JF(2), R8INP )             ! Read grid ID
          IF (IERRFL(2) == 'N') THEN
-            IF (R8INP >= 0) THEN
-               SCALEF_AA = R8INP
-            ELSE
-               FATAL_ERR = FATAL_ERR + 1
-               WRITE(ERR,1194) NAME,JF(2),CONT_COUNT,JCARD(2)
-               WRITE(F06,1194) NAME,JF(2),CONT_COUNT,JCARD(2)
-            ENDIF
+            SCALEF_AA = R8INP
          ENDIF
 
          CALL BD_IMBEDDED_BLANK ( JCARD,2,0,0,0,0,0,0,0 )  ! Make sure that there are no imbedded blanks in fields 2-5
@@ -180,9 +173,6 @@
 ! **********************************************************************************************************************************
  1163 FORMAT(' *ERROR  1163: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' TOO MANY ',A,' ENTRIES; LIMIT = ',I12)
-
- 1194 FORMAT(' *ERROR  1194: NEGATIVE GRID ID NOT ALLOWED ON ',A,' ENTRY. VALUE IN FIELD ',I3,' OF CONTINUATION ENTRY NUMBER '     &
-                            ,I3,' IS = ',A)
 
  ! *********************************************************************************************************************************
 

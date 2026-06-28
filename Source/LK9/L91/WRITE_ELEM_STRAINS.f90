@@ -30,17 +30,15 @@
 ! all 2-D, 3-D  plus several 1-D elements (i.e. that have strain calculations).
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, OP2
+      USE IOUNT1, ONLY                :  ERR, F06, OP2
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, BARTOR, INT_SC_NUM, MAX_NUM_STR, NDOFR, NUM_CB_DOFS,             &
                                          NVEC, SOL_NAME
-      USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  STR_CID
-      USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE NONLINEAR_PARAMS, ONLY      :  LOAD_ISTEP
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, GID_OUT_ARRAY, OGEL, POLY_FIT_ERR, POLY_FIT_ERR_INDEX
       USE MODEL_STUF, ONLY            :  ELEM_ONAME, ELMTYP, LABEL, SCNUM, STITLE, TITLE, TYPE
-      USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_LOC, STRN_OPT, STRN_OUT
+      USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_LOC, STRN_OPT, STRN_OUT, STRN_CUR
 
       USE WRITE_ELEM_STRAINS_USE_IFs
 
@@ -68,8 +66,13 @@
       INTEGER(LONG)                   :: I,J,L             ! DO loop indices
       INTEGER(LONG)                   :: K                 ! Counter
       INTEGER(LONG)                   :: NCOLS             ! Num of cols to write out
-
-
+      INTEGER(LONG)                   :: IS_FIBER_DISTANCE
+      CHARACTER(139*BYTE)             :: CLINE_BUF        ! Pre-assembled CENTER line for solid strains (matches FORMAT 1303)
+      CHARACTER(139*BYTE)             :: GLINE_BUF        ! Pre-assembled GRD    line for solid strains (matches FORMAT 1306)
+      CHARACTER( 6*BYTE)              :: FIBER_HDR_1
+      CHARACTER( 9*BYTE)              :: FIBER_HDR_2
+      CHARACTER( 6*BYTE)              :: OPT_HDR_1
+      CHARACTER( 9*BYTE)              :: OPT_HDR_2
       REAL(DOUBLE)                    :: ABS_ANS(11)       ! Max ABS for all element output
       REAL(DOUBLE)                    :: MAX_ANS(11)       ! Max for all element output
       REAL(DOUBLE)                    :: MIN_ANS(11)       ! Min for all element output
@@ -103,7 +106,6 @@
       CHARACTER(4*BYTE)               :: CEN_WORD     ! the word "CEN/" (we need to cast the length)
 
 
-
 ! **********************************************************************************************************************************
       ! Initialize
       DEVICE_CODE = 1  ! PLOT
@@ -135,46 +137,44 @@
       ANALYSIS_CODE = -1
       FIELD5_INT_MODE = 0
       FIELD6_EIGENVALUE = 0.0
-      WRITE_F06 = (STRN_OUT(1:1) == 'Y')
-      WRITE_OP2 = (STRN_OUT(2:2) == 'Y')
+      WRITE_F06 = STRN_OUT%WRITE_F06
+      WRITE_OP2 = STRN_OUT%WRITE_OP2
+
+      IF (STRN_CUR == 'FIBER') THEN
+         IS_FIBER_DISTANCE = 1
+      ELSE
+         IS_FIBER_DISTANCE = 0
+      ENDIF
+
 
       IF (IHDR == 'Y') THEN
-         IF (WRITE_F06) WRITE(F06,*)
-         IF (WRITE_F06) WRITE(F06,*)
-
          ! -- F06 header: OUTPUT FOR SUBCASE, EIGENVECTOR or CRAIG-BAMPTON DOF
+         CALL WRITE_SUBCASE_EIGENVEC_HEADER(JSUB, WRITE_F06)
          ISUBCASE_INDEX = 0
          IF    (SOL_NAME(1:7) == 'STATICS') THEN
             ISUBCASE_INDEX = JSUB
             ANALYSIS_CODE = 1
             FIELD5_INT_MODE = 1  ! temp
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF (WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
          ELSE IF (SOL_NAME(1:8) == 'NLSTATIC') THEN
             ISUBCASE_INDEX = 1  ! statics
             ANALYSIS_CODE = 10
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF (WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
 
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
             ISUBCASE_INDEX = 1  ! statics
             ANALYSIS_CODE = 1
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF (WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
 
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
             ISUBCASE_INDEX = 2  ! modes
             ANALYSIS_CODE = 7
             FIELD5_INT_MODE = JSUB
-            ! FIELD6_EIGENVALUE = ????
-            IF (WRITE_F06) WRITE(F06,102) JSUB
 
          ELSE IF (SOL_NAME(1:5) == 'MODES') THEN
             ISUBCASE_INDEX = 1  ! modes
             ANALYSIS_CODE = 2
             FIELD5_INT_MODE = JSUB
-            ! FIELD6_EIGENVALUE = ????
-            IF (WRITE_F06) WRITE(F06,102) JSUB
 
          ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
             ISUBCASE_INDEX = 1  ! modes
@@ -200,24 +200,27 @@
          ENDIF
          ISUBCASE = SCNUM(ISUBCASE_INDEX)
 
-         ! -- F06 header for TITLE, SUBTITLE, LABEL (but only to F06)
          TITLEI = TITLE(INT_SC_NUM)
          STITLEI = STITLE(INT_SC_NUM)
          LABELI = LABEL(INT_SC_NUM)
 
          IF (WRITE_F06) THEN
-             IF (TITLE(INT_SC_NUM)(1:)  /= ' ') THEN
-                WRITE(F06,201) TITLE(INT_SC_NUM)
-             ENDIF
 
-             IF (STITLE(INT_SC_NUM)(1:) /= ' ') THEN
-                WRITE(F06,201) STITLE(INT_SC_NUM)
-             ENDIF
+            IF (STRN_CUR == 'FIBER') THEN
+               FIBER_HDR_1 = 'Fiber'
+               FIBER_HDR_2 = 'Distance'
+            ELSE
+               FIBER_HDR_1 = 'Strain'
+               FIBER_HDR_2 = 'Curvature'
+            ENDIF
 
-             IF (LABEL(INT_SC_NUM)(1:)  /= ' ') THEN
-                WRITE(F06,201) LABEL(INT_SC_NUM)
-             ENDIF
-             WRITE(F06,*)
+            IF (STRN_OPT == 'VONMISES') THEN
+               OPT_HDR_1 = ''
+               OPT_HDR_2 = 'von Mises'
+            ELSE
+               OPT_HDR_1 = 'Max'
+               OPT_HDR_2 = 'Shear-XY'
+            ENDIF
 
             ! -- F06 1st 2 header lines for strain output description
             IF (TYPE(1:4) == 'ELAS') THEN
@@ -317,27 +320,15 @@
                   WRITE(F06,1302) FILL(1: 1), FILL(1: 1)
                ENDIF
             ELSE IF ((TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'QUAD8')) THEN
-               IF (STRN_OPT == 'VONMISES') THEN
-                  WRITE(F06,1401) FILL(1: 1), FILL(1: 1), FILL(1: 1)
-               ELSE
-                  WRITE(F06,1402) FILL(1: 1), FILL(1: 1)
-               ENDIF
-
+               WRITE(F06,1400) FIBER_HDR_1, ' Strains', ' Strains', OPT_HDR_1, FIBER_HDR_2, OPT_HDR_2
             ELSE IF  (TYPE == 'ROD     ') THEN
                WRITE(F06,1501) FILL(1: 1), FILL(1: 1)
-
             ELSE IF (TYPE(1:5) == 'SHEAR') THEN
                WRITE(F06,1601) FILL(1: 1), FILL(1: 1)
             ELSE IF (TYPE(1:5) == 'TRIA3') THEN
-               IF (STRN_OPT == 'VONMISES') THEN
-                  WRITE(F06,1701) FILL(1: 1), FILL(1: 1), FILL(1: 1)
-               ELSE
-                  WRITE(F06,1702) FILL(1: 1), FILL(1: 1)
-               ENDIF
-
+               WRITE(F06,1700) FIBER_HDR_1, ' Strains', ' Strains', OPT_HDR_1, FIBER_HDR_2, OPT_HDR_2
             ELSE IF  (TYPE == 'BUSH    ') THEN
                WRITE(F06,1801) FILL(1:  1), FILL(1:  1)
-
             ELSE IF  (TYPE == 'USERIN  ') THEN
                WRITE(F06,1901) FILL(1:  1), FILL(1:  1)
             ELSE
@@ -374,95 +365,113 @@
              WRITE(OP2) (EID_OUT_ARRAY(I,1)*10+DEVICE_CODE, REAL(OGEL(I,1), 4), I=1,NUM)
          ENDIF   ! end of op2
 
-         WRITE(F06,1103) (FILL(1:1), EID_OUT_ARRAY(I,1), OGEL(I,1),I=1,NUM)
-
+         IF (WRITE_F06) THEN
+            WRITE(F06,1103) (FILL(1:1), EID_OUT_ARRAY(I,1), OGEL(I,1),I=1,NUM)
+         ENDIF
 
       ELSE IF((TYPE(1:4) == 'HEXA') .OR. (TYPE(1:5) == 'PENTA') .OR. (TYPE(1:5) == 'TETRA')) THEN
-         !       12345
-         ! 39 : CTETRA
-         ! 67 : CHEXA
-         ! 68 : CPENTA
-         IF (TYPE(1:4) == "HEXA") THEN
-             ELEMENT_TYPE = 67
-             NNODES = 9
-         ELSE IF (TYPE(1:5) == "TETRA") THEN
-             ELEMENT_TYPE = 39
-             NNODES = 5
-         ELSE IF (TYPE(1:5) == "PENTA") THEN
-             ELEMENT_TYPE = 68
-             NNODES = 7
-         ENDIF
 
          IF (WRITE_OP2) THEN
-           NUM_WIDE = 4 + 21 * NNODES
-           NVALUES = NUM_WIDE * NUM
 
-           !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
-           CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         0)
-           CALL WRITE_OES3_STATIC(ITABLE, ISUBCASE, DEVICE_CODE, ELEMENT_TYPE, NUM_WIDE, STRESS_CODE, &
+            IF (TYPE(1:4) == "HEXA") THEN
+                ELEMENT_TYPE = 67
+                NNODES = 9
+            ELSE IF (TYPE(1:5) == "TETRA") THEN
+                ELEMENT_TYPE = 39
+                NNODES = 5
+            ELSE IF (TYPE(1:5) == "PENTA") THEN
+                ELEMENT_TYPE = 68
+                NNODES = 7
+            ENDIF
+
+            NUM_WIDE = 4 + 21 * NNODES
+            NVALUES = NUM_WIDE * NUM / NNODES
+
+            !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
+            CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         0)
+            CALL WRITE_OES3_STATIC(ITABLE, ISUBCASE, DEVICE_CODE, ELEMENT_TYPE, NUM_WIDE, STRESS_CODE, &
                                   TITLEI, STITLEI, LABELI, FIELD5_INT_MODE, FIELD6_EIGENVALUE)
-           WRITE(OP2) NVALUES
-           CEN_WORD = "CEN/"
+            WRITE(OP2) NVALUES
+            CEN_WORD = "CEN/"
 
-          ! See the CHEXA, CPENTA, or CTETRA entry for the definition of the element coordinate systems.
-          ! The material coordinate system (CORDM) may be the basic system (0 or blank), any defined system
-          ! (Integer > 0), or the standard internal coordinate system of the element designated as:
-          ! -1: element coordinate system (-1)
-          ! -2: element system based on eigenvalue techniques to insure non bias in the element formulation.
+            ! See the CHEXA, CPENTA, or CTETRA entry for the definition of the element coordinate systems.
+            ! The material coordinate system (CORDM) may be the basic system (0 or blank), any defined system
+            ! (Integer > 0), or the standard internal coordinate system of the element designated as:
+            ! -1: element coordinate system (-1)
+            ! -2: element system based on eigenvalue techniques to insure non bias in the element formulation.
 
-          ! TODO hardcoded
-           CID = -1
+            ! TODO hardcoded
+            CID = -1
 
-          ! setting:
-          !  - CTETRA: [element_device, cid, 'CEN/', 4]
-          !  - CPYRAM: [element_device, cid, 'CEN/', 5]
-          !  - CPENTA: [element_device, cid, 'CEN/', 6]
-          !  - CHEXA:  [element_device, cid, 'CEN/', 8]
+            ! setting:
+            !  - CTETRA: [element_device, cid, 'CEN/', 4]
+            !  - CPYRAM: [element_device, cid, 'CEN/', 5]
+            !  - CPENTA: [element_device, cid, 'CEN/', 6]
+            !  - CHEXA:  [element_device, cid, 'CEN/', 8]
 
-          !                 1             2             3            4            5               6             7
-          !  Element    Sigma-xx      Sigma-yy      Sigma-zz       Tau-xy        Tau-yz        Tau-zx      von Mises
-          !     ID
+            !                 1             2             3            4            5               6             7
+            !  Element    Sigma-xx      Sigma-yy      Sigma-zz       Tau-xy        Tau-yz        Tau-zx      von Mises
+            !     ID
 
-          ! TODO: we repeat the center node N times because the corner results have not been calculated
-          WRITE(OP2) (EID_OUT_ARRAY(I,1)*10+DEVICE_CODE, CID, CEN_WORD, NNODES-1,           &
-                      ! grid_id
-                      ! 21
-                     (GID_OUT_ARRAY(I,J),                                                   &
-                      ! oxx             txy                s1                  a1  a2  a3
-                     REAL(OGEL(I,1),4), REAL(OGEL(I,4),4), REAL(OGEL(I,9), 4), 0., 0., 0.,  &
-                     ! p                 ovm
-                     REAL(OGEL(I,12),4), REAL(OGEL(I,7),4),  &
-                      ! syy             tyz                s2                  b1  b2  b3
-                     REAL(OGEL(I,2),4), REAL(OGEL(I,5),4), REAL(OGEL(I,10),4), 0., 0., 0.,  &
-                      ! szz             txz                s3                  c1  c2  c3
-                     REAL(OGEL(I,3),4), REAL(OGEL(I,6),4), REAL(OGEL(I,11),4), 0., 0., 0.,  &
-                     J=1,NNODES), I=1,NUM)
+            WRITE(OP2) (EID_OUT_ARRAY(I,1)*10+DEVICE_CODE, CID, CEN_WORD, NNODES-1,                      &
+                     !grid_id
+                     (GID_OUT_ARRAY(I,J),                                                                &
+                     !    oxx                     txy                    s1                 a1  a2  a3
+                     REAL(OGEL(I+J-1,1),4),  REAL(OGEL(I+J-1,4),4), REAL(OGEL(I+J-1,9), 4), 0., 0., 0.,  &
+                     !    p                       ovm
+                     REAL(OGEL(I+J-1,12),4), REAL(OGEL(I+J-1,7),4),                                      &
+                      !   syy                     tyz                    s2                 b1  b2  b3
+                     REAL(OGEL(I+J-1,2),4),  REAL(OGEL(I+J-1,5),4), REAL(OGEL(I+J-1,10),4), 0., 0., 0.,  &
+                      !   szz                     txz                    s3                 c1  c2  c3
+                     REAL(OGEL(I+J-1,3),4),  REAL(OGEL(I+J-1,6),4), REAL(OGEL(I+J-1,11),4), 0., 0., 0.,  &
+                     J=1,NNODES), I=1,NUM,NNODES)
+
          ENDIF  ! end of op2
 
-         IF (STRN_OPT == 'VONMISES') THEN
-            NCOLS = 7
-         ELSE
-            NCOLS = 8
-         ENDIF
+         IF (WRITE_F06) THEN
 
-         K = 0
-         DO I=1,NUM,NUM_PTS
-            K = K + 1
-            ! Center
-            WRITE(F06,1303) EID_OUT_ARRAY(I,1),(OGEL(K,J),J=1,NCOLS)
-            ! Corner
-            DO L=1,NUM_PTS-1
+            IF (STRN_OPT == 'VONMISES') THEN
+               NCOLS = 7
+            ELSE
+               NCOLS = 8
+            ENDIF
+
+            ! Pre-fill the fixed-text positions of the line buffers; variable fields (EID/GID and the
+            ! per-point values) are overwritten in the loop below. Layouts:
+            !   CLINE_BUF: FORMAT 1303 = (1X,I8,2X,'CENTER  ',8X,8(1ES14.6))
+            !   GLINE_BUF: FORMAT 1306 = (1X,A,10X,'GRD',I8,5X,8(1ES14.6)) with A = FILL(1:0) (empty)
+            CLINE_BUF = ' '
+            CLINE_BUF(12:19) = 'CENTER  '
+            GLINE_BUF = ' '
+            GLINE_BUF(12:14) = 'GRD'
+            K = 0
+            DO I=1,NUM,NUM_PTS
                K = K + 1
-               WRITE(F06,1306) FILL(1: 0), GID_OUT_ARRAY(I,L+1),(OGEL(K,J),J=1,NCOLS)
+               ! Center
+               CALL FMT_I8_RJ ( EID_OUT_ARRAY(I,1), CLINE_BUF(2:9) )
+               DO J=1,NCOLS
+                  CALL FMT_ES14_6 ( OGEL(K,J), CLINE_BUF(28 + (J-1)*14 : 27 + J*14) )
+               ENDDO
+               WRITE(F06,'(A)') CLINE_BUF(1 : 27 + NCOLS*14)
+               ! Corner
+               DO L=1,NUM_PTS-1
+                  K = K + 1
+                  CALL FMT_I8_RJ ( GID_OUT_ARRAY(I,L+1), GLINE_BUF(15:22) )
+                  DO J=1,NCOLS
+                     CALL FMT_ES14_6 ( OGEL(K,J), GLINE_BUF(28 + (J-1)*14 : 27 + J*14) )
+                  ENDDO
+                  WRITE(F06,'(A)') GLINE_BUF(1 : 27 + NCOLS*14)
+               ENDDO
             ENDDO
-         ENDDO
 
-         CALL GET_MAX_MIN_ABS_STR ( NUM, NCOLS, 'N', MAX_ANS, MIN_ANS, ABS_ANS )
+            CALL GET_MAX_MIN_ABS_STR ( NUM, NCOLS, 'N', MAX_ANS, MIN_ANS, ABS_ANS )
 
-         IF (STRN_OPT == 'VONMISES') THEN
-            WRITE(F06,1304) (MAX_ANS(J),J=1,7), (MIN_ANS(J),J=1,7), (ABS_ANS(J),J=1,7)
-         ELSE
-            WRITE(F06,1305) (MAX_ANS(J),J=1,8), (MIN_ANS(J),J=1,8), (ABS_ANS(J),J=1,8)
+            IF (STRN_OPT == 'VONMISES') THEN
+               WRITE(F06,1304) (MAX_ANS(J),J=1,7), (MIN_ANS(J),J=1,7), (ABS_ANS(J),J=1,7)
+            ELSE
+               WRITE(F06,1305) (MAX_ANS(J),J=1,8), (MIN_ANS(J),J=1,8), (ABS_ANS(J),J=1,8)
+            ENDIF
+
          ENDIF
 
       ELSE IF ((TYPE(1:5) == 'QUAD4') .OR. (TYPE(1:5) == 'QUAD8')) THEN
@@ -471,14 +480,18 @@
            !CALL WRITE_OST_CQUAD4 ( NUM, FILL, ISUBCASE, ITABLE, TITLEI, STITLEI, LABELI )
 
            !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
-           CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         1)
+           CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         IS_FIBER_DISTANCE)
             IF ((STRN_LOC == 'CENTER  ') .AND. (TYPE(1:5) /= 'QUAD8')) THEN
                ! CQUAD4-33
                !(eid_device,
                ! fd1, sx1, sy1, txy1, angle1, major1, minor1, vm1,
                ! fd2, sx2, sy2, txy2, angle2, major2, minor2, vm2,) = out; n=17
                NUM_WIDE = 17
-               ELEMENT_TYPE = 33
+               IF (TYPE(1:5) == 'QUAD4') THEN
+                  ELEMENT_TYPE = 33
+               ELSE
+                  ELEMENT_TYPE = 64 ! QUAD8
+               END IF
                NVALUES = NUM_WIDE * NUM
                CALL WRITE_OES3_STATIC(ITABLE, ISUBCASE, DEVICE_CODE, ELEMENT_TYPE, NUM_WIDE, STRESS_CODE, &
                                       TITLEI, STITLEI, LABELI, FIELD5_INT_MODE, FIELD6_EIGENVALUE)
@@ -524,7 +537,7 @@
             ENDIF
          ENDIF  ! write op2
 
-         !IF(WRITE_F06) THEN
+         IF(WRITE_F06) THEN
             K = 0
             DO I=1,NUM,NUM_PTS
  4             FORMAT(' *DEBUG:  WRITE_CQUAD4-144:  I=',I4, " K=", I4)
@@ -612,11 +625,11 @@
                ENDDO
             ENDIF
 
-
+         ENDIF
 
       ELSE IF (TYPE == 'ROD     ') THEN
          CALL WRITE_ROD (ISUBCASE, NUM, FILL(1:1), FILL(1:16), ITABLE, TITLEI, STITLEI, LABELI, &
-                         FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_OP2 )
+                         FIELD5_INT_MODE, FIELD6_EIGENVALUE, WRITE_F06, WRITE_OP2 )
 
       ELSE IF (TYPE(1:5) == 'SHEAR') THEN
          CALL WRITE_OST_CSHEAR (NUM, FILL, ISUBCASE, ITABLE, TITLEI, STITLEI, LABELI, &
@@ -626,7 +639,7 @@
       ELSE IF (TYPE(1:5) == 'TRIA3') THEN
          CALL WRITE_OST_CTRIA3 (NUM, FILL, ISUBCASE, ITABLE, TITLEI, STITLEI, LABELI, &
                                 FIELD5_INT_MODE, FIELD6_EIGENVALUE,                   &
-                                WRITE_F06, WRITE_OP2)
+                                WRITE_F06, WRITE_OP2, IS_FIBER_DISTANCE)
 
       ELSE IF (TYPE == 'BUSH    ') THEN
          IF (WRITE_OP2) THEN
@@ -644,15 +657,18 @@
              WRITE(OP2) (EID_OUT_ARRAY(I,1)*10+DEVICE_CODE,(REAL(OGEL(I,J),4), J=1,6), I=1,NUM)
          ENDIF
 
-         DO I=1,NUM
-            WRITE(F06,1802) EID_OUT_ARRAY(I,1),(OGEL(I,J),J=1,6)
-         ENDDO
+         IF (WRITE_F06) THEN
+            DO I=1,NUM
+               WRITE(F06,1802) EID_OUT_ARRAY(I,1),(OGEL(I,J),J=1,6)
+            ENDDO
+         ENDIF
 
       ELSE IF (TYPE == 'USERIN  ') THEN
-         DO I=1,NUM
-            WRITE(F06,1902) EID_OUT_ARRAY(I,1),(OGEL(I,J),J=1,6)
-         ENDDO
-
+         IF (WRITE_F06) THEN
+            DO I=1,NUM
+               WRITE(F06,1902) EID_OUT_ARRAY(I,1),(OGEL(I,J),J=1,6)
+            ENDDO
+         ENDIF
       ELSE
          WRITE(ERR,9300) SUBR_NAME,TYPE
          WRITE(F06,9300) SUBR_NAME,TYPE
@@ -716,19 +732,6 @@
 
  1303 FORMAT(1X,I8,2X,'CENTER  ',8X,8(1ES14.6))
 
-
- ! 1301 FORMAT(A,'Element   Epsilon-xx    Epsilon-yy    Epsilon-zz     Gamma-xy      Gamma-yz      Gamma-zx     von Mises'           &
-          ! ,/,A,'   ID')
-
- ! 1302 FORMAT(A,'Element   Epsilon-xx    Epsilon-yy    Epsilon-zz     Gamma-xy      Gamma-yz      Gamma-zx        ',                &
-             ! 'Octahedral Strain'                                                                                                   &
-          ! ,/,A,'   ID',91X,'Direct        Shear')
-
- ! 1303 FORMAT(19X,I8,8(1ES14.6))
-
-
-
-
  1304 FORMAT(28X,'------------- ------------- ------------- ------------- ------------- ------------- -------------',/,            &
              16X,'MAX* :     ',7(ES14.6),/,                                                                                        &
              16X,'MIN* :     ',7(ES14.6),//,                                                                                       &
@@ -745,15 +748,11 @@
  1306 FORMAT(1X,A,10X,'GRD',I8,5X,8(1ES14.6))
 
 ! QUAD4 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 1401 FORMAT(1X,A,'Elem  Location         Fibre      Strains In Element Coord System       Principal Strains (Zero Shear)',        &
-  '                 Transverse   Transverse   % Poly',/,1X,A,                                                                      &
-  ' ID                   Distance   Normal-X     Normal-Y     Shear-XY     Angle      Major        Minor      von Mises',          &
-  '    Shear-XZ     Shear-YZ    Fit Err',A)
-
- 1402 FORMAT(1X,A,'Elem  Location         Fibre      Strains In Element Coord System       Principal Strains (Zero Shear)',        &
-  '       Max     Transverse   Transverse   % Poly',/,1X,A,                                                                        &
-  ' ID                     Distance    Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor      Shear-XY',         &
-  '     Shear-XZ     Shear-YZ   Fit Err',A)
+ 1400 FORMAT(                                                                                                                      &
+  '    Elem  Location       ',A6,'      ', A8, ' In Element Coord System     Principal ', A8, ' (Zero Shear)',                     &
+  '      ',A6,'    Transverse   Transverse   % Poly',/,                                                                            &
+  '     ID                 ', A9,  '   Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor  ',                     &
+  '    ', A9,  '    Shear-XZ     Shear-YZ    Fit Err')
 
  1403 FORMAT(1X,A,I8,2X,'CENTER  ',3X,1ES11.3,3(1ES13.5),0PF8.2,5(1ES13.5))
 
@@ -789,15 +788,11 @@
 
 
 ! TRIA3 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 1701 FORMAT(1X,A,'Element    Location      Fibre        Strains In Element Coord System       Principal Strains (Zero Shear)',    &
-                '                 Transverse   Transverse'                                                                         &
-          ,/,1X,A,'   ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor'      &
-          ,'      von Mises    Shear-XZ     Shear-YZ',A)
-
- 1702 FORMAT(1X,A,'Element    Location      Fibre        Strains In Element Coord System       Principal Strains (Zero Shear)',    &
-  '      Max        Transverse   Transverse'                                                                                       &
-          ,/,1X,A,'   ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor',     &
-          '      Shear-XY    Shear-XZ     Shear-YZ',A)
+ 1700 FORMAT(                                                                                                                      &
+  '  Element    Location      ',A6,'       ', A8, ' In Element Coord System      Principal ', A8, ' (Zero Shear)',                 &
+  '      ',A6,'    Transverse   Transverse',/,                                                                                     &
+  '     ID                   ', A9,  '    Normal-X     Normal-Y     Shear-XY      Angle     Major        Minor  ',                 &
+  '    ', A9,  '    Shear-XZ     Shear-YZ')
 
  1703 FORMAT(1X,I8,4X,'Anywhere',2X,4(1ES13.5),0PF9.3,5(1ES13.5))
 
@@ -909,20 +904,22 @@
           WRITE(OP2) (EID_OUT_ARRAY(I,1)*10+DEVICE_CODE, REAL(OGEL(I,3), 4), REAL(OGEL(I,3), 4), &
                                                         NAN, I=1,NUM)
       ENDIF  ! write op2
-      DO I=1,NUM,2
-         IF (I+1 <= NUM) THEN
-            WRITE(F06,1603) FILL(1: 0), EID_OUT_ARRAY(I,1),(OGEL(I,J),J=1,3), EID_OUT_ARRAY(I+1,1),(OGEL(I+1,J),J=1,3)
-         ELSE
-            WRITE(F06,1603) FILL(1: 0), EID_OUT_ARRAY(I,1),(OGEL(I,J),J=1,3)
-         ENDIF
-      ENDDO
 
-      CALL GET_MAX_MIN_ABS_STR ( NUM, 3, 'N', MAX_ANS, MIN_ANS, ABS_ANS )
+      IF (WRITE_F06) THEN
+         DO I=1,NUM,2
+            IF (I+1 <= NUM) THEN
+               WRITE(F06,1603) FILL(1: 0), EID_OUT_ARRAY(I,1),(OGEL(I,J),J=1,3), EID_OUT_ARRAY(I+1,1),(OGEL(I+1,J),J=1,3)
+            ELSE
+               WRITE(F06,1603) FILL(1: 0), EID_OUT_ARRAY(I,1),(OGEL(I,J),J=1,3)
+            ENDIF
+         ENDDO
 
-      WRITE(F06,1604) FILL(1: 0), FILL(1: 0), MAX_ANS(1),MAX_ANS(2),MAX_ANS(3),                                                 &
-                      FILL(1: 0),             MIN_ANS(1),MIN_ANS(2),MIN_ANS(3),                                                 &
-                      FILL(1: 0),             ABS_ANS(1),ABS_ANS(2),ABS_ANS(3)
+         CALL GET_MAX_MIN_ABS_STR ( NUM, 3, 'N', MAX_ANS, MIN_ANS, ABS_ANS )
 
+         WRITE(F06,1604) FILL(1: 0), FILL(1: 0), MAX_ANS(1),MAX_ANS(2),MAX_ANS(3),                                                 &
+                         FILL(1: 0),             MIN_ANS(1),MIN_ANS(2),MIN_ANS(3),                                                 &
+                         FILL(1: 0),             ABS_ANS(1),ABS_ANS(2),ABS_ANS(3)
+      ENDIF
 
  1603 FORMAT(1X,A,I8,3(1ES14.6),13X,I8,3(1ES14.6))
  1604 FORMAT(1X,A,'         ------------- ------------- ------------- ',20X,' ------------- ------------- ------------- ',/,       &
@@ -935,7 +932,7 @@
 !==============================================================================
       SUBROUTINE WRITE_OST_CTRIA3(NUM, FILL, ISUBCASE, ITABLE, TITLE, SUBTITLE, LABEL, &
                                   FIELD5_INT_MODE, FIELD6_EIGENVALUE,                  &
-                                  WRITE_F06, WRITE_OP2)
+                                  WRITE_F06, WRITE_OP2, IS_FIBER_DISTANCE)
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, OP2
       USE LINK9_STUFF, ONLY           :  EID_OUT_ARRAY, OGEL
@@ -948,6 +945,7 @@
       CHARACTER(LEN=128), INTENT(IN)  :: SUBTITLE          ! the subcase SUBTITLE
       CHARACTER(LEN=128), INTENT(IN)  :: LABEL             ! the subcase LABEL
       LOGICAL, INTENT(IN)             :: WRITE_F06, WRITE_OP2
+      INTEGER(LONG), INTENT(IN)       :: IS_FIBER_DISTANCE
 
       CHARACTER(119*BYTE)             :: FILL              ! Padding for output format
 
@@ -983,7 +981,7 @@
           WRITE(ERR,100) ITABLE,NUM,NVALUES,NTOTAL
 
           !CALL GET_STRESS_CODE(STRESS_CODE, IS_VON_MISES, IS_STRAIN, IS_FIBER_DISTANCE)
-          CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         1)
+          CALL GET_STRESS_CODE( STRESS_CODE, 1,            1,         IS_FIBER_DISTANCE)
           CALL WRITE_OES3_STATIC(ITABLE, ISUBCASE, DEVICE_CODE, ELEMENT_TYPE, NUM_WIDE, STRESS_CODE, &
                                  TITLE, SUBTITLE, LABEL, FIELD5_INT_MODE, FIELD6_EIGENVALUE)
           WRITE(OP2) NVALUES
@@ -1003,27 +1001,25 @@
              1X,'ABS* : ',28x,3(ES13.5),9X,5(ES13.5),/,                                                                            &
              1X,'*for output set')
 
-      IF(.TRUE.) THEN
-        DO I=1,NUM
-           K = K + 1
-         WRITE(F06,*)
-         ! the J=1,10 loop is the upper layer & 2 transverse shear
-         WRITE(F06,1703) EID_OUT_ARRAY(I,1),(OGEL(K,J),J=1,10)
-         K = K + 1
+      IF (WRITE_F06) THEN
+         DO I=1,NUM
+            K = K + 1
+            WRITE(F06,*)
+            ! the J=1,10 loop is the upper layer & 2 transverse shear
+            WRITE(F06,1703) EID_OUT_ARRAY(I,1),(OGEL(K,J),J=1,10)
+            K = K + 1
 
-         ! the J=1,8 loop is the lower layer
-         WRITE(F06,1704) (OGEL(K,J),J=1,8)
-        ENDDO
+            ! the J=1,8 loop is the lower layer
+            WRITE(F06,1704) (OGEL(K,J),J=1,8)
+         ENDDO
+
+         CALL GET_MAX_MIN_ABS_STR ( NUM, 10, 'Y', MAX_ANS, MIN_ANS, ABS_ANS )
+
+         WRITE(F06,1705) MAX_ANS(2),MAX_ANS(3),MAX_ANS(4),MAX_ANS(6),MAX_ANS(7),MAX_ANS(8),MAX_ANS(9),MAX_ANS(10),                 &
+                         MIN_ANS(2),MIN_ANS(3),MIN_ANS(4),MIN_ANS(6),MIN_ANS(7),MIN_ANS(8),MIN_ANS(9),MIN_ANS(10),                 &
+                         ABS_ANS(2),ABS_ANS(3),ABS_ANS(4),ABS_ANS(6),ABS_ANS(7),ABS_ANS(8),ABS_ANS(9),ABS_ANS(10)
+
       ENDIF  ! f06
-
-      CALL GET_MAX_MIN_ABS_STR ( NUM, 10, 'Y', MAX_ANS, MIN_ANS, ABS_ANS )
-
-      IF(.TRUE.) THEN
-      WRITE(F06,1705) MAX_ANS(2),MAX_ANS(3),MAX_ANS(4),MAX_ANS(6),MAX_ANS(7),MAX_ANS(8),MAX_ANS(9),MAX_ANS(10),                 &
-                      MIN_ANS(2),MIN_ANS(3),MIN_ANS(4),MIN_ANS(6),MIN_ANS(7),MIN_ANS(8),MIN_ANS(9),MIN_ANS(10),                 &
-                      ABS_ANS(2),ABS_ANS(3),ABS_ANS(4),ABS_ANS(6),ABS_ANS(7),ABS_ANS(8),ABS_ANS(9),ABS_ANS(10)
-
-      ENDIF
 
       END SUBROUTINE WRITE_OST_CTRIA3
 

@@ -50,7 +50,6 @@
       USE MODEL_STUF, ONLY            :  EIG_CRIT, MAXMIJ, MIJ_COL, MIJ_ROW, NUM_FAIL_CRIT
       USE SPARSE_MATRICES, ONLY       :  I_KLLDn, J_KLLDn, KLLDn, I_MLLn, J_MLLn, MLLn
       USE SPARSE_MATRICES, ONLY       :  SYM_MLLn
-      USE LAPACK_BLAS_AUX
 
       USE CALC_GEN_MASS_USE_IFs
 
@@ -68,6 +67,8 @@
       REAL(DOUBLE)                    :: OUTVECI(NDOFL,1)  ! One eigenvector
       REAL(DOUBLE)                    :: OUTVECJ(NDOFL,1)  ! One eigenvector
       REAL(DOUBLE)                    :: ZVEC(NDOFL,1)     ! Intermediate matrix in the calculation of GEN_MASS
+
+      REAL(DOUBLE), EXTERNAL          :: DDOT              ! BLAS dot-product function
 
       INTRINSIC                       :: DABS
 

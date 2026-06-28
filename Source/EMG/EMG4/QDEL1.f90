@@ -264,6 +264,7 @@
 
       ENDIF
 
+
 ! **********************************************************************************************************************************
 ! Calc BM'*SHELL_B*BB (and its transpose) and add to KE. Only do this if this is a composite element with nonsym layup
 

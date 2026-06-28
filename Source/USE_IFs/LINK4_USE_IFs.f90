@@ -56,5 +56,10 @@
       USE CHK_ARRAY_ALLOC_STAT_Interface
       USE WRITE_ALLOC_MEM_TABLE_Interface
       USE FILE_INQUIRE_Interface
+      USE READ_L5A_UG_FOR_SUBCASE_Interface
+      USE REBUILD_KLLD_FROM_KGGD_Interface
+      USE ALLOCATE_COL_VEC_Interface
+      USE DEALLOCATE_COL_VEC_Interface
+      USE DEALLOCATE_MODEL_STUF_Interface
 
       END MODULE LINK4_USE_IFs

@@ -31,7 +31,7 @@
 ! load matrices from the F-set to the A, O_sets
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  FILE_NAM_MAXLEN, ERR, F06, SCR
+      USE IOUNT1, ONLY                :  FILE_NAM_MAXLEN, ERR, F06, SCR, SC1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FACTORED_MATRIX, FATAL_ERR, KOO_SDIA, NDOFA, NDOFO, NTERM_GOA, NTERM_KOO,   &
                                          NTERM_KAO
       USE PARAMS, ONLY                :  EPSIL, PRTGOA
@@ -39,7 +39,6 @@
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  SOLLIB, SPARSE_FLAVOR
       USE SPARSE_MATRICES, ONLY       :  I2_GOA, I_GOA, J_GOA, GOA, I_KOO, J_KOO, KOO, I_KAO, J_KAO, KAO
-     USE LAPACK_LIN_EQN_DPB
 
 ! Interface module not needed for subr's DPBTRF and DPBTRS. These are "CONTAIN'ed" in module LAPACK_LIN_EQN_DPB, which
 ! is "USE'd" above

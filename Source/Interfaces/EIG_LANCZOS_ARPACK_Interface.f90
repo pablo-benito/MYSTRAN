@@ -50,6 +50,7 @@
                                          I_KMSM, J_KMSM, KMSM, I_KMSMn, J_KMSMn, KMSMn, I_KMSMs, J_KMSMs, KMSMs
 
       USE ARPACK_LANCZOS_EIG
+      USE MYSTRAN_LAPACK_EXT
 
       IMPLICIT NONE
 
@@ -63,4 +64,3 @@
    END INTERFACE
 
    END MODULE EIG_LANCZOS_ARPACK_Interface
-

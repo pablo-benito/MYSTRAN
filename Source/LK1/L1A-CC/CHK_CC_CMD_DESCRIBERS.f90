@@ -32,9 +32,9 @@
 
       USE PENTIUM_II_KIND, ONLY        :  BYTE, LONG
       USE IOUNT1, ONLY                 :  WRT_ERR, ERR, F06
-      USE SCONTR, ONLY                 :  BLNK_SUB_NAM, CC_CMD_DESCRIBERS, ECHO, FATAL_ERR, WARN_ERR
+      USE SCONTR, ONLY                 :  BLNK_SUB_NAM, CC_CMD_DESCRIBERS, ECHO, FATAL_ERR, WARN_ERR, NSUB
       USE TIMDAT, ONLY                 :  TSEC
-      USE CC_OUTPUT_DESCRIBERS, ONLY   :  STRN_LOC, STRN_OPT, STRE_LOC, STRE_OPT, FORC_LOC
+      USE CC_OUTPUT_DESCRIBERS, ONLY   :  STRN_LOC, STRN_OPT, STRN_CUR, STRE_LOC, STRE_OPT, FORC_LOC
       USE PARAMS, ONLY                 :  SUPWARN
 
       USE CHK_CC_CMD_DESCRIBERS_USE_IFs
@@ -292,13 +292,14 @@ jdo_1:   DO J=1,NUM_POSS_CCD
 
          DO I=1,NUM_WORDS
 
-            ! TODO: CEN is valid for CENTER (test this)
-            IF      (CC_CMD_DESCRIBERS(I)(1:6) == 'CENTER') THEN
-               STRE_LOC = 'CENTER'
-            ELSE IF (CC_CMD_DESCRIBERS(I)(1:6) == 'CORNER') THEN
-               STRE_LOC = 'CORNER'
-            ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'BILIN' ) THEN
-               STRE_LOC = 'CORNER'
+            IF (NSUB <= 1) THEN
+               IF      (CC_CMD_DESCRIBERS(I)(1:6) == 'CENTER') THEN
+                  STRE_LOC = 'CENTER'
+               ELSE IF (CC_CMD_DESCRIBERS(I)(1:6) == 'CORNER') THEN
+                  STRE_LOC = 'CORNER'
+               ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'BILIN' ) THEN
+                  STRE_LOC = 'CORNER'
+               ENDIF
             ENDIF
 
             ! TODO: MISES is valid for VONMISES (test this...)
@@ -317,13 +318,15 @@ jdo_1:   DO J=1,NUM_POSS_CCD
       IF (WHAT == 'STRN' ) THEN
 
          DO I=1,NUM_WORDS
-            ! TODO: CEN is valid for CENTER (test this)
-            IF      (CC_CMD_DESCRIBERS(I)(1:6) == 'CENTER') THEN
-               STRN_LOC = 'CENTER'
-            ELSE IF (CC_CMD_DESCRIBERS(I)(1:6) == 'CORNER') THEN
-               STRN_LOC = 'CORNER'
-            ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'BILIN' ) THEN
-               STRN_LOC = 'CORNER'
+
+            IF (NSUB <= 1) THEN
+               IF      (CC_CMD_DESCRIBERS(I)(1:6) == 'CENTER') THEN
+                  STRN_LOC = 'CENTER'
+               ELSE IF (CC_CMD_DESCRIBERS(I)(1:6) == 'CORNER') THEN
+                  STRN_LOC = 'CORNER'
+               ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'BILIN' ) THEN
+                  STRN_LOC = 'CORNER'
+               ENDIF
             ENDIF
 
             ! TODO: MISES is valid for VONMISES (test this...)
@@ -335,6 +338,12 @@ jdo_1:   DO J=1,NUM_POSS_CCD
                STRN_OPT = 'SHEAR'
             ENDIF
 
+            IF      (CC_CMD_DESCRIBERS(I)(1:6) == 'STRCUR'  ) THEN
+               STRN_CUR = 'STRCUR'
+            ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'FIBER'   ) THEN
+               STRN_CUR = 'FIBER'
+            ENDIF
+
          ENDDO
 
       ENDIF
@@ -343,13 +352,14 @@ jdo_1:   DO J=1,NUM_POSS_CCD
 
          DO I=1,NUM_WORDS
 
-            ! TODO: CEN is valid for CENTER (test this)
-            IF      (CC_CMD_DESCRIBERS(I)(1:6) == 'CENTER') THEN
-               FORC_LOC = 'CENTER'
-            ELSE IF (CC_CMD_DESCRIBERS(I)(1:6) == 'CORNER') THEN
-               FORC_LOC = 'CORNER'
-            ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'BILIN' ) THEN
-               FORC_LOC = 'CORNER'
+            IF (NSUB <= 1) THEN
+               IF      (CC_CMD_DESCRIBERS(I)(1:6) == 'CENTER') THEN
+                  FORC_LOC = 'CENTER'
+               ELSE IF (CC_CMD_DESCRIBERS(I)(1:6) == 'CORNER') THEN
+                  FORC_LOC = 'CORNER'
+               ELSE IF (CC_CMD_DESCRIBERS(I)(1:5) == 'BILIN' ) THEN
+                  FORC_LOC = 'CORNER'
+               ENDIF
             ENDIF
 
          ENDDO

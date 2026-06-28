@@ -58,6 +58,7 @@
 
       USE EMG_USE_IFs
       USE MITC8_Interface
+      USE CALC_K6ROT_Interface
 
       IMPLICIT NONE
 
@@ -398,9 +399,16 @@
 
 ! **********************************************************************************************************************************
 ! For plate elements, process offsets (since they are specified in local element coordinates)
+! Then add drilling stiffness at the the grid points.
 
       IF ((TYPE(1:5) == 'TRIA3') .OR. (TYPE(1:5) == 'QUAD4')) THEN
+
          CALL ELMOFF ( OPT, WRITE_WARN )
+
+         IF (OPT(4) == 'Y') THEN
+            CALL CALC_K6ROT()
+         ENDIF
+
       ENDIF
 
 ! **********************************************************************************************************************************
@@ -457,244 +465,126 @@
 ! **********************************************************************************************************************************
                                                            !  1
       IF (ALLOCATED(AGRID)) THEN
-         DO II=1,MELGP+1
-            AGRID(II) = 0
-         ENDDO
+         AGRID=0
       ENDIF
                                                            !  2
       IF (ALLOCATED(BE1)) THEN
-         DO II=1,3
-            DO JJ=1,MELDOF
-               DO KK=1,MAX_STRESS_POINTS+1
-                  BE1(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         BE1=ZERO
       ENDIF
                                                            !  3
       IF (ALLOCATED(BE2)) THEN
-         DO II=1,3
-            DO JJ=1,MELDOF
-               DO KK=1,MAX_STRESS_POINTS+1
-                  BE2(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         BE2=ZERO
       ENDIF
                                                            !  4
       IF (ALLOCATED(BE3)) THEN
-         DO II=1,3
-            DO JJ=1,MELDOF
-               DO KK=1,MAX_STRESS_POINTS+1
-                  BE3(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         BE3=ZERO
       ENDIF
                                                            !  5
       IF (ALLOCATED(BGRID)) THEN
-         DO II=1,MELGP+1
-            BGRID(II) = 0
-         ENDDO
+         BGRID=0
       ENDIF
                                                            !  6
       IF (ALLOCATED(DOFPIN)) THEN
-         DO II=1,MELDOF
-            DOFPIN(II) = 0
-         ENDDO
+         DOFPIN = 0
       ENDIF
                                                            !  7
       IF (ALLOCATED(DT)) THEN
-         DO II=1,MDT
-            DO JJ=1,LSUB
-               DT(II,JJ) = 0
-            ENDDO
-         ENDDO
+         DT = 0
       ENDIF
                                                            !  8
       IF (ALLOCATED(KE)) THEN
-         DO JJ=1,MELDOF
-            DO II=1,MELDOF
-               KE(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+         KE = ZERO
       ENDIF
                                                            !  9
       IF (ALLOCATED(KED)) THEN
-         DO JJ=1,MELDOF
-            DO II=1,MELDOF
-               KED(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+               KED = ZERO
       ENDIF
                                                            ! 10
       IF (ALLOCATED(ME)) THEN
-         DO JJ=1,MELDOF
-            DO II=1,MELDOF
-               ME(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+               ME = ZERO
       ENDIF
                                                            ! 11
       IF (ALLOCATED(OFFDIS)) THEN
-         DO II=1,MOFFSET
-            DO JJ=1,3
-               OFFDIS(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+               OFFDIS = ZERO
       ENDIF
                                                            ! 12
       IF (ALLOCATED(OFFSET)) THEN
-         DO II=1,MOFFSET
-            OFFSET(II) = ' '
-         ENDDO
+            OFFSET = ' '
       ENDIF
                                                            ! 13
       IF (ALLOCATED(PEB)) THEN
-         DO II=1,MELDOF
-            PEB(II) = ZERO
-         ENDDO
+            PEB = ZERO
       ENDIF
                                                            ! 14
       IF (ALLOCATED(PEG)) THEN
-         DO I=1,MELDOF
-            PEG(I) = ZERO
-         ENDDO
+            PEG = ZERO
       ENDIF
                                                            ! 15
       IF (ALLOCATED(PEL)) THEN
-         DO II=1,MELDOF
-            PEL(II) = ZERO
-         ENDDO
+            PEL = ZERO
       ENDIF
                                                            ! 16
       IF (ALLOCATED(PPE)) THEN
-         DO JJ=1,NSUB
-            DO II=1,MELDOF
-               PPE(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+               PPE = ZERO
       ENDIF
                                                            ! 17
       IF (ALLOCATED(PRESS)) THEN
-         DO II=1,MPRESS
-            DO JJ=1,LSUB
-               PRESS(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+               PRESS = ZERO
       ENDIF
                                                            ! 18
       IF (ALLOCATED(PTE)) THEN
-         DO II=1,MELDOF
-            DO JJ=1,LSUB
-               PTE(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+         PTE = ZERO
       ENDIF
                                                            ! 19
       IF (ALLOCATED(SE1)) THEN
-         DO II=1,3
-            DO JJ=1,MELDOF
-               DO KK=1,MAX_STRESS_POINTS+1
-                  SE1(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         SE1 = ZERO
       ENDIF
                                                            ! 20
       IF (ALLOCATED(SE2)) THEN
-         DO II=1,3
-            DO JJ=1,MELDOF
-               DO KK=1,MAX_STRESS_POINTS+1
-                  SE2(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         SE2 = ZERO
       ENDIF
                                                            ! 21
       IF (ALLOCATED(SE3)) THEN
-         DO II=1,3
-            DO JJ=1,MELDOF
-               DO KK=1,MAX_STRESS_POINTS+1
-                  SE3(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         SE3 = ZERO
       ENDIF
                                                            ! 22
       IF (ALLOCATED(STE1)) THEN
-         DO II=1,3
-            DO JJ=1,LSUB
-               DO KK=1,MAX_STRESS_POINTS+1
-                  STE1(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         STE1 = ZERO
       ENDIF
                                                            ! 23
       IF (ALLOCATED(STE2)) THEN
-         DO II=1,3
-            DO JJ=1,LSUB
-               DO KK=1,MAX_STRESS_POINTS+1
-                  STE2(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         STE2 = ZERO
       ENDIF
                                                            ! 24
       IF (ALLOCATED(STE3)) THEN
-         DO II=1,3
-            DO JJ=1,LSUB
-               DO KK=1,MAX_STRESS_POINTS+1
-                  STE3(II,JJ,KK) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         STE3 = ZERO
       ENDIF
                                                            ! 25
       IF (ALLOCATED(UEB)) THEN
-         DO II=1,MELDOF
-            UEB(II) = ZERO
-         ENDDO
+            UEB = ZERO
       ENDIF
                                                            ! 26
       IF (ALLOCATED(UEG)) THEN
-         DO II=1,MELDOF
-            UEG(II) = ZERO
-         ENDDO
+            UEG = ZERO
       ENDIF
                                                            ! 27
       IF (ALLOCATED(UEL)) THEN
-         DO II=1,MELDOF
-            UEL(II) = ZERO
-         ENDDO
+            UEL = ZERO
       ENDIF
                                                            ! 28
       IF (ALLOCATED(UGG)) THEN
-         DO II=1,MELDOF
-            UGG(II) = ZERO
-         ENDDO
+            UGG = ZERO
       ENDIF
                                                            ! 29
       IF (ALLOCATED(XEB)) THEN
-         DO II=1,MELGP+1
-            DO JJ=1,3
-               XEB(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+               XEB = ZERO
       ENDIF
                                                            ! 30
       IF (ALLOCATED(XEL)) THEN
-         DO II=1,MELGP
-            DO JJ=1,3
-               XEL(II,JJ) = ZERO
-            ENDDO
-         ENDDO
+               XEL = ZERO
       ENDIF
 
-      DO I=1,3
-         FCONV(I) = ZERO
-      ENDDO
+      FCONV = ZERO
 
 ! **********************************************************************************************************************************
 

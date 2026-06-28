@@ -39,7 +39,6 @@
       USE PARAMS, ONLY                :  PRTUO0, SOLLIB, SPARSE_FLAVOR
       USE SPARSE_MATRICES, ONLY       :  I_PO, J_PO, PO, I_KOO, J_KOO, KOO
       USE COL_VECS, ONLY              :  UO0_COL
-      USE LAPACK_LIN_EQN_DPB
 
       IMPLICIT NONE
 

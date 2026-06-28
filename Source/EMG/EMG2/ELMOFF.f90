@@ -32,18 +32,12 @@
 ! ======================================
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  BUG, ERR, F06, WRT_BUG, WRT_ERR
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MAX_STRESS_POINTS, NSUB, NTSUB, MAX_ORDER_GAUSS, MEFE, NMATL,    &
-                                         NPSHEL
-      USE TIMDAT, ONLY                :  TSEC
-      USE DEBUG_PARAMETERS, ONLY      :  DEBUG
-      USE CONSTANTS_1, ONLY           :  ZERO, ONE, TWO
-      USE PARAMS, ONLY                :  K6ROT, EPSIL, QUAD4TYP
-      USE MODEL_STUF, ONLY            :  CAN_ELEM_TYPE_OFFSET, ELDOF, ELGP, EID, KE, ME, NUM_EMG_FATAL_ERRS, RMATL,                &
-                                         OFFDIS, OFFSET, PPE, PTE, SE1, SE2, SE3, XEL, ERR_SUB_NAM, EMG_IFE, EMG_RFE, TYPE,        &
-                                         SHELL_A, INTL_MID
-      USE MITC_STUF, ONLY             :  DIRECTOR
-      USE ELMOFF_USE_IFs
+      USE IOUNT1, ONLY                :  ERR, F06
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MAX_STRESS_POINTS, NSUB, NTSUB
+      USE CONSTANTS_1, ONLY           :  ZERO, ONE
+      USE MODEL_STUF, ONLY            :  CAN_ELEM_TYPE_OFFSET, ELGP, EID, KE, ME, NUM_EMG_FATAL_ERRS,                &
+                                         OFFDIS, OFFSET, PPE, PTE, SE1, SE2, SE3, TYPE
+      USE OUTA_HERE_Interface
 
       IMPLICIT NONE
 
@@ -80,24 +74,6 @@
       REAL(DOUBLE)                    :: E(6*ELGP,6*ELGP)
       REAL(DOUBLE)                    :: Ei(ELGP,6,6)
       REAL(DOUBLE)                    :: KE1(6*ELGP,6*ELGP)
-      REAL(DOUBLE)                    :: Ksita             ! virtual rotational stiffness derived from K6ROT
-      REAL(DOUBLE)                    :: X2E               ! x coord of elem node 2
-      REAL(DOUBLE)                    :: Y3E               ! y coord of elem node 3
-      REAL(DOUBLE)                    :: AREA                 ! Elem area
-      REAL(DOUBLE)                    :: HHH(MAX_ORDER_GAUSS) ! An output from subr ORDER, called herein.  Gauss weights.
-      REAL(DOUBLE)                    :: SSS(MAX_ORDER_GAUSS) ! An output from subr ORDER, called herein. Gauss abscissa's.
-      REAL(DOUBLE)                    :: XSD(4)               ! Diffs in x coords of quad sides in local coords
-      REAL(DOUBLE)                    :: YSD(4)               ! Diffs in y coords of quad sides in local coords
-      REAL(DOUBLE)                    :: JAC(2,2)             ! An output from subr JAC2D4, called herein. 2 x 2 Jacobian matrix.
-      REAL(DOUBLE)                    :: JACI(2,2)            ! An output from subr JAC2D4, called herein. 2 x 2 Jacobian inverse.
-      REAL(DOUBLE)                    :: DETJ                 ! An output from subr JAC2D4, called herein. Determinant of JAC
-      REAL(DOUBLE)                    :: K6_DIR(3,ELGP)       ! Normalized direction of the singular DOF (spring x axis).
-      REAL(DOUBLE)                    :: TY_DIR(3)            ! Vector that defines the y axis of the spring.
-      REAL(DOUBLE)                    :: T(3,3)               ! Transformation matrix for spring.
-      REAL(DOUBLE)                    :: KROT(3,3)            ! Stiff matrix for spring.
-
-      INTRINSIC                       :: DABS
-
 
 
 ! **********************************************************************************************************************************
@@ -147,19 +123,8 @@
 
 ! Initialize
 
-      DO J=1,6*ELGP
-         DO K=1,6*ELGP
-            E(J,K)   = ZERO
-         ENDDO
-      ENDDO
-
-      DO I=1,ELGP
-         DO J=1,6
-            DO K=1,6
-               Ei(I,J,K) = ZERO
-            ENDDO
-         ENDDO
-      ENDDO
+      E  = ZERO
+      Ei = ZERO
 
       DO I=1,ELGP
 
@@ -197,127 +162,13 @@
          ENDDO
       ENDDO
 
+! Apply offset to stiffness matrix KE
+
       IF (OPT(4) == 'Y') THEN
-
-         DO J=1,6*ELGP
-            DO K=1,6*ELGP
-               KE1(J,K) = KE(J,K)
-            ENDDO
-         ENDDO
-
-! Mult E'*KE*E
-
-         CALL MATMULT_FFF   ( KE1, E     , 6*ELGP, 6*ELGP, 6*ELGP, DUM_KE )
-         CALL MATMULT_FFF_T ( E  , DUM_KE, 6*ELGP, 6*ELGP, 6*ELGP, KE1    )
-
-! **********************************************************************************************************************************
-! Add K6ROT stiffness
-
-                                                           ! Only for QUAD4 and TRIA3,
-                                                           ! not QUAD8, QUAD4K, or TRIA3K.
-         IF (TYPE == 'QUAD4   ' .OR. TYPE == 'TRIA3   ') THEN
-
-                                                           ! No K6ROT for shells that only use MID1.
-            IF (INTL_MID(2) > 0) THEN
-
-               AREA = ZERO
-
-               IF ((TYPE(1:5) == "QUAD4")) THEN
-
-                  XSD(1) = XEL(1,1) - XEL(2,1)             ! x coord diffs (in local elem coords)
-                  XSD(2) = XEL(2,1) - XEL(3,1)
-                  XSD(3) = XEL(3,1) - XEL(4,1)
-                  XSD(4) = XEL(4,1) - XEL(1,1)
-
-                  YSD(1) = XEL(1,2) - XEL(2,2)             ! y coord diffs (in local elem coords)
-                  YSD(2) = XEL(2,2) - XEL(3,2)
-                  YSD(3) = XEL(3,2) - XEL(4,2)
-                  YSD(4) = XEL(4,2) - XEL(1,2)
-
-                  CALL ORDER_GAUSS ( 2, SSS, HHH )
-                  DO I=1,2
-                     DO J=1,2
-                        CALL JAC2D ( SSS(I), SSS(J), XSD, YSD, 'N', JAC, JACI, DETJ )
-                        AREA = AREA + HHH(I)*HHH(J)*DETJ
-                     ENDDO
-                  ENDDO
-
-               ELSEIF (TYPE(1:5) == "TRIA3") THEN
-
-                  X2E  = XEL(2,1)
-                  Y3E  = XEL(3,2)
-                                                           ! Actual area is half this but using this value
-                                                           ! gives the same stiffness as MSC.
-                  AREA = X2E*Y3E
-
-               ENDIF
-
-               ! Drilling spring stiffness = K6ROT * 10^-6 * G12 * thickness * area
-               !                           = K6ROT * 10^-6 * A(3,3) * area
-               Ksita = 10.0**(-6.0) * SHELL_A(3,3) * ABS(AREA) * K6ROT
-
-               ! Find the direction of the singularity DOF (SNORM) in the element coordinate system.
-               IF ((TYPE == 'QUAD4   ') .AND. ((QUAD4TYP == 'MITC4 ') .OR. (QUAD4TYP == 'MITC4+'))) THEN
-                                                           ! This is currently the director vector
-                                                           ! but it won't be if SNORM is implemented
-                                                           ! without changing the geometry of the element.
-                  K6_DIR(:,1:ELGP) = DIRECTOR(:,1:ELGP)
-               ELSEIF (((TYPE == 'QUAD4   ') .AND. ((QUAD4TYP == 'MIN4  ') .OR. (QUAD4TYP == 'MIN4T ')))                           &
-                 .OR.   (TYPE == 'TRIA3   ')) THEN
-                                                           ! Spring axis is simply the element z axis.
-                  K6_DIR(1,:) = ZERO
-                  K6_DIR(2,:) = ZERO
-                  K6_DIR(3,:) = ONE
-               ENDIF
-
-               DO J=1,ELGP
-
-                  ! Spring stiffness matrix where stiffness is in the spring x direction
-                  !
-                  !        [ Ksita   0     0  ]
-                  ! KROT = [   0     0     0  ]
-                  !        [   0     0     0  ]
-                  KROT(:,:) = ZERO
-                  KROT(1,1) = Ksita
-
-                  ! Transformation matrix from spring coordinates to element coordinates
-                  ! Spring x is the singularity axis
-                  T(:,1) = K6_DIR(:,J)
-                  ! Spring y is orthogonal to both spring x and element x
-                  CALL CROSS(T(:,1), (/ ONE, ZERO, ZERO /), T(:,2))
-                  ! Normalize spring y
-                  T(:,2) = T(:,2) / DSQRT(DOT_PRODUCT(T(:,2), T(:,2)))
-                  ! Spring z is mutually orthogonal
-                  CALL CROSS(T(:,1), T(:,2), T(:,3))
-
-                  ! Transform the spring stiffness matrix to element coordinates.
-                  ! T * K * T'
-                  KROT = MATMUL(MATMUL(T, KROT), TRANSPOSE(T))
-
-                  ! Add the 3x3 spring stiffness matrix to the element stiffness matrix
-                  K = (J-1) * 6
-                  KE1(K+4:K+6,K+4:K+6) = KE1(K+4:K+6,K+4:K+6) + KROT(:,:)
-
-                  ! todo remove.
-                  ! Spring axis is element coordinate z axis. Only correct for flat elements without SNORM.
-                  ! KE1(6*J,6*J) = KE1(6*J,6*J) + Ksita
-
-               ENDDO
-
-            ENDIF
-         ENDIF
-
-! **********************************************************************************************************************************
-
-
-! Set KE = KE1 for 6*ELGP by 6*ELGP terms
-
-         DO J=1,6*ELGP
-            DO K=1,6*ELGP
-               KE(J,K) = KE1(J,K)
-            ENDDO
-         ENDDO
-
+         KE1 = KE(:6*ELGP, :6*ELGP)
+         DUM_KE = MATMUL(KE1,E)
+         KE1 = MATMUL(TRANSPOSE(E),DUM_KE)
+         KE(:6*ELGP, :6*ELGP) = KE1
       ENDIF
 
 ! Process offsets
@@ -613,9 +464,6 @@
 
 1925 FORMAT(' *ERROR  1925: ELEMENT ',I8,', TYPE ',A,', HAS ZERO OR NEGATIVE ',A,' = ',1ES9.1)
 
-1927 FORMAT(' *ERROR  1927: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
-                    ,/,14X,' CHAR PARAMETER QUAD4TYP MUST BE EITHER "MIN4T " OR "MIN4  " BUT IS "',A,'"')
-
 1948 FORMAT(' *ERROR  1948: ',A,I8,' MUST HAVE INTEGRATION ORDERS FOR PARAMS ',A,' = ',I3,' IF THE ELEMENT IS A PCOMP'            &
                              ,/,14X,' WITH SYM LAYUP. HOWEVER, THE TWO INTEGRATION ORDERS WERE: ',A,' = ',I3,' AND ',A,' = ',I3)
 
@@ -641,7 +489,6 @@
       USE PENTIUM_II_KIND, ONLY       :  LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06, WRT_ERR
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, MEFE
-      USE TIMDAT, ONLY                :  TSEC
       USE MODEL_STUF, ONLY            :  EMG_IFE, ERR_SUB_NAM, NUM_EMG_FATAL_ERRS
 
       IMPLICIT NONE

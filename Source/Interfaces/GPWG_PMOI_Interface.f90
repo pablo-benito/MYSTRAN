@@ -37,7 +37,6 @@
       USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO, ONE
       USE PARAMS, ONLY                :  SUPWARN, WTMASS
-      USE LAPACK_STD_EIG_1
 
       IMPLICIT NONE
 

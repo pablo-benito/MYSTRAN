@@ -45,16 +45,17 @@
                                          L2J_MSG, L2R_MSG, L2S_MSG, L5A_MSG, L5B_MSG, NEU_MSG, PCH_MSG,                            &
                                          OT4_MSG, OU4_MSG, OT4_GRD_OTM, OT4_ELM_OTM, OU4_GRD_OTM, OU4_ELM_OTM
 
-      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_ENTRY_LEN, COMM, IBIT, INT_SC_NUM, JTSUB, FATAL_ERR,                     &
+      USE SCONTR, ONLY                :  BLNK_SUB_NAM, CC_ENTRY_LEN, COMM, IBIT, INT_EIG_NUM, INT_SC_NUM, JTSUB, FATAL_ERR,          &
                                          FEMAP_VERSION, LINKNO, MBUG,                                                              &
                                          NDOFF, NDOFG, NDOFL, NDOFM, NDOFN, ndofo, NDOFR, NDOFS, NDOFSA, NGRID, NSUB, NVEC,        &
                                          NTERM_IF_LTM, NTERM_GMN, NTERM_HMN, NTERM_KFS, NTERM_KFSD, NTERM_LMN, NTERM_MFS,          &
                                          NTERM_MGG, NTERM_MLL,NTERM_PG, NTERM_PM, NTERM_PS, NTERM_QSYS,                            &
-                                         NUM_CB_DOFS, NUM_EIGENS,                                                                  &
+                                         NUM_BUCKLING_SUBS, NUM_CB_DOFS, NUM_EIGENS,                                                          &
                                          NROWS_OTM_ACCE, NROWS_OTM_DISP, NROWS_OTM_MPCF, NROWS_OTM_SPCF,                           &
                                          NROWS_OTM_ELFE, NROWS_OTM_ELFN, NROWS_OTM_STRE, NROWS_OTM_STRN,                           &
                                          NROWS_TXT_ACCE, NROWS_TXT_DISP, NROWS_TXT_MPCF, NROWS_TXT_SPCF,                           &
-                                         NROWS_TXT_ELFE, NROWS_TXT_ELFN, NROWS_TXT_STRE, NROWS_TXT_STRN, RESTART, SOL_NAME, WARN_ERR
+                                         NROWS_TXT_ELFE, NROWS_TXT_ELFN, NROWS_TXT_STRE, NROWS_TXT_STRN, RESTART, SOL_NAME, WARN_ERR, &
+                                         MODE_SUBCASE
 
       USE SCONTR, ONLY                :  GROUT_ACCE_BIT, GROUT_DISP_BIT, GROUT_OLOA_BIT, GROUT_SPCF_BIT, GROUT_MPCF_BIT,           &
                                          GROUT_GPFO_BIT, ELOUT_ELFN_BIT, ELOUT_ELFE_BIT, ELOUT_STRE_BIT, ELOUT_STRN_BIT,           &
@@ -157,6 +158,8 @@
       INTEGER(LONG)                   :: SC_STRE_OUTPUT    ! = 1 if requests for output of elem stresses in a particular S/C
       INTEGER(LONG)                   :: SC_STRN_OUTPUT    ! = 1 if requests for output of elem strains  in a particular S/C
       INTEGER(LONG)                   :: XTIME             ! Time stamp read from an unformatted file
+      INTEGER(LONG)                   :: PREV_SC_NUM   = 0 ! Tracks previous INT_SC_NUM to detect subcase transitions for INT_EIG_NUM
+      INTEGER(LONG)                   :: SC_VEC_COUNT  = 0 ! Running per-subcase eigenvector counter; reset on each subcase change
 
 
       REAL(DOUBLE)                    :: EPS1              ! Small number to compare against zero
@@ -193,28 +196,28 @@
       !IF (PRTNEU == 'Y') THEN
       !   DEBUG(200) = 1
       !ENDIF
-      IF (PRTF06 == 'Y') THEN
-         DISP_OUT(1:1) = 'Y'  ! f06
-         ACCE_OUT(2:2) = 'Y'
-         OLOA_OUT(1:1) = 'Y'
-         SPCF_OUT(1:1) = 'Y'
-         MPCF_OUT(1:1) = 'Y'
-         STRE_OUT(1:1) = 'Y'
-         STRN_OUT(1:1) = 'Y'
-         FORC_OUT(1:1) = 'Y'
-         GPFO_OUT(1:1) = 'Y'
-      ENDIF
-      IF (PRTOP2 == 'Y') THEN
-         DISP_OUT(2:2) = 'Y'  ! op2
-         ACCE_OUT(2:2) = 'Y'
-         OLOA_OUT(2:2) = 'Y'
-         SPCF_OUT(2:2) = 'Y'
-         MPCF_OUT(2:2) = 'Y'
-         STRE_OUT(2:2) = 'Y'
-         STRN_OUT(2:2) = 'Y'
-         FORC_OUT(2:2) = 'Y'
-         GPFO_OUT(2:2) = 'Y'
-      ENDIF
+      ! IF (PRTF06 == 'Y') THEN
+      !    DISP_OUT(1:1) = 'Y'  ! f06
+      !    ACCE_OUT(2:2) = 'Y'
+      !    OLOA_OUT(1:1) = 'Y'
+      !    SPCF_OUT(1:1) = 'Y'
+      !    MPCF_OUT(1:1) = 'Y'
+      !    STRE_OUT(1:1) = 'Y'
+      !    STRN_OUT(1:1) = 'Y'
+      !    FORC_OUT(1:1) = 'Y'
+      !    GPFO_OUT(1:1) = 'Y'
+      ! ENDIF
+      ! IF (PRTOP2 == 'Y') THEN
+      !    DISP_OUT(2:2) = 'Y'  ! op2
+      !    ACCE_OUT(2:2) = 'Y'
+      !    OLOA_OUT(2:2) = 'Y'
+      !    SPCF_OUT(2:2) = 'Y'
+      !    MPCF_OUT(2:2) = 'Y'
+      !    STRE_OUT(2:2) = 'Y'
+      !    STRN_OUT(2:2) = 'Y'
+      !    FORC_OUT(2:2) = 'Y'
+      !    GPFO_OUT(2:2) = 'Y'
+      ! ENDIF
       !DISP_OUT(3:3) = 'Y'  ! pch
       !------------------------------------------------------------------------
 
@@ -226,9 +229,9 @@
       OUNT(1) = ERR
       OUNT(2) = F06
 
-      WRITE_F06 = (DISP_OUT(1:1) == 'Y')
-      WRITE_OP2 = (DISP_OUT(2:2) == 'Y')
-      WRITE_PCH = (DISP_OUT(3:3) == 'Y')
+      WRITE_F06 = DISP_OUT%WRITE_F06
+      WRITE_OP2 = DISP_OUT%WRITE_OP2
+      WRITE_PCH = DISP_OUT%WRITE_PCH
       IF (WRITE_PCH) THEN
          INQUIRE (FILE=PCHFIL, OPENED=LOPEN)
          IF (.NOT.LOPEN) THEN                          ! Otherwise we assume it is positioned at its end and ready for write
@@ -596,8 +599,8 @@
 
       ELSE IF (SOL_NAME(1:8) == 'BUCKLING') THEN
 
-         IF (LK9_PROC_NUM == 1) THEN
-            NUM_SOLNS = 1
+         IF (LOAD_ISTEP == 1) THEN
+            NUM_SOLNS = NSUB - NUM_BUCKLING_SUBS  ! all static preload subcases
 
          ELSE
             NUM_SOLNS = NVEC
@@ -671,17 +674,46 @@ j_do: DO JVEC=1,NUM_SOLNS
             FEMAP_SET_ID = SCNUM(JVEC)
 
          ELSE IF (SOL_NAME(1: 8) == 'BUCKLING') THEN
-            INT_SC_NUM   = LK9_PROC_NUM
-            FEMAP_SET_ID = LK9_PROC_NUM
+            IF (LOAD_ISTEP == 2) THEN
+               ! Each eigenvector is attributed to its owning buckling subcase via MODE_SUBCASE (same as MODES)
+               INT_SC_NUM = 1
+               IF (ALLOCATED(MODE_SUBCASE)) THEN
+                  IF (JVEC <= SIZE(MODE_SUBCASE)) INT_SC_NUM = MODE_SUBCASE(JVEC)
+               ENDIF
+               FEMAP_SET_ID = JVEC
+            ELSE
+               ! Static preload pass: JVEC indexes the static subcases (1..NSUB-NUM_BUCKLING_SUBS)
+               INT_SC_NUM   = JVEC
+               FEMAP_SET_ID = SCNUM(JVEC)
+            ENDIF
 
          ELSE IF (SOL_NAME(1: 5) == 'MODES') THEN
-            INT_SC_NUM   = 1
+            ! Each mode is attributed to its owning subcase via MODE_SUBCASE (populated in LINK4). For legacy single-METHOD
+            ! decks MODE_SUBCASE is uniformly the canonical subcase, so behaviour matches the original INT_SC_NUM=1 fallback.
+            INT_SC_NUM = 1
+            IF (ALLOCATED(MODE_SUBCASE)) THEN
+               IF (JVEC <= SIZE(MODE_SUBCASE)) INT_SC_NUM = MODE_SUBCASE(JVEC)
+            ENDIF
             FEMAP_SET_ID = JVEC
 
          ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
             INT_SC_NUM   = 1
             FEMAP_SET_ID = JVEC
 
+         ENDIF
+
+         ! Compute per-subcase local eigenvector index for eigen solutions (MODES or BUCKLING step 2).
+         ! INT_EIG_NUM is reset to 1 whenever INT_SC_NUM changes (new subcase), and counts up within a subcase.
+         ! For non-eigen solutions (STATICS, NLSTATIC, BUCKLING step 1, GEN CB MODEL) INT_EIG_NUM is set to 0.
+         IF ((SOL_NAME(1:5) == 'MODES') .OR. ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2))) THEN
+            IF (INT_SC_NUM /= PREV_SC_NUM) THEN
+               SC_VEC_COUNT = 0
+               PREV_SC_NUM  = INT_SC_NUM
+            ENDIF
+            SC_VEC_COUNT = SC_VEC_COUNT + 1
+            INT_EIG_NUM  = SC_VEC_COUNT
+         ELSE
+            INT_EIG_NUM = 0
          ENDIF
 
          IF (WRITE_NEU) THEN
@@ -703,9 +735,12 @@ j_do: DO JVEC=1,NUM_SOLNS
          ENDIF
 
 
-         IF ((SOL_NAME(1:8) == 'BUCKLING') .OR. (SOL_NAME(1:8) == 'DIFFEREN')) THEN
+         IF (SOL_NAME(1:8) == 'DIFFEREN') THEN
             JTSUB = 1
             INT_SC_NUM = 1
+         ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
+            JTSUB = 1                                      ! eigenvectors: buckling subcases carry no thermal loads
+            ! INT_SC_NUM was already set correctly in the j_do init block above; do not override
          ELSE
             IF (SUBLOD(INT_SC_NUM,2) > 0) THEN                ! JTSUB must only be used in the subrs called if this SUBLOD > 0
                JTSUB = JTSUB + 1
@@ -1200,8 +1235,12 @@ j_do: DO JVEC=1,NUM_SOLNS
 
       CALL DEALLOCATE_IN4_FILES  ( 'IN4FIL' )
                                                            ! Deallocate data in file LINK1D
-      CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
-      CALL DEALLOCATE_MODEL_STUF ( 'TITLES' )
+      IF ((SOL_NAME(1:8) /= 'BUCKLING') .OR. (LOAD_ISTEP == 2)) THEN
+         ! gotta make SCNUM survive past the 1st run because we use it in LINK4
+         CALL DEALLOCATE_MODEL_STUF ( 'SCNUM' )
+         ! titles too, for use in block labels during link4/5
+         CALL DEALLOCATE_MODEL_STUF ( 'TITLES' )
+      END IF
       CALL DEALLOCATE_MODEL_STUF ( 'GROUT, ELOUT' )
                                                            ! Deallocate data in file LINK1G (except ETYPE, EDAT, EPNT
       CALL DEALLOCATE_MODEL_STUF ( 'ESORT1' )

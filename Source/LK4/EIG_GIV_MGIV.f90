@@ -29,7 +29,7 @@
 ! Solves for eigenvalues and eigenvectors when method is GIV (Givens) or MGIV (modified Givens)
 
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
-      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06
+      USE IOUNT1, ONLY                :  WRT_ERR, ERR, F06, SC1
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR, KLL_SDIA, KLLD_SDIA, MLL_SDIA, NDOFL, NTERM_KLL, NTERM_KLLD,     &
                                          NTERM_MLL, NUM_EIGENS, NUM_KLLD_DIAG_ZEROS, NUM_MLL_DIAG_ZEROS, NVEC, SOL_NAME, WARN_ERR
       USE TIMDAT, ONLY                :  TSEC
@@ -40,8 +40,8 @@
       USE LAPACK_DPB_MATRICES, ONLY   :  ABAND, BBAND
       USE SPARSE_MATRICES, ONLY       :  I_KLL, J_KLL, KLL, I_KLLD, J_KLLD, KLLD, I_MLL, J_MLL, MLL
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
-      USE LAPACK_GIV_MGIV_EIG
 
+      USE MYSTRAN_LAPACK_EXT
       USE EIG_GIV_MGIV_USE_IFs
       USE LINK_MESSAGE_Interface
 

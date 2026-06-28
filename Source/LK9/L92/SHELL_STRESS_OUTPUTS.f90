@@ -32,7 +32,6 @@
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
-      USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  ANY_FAILURE_THEORY, FAILURE_THEORY, PCOMP_PROPS, STRAIN, STRESS, TYPE, ZS
       USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRE_OPT
@@ -40,8 +39,12 @@
       USE FEMAP_ARRAYS, ONLY          :  FEMAP_EL_VECS
       USE PARAMS, ONLY                :  PRTNEU
 
-      USE SHELL_STRESS_OUTPUTS_USE_IFs
-
+      USE PRINCIPAL_STRESS_2D_Interface
+      USE OUTA_HERE_Interface
+      USE GET_COMP_SHELL_ALLOWS_Interface
+      USE POLY_FAILURE_INDEX_Interface
+      USE INDEP_FAILURE_INDEX_Interface
+      
       IMPLICIT NONE
 
       CHARACTER(LEN=LEN(BLNK_SUB_NAM)):: SUBR_NAME = 'SHELL_STRESS_OUTPUTS'
@@ -55,17 +58,17 @@
       INTEGER(LONG)                   :: NUM_ROWS           ! Number of rows of stress for an element (plates have 2 ZS vals)
 
 
-      REAL(DOUBLE)                    :: ANGLE              ! Angle of prin stresses in plate elems (calc'd in subr PRINCIPAL_2D)
+      REAL(DOUBLE)                    :: ANGLE              ! Angle of prin stresses in plate elems
       REAL(DOUBLE)                    :: FAILURE_INDEX      ! Failure index (scalar value)
       REAL(DOUBLE)                    :: MEAN               ! Mean stresses
       REAL(DOUBLE)                    :: STREi(6)           ! 6 components of stress
       REAL(DOUBLE)                    :: STRNi(6)           ! 6 components of strain
-      REAL(DOUBLE)                    :: SMAJ,SMIN          ! Major/minor prin stresses in plate elems (calc'd in subr PRINCIPAL_2D)
+      REAL(DOUBLE)                    :: SMAJ,SMIN          ! Major/minor prin stresses in plate elems
       REAL(DOUBLE)                    :: STRE_ALLOWABLES(9) ! Allowable stresses (incl tension and compr for normal stresses)
       REAL(DOUBLE)                    :: STRN_ALLOWABLES(9) ! Allowable strains  (incl tension and compr for normal stresses)
       REAL(DOUBLE)                    :: SX,SY,SXY          ! In-plane stresses in plate elements
       REAL(DOUBLE)                    :: SXZ,SYZ            ! Transverse shear stresses in plate elements
-      REAL(DOUBLE)                    :: SXYMAX             ! Max shear stress in plate elems (calc'd in subr PRINCIPAL_2D)
+      REAL(DOUBLE)                    :: SXYMAX             ! Max shear stress in plate elems
       REAL(DOUBLE)                    :: VONMISES           ! von Mises stress
       LOGICAL                         :: WRITE_NEU
 
@@ -86,7 +89,7 @@
             SXY = STRESS(3)
             SXZ = STRESS(7)
             SYZ = STRESS(8)
-            CALL PRINCIPAL_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
+            CALL PRINCIPAL_STRESS_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
             IF (WRITE_OGEL == 'Y') THEN
                NUM1 = NUM1 + 1
                IF (NUM1 > SIZE_ALLOCATED) THEN
@@ -180,7 +183,7 @@
                SXY = STRESS(3) + ZS(I)*STRESS(6)
                SXZ = STRESS(7)
                SYZ = STRESS(8)
-               CALL PRINCIPAL_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
+               CALL PRINCIPAL_STRESS_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
                IF (WRITE_OGEL == 'Y') THEN
                   NUM1 = NUM1 + 1
                   IF (NUM1 > SIZE_ALLOCATED) THEN

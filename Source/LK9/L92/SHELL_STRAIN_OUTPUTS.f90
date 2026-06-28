@@ -32,15 +32,18 @@
       USE PENTIUM_II_KIND, ONLY       :  BYTE, LONG, DOUBLE
       USE IOUNT1, ONLY                :  ERR, F06
       USE SCONTR, ONLY                :  BLNK_SUB_NAM, FATAL_ERR
-      USE TIMDAT, ONLY                :  TSEC
       USE CONSTANTS_1, ONLY           :  ZERO
       USE MODEL_STUF, ONLY            :  ANY_FAILURE_THEORY, FAILURE_THEORY, PCOMP_PROPS, STRAIN, STRESS, TYPE, ZS
-      USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_OPT
+      USE CC_OUTPUT_DESCRIBERS, ONLY  :  STRN_OPT, STRN_CUR
       USE LINK9_STUFF, ONLY           :  FTNAME, OGEL
       USE FEMAP_ARRAYS, ONLY          :  FEMAP_EL_VECS
       USE PARAMS, ONLY                :  PRTNEU
 
-      USE SHELL_STRAIN_OUTPUTS_USE_IFs
+      USE PRINCIPAL_STRAIN_2D_Interface
+      USE OUTA_HERE_Interface
+      USE GET_COMP_SHELL_ALLOWS_Interface
+      USE POLY_FAILURE_INDEX_Interface
+      USE INDEP_FAILURE_INDEX_Interface
 
       IMPLICIT NONE
 
@@ -55,18 +58,19 @@
       INTEGER(LONG)                   :: NUM_ROWS           ! Number of rows of stress for an element (plates have 2 ZS vals)
 
 
-      REAL(DOUBLE)                    :: ANGLE              ! Angle of prin strains in plate elems (calc'd in subr PRINCIPAL_2D)
+      REAL(DOUBLE)                    :: ANGLE              ! Angle of prin strains in plate elems
       REAL(DOUBLE)                    :: FAILURE_INDEX      ! Failure index (scalar value)
       REAL(DOUBLE)                    :: MEAN               ! Mean strains
       REAL(DOUBLE)                    :: STREi(6)           ! 6 components of stress
       REAL(DOUBLE)                    :: STRNi(6)           ! 6 components of strain
-      REAL(DOUBLE)                    :: SMAJ,SMIN          ! Major/minor prin strains in plate elems (calc'd in subr PRINCIPAL_2D)
+      REAL(DOUBLE)                    :: SMAJ,SMIN          ! Major/minor prin strains in plate elems
       REAL(DOUBLE)                    :: STRE_ALLOWABLES(9) ! Allowable strains (incl tension and compr for normal strains)
       REAL(DOUBLE)                    :: STRN_ALLOWABLES(9) ! Allowable strains  (incl tension and compr for normal strains)
       REAL(DOUBLE)                    :: SX,SY,SXY          ! In-plane strains in plate elements
       REAL(DOUBLE)                    :: SXZ,SYZ            ! Transverse shear strains in plate elements
-      REAL(DOUBLE)                    :: SXYMAX             ! Max shear strain in plate elems (calc'd in subr PRINCIPAL_2D)
+      REAL(DOUBLE)                    :: SXYMAX             ! Max shear strain in plate elems
       REAL(DOUBLE)                    :: VONMISES           ! von Mises strain
+      REAL(DOUBLE)                    :: FIBER_Z            ! Value for the fiber distance or strain curvature column.
       LOGICAL                         :: WRITE_NEU
 
       INTRINSIC DMAX1,DMIN1
@@ -87,7 +91,7 @@
             SXY = STRAIN(3)
             SXZ = STRAIN(7)
             SYZ = STRAIN(8)
-            CALL PRINCIPAL_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
+            CALL PRINCIPAL_STRAIN_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
             IF (WRITE_OGEL == 'Y') THEN
                NUM1 = NUM1 + 1
                IF (NUM1 > SIZE_ALLOCATED) THEN
@@ -176,12 +180,20 @@
             ENDIF
 
             DO I=1,NUM_ROWS
-               SX  = STRAIN(1) + ZS(I)*STRAIN(4)
-               SY  = STRAIN(2) + ZS(I)*STRAIN(5)
-               SXY = STRAIN(3) + ZS(I)*STRAIN(6)
+               IF      (STRN_CUR == 'FIBER') THEN
+                  FIBER_Z = ZS(I)
+                  SX  = STRAIN(1) + ZS(I)*STRAIN(4)
+                  SY  = STRAIN(2) + ZS(I)*STRAIN(5)
+                  SXY = STRAIN(3) + ZS(I)*STRAIN(6)
+               ELSE
+                  FIBER_Z = 1 - I                          ! 0 for membrane strain row and -1 for curvature row.
+                  SX  = (FIBER_Z + 1) * STRAIN(1) + FIBER_Z * STRAIN(4)
+                  SY  = (FIBER_Z + 1) * STRAIN(2) + FIBER_Z * STRAIN(5)
+                  SXY = (FIBER_Z + 1) * STRAIN(3) + FIBER_Z * STRAIN(6)
+               ENDIF
                SXZ = STRAIN(7)
                SYZ = STRAIN(8)
-               CALL PRINCIPAL_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
+               CALL PRINCIPAL_STRAIN_2D ( SX, SY, SXY, ANGLE, SMAJ, SMIN, SXYMAX, MEAN, VONMISES )
                IF (WRITE_OGEL == 'Y') THEN
                   NUM1 = NUM1 + 1
                   IF (NUM1 > SIZE_ALLOCATED) THEN
@@ -198,7 +210,7 @@
                         OGEL(NUM1,J) = ZERO
                      ENDDO
                   ELSE
-                     OGEL(NUM1, 1) = ZS(I)
+                     OGEL(NUM1, 1) = FIBER_Z
                      OGEL(NUM1, 2) = SX
                      OGEL(NUM1, 3) = SY
                      OGEL(NUM1, 4) = SXY
@@ -291,7 +303,6 @@
 
  9205 FORMAT(' *ERROR  9205: PROGRAMMING ERROR IN SUBROUTINE ',A                                                                   &
                     ,/,14X,' INVALID ',A,' FAILURE THEORY = ',A,'. VALID ONES ARE: ',A)
-
 
 
 ! **********************************************************************************************************************************

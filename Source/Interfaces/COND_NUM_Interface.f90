@@ -37,7 +37,6 @@
       USE CONSTANTS_1, ONLY           :  ZERO
       USE PARAMS, ONLY                :  ITMAX
       USE TIMDAT, ONLY                :  TSEC
-      USE LAPACK_LIN_EQN_DPB
 
       IMPLICIT NONE
 

@@ -230,13 +230,7 @@
 
 opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6) == 'Y')) THEN
 
-         DO I=1,6
-            DO J=1,3*ELGP
-               DO K=1,IORD_IJ*IORD_K
-                  B(I,J,K) = ZERO
-               ENDDO
-            ENDDO
-         ENDDO
+         B = ZERO
 
          IORD_MSG = 'for triangular-cross section x z direction  = '
          GAUSS_PT = 0
@@ -365,10 +359,8 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
 
          DO N=1,NTSUB
 
-            DO L=1,3*ELGP
-               DUM0(L) = ZERO
-               DUM1(L) = ZERO
-            ENDDO
+            DUM0 = ZERO
+            DUM1 = ZERO
 
             IORD_MSG = ' '
             GAUSS_PT = 0
@@ -430,11 +422,7 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
               SSI =  0; SSJ = +1; SSK = +1
           END SELECT
 
-          DO K=1,6
-            DO L=1,3*ELGP
-               DUM2(K,L) = ZERO
-            ENDDO
-          ENDDO
+         DUM2 = ZERO
 
           IORD_MSG = 'for triangular-cross section x z direction  = '
           CALL SHP3DP ( 1, 1, 1, ELGP, SUBR_NAME, IORD_MSG, 1, 1, SSI, SSJ, SSK, 'N', PSH, DPSHG )
@@ -472,11 +460,7 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
 
       IF (OPT(4) == 'Y') THEN
 
-         DO I=1,3*ELGP
-            DO J=1,3*ELGP
-               DUM3(I,J) = ZERO
-            ENDDO
-         ENDDO
+         DUM3 = ZERO
 
          IORD_MSG = ' '
          GAUSS_PT = 0
@@ -537,11 +521,7 @@ opt234:IF ((OPT(2) == 'Y') .OR. (OPT(3) == 'Y') .OR. (OPT(4) == 'Y') .OR. (OPT(6
         KWW(3,1) = KWW(1,3)
         KWW(3,2) = KWW(2,3)
 
-        DO I=1,3*ELGP
-          DO J=1,3*ELGP
-            DUM3(I,J) = ZERO
-          ENDDO
-        ENDDO
+        DUM3 = ZERO
 
                                                            ! KED = int( CBAR^T * KWW * CBAR , dV)
         IORD_MSG = ' '

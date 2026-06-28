@@ -454,11 +454,11 @@
 !                                                              If 'NONSYM', all nonzero terms are stored
 
 ! ----------------------------------------------------------------------------------------------------------------------------------
-      INTEGER(LONG)            :: STR_CID        =    -1     ! Indicator for the coordinate system to use ID for elem stress, strain
+      INTEGER(LONG)            :: STR_CID        =    -2     ! Indicator for the coordinate system to use ID for elem stress, strain
 !                                                              and emgineering force output:
 !                                                              -2 is material coordinate system for solids and local element
-!                                                                 coord system for other element types
-!                                                              -1 is local element coord system (default)
+!                                                                 coord system for other element types (default)
+!                                                              -1 is local element coord system
 !                                                               0 is basic coord system
 !                                                               j (any other integer) is a defined coord system for output
 
@@ -504,9 +504,9 @@
       INTEGER(LONG)            :: F06_COL_START  =     0     ! 1st col in F06 file for output data to begin. If it is not > 2, then
 !                                                              output will be written with each main header centered on one another
 
-      INTEGER(LONG)            :: SPIENV6        =   100     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(6)
-      INTEGER(LONG)            :: SPIENV7        =   100     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(7)
-      INTEGER(LONG)            :: SPIENV8        =    50     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(8)
+      INTEGER(LONG)            :: SPIENV6        =   50     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(6)
+      INTEGER(LONG)            :: SPIENV7        =   50     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(7)
+      INTEGER(LONG)            :: SPIENV8        =   30     ! Memory growth factor for SuperLU_MT -- corresponds to -sp_ienv(8)
 
       INTEGER(LONG)            :: SLU_NTHR        =    0     ! Number of threads for SuperLU_MT.
                                                              ! Using 0 will use as many threads as the system has.

@@ -103,46 +103,38 @@
       FIELD5_INT_MODE = 0
       FIELD6_EIGENVALUE = 0.0
 
-      WRITE_F06 = (FORC_OUT(1:1) == 'Y')
-      WRITE_OP2 = (FORC_OUT(2:2) == 'Y')
+      WRITE_F06 = FORC_OUT%WRITE_F06
+      WRITE_OP2 = FORC_OUT%WRITE_OP2
 
 
 headr:IF (IHDR == 'Y') THEN
 
          !--- Subcase num, TITLE, SUBT, LABEL:
-         IF(WRITE_F06) WRITE(F06,*)
-         IF(WRITE_F06) WRITE(F06,*)
+         CALL WRITE_SUBCASE_EIGENVEC_HEADER(JSUB, WRITE_F06)
          ISUBCASE_INDEX = 0
          IF    (SOL_NAME(1:7) == 'STATICS') THEN
             ISUBCASE_INDEX = JSUB ! statics
             ANALYSIS_CODE = 1
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF(WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
          ELSE IF (SOL_NAME(1:8) == 'NLSTATIC') THEN
             ISUBCASE_INDEX = 1
             ANALYSIS_CODE = 10
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF(WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
 
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 1)) THEN
             ISUBCASE_INDEX = 1
             ANALYSIS_CODE = 1
             FIELD5_INT_MODE = SCNUM(JSUB)
-            IF(WRITE_F06) WRITE(F06,101) SCNUM(JSUB)
 
          ELSE IF ((SOL_NAME(1:8) == 'BUCKLING') .AND. (LOAD_ISTEP == 2)) THEN
             ISUBCASE_INDEX = 2
             ANALYSIS_CODE = 7
             FIELD5_INT_MODE = JSUB
-            ! FIELD6_EIGENVALUE = ????
-            IF(WRITE_F06) WRITE(F06,102) JSUB
 
          ELSE IF (SOL_NAME(1:5) == 'MODES') THEN
             ISUBCASE_INDEX = 1
             ANALYSIS_CODE = 2
             FIELD5_INT_MODE = JSUB
-            ! FIELD6_EIGENVALUE = ????
-            IF(WRITE_F06) WRITE(F06,102) JSUB
 
          ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN
             ! Write info on what CB DOF the output is for
@@ -173,19 +165,6 @@ headr:IF (IHDR == 'Y') THEN
          LABELI = LABEL(INT_SC_NUM)
 
          IF(WRITE_F06) THEN
-             IF (TITLE(INT_SC_NUM)(1:)  /= ' ') THEN
-                WRITE(F06,201) TITLE(INT_SC_NUM)
-             ENDIF
-
-             IF (STITLE(INT_SC_NUM)(1:) /= ' ') THEN
-                WRITE(F06,201) STITLE(INT_SC_NUM)
-             ENDIF
-
-             IF (LABEL(INT_SC_NUM)(1:)  /= ' ') THEN
-                WRITE(F06,201) LABEL(INT_SC_NUM)
-             ENDIF
-
-             WRITE(F06,*)
 
              !--- 1st 2 lines of element specific headers - general info on what type of output:
              IF      (TYPE(1:3) == 'BAR') THEN
@@ -401,6 +380,8 @@ headr:IF (IHDR == 'Y') THEN
               ELEMENT_TYPE = 74
           ELSE IF (TYPE == 'QUAD4   ') THEN
               ELEMENT_TYPE = 33  ! todo: verify no ELEMENT_TYPE=144
+          ELSE IF (TYPE == 'QUAD8   ') THEN
+              ELEMENT_TYPE = 64
           !ELSE
           !   error
           ENDIF

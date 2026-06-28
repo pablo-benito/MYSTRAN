@@ -65,11 +65,8 @@
 ! **********************************************************************************************************************************
       EPS1   = EPSIL(1)
 
-      DO I=1,6                                             ! 3D material matrix
-         DO J=1,6
-            ES(I,J) = ZERO
-         ENDDO
-      ENDDO
+      ! 3D material matrix
+      ES = ZERO
 
       IF (MTRL_TYPE(1) == 1) THEN                          ! Isotropic properties
 

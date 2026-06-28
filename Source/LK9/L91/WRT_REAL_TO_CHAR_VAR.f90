@@ -49,14 +49,14 @@
       REAL(DOUBLE) , INTENT(IN)       :: REAL_VAR(NROWS,NCOLS)!
 
 ! **********************************************************************************************************************************
-      DO J=1,NCOLS
-         CHAR_VAR(J)(1:) = ' '
-      ENDDO
+! FMT_ES14_6 produces the same 14-char output as Fortran's 1ES14.6 edit descriptor but avoids the
+! per-value internal WRITE overhead. Exact zeros are then overwritten with this routine's historical
+! '  0.0         ' substitution so the F06 output stays bit-identical.
       DO J=1,NCOLS
          IF (ABS(REAL_VAR(ROW_NUM,J)) == ZERO) THEN
-            WRITE(CHAR_VAR(J),'(A)') '  0.0         '
+            CHAR_VAR(J) = '  0.0         '
          ELSE
-            WRITE(CHAR_VAR(J),'(1ES14.6)') REAL_VAR(ROW_NUM,J)
+            CALL FMT_ES14_6 ( REAL_VAR(ROW_NUM,J), CHAR_VAR(J) )
          ENDIF
       ENDDO
 
@@ -65,4 +65,3 @@
 ! **********************************************************************************************************************************
 
       END SUBROUTINE WRT_REAL_TO_CHAR_VAR
-

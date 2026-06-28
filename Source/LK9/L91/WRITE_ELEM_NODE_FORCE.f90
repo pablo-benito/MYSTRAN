@@ -36,7 +36,7 @@
       USE CONSTANTS_1, ONLY           :  ZERO
       USE DEBUG_PARAMETERS, ONLY      :  DEBUG
       USE LINK9_STUFF, ONLY           :  GID_OUT_ARRAY, EID_OUT_ARRAY, MAXREQ, OGEL
-      USE MODEL_STUF, ONLY            :  ELEM_ONAME, LABEL, SCNUM, STITLE, TITLE
+      USE MODEL_STUF, ONLY            :  ELEM_ONAME, SCNUM
       USE MACHINE_PARAMS, ONLY        :  MACH_LARGE_NUM
 
       USE WRITE_ELEM_NODE_FORCE_USE_IFs
@@ -78,17 +78,8 @@
 
       IF (IHDR == 'Y') THEN
 
-         WRITE(F06,*)
-         WRITE(F06,*)
-         IF    ((SOL_NAME(1:7) == 'STATICS') .OR. (SOL_NAME(1:8) == 'NLSTATIC')) THEN
-
-            WRITE(F06,9101) SCNUM(JSUB)
-
-         ELSE IF (SOL_NAME(1:5) == 'MODES') THEN
-
-            WRITE(F06,9102) JSUB
-
-         ELSE IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN   ! Write info on what CB DOF the output is for
+         CALL WRITE_SUBCASE_EIGENVEC_HEADER(JSUB, .TRUE.)
+         IF (SOL_NAME(1:12) == 'GEN CB MODEL') THEN   ! Write info on what CB DOF the output is for
 
             IF ((JSUB <= NDOFR) .OR. (JSUB >= NDOFR+NVEC)) THEN
                IF (JSUB <= NDOFR) THEN
@@ -108,20 +99,6 @@
             ENDIF
 
          ENDIF
-
-         IF (TITLE(INT_SC_NUM)(1:)  /= ' ') THEN
-            WRITE(F06,9113) TITLE(INT_SC_NUM)
-         ENDIF
-
-         IF (STITLE(INT_SC_NUM)(1:) /= ' ') THEN
-            WRITE(F06,9113) STITLE(INT_SC_NUM)
-         ENDIF
-
-         IF (LABEL(INT_SC_NUM)(1:)  /= ' ') THEN
-            WRITE(F06,9113) LABEL(INT_SC_NUM)
-         ENDIF
-
-         WRITE(F06,*)
 
          IF      (ELFORCEN == 'LOCAL') THEN
             FORCE_COORD_SYS = 'L O C A L'
