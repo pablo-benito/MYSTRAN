@@ -103,8 +103,8 @@
       FIELD5_INT_MODE = 0
       FIELD6_EIGENVALUE = 0.0
 
-      WRITE_F06 = (FORC_OUT(1:1) == 'Y')
-      WRITE_OP2 = (FORC_OUT(2:2) == 'Y')
+      WRITE_F06 = FORC_OUT%WRITE_F06
+      WRITE_OP2 = FORC_OUT%WRITE_OP2
 
 
 headr:IF (IHDR == 'Y') THEN

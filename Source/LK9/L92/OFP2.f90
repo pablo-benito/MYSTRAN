@@ -283,9 +283,9 @@
 
                IF ((NUM == NREQ) .AND. (SC_OUT_REQ > 0)) THEN
 
-                  WRITE_F06 = (SPCF_OUT(1:1) == 'Y')
-                  WRITE_OP2 = (SPCF_OUT(2:2) == 'Y')
-                  WRITE_PCH = (SPCF_OUT(3:3) == 'Y')
+                  WRITE_F06 = SPCF_OUT%WRITE_F06
+                  WRITE_OP2 = SPCF_OUT%WRITE_OP2
+                  WRITE_PCH = SPCF_OUT%WRITE_PCH
                   IF (WRITE_OP2) THEN
                      CALL WRITE_GRD_OP2_OUTPUTS ( JVEC, NUM, WHAT, ITABLE, NEW_RESULT )
                      NEW_RESULT = .FALSE.
@@ -571,9 +571,9 @@
 
                IF ((NUM == NREQ) .AND. (SC_OUT_REQ > 0)) THEN
 
-                  WRITE_F06 = (MPCF_OUT(1:1) == 'Y')
-                  WRITE_OP2 = (MPCF_OUT(2:2) == 'Y')
-                  WRITE_PCH = (MPCF_OUT(3:3) == 'Y')
+                  WRITE_F06 = MPCF_OUT%WRITE_F06
+                  WRITE_OP2 = MPCF_OUT%WRITE_OP2
+                  WRITE_PCH = MPCF_OUT%WRITE_PCH
                   IF (WRITE_OP2) THEN
                      CALL WRITE_GRD_OP2_OUTPUTS ( JVEC, NUM, WHAT, ITABLE, NEW_RESULT )
                      NEW_RESULT = .FALSE.

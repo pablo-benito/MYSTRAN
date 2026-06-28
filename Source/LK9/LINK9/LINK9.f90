@@ -196,28 +196,28 @@
       !IF (PRTNEU == 'Y') THEN
       !   DEBUG(200) = 1
       !ENDIF
-      IF (PRTF06 == 'Y') THEN
-         DISP_OUT(1:1) = 'Y'  ! f06
-         ACCE_OUT(2:2) = 'Y'
-         OLOA_OUT(1:1) = 'Y'
-         SPCF_OUT(1:1) = 'Y'
-         MPCF_OUT(1:1) = 'Y'
-         STRE_OUT(1:1) = 'Y'
-         STRN_OUT(1:1) = 'Y'
-         FORC_OUT(1:1) = 'Y'
-         GPFO_OUT(1:1) = 'Y'
-      ENDIF
-      IF (PRTOP2 == 'Y') THEN
-         DISP_OUT(2:2) = 'Y'  ! op2
-         ACCE_OUT(2:2) = 'Y'
-         OLOA_OUT(2:2) = 'Y'
-         SPCF_OUT(2:2) = 'Y'
-         MPCF_OUT(2:2) = 'Y'
-         STRE_OUT(2:2) = 'Y'
-         STRN_OUT(2:2) = 'Y'
-         FORC_OUT(2:2) = 'Y'
-         GPFO_OUT(2:2) = 'Y'
-      ENDIF
+      ! IF (PRTF06 == 'Y') THEN
+      !    DISP_OUT(1:1) = 'Y'  ! f06
+      !    ACCE_OUT(2:2) = 'Y'
+      !    OLOA_OUT(1:1) = 'Y'
+      !    SPCF_OUT(1:1) = 'Y'
+      !    MPCF_OUT(1:1) = 'Y'
+      !    STRE_OUT(1:1) = 'Y'
+      !    STRN_OUT(1:1) = 'Y'
+      !    FORC_OUT(1:1) = 'Y'
+      !    GPFO_OUT(1:1) = 'Y'
+      ! ENDIF
+      ! IF (PRTOP2 == 'Y') THEN
+      !    DISP_OUT(2:2) = 'Y'  ! op2
+      !    ACCE_OUT(2:2) = 'Y'
+      !    OLOA_OUT(2:2) = 'Y'
+      !    SPCF_OUT(2:2) = 'Y'
+      !    MPCF_OUT(2:2) = 'Y'
+      !    STRE_OUT(2:2) = 'Y'
+      !    STRN_OUT(2:2) = 'Y'
+      !    FORC_OUT(2:2) = 'Y'
+      !    GPFO_OUT(2:2) = 'Y'
+      ! ENDIF
       !DISP_OUT(3:3) = 'Y'  ! pch
       !------------------------------------------------------------------------
 
@@ -229,9 +229,9 @@
       OUNT(1) = ERR
       OUNT(2) = F06
 
-      WRITE_F06 = (DISP_OUT(1:1) == 'Y')
-      WRITE_OP2 = (DISP_OUT(2:2) == 'Y')
-      WRITE_PCH = (DISP_OUT(3:3) == 'Y')
+      WRITE_F06 = DISP_OUT%WRITE_F06
+      WRITE_OP2 = DISP_OUT%WRITE_OP2
+      WRITE_PCH = DISP_OUT%WRITE_PCH
       IF (WRITE_PCH) THEN
          INQUIRE (FILE=PCHFIL, OPENED=LOPEN)
          IF (.NOT.LOPEN) THEN                          ! Otherwise we assume it is positioned at its end and ready for write

@@ -139,8 +139,8 @@
       FIELD5_INT_MODE = 0
       !FIELD5_FLOAT_TIME_FREQ = 0.0
       FIELD6_EIGENVALUE = 0.0
-      WRITE_F06 = (STRE_OUT(1:1) == 'Y')
-      WRITE_OP2 = (STRE_OUT(2:2) == 'Y')
+      WRITE_F06 = STRE_OUT%WRITE_F06
+      WRITE_OP2 = STRE_OUT%WRITE_OP2
 
       IF (IHEADER == 'Y') THEN
          ! -- F06 header: OUTPUT FOR SUBCASE, EIGENVECTOR or CRAIG-BAMPTON DOF
@@ -487,7 +487,7 @@
          CALL GET_STRESS_CODE( STRESS_CODE, 1,            0,         1)
 
          IF (WRITE_OP2) THEN
-         
+
            IF ((STRE_LOC == 'CENTER  ') .AND. (TYPE(1:5) /= 'QUAD8')) THEN
               ! CQUAD4-33
   2           FORMAT(' *DEBUG:  WRITE_CQUAD4-33:  NUM=',I4, " NUM_PTS=", I4, " STRE_LOC=",A,"ITABLE=",I4)
@@ -545,7 +545,7 @@
          ENDIF  ! end of op2
 
          IF (WRITE_F06) THEN
-         
+
             K = 0
             DO I=1,NUM,NUM_PTS
  4             FORMAT(' *DEBUG:  WRITE_CQUAD4-144:  I=',I4, " K=", I4)

@@ -6,7 +6,7 @@
       integer, intent(in)  :: POST
       character(len=28)    :: TAPE_CODE
       character(len=8)     :: NASTRAN_VERSION
-      IF (POST == -1) THEN
+      IF (POST /= -2) THEN
         !_write_markers(op2, op2_ascii, [3, 0, 7])
         WRITE(OP2) 3
         WRITE(OP2) 3, 24, 2021-2000  ! date
@@ -34,7 +34,7 @@
         WRITE(OP2) 0
 !       fop2.write(pack(endian + b'6i', *[4, -1, 4,
 !                                         4, 0, 4,]))
-      ELSE IF(POST == -2) THEN
+      ELSE
 !       write_markers(fop2_ascii, [2, 4])
         WRITE(OP2) 2
         WRITE(OP2) 4
