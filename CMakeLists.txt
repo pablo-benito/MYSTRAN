@@ -587,8 +587,8 @@ else()
   elseif(_SYS_BLAS_SIG MATCHES "blas")
     # Generic Reference-BLAS / netlib install on the system.
     set(_SYS_BLAS_TAG "REFBLAS")
-    set(_SYS_BLAS_LIBNAME "Reference BLAS/LAPACK")
-    set(_SYS_BLAS_DESC "system BLAS+LAPACK (Reference-LAPACK / netlib)")
+    set(_SYS_BLAS_LIBNAME "Netlib LAPACK")
+    set(_SYS_BLAS_DESC "system BLAS+LAPACK")
     set(_SYS_BLAS_LICENSE_PATH "extra_licenses/netlib-blas-lapack.txt")
   endif()
 
